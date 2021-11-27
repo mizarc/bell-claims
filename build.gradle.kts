@@ -19,6 +19,9 @@ repositories {
     maven {
         url = uri("https://oss.sonatype.org/content/repositories/central")
     }
+    maven {
+        url = uri("https://repo.aikar.co/content/groups/aikar/")
+    }
     mavenLocal()
 }
 
@@ -26,6 +29,7 @@ dependencies {
     testImplementation(kotlin("test"))
     compileOnly("org.spigotmc:spigot-api:1.18-pre8-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("co.aikar:acf-paper:0.5.0-SNAPSHOT")
 }
 
 tasks.test {
