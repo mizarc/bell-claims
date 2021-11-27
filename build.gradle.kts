@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.6.0"
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
@@ -25,6 +25,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     compileOnly("org.spigotmc:spigot-api:1.18-pre8-R0.1-SNAPSHOT")
+    shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
 
 tasks.test {
