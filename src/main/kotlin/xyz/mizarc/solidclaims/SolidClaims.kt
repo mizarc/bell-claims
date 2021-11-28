@@ -6,7 +6,16 @@ import org.bukkit.plugin.java.JavaPlugin
 class SolidClaims : JavaPlugin() {
     internal var commandManager: PaperCommandManager = PaperCommandManager(this)
 
+    companion object {
+        internal lateinit var instance: SolidClaims
+    }
+
+    init {
+        instance = this
+    }
+
     override fun onEnable() {
+        server.pluginManager.registerEvents(ClaimEventHandler(), this)
         logger.info("SolidClaims has been Enabled")
     }
 
