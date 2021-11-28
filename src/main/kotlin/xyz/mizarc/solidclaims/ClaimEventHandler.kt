@@ -18,7 +18,7 @@ class ClaimEventHandler : Listener {
         if (event is Cancellable) {
             event.isCancelled = true
             if (event is PlayerEvent) {
-                event.player.sendMessage("Fuck you bitch!")
+                event.player.sendMessage("This should be a PlayerBedEnterEvent")
             }
         }
     }
