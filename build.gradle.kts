@@ -32,10 +32,16 @@ dependencies {
     implementation("co.aikar:acf-paper:0.5.0-SNAPSHOT")
 }
 
+tasks.shadowJar {
+    relocate("co.aikar.commands", "xyz.mizarc.solidclaims.acf")
+    relocate("co.aikar.locales", "xyz.mizarc.solidclaims.locales")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
+    kotlinOptions.javaParameters = true
 }
