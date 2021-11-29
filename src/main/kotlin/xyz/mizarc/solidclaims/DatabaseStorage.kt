@@ -8,7 +8,6 @@ import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 class DatabaseStorage(var plugin: SolidClaims) {
     private lateinit var connection: Connection
 
@@ -18,6 +17,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 "jdbc:sqlite:" + plugin.dataFolder.toString() + "/claims.db"
             )
             createClaimTable()
+            createClaimPartitionTable()
             createPlayerTable()
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -92,6 +92,18 @@ class DatabaseStorage(var plugin: SolidClaims) {
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
                 "owner TEXT NOT NULL);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    private fun createClaimPartitionTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (claimId TEXT, firstLocationX INTEGER NOT NULL," +
+                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
