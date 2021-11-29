@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.claims.Player
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
