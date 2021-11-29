@@ -18,6 +18,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 "jdbc:sqlite:" + plugin.dataFolder.toString() + "/claims.db"
             )
             createClaimTable()
+            createPlayerTable()
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -32,18 +33,29 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     fun getClaim(id: Int): Claim? {
-        val sqlSelect = "SELECT * FROM claims WHERE id=?"
-
         try {
-            val statement = connection.prepareStatement(sqlSelect)
+            // Get specified claim
+            val sqlQuery = "SELECT * FROM claims WHERE id=?"
+            val statement = connection.prepareStatement(sqlQuery)
             statement.setInt(1, id)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
+
+                // Get all players trusted in claim
+                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?"
+                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
+                playerStatement.setInt(1, resultSet.getInt(1))
+                val playerResultSet = statement.executeQuery()
+                val players: ArrayList<Player> = ArrayList()
+                while (playerResultSet.next()) {
+                    players.add(Player(UUID.fromString(playerResultSet.getString(1))))
+                }
+
                 return Claim(
                     resultSet.getInt(1),
-                    resultSet.getString(2),
+                    UUID.fromString(resultSet.getString(2)),
                     UUID.fromString(resultSet.getString(3)),
-                    UUID.fromString(resultSet.getString(4)),
+                    players,
                 )
             }
         } catch (error: SQLException) {
