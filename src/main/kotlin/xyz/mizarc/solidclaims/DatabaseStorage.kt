@@ -35,14 +35,14 @@ class DatabaseStorage(var plugin: SolidClaims) {
     fun getClaim(id: Int): Claim? {
         try {
             // Get specified claim
-            val sqlQuery = "SELECT * FROM claims WHERE id=?"
+            val sqlQuery = "SELECT * FROM claims WHERE id=?;"
             val statement = connection.prepareStatement(sqlQuery)
             statement.setInt(1, id)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
 
                 // Get all players trusted in claim
-                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?"
+                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
                 val playerStatement = connection.prepareStatement(sqlPlayerQuery)
                 playerStatement.setInt(1, resultSet.getInt(1))
                 val playerResultSet = statement.executeQuery()
@@ -66,7 +66,27 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     fun addClaim(world: UUID, owner: UUID) {
+        val sqlQuery = "INSERT INTO claims (owner) VALUES (?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, owner.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
 
+    fun removeClaim(id: UUID) {
+        val sqlQuery = "DELETE FROM claims WHERE id=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, id.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
     }
 
     private fun createClaimTable() {
