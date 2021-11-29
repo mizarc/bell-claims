@@ -81,4 +81,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    private fun createPlayerTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS players (id INTEGER PRIMARY KEY, claimOwner TEXT, " +
+                "claimId INTEGER, permission TEXT, FOREIGN KEY(claim) REFERENCES claims(id));"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
 }
