@@ -9,7 +9,7 @@ import co.aikar.commands.annotation.Syntax
 import org.bukkit.command.CommandSender
 import xyz.mizarc.solidclaims.SolidClaims
 
-class Claim : BaseCommand() {
+class ClaimCommand : BaseCommand() {
     @Dependency
     lateinit var plugin : SolidClaims
 
