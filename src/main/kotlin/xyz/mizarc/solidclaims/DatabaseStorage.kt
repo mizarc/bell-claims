@@ -5,6 +5,8 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.*
+import kotlin.collections.ArrayList
+
 
 class DatabaseStorage(var plugin: SolidClaims) {
     private lateinit var connection: Connection
@@ -14,6 +16,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
             connection = DriverManager.getConnection(
                 "jdbc:sqlite:" + plugin.dataFolder.toString() + "/claims.db"
             )
+            createClaimTable()
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -48,4 +51,21 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
         return null
     }
+
+    fun addClaim(world: UUID, owner: UUID) {
+
+    }
+
+    private fun createClaimTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "owner TEXT NOT NULL);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
 }
