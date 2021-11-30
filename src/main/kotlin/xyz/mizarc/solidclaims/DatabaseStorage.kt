@@ -92,14 +92,24 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun getClaimPartitionsByClaim(claim: Claim) : ArrayList<ClaimPartition>? {
-        val sqlQuery = "SELECT * FROM claims WHERE claimId=?;"
+    fun getAllClaimPartitions(claims: ArrayList<Claim>) : ArrayList<ClaimPartition>? {
+        val claimPartitions: ArrayList<ClaimPartition> = arrayListOf()
+        for (claim in claims) {
+            claimPartitions.addAll(getClaimPartitionsByClaim(claim))
+        }
 
+        return claimPartitions
+    }
+
+    fun getClaimPartitionsByClaim(claim: Claim) : ArrayList<ClaimPartition> {
+        val sqlQuery = "SELECT * FROM claimPartitions WHERE claimId=?;"
+
+        val claims : ArrayList<ClaimPartition> = arrayListOf()
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claim.id.toString())
             val resultSet = statement.executeQuery()
-            val claims : ArrayList<ClaimPartition> = arrayListOf()
+
             while (resultSet.next()) {
                 claims.add(ClaimPartition(claim,
                     Pair(resultSet.getInt(2), resultSet.getInt(3)),
@@ -109,7 +119,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
             error.printStackTrace()
         }
 
-        return null
+        return claims
     }
 
     fun addClaimPartition(id: UUID, firstLocationX: Int, firstLocationZ: Int,
