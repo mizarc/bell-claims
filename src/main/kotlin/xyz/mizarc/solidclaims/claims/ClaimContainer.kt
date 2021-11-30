@@ -82,8 +82,8 @@ class ClaimContainer {
     }
 
     fun addClaimPartition(claim: Claim, firstPositionX: Int, firstPositionZ: Int,
-                          secondPositionX: Int, secondPositionZ: Int) {
-        addClaimPartition(claim,
+                          secondPositionX: Int, secondPositionZ: Int) : Boolean {
+        return addClaimPartition(claim,
             Location(claim.getWorld(), firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
             Location(claim.getWorld(), secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
     }
