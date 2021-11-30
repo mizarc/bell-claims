@@ -5,6 +5,6 @@ import org.bukkit.World
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Claim(var id: UUID, var world: World, var owner: OfflinePlayer, var players: ArrayList<Player>) {
-    constructor(world: World, owner: OfflinePlayer) : this(UUID.randomUUID(), world, owner, ArrayList())
+class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, var players: ArrayList<Player>) {
+    constructor(worldId: UUID, owner: OfflinePlayer) : this(UUID.randomUUID(), worldId, owner, ArrayList())
 }

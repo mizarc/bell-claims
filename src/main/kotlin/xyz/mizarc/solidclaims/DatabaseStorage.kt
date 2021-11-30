@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims
 
+import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.Player
 import java.sql.Connection
@@ -52,9 +53,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 }
 
                 return Claim(
-                    resultSet.getInt(1),
+                    UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
-                    UUID.fromString(resultSet.getString(3)),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     players,
                 )
             }
