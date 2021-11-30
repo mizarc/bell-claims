@@ -124,6 +124,35 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    fun addGlobalPlayerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
+        val sqlQuery = "INSERT INTO players (playerId, claimOwnerId, permission) VALUES (?,?,?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            statement.setString(2, claimOwnerId.toString())
+            statement.setString(3, permission)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeGlobalPlayerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
+        val sqlQuery = "DELETE FROM players WHERE playerId=? AND claimOwnerId=? AND permission=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            statement.setString(2, claimOwnerId.toString())
+            statement.setString(3, permission)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
                 "owner TEXT NOT NULL);"
@@ -149,7 +178,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     private fun createPlayerTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS players (playerId TEXT, claimOwner TEXT, " +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS players (playerId TEXT, claimOwnerId TEXT, " +
                 "claimId INTEGER, permission TEXT, FOREIGN KEY(claim) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)
@@ -159,5 +188,4 @@ class DatabaseStorage(var plugin: SolidClaims) {
             error.printStackTrace()
         }
     }
-
 }
