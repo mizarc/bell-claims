@@ -89,6 +89,41 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    fun addClaimPartition(id: UUID, firstLocationX: Int, firstLocationZ: Int,
+                          secondLocationX: Int, secondLocationZ: Int) {
+        val sqlQuery = "INSERT INTO claimPartitions (claimId, firstLocationX, firstLocationZ, " +
+                "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, id.toString())
+            statement.setInt(2, firstLocationX)
+            statement.setInt(3, firstLocationZ)
+            statement.setInt(4, secondLocationX)
+            statement.setInt(5, secondLocationZ)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaimPartition(firstLocationX: Int, firstLocationZ: Int,
+                          secondLocationX: Int, secondLocationZ: Int) {
+        val sqlQuery = "DELETE FROM claimPartitions WHERE firstLocationX=? AND firstLocationZ=? AND " +
+                "secondLocationX=? AND secondLocationZ=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, firstLocationX)
+            statement.setInt(2, firstLocationZ)
+            statement.setInt(3, secondLocationX)
+            statement.setInt(4, secondLocationZ)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
                 "owner TEXT NOT NULL);"
@@ -102,7 +137,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     private fun createClaimPartitionTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (claimId TEXT, firstLocationX INTEGER NOT NULL," +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
                 "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
