@@ -59,10 +59,17 @@ class ClaimContainer {
         claims.add(Claim(worldId, owner))
     }
 
-    fun addClaimPartition(claim: Claim, firstLocation: Location, secondLocation: Location) {
-        claimPartitions.add(ClaimPartition(claim, firstLocation, secondLocation))
+    fun addClaimPartition(claim: Claim, firstLocation: Location, secondLocation: Location) : Boolean {
+        // Check if partition in defined location already exists
+        for (claimPartition in claimPartitions) {
+            if (claimPartition.firstPosition == firstLocation && claimPartition.secondPosition == secondLocation) {
+                return false
+            }
+        }
 
+        // Add partition to both flat array and chunk map
         val claimPartition = ClaimPartition(claim, firstLocation, secondLocation)
+        claimPartitions.add(claimPartition)
         val claimChunks = getClaimChunks(firstLocation, secondLocation)
         for (chunk in claimChunks) {
             if (chunkClaimPartitions[chunk] == null) {
@@ -70,6 +77,8 @@ class ClaimContainer {
             }
             chunkClaimPartitions[chunk]?.add(claimPartition)
         }
+
+        return true
     }
 
     fun addClaimPartition(claim: Claim, firstPositionX: Int, firstPositionZ: Int,
