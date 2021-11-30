@@ -3,6 +3,8 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ClaimContainer {
     lateinit var claims: ArrayList<Claim>
@@ -14,7 +16,7 @@ class ClaimContainer {
     }
 
     fun getChunkLocation(claim: Claim, positionX: Int, positionZ: Int) {
-        getChunkLocation(Location(claim.world, positionX.toDouble(), 0.0, positionZ.toDouble()))
+        getChunkLocation(Location(claim.getWorld(), positionX.toDouble(), 0.0, positionZ.toDouble()))
     }
 
     fun getClaimsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
@@ -53,8 +55,8 @@ class ClaimContainer {
         return null
     }
 
-    fun addClaim(world: World, owner: OfflinePlayer) {
-        claims.add(Claim(world, owner))
+    fun addClaim(worldId: UUID, owner: OfflinePlayer) {
+        claims.add(Claim(worldId, owner))
     }
 
     fun addClaimPartition(claim: Claim, firstLocation: Location, secondLocation: Location) {
@@ -73,7 +75,7 @@ class ClaimContainer {
     fun addClaimPartition(claim: Claim, firstPositionX: Int, firstPositionZ: Int,
                           secondPositionX: Int, secondPositionZ: Int) {
         addClaimPartition(claim,
-            Location(claim.world, firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
-            Location(claim.world, secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
+            Location(claim.getWorld(), firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
+            Location(claim.getWorld(), secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
     }
 }
