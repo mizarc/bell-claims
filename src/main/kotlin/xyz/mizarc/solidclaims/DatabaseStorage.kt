@@ -34,12 +34,48 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun getClaim(id: Int): Claim? {
+    fun getAllClaims() : ArrayList<Claim>? {
+        val claims: ArrayList<Claim> = arrayListOf()
+
+        try {
+            // Get all claims
+            val sqlQuery = "SELECT * FROM claims;"
+            val statement = connection.prepareStatement(sqlQuery)
+            val resultSet = statement.executeQuery()
+            while (resultSet.next()) {
+
+                // Get all players trusted in claim
+                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
+                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
+                playerStatement.setInt(1, resultSet.getInt(1))
+                val playerResultSet = statement.executeQuery()
+                val players: ArrayList<Player> = ArrayList()
+                while (playerResultSet.next()) {
+                    players.add(Player(UUID.fromString(playerResultSet.getString(1))))
+                }
+
+                claims.add(Claim(
+                    UUID.fromString(resultSet.getString(1)),
+                    UUID.fromString(resultSet.getString(2)),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    players
+                ))
+            }
+            return claims
+
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    fun getClaim(id: UUID): Claim? {
         try {
             // Get specified claim
             val sqlQuery = "SELECT * FROM claims WHERE id=?;"
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, id)
+            statement.setString(1, id.toString())
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
 
