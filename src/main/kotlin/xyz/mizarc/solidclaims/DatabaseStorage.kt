@@ -124,7 +124,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun addGlobalPlayerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
+    fun addPlayerGlobalPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
         val sqlQuery = "INSERT INTO players (playerId, claimOwnerId, permission) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
@@ -138,7 +138,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun removeGlobalPlayerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
+    fun removePlayerGlobalPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
         val sqlQuery = "DELETE FROM players WHERE playerId=? AND claimOwnerId=? AND permission=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
