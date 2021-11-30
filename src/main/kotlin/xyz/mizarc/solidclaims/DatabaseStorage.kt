@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.Player
 import java.sql.Connection
 import java.sql.DriverManager
@@ -89,6 +90,26 @@ class DatabaseStorage(var plugin: SolidClaims) {
         } catch (error: SQLException) {
             error.printStackTrace()
         }
+    }
+
+    fun getClaimPartitionsByClaim(claim: Claim) : ArrayList<ClaimPartition>? {
+        val sqlQuery = "SELECT * FROM claims WHERE claimId=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claim.id.toString())
+            val resultSet = statement.executeQuery()
+            val claims : ArrayList<ClaimPartition> = arrayListOf()
+            while (resultSet.next()) {
+                claims.add(ClaimPartition(claim,
+                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
+                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
     }
 
     fun addClaimPartition(id: UUID, firstLocationX: Int, firstLocationZ: Int,
