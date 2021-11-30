@@ -193,6 +193,23 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    fun getPlayerPermissions(playerId: UUID) : Player {
+        val sqlQuery = "SELECT * FROM players WHERE playerId=?;"
+
+        val player : Player = Player(playerId)
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                //player.permissions.add(ClaimPartition(resultSet.getString(4)))
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
     fun addPlayerGlobalPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
         val sqlQuery = "INSERT INTO players (playerId, claimOwnerId, permission) VALUES (?,?,?);"
         try {
