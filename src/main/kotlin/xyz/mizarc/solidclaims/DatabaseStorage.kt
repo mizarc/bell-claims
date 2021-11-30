@@ -65,11 +65,12 @@ class DatabaseStorage(var plugin: SolidClaims) {
         return null
     }
 
-    fun addClaim(world: UUID, owner: UUID) {
-        val sqlQuery = "INSERT INTO claims (owner) VALUES (?);"
+    fun addClaim(worldId: UUID, ownerId: UUID) {
+        val sqlQuery = "INSERT INTO claims (world, owner) VALUES (?, ?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, owner.toString())
+            statement.setString(1, worldId.toString())
+            statement.setString(2, ownerId.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
