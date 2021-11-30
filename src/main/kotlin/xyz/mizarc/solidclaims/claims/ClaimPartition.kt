@@ -4,7 +4,7 @@ import org.bukkit.Location
 
 class ClaimPartition(var claim: Claim, var firstPosition: Location, var secondPosition: Location) {
     fun isLocationInClaim(location: Location) : Boolean {
-        if (location.world?.name != claim.world) {
+        if (location.world?.uid != claim.world.uid) {
             return false
         }
 
