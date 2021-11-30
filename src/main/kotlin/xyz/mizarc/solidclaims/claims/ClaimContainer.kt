@@ -3,19 +3,42 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
-import kotlin.collections.ArrayList
 
 class ClaimContainer {
     lateinit var claims: ArrayList<Claim>
     lateinit var claimPartitions: ArrayList<ClaimPartition>
-    lateinit var chunkClaimPartitions: Map<Pair<Int, Int>, ArrayList<ClaimPartition>>
+    lateinit var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>>
 
     fun getChunkLocation(location: Location) : Pair<Int, Int> {
         return Pair(location.chunk.x, location.chunk.z)
     }
 
+    fun getChunkLocation(claim: Claim, positionX: Int, positionZ: Int) {
+        getChunkLocation(Location(claim.world, positionX.toDouble(), 0.0, positionZ.toDouble()))
+    }
+
     fun getClaimsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
         return chunkClaimPartitions[chunkLocation]
+    }
+
+    fun getClaimChunks(firstLocation: Location, secondLocation: Location) : ArrayList<Pair<Int, Int>> {
+        val firstChunk = getChunkLocation(firstLocation)
+        val secondChunk = getChunkLocation(secondLocation)
+
+        val chunks: ArrayList<Pair<Int, Int>> = ArrayList()
+        for (x in firstChunk.first..secondChunk.first) {
+            for (z in firstChunk.second..secondChunk.second) {
+                chunks.add(Pair(x, z))
+            }
+        }
+
+        return chunks
+    }
+
+    fun getClaimChunks(world: World, firstPositionX: Int, firstPositionZ: Int,
+                       secondPositionX: Int, secondPositionZ: Int) : ArrayList<Pair<Int, Int>> {
+        return getClaimChunks(Location(world, firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
+            Location(world, secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
     }
 
     fun getClaimAtLocation(location: Location) : Claim? {
@@ -32,5 +55,25 @@ class ClaimContainer {
 
     fun addClaim(world: World, owner: OfflinePlayer) {
         claims.add(Claim(world, owner))
+    }
+
+    fun addClaimPartition(claim: Claim, firstLocation: Location, secondLocation: Location) {
+        claimPartitions.add(ClaimPartition(claim, firstLocation, secondLocation))
+
+        val claimPartition = ClaimPartition(claim, firstLocation, secondLocation)
+        val claimChunks = getClaimChunks(firstLocation, secondLocation)
+        for (chunk in claimChunks) {
+            if (chunkClaimPartitions[chunk] == null) {
+                chunkClaimPartitions[chunk] = ArrayList()
+            }
+            chunkClaimPartitions[chunk]?.add(claimPartition)
+        }
+    }
+
+    fun addClaimPartition(claim: Claim, firstPositionX: Int, firstPositionZ: Int,
+                          secondPositionX: Int, secondPositionZ: Int) {
+        addClaimPartition(claim,
+            Location(claim.world, firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
+            Location(claim.world, secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
     }
 }
