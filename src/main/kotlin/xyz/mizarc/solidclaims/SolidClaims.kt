@@ -8,6 +8,7 @@ import xyz.mizarc.solidclaims.events.ClaimEventHandler
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
+    internal var configIO: ConfigIO = ConfigIO(this)
 
     companion object {
         internal lateinit var instance: SolidClaims
