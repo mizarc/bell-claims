@@ -7,7 +7,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerEvent
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.Player
+import xyz.mizarc.solidclaims.claims.ClaimPlayer
 
 /**
  * Handles the registration of defined events with their associated actions.
@@ -42,10 +42,10 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
         val location = event.player.location
         val claim = claimContainer.getClaimAtLocation(location) ?: return
-        val player = Player(event.player.uniqueId) // TODO: Get an actual player instead of constructing one
+        val player = ClaimPlayer(event.player.uniqueId) // TODO: Get an actual player instead of constructing one
 
         // TODO: If player is not in claim list, use default permissions
-        if (!(claim.players.contains(player))) {
+        if (!(claim.claimPlayers.contains(player))) {
             var priority = Int.MAX_VALUE // Higher number == lower priority
             var executor: ((l: Listener, e: Event) -> Unit)? = null
             player.claimPermissions.forEach { p ->
@@ -67,9 +67,7 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
     /**
      * An alias to the PluginManager.registerEvent() function that handles some parameters automatically.
      */
-    private fun registerEvent(event: Class<out Event>, priority: EventPriority, executor: (l: Listener, e: Event) -> Unit) =
-        solidClaims.server.pluginManager.registerEvent(event, this, priority, executor,
+    private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) =
+        solidClaims.server.pluginManager.registerEvent(event, this, EventPriority.NORMAL, executor,
             solidClaims, true)
-
-    private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) = registerEvent(event, EventPriority.NORMAL, executor)
 }
