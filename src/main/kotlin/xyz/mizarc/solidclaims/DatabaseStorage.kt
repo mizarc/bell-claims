@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.ClaimPlayer
+import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -58,6 +59,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
 
+                // Get default permissions of a claim
+                val sqlPermissionQuery = "SELECT * FROM claimPermissions WHERE claimId=?;"
+                val permissionStatement = connection.prepareStatement(sqlPermissionQuery)
+                permissionStatement.setInt(1, resultSet.getInt(1))
+                val permissionResultSet = statement.executeQuery()
+                val claimPermissions: ArrayList<ClaimPermission> = ArrayList()
+                while (permissionResultSet.next()) {
+                    claimPermissions.add(ClaimPermission.valueOf(permissionResultSet.getString(1)))
+                }
+
                 // Get all players trusted in claim
                 val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
                 val playerStatement = connection.prepareStatement(sqlPlayerQuery)
@@ -71,7 +82,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 claims.add(Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
-                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(4))),
+                    claimPermissions,
                     claimPlayers
                 ))
             }
@@ -344,7 +356,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store claim data if it doesn't exist
+     * Creates a new table to store claim data if it doesn't exist.
      */
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
@@ -359,7 +371,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store claim default permission data if it doesn't exist
+     * Creates a new table to store claim default permission data if it doesn't exist.
      */
     private fun createClaimPermissionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
@@ -374,7 +386,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store claim partition data if it doesn't exist
+     * Creates a new table to store claim partition data if it doesn't exist.
      */
     private fun createClaimPartitionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
@@ -389,7 +401,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store player permission data if it doesn't exist
+     * Creates a new table to store player permission data if it doesn't exist.
      */
     private fun createPlayerTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS players (playerId TEXT, claimOwnerId TEXT, " +
