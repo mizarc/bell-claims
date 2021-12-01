@@ -11,19 +11,15 @@ class ClaimContainer {
     lateinit var claimPartitions: ArrayList<ClaimPartition>
     lateinit var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>>
 
-    fun getChunkLocation(location: Location) : Pair<Int, Int> {
-        return Pair(location.chunk.x, location.chunk.z)
-    }
-
-    fun getChunkLocation(claim: Claim, positionX: Int, positionZ: Int) {
-        getChunkLocation(Location(claim.getWorld(), positionX.toDouble(), 0.0, positionZ.toDouble()))
+    fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
+        return Pair(position.first shr 4, position.second shr 4)
     }
 
     fun getClaimsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
         return chunkClaimPartitions[chunkLocation]
     }
 
-    fun getClaimChunks(firstLocation: Location, secondLocation: Location) : ArrayList<Pair<Int, Int>> {
+    fun getClaimChunks(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : ArrayList<Pair<Int, Int>> {
         val firstChunk = getChunkLocation(firstLocation)
         val secondChunk = getChunkLocation(secondLocation)
 
@@ -37,14 +33,8 @@ class ClaimContainer {
         return chunks
     }
 
-    fun getClaimChunks(world: World, firstPositionX: Int, firstPositionZ: Int,
-                       secondPositionX: Int, secondPositionZ: Int) : ArrayList<Pair<Int, Int>> {
-        return getClaimChunks(Location(world, firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
-            Location(world, secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
-    }
-
     fun getClaimAtLocation(location: Location) : Claim? {
-        val claimsInChunk = getClaimsAtChunk(getChunkLocation(location)) ?: return null
+        val claimsInChunk = getClaimsAtChunk(getChunkLocation(getPositionFromLocation(location))) ?: return null
 
         for (claimPartition in claimsInChunk) {
             if (claimPartition.isLocationInClaim(location)) {
@@ -59,7 +49,7 @@ class ClaimContainer {
         claims.add(Claim(worldId, owner))
     }
 
-    fun addClaimPartition(claim: Claim, firstLocation: Location, secondLocation: Location) : Boolean {
+    fun addClaimPartition(claim: Claim, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : Boolean {
         // Check if partition in defined location already exists
         for (claimPartition in claimPartitions) {
             if (claimPartition.firstPosition == firstLocation && claimPartition.secondPosition == secondLocation) {
@@ -81,10 +71,11 @@ class ClaimContainer {
         return true
     }
 
-    fun addClaimPartition(claim: Claim, firstPositionX: Int, firstPositionZ: Int,
-                          secondPositionX: Int, secondPositionZ: Int) : Boolean {
-        return addClaimPartition(claim,
-            Location(claim.getWorld(), firstPositionX.toDouble(), 0.0, firstPositionZ.toDouble()),
-            Location(claim.getWorld(), secondPositionX.toDouble(), 0.0, secondPositionZ.toDouble()))
+    fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
+        return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
+    }
+
+    fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
+        return Pair(location.x.toInt(), location.z.toInt())
     }
 }
