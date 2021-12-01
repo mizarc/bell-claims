@@ -278,6 +278,18 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    private fun createClaimPermissionTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
+                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
     private fun createClaimPartitionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
                 "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
@@ -292,7 +304,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
     private fun createPlayerTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS players (playerId TEXT, claimOwnerId TEXT, " +
-                "claimId TEXT, permission TEXT, FOREIGN KEY(claim) REFERENCES claims(id));"
+                "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
