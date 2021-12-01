@@ -4,12 +4,15 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerEvent
 import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.claims.ClaimContainer
+import xyz.mizarc.solidclaims.claims.Player
 
 /**
  * Handles the registration of defined events with their associated actions.
  */
-class ClaimEventHandler : Listener {
+class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
     companion object {
         var handleEvents = false
 
@@ -38,8 +41,8 @@ class ClaimEventHandler : Listener {
      * An alias to the PluginManager.registerEvent() function that handles some parameters automatically.
      */
     private fun registerEvent(event: Class<out Event>, priority: EventPriority, executor: (l: Listener, e: Event) -> Unit) =
-        SolidClaims.instance.server.pluginManager.registerEvent(event, this, priority, executor,
-            SolidClaims.instance, true)
+        solidClaims.server.pluginManager.registerEvent(event, this, priority, executor,
+            solidClaims, true)
 
     private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) = registerEvent(event, EventPriority.NORMAL, executor)
 }
