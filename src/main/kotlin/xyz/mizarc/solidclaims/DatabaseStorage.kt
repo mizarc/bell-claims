@@ -46,6 +46,46 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets a specific claim from the database if available.
+     * @param id The unique identifier for the claim.
+     * @return The claim object linked to the id. May return null.
+     */
+    fun getClaim(id: UUID): Claim? {
+        try {
+            // Get specified claim
+            val sqlQuery = "SELECT * FROM claims WHERE id=?;"
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, id.toString())
+            val resultSet = statement.executeQuery()
+            while (resultSet.next()) {
+                val claimPermissions = getClaimPermissions(id)
+
+                // Get all players trusted in claim
+                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
+                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
+                playerStatement.setInt(1, resultSet.getInt(1))
+                val playerResultSet = statement.executeQuery()
+                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
+                while (playerResultSet.next()) {
+                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
+                }
+
+                return Claim(
+                    UUID.fromString(resultSet.getString(1)),
+                    UUID.fromString(resultSet.getString(2)),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    claimPermissions,
+                    claimPlayers,
+                )
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    /**
      * Gets a list of every claim in the database.
      * @return Array of claim objects. May return null.
      */
@@ -89,44 +129,6 @@ class DatabaseStorage(var plugin: SolidClaims) {
             }
             return claims
 
-        } catch (error: SQLException) {
-            error.printStackTrace()
-        }
-
-        return null
-    }
-
-    /**
-     * Gets a specific claim from the database if available.
-     * @param id The unique identifier for the claim.
-     * @return The claim object linked to the id. May return null.
-     */
-    fun getClaim(id: UUID): Claim? {
-        try {
-            // Get specified claim
-            val sqlQuery = "SELECT * FROM claims WHERE id=?;"
-            val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            val resultSet = statement.executeQuery()
-            while (resultSet.next()) {
-
-                // Get all players trusted in claim
-                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
-                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
-                playerStatement.setInt(1, resultSet.getInt(1))
-                val playerResultSet = statement.executeQuery()
-                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
-                while (playerResultSet.next()) {
-                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
-                }
-
-                return Claim(
-                    UUID.fromString(resultSet.getString(1)),
-                    UUID.fromString(resultSet.getString(2)),
-                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
-                    claimPlayers,
-                )
-            }
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -254,6 +256,69 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets the default permissions associated with a claim.
+     * @param claimID The unique identifier of the claim.
+     */
+    fun getClaimPermissions(claimID: UUID) : ArrayList<ClaimPermission> {
+        val sqlQuery = "SELECT * FROM claimPermissions WHERE claimId=?;"
+        val claimPermissions: ArrayList<ClaimPermission> = ArrayList()
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimID.toString())
+            val permissionResultSet = statement.executeQuery()
+
+            while (permissionResultSet.next()) {
+                claimPermissions.add(ClaimPermission.valueOf(permissionResultSet.getString(1)))
+            }
+
+            return claimPermissions
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return ArrayList()
+    }
+
+    /**
+     * Adds a permission entry to a specific claim from the database.
+     * @param claimId The unique identifier for the claim.
+     * @param permission The permission enum to assign.
+     */
+    fun addClaimPermission(claimId: UUID, permission: ClaimPermission) {
+        val sqlQuery = "INSERT INTO claimPermissions (claimId, permission) VALUES (?,?);"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimId.toString())
+            statement.setString(2, permission.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Removes a permission entry for a specific claim from the database.
+     * @param claimId The unique identifier for the claim.
+     * @param permission The permission enum to remove.
+     */
+    fun removeClaimPermission(claimId: UUID, permission: ClaimPermission) {
+        val sqlQuery = "DELETE FROM claimPermissions WHERE claimId=? AND permission=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimId.toString())
+            statement.setString(2, permission.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
      * Gets all of a player's permissions for every claim in the database.
      * @param playerId The unique identifier for the player.
      * @return A ClaimPlayer object. May return null.
@@ -371,11 +436,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store claim default permission data if it doesn't exist.
+     * Creates a new table to store claim partition data if it doesn't exist.
      */
-    private fun createClaimPermissionTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
-                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id);"
+    private fun createClaimPartitionTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
+                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
@@ -386,11 +451,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Creates a new table to store claim partition data if it doesn't exist.
+     * Creates a new table to store claim default permission data if it doesn't exist.
      */
-    private fun createClaimPartitionTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
-                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
+    private fun createClaimPermissionTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
+                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
