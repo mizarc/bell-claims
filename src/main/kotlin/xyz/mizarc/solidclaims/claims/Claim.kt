@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
+import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -15,13 +16,14 @@ import kotlin.collections.ArrayList
  * @property owner A reference to the owning player.
  * @property claimPlayers A list of trusted players.
  */
-class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, var claimPlayers: ArrayList<ClaimPlayer>) {
+class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
+            var defaultPermissions: ArrayList<ClaimPermission>, var claimPlayers: ArrayList<ClaimPlayer>) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
-    constructor(worldId: UUID, owner: OfflinePlayer) : this(UUID.randomUUID(), worldId, owner, ArrayList())
+    constructor(worldId: UUID, owner: OfflinePlayer) : this(UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList())
 
     /**
      * Gets a reference to the world if available.
