@@ -102,21 +102,4 @@ enum class ClaimPermission(val priority: Int, val alias: String, val events: Arr
      */
     EntityShear(2, "entityShear", arrayOf(
         Pair(PlayerShearEntityEvent::class.java,            ClaimEventHandler::cancelEvent)));
-
-    companion object {
-        fun getPermsForEvent(event: Class<out Event>) : List<ClaimPermission> {
-            val perms: ArrayList<ClaimPermission> = ArrayList()
-            values().forEach { v ->
-                run events@{
-                    v.events.forEach { e ->
-                        if (event == e.first) {
-                            perms.add(v)
-                            return@events // Continue
-                        }
-                    }
-                }
-            }
-            return perms
-        }
-    }
 }
