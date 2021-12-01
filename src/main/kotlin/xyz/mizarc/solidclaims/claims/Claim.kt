@@ -13,9 +13,9 @@ import kotlin.collections.ArrayList
  * @property id The unique identifier for the claim.
  * @property worldId the unique identifier for the world.
  * @property owner A reference to the owning player.
- * @property players A list of trusted players.
+ * @property claimPlayers A list of trusted players.
  */
-class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, var players: ArrayList<Player>) {
+class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, var claimPlayers: ArrayList<ClaimPlayer>) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
