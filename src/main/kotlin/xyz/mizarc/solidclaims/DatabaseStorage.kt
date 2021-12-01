@@ -3,7 +3,7 @@ package xyz.mizarc.solidclaims
 import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
-import xyz.mizarc.solidclaims.claims.Player
+import xyz.mizarc.solidclaims.claims.ClaimPlayer
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -49,16 +49,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 val playerStatement = connection.prepareStatement(sqlPlayerQuery)
                 playerStatement.setInt(1, resultSet.getInt(1))
                 val playerResultSet = statement.executeQuery()
-                val players: ArrayList<Player> = ArrayList()
+                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
                 while (playerResultSet.next()) {
-                    players.add(Player(UUID.fromString(playerResultSet.getString(1))))
+                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
                 }
 
                 claims.add(Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
-                    players
+                    claimPlayers
                 ))
             }
             return claims
@@ -84,16 +84,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 val playerStatement = connection.prepareStatement(sqlPlayerQuery)
                 playerStatement.setInt(1, resultSet.getInt(1))
                 val playerResultSet = statement.executeQuery()
-                val players: ArrayList<Player> = ArrayList()
+                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
                 while (playerResultSet.next()) {
-                    players.add(Player(UUID.fromString(playerResultSet.getString(1))))
+                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
                 }
 
                 return Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
-                    players,
+                    claimPlayers,
                 )
             }
         } catch (error: SQLException) {
@@ -193,10 +193,10 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun getPlayerPermissions(playerId: UUID) : Player {
+    fun getPlayerPermissions(playerId: UUID) : ClaimPlayer {
         val sqlQuery = "SELECT * FROM players WHERE playerId=?;"
 
-        val player : Player = Player(playerId)
+        val claimPlayer : ClaimPlayer = ClaimPlayer(playerId)
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
