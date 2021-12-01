@@ -1,7 +1,8 @@
 package xyz.mizarc.solidclaims.claims
 
 import java.util.*
+import kotlin.collections.ArrayList
 
-class Player(id: UUID) {
-
+class Player(var id: UUID, var permissions: ArrayList<Permission>) {
+    constructor(id: UUID) : this(id, ArrayList())
 }

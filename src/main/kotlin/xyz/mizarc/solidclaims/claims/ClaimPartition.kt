@@ -2,7 +2,20 @@ package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
 
+/**
+ * A partition of a claim. Claims can be made up of multiple partitions that defines the overall shape. A single
+ * partition holds the positions of two corners of a rectangle and the claim associated with it.
+ * @constructor Creates a partition with all required data.
+ * @property claim The claim linked to this partition.
+ * @property firstPosition The pair of integers defining the first position.
+ * @property secondPosition The pair of integers defining the second position.
+ */
 class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var secondPosition: Pair<Int, Int>) {
+    /**
+     * Checks whether the specified location in the world is within the bounds of this claim.
+     * @param location The location object to check for.
+     * @return True if the location is within the claim.
+     */
     fun isLocationInClaim(location: Location) : Boolean {
         if (location.world?.uid != claim.worldId) {
             return false
@@ -18,6 +31,10 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return false
     }
 
+    /**
+     * Gets the list of X and Z block positions that define the edges of a claim.
+     * @return A set of Integer pairs specifying the X and Z coordinates of each position.
+     */
     fun getEdgeBlockPositions() : MutableSet<Pair<Int, Int>> {
         var blocks : MutableSet<Pair<Int, Int>> = mutableSetOf()
         for (block in firstPosition.first..secondPosition.first) {
@@ -35,10 +52,18 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return blocks
     }
 
+    /**
+     * Converts the X and Z coordinates of the first position to a Location object.
+     * @return Location object including the claim's world and an empty Y coordinate.
+     */
     fun getFirstLocation() : Location {
         return Location(claim.getWorld(), firstPosition.first.toDouble(), 0.0, firstPosition.second.toDouble())
     }
 
+    /**
+     * Converts the X and Z coordinates of the second position to a Location object.
+     * @return Location object including the claim's world and an empty Y coordinate.
+     */
     fun getSecondLocation() : Location {
         return Location(claim.getWorld(), secondPosition.first.toDouble(), 0.0, secondPosition.second.toDouble())
     }
