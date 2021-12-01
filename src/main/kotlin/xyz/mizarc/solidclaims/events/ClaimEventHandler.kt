@@ -15,6 +15,7 @@ import xyz.mizarc.solidclaims.claims.ClaimPlayer
  * @property claimContainer A reference to the ClaimContainer instance
  */
 class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
+    @Suppress("UNUSED_PARAMETER")
     companion object {
         var handleEvents = false
 
