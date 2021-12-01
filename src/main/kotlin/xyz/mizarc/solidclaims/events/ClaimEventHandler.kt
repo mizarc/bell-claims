@@ -11,6 +11,8 @@ import xyz.mizarc.solidclaims.claims.ClaimPlayer
 
 /**
  * Handles the registration of defined events with their associated actions.
+ * @property solidClaims A reference to the plugin instance
+ * @property claimContainer A reference to the ClaimContainer instance
  */
 class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
     companion object {
@@ -37,6 +39,11 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         }
     }
 
+    /**
+     * A wrapper function to abstract the business logic of determining if an event occurs within a claim, if the
+     * player that the event originated from has permissions within that claim, and if not, which permission event
+     * executor has the highest priority, then invoke that executor.
+     */
     private fun handleClaimEvent(listener: Listener, event: Event) {
         if (!handleEvents) return // TODO: Remove debug
         if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
