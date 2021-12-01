@@ -30,7 +30,7 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
     }
 
     init {
-        PermissionKeys.values().forEach { p ->
+        ClaimPermission.values().forEach { p ->
             p.events.forEach { e ->
                 registerEvent(e.first, e.second)
             }
