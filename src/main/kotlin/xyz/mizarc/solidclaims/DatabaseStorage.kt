@@ -158,17 +158,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
         return claims
     }
 
-    fun addClaimPartition(id: UUID, firstLocationX: Int, firstLocationZ: Int,
-                          secondLocationX: Int, secondLocationZ: Int) {
+    fun addClaimPartition(id: UUID, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
         val sqlQuery = "INSERT INTO claimPartitions (claimId, firstLocationX, firstLocationZ, " +
                 "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, id.toString())
-            statement.setInt(2, firstLocationX)
-            statement.setInt(3, firstLocationZ)
-            statement.setInt(4, secondLocationX)
-            statement.setInt(5, secondLocationZ)
+            statement.setInt(2, firstLocation.first)
+            statement.setInt(3, firstLocation.second)
+            statement.setInt(4, secondLocation.first)
+            statement.setInt(5, secondLocation.second)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -176,16 +175,15 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun removeClaimPartition(firstLocationX: Int, firstLocationZ: Int,
-                          secondLocationX: Int, secondLocationZ: Int) {
+    fun removeClaimPartition(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
         val sqlQuery = "DELETE FROM claimPartitions WHERE firstLocationX=? AND firstLocationZ=? AND " +
                 "secondLocationX=? AND secondLocationZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, firstLocationX)
-            statement.setInt(2, firstLocationZ)
-            statement.setInt(3, secondLocationX)
-            statement.setInt(4, secondLocationZ)
+            statement.setInt(1, firstLocation.first)
+            statement.setInt(2, firstLocation.second)
+            statement.setInt(3, secondLocation.first)
+            statement.setInt(4, secondLocation.second)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
