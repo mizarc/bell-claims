@@ -98,16 +98,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val statement = connection.prepareStatement(sqlQuery)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
-
-                // Get default permissions of a claim
-                val sqlPermissionQuery = "SELECT * FROM claimPermissions WHERE claimId=?;"
-                val permissionStatement = connection.prepareStatement(sqlPermissionQuery)
-                permissionStatement.setInt(1, resultSet.getInt(1))
-                val permissionResultSet = statement.executeQuery()
-                val claimPermissions: ArrayList<ClaimPermission> = ArrayList()
-                while (permissionResultSet.next()) {
-                    claimPermissions.add(ClaimPermission.valueOf(permissionResultSet.getString(1)))
-                }
+                val claimPermissions: ArrayList<ClaimPermission> = getClaimPermissions(
+                    UUID.fromString(resultSet.getString(1)))
 
                 // Get all players trusted in claim
                 val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
@@ -319,25 +311,29 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Gets all of a player's permissions for every claim in the database.
+     * Gets all of a player's permissions for a specified claim.
      * @param playerId The unique identifier for the player.
+     * @param claimId The unique identifier for the claim.
      * @return A ClaimPlayer object. May return null.
      */
-    fun getPlayerPermissions(playerId: UUID) : ClaimPlayer {
-        val sqlQuery = "SELECT * FROM players WHERE playerId=?;"
+    fun getPlayerClaimPermissions(playerId: UUID, claimId: UUID) : ClaimPlayer {
+        val sqlQuery = "SELECT * FROM players WHERE playerId=? AND claimId=?;"
 
-        val claimPlayer : ClaimPlayer = ClaimPlayer(playerId)
+        val claimPlayer = ClaimPlayer(playerId)
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
+            statement.setString(2, claimId.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                //player.permissions.add(ClaimPartition(resultSet.getString(4)))
+                claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
             }
         } catch (error: SQLException) {
             error.printStackTrace()
         }
+
+        return claimPlayer
     }
 
     /**
