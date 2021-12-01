@@ -7,11 +7,13 @@ import org.bukkit.event.inventory.*
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.*
 
+typealias EventExecutor = Pair<Class<out Event>, (l: Listener, e: Event) -> Unit>
+
 /**
  * Represents a string value that pertains to certain events, the action that occurs on that event,
  * and the priority of that action over other PermissionKeys that act upon the same event.
  */
-enum class PermissionKeys(val priority: Int, val alias: String, val events: Array<Pair<Class<out Event>, (l: Listener, e: Event) -> Unit>>) {
+enum class ClaimPermission(val priority: Int, val alias: String, val events: Array<EventExecutor>) {
     /**
      * Every event. This has the least priority, and any explicit changes to other permissions will override the
      * actions of this one.
@@ -99,5 +101,22 @@ enum class PermissionKeys(val priority: Int, val alias: String, val events: Arra
      * When an entity is sheared by a player.
      */
     EntityShear(2, "entityShear", arrayOf(
-        Pair(PlayerShearEntityEvent::class.java,            ClaimEventHandler::cancelEvent)))
+        Pair(PlayerShearEntityEvent::class.java,            ClaimEventHandler::cancelEvent)));
+
+    companion object {
+        fun getPermsForEvent(event: Class<out Event>) : List<ClaimPermission> {
+            val perms: ArrayList<ClaimPermission> = ArrayList()
+            values().forEach { v ->
+                run events@{
+                    v.events.forEach { e ->
+                        if (event == e.first) {
+                            perms.add(v)
+                            return@events // Continue
+                        }
+                    }
+                }
+            }
+            return perms
+        }
+    }
 }
