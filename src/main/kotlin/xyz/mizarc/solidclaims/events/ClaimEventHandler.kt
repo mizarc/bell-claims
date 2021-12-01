@@ -32,8 +32,35 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
     init {
         ClaimPermission.values().forEach { p ->
             p.events.forEach { e ->
-                registerEvent(e.first, e.second)
+                registerEvent(e.first, ::handleClaimEvent)
             }
+        }
+    }
+
+    private fun handleClaimEvent(listener: Listener, event: Event) {
+        if (!handleEvents) return // TODO: Remove debug
+        if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
+        val location = event.player.location
+        val claim = claimContainer.getClaimAtLocation(location) ?: return
+        val player = Player(event.player.uniqueId) // TODO: Get an actual player instead of constructing one
+
+        // TODO: If player is not in claim list, use default permissions
+        if (!(claim.players.contains(player))) {
+            var priority = Int.MAX_VALUE // Higher number == lower priority
+            var executor: ((l: Listener, e: Event) -> Unit)? = null
+            player.claimPermissions.forEach { p ->
+                if (priority < p.priority) return@forEach
+                run events@ {
+                    p.events.forEach { e ->
+                        if (e.first == event::class.java) {
+                            priority = p.priority
+                            executor = e.second
+                            return@events
+                        }
+                    }
+                }
+            }
+            executor?.invoke(listener, event)
         }
     }
 
