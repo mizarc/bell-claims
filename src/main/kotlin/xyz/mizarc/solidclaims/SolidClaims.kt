@@ -21,7 +21,7 @@ class SolidClaims : JavaPlugin() {
         claimContainer = ClaimContainer()
         ownerContainer = OwnerContainer()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
-        server.pluginManager.registerEvents(ClaimToolListener(), this)
+        server.pluginManager.registerEvents(ClaimToolListener(this.claimContainer), this)
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(HandleEventsCommand())
