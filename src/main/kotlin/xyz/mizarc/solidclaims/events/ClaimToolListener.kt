@@ -11,7 +11,7 @@ class ClaimToolListener : Listener {
     fun onUseClaimTool(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
         if (event.item == null) return
-        if (event.item!!.itemMeta != getClaimTool()) return
+        if (event.item!!.itemMeta != getClaimTool().itemMeta) return
 
         event.player.sendMessage("test")
     }
