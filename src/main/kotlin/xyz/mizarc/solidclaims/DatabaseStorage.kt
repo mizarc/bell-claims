@@ -59,16 +59,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
                 val claimPermissions = getClaimPermissions(id)
-
-                // Get all players trusted in claim
-                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
-                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
-                playerStatement.setInt(1, resultSet.getInt(1))
-                val playerResultSet = statement.executeQuery()
-                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
-                while (playerResultSet.next()) {
-                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
-                }
+                val claimPlayers: ArrayList<ClaimPlayer> =
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1)))
 
                 return Claim(
                     UUID.fromString(resultSet.getString(1)),
@@ -98,18 +90,10 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val statement = connection.prepareStatement(sqlQuery)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
-                val claimPermissions: ArrayList<ClaimPermission> = getClaimPermissions(
-                    UUID.fromString(resultSet.getString(1)))
-
-                // Get all players trusted in claim
-                val sqlPlayerQuery = "SELECT * FROM players WHERE id=?;"
-                val playerStatement = connection.prepareStatement(sqlPlayerQuery)
-                playerStatement.setInt(1, resultSet.getInt(1))
-                val playerResultSet = statement.executeQuery()
-                val claimPlayers = getPlayerClaimPermissions()
-                while (playerResultSet.next()) {
-                    claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
-                }
+                val claimPermissions: ArrayList<ClaimPermission> =
+                    getClaimPermissions(UUID.fromString(resultSet.getString(1)))
+                val claimPlayers: ArrayList<ClaimPlayer> =
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1)))
 
                 claims.add(Claim(
                     UUID.fromString(resultSet.getString(1)),
