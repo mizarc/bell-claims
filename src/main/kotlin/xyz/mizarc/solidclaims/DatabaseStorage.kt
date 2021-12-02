@@ -106,7 +106,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 val playerStatement = connection.prepareStatement(sqlPlayerQuery)
                 playerStatement.setInt(1, resultSet.getInt(1))
                 val playerResultSet = statement.executeQuery()
-                val claimPlayers: ArrayList<ClaimPlayer> = ArrayList()
+                val claimPlayers = getPlayerClaimPermissions()
                 while (playerResultSet.next()) {
                     claimPlayers.add(ClaimPlayer(UUID.fromString(playerResultSet.getString(1))))
                 }
@@ -311,29 +311,45 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
-     * Gets all of a player's permissions for a specified claim.
-     * @param playerId The unique identifier for the player.
-     * @param claimId The unique identifier for the claim.
-     * @return A ClaimPlayer object. May return null.
+     * Gets all player permission associated with a particular claim.
+     * @param claimID The unique identifier for the claim.
+     * @return An array of player claim permissions.
      */
-    fun getPlayerClaimPermissions(playerId: UUID, claimId: UUID) : ClaimPlayer {
-        val sqlQuery = "SELECT * FROM players WHERE playerId=? AND claimId=?;"
+    fun getAllPlayersClaimPermissions(claimID: UUID) : ArrayList<ClaimPlayer> {
+        val sqlQuery = "SELECT * FROM players WHERE claimId=?;"
 
-        val claimPlayer = ClaimPlayer(playerId)
+        val claimPlayers: ArrayList<ClaimPlayer> = arrayListOf()
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, playerId.toString())
-            statement.setString(2, claimId.toString())
+            statement.setString(1, claimID.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                var foundExistingPlayer = false
+
+                // Add to existing player entry if found
+                for (claimPlayer in claimPlayers) {
+                    if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
+                        claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                        foundExistingPlayer = true
+                    }
+                }
+
+                // Skip next step if existing player has already been added
+                if (foundExistingPlayer) {
+                    continue
+                }
+
+                // Add new ClaimPlayer entry to list if it doesn't already exist
+                val newClaimPlayer = ClaimPlayer(UUID.fromString(resultSet.getString(1)))
+                newClaimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                claimPlayers.add(newClaimPlayer)
             }
         } catch (error: SQLException) {
             error.printStackTrace()
         }
 
-        return claimPlayer
+        return claimPlayers
     }
 
     /**
@@ -350,6 +366,32 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             statement.setString(2, ownerId.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return claimPlayer
+    }
+
+    /**
+     * Gets all of a player's permissions for a specified claim.
+     * @param playerId The unique identifier for the player.
+     * @param claimId The unique identifier for the claim.
+     * @return A ClaimPlayer object. May return null.
+     */
+    fun getPlayerClaimPermissions(playerId: UUID, claimId: UUID) : ClaimPlayer {
+        val sqlQuery = "SELECT * FROM players WHERE playerId=? AND claimId=?;"
+
+        val claimPlayer = ClaimPlayer(playerId)
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            statement.setString(2, claimId.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
