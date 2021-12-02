@@ -23,11 +23,11 @@ class ClaimContainer {
     }
 
     /**
-     * Gets all the claims that exist in a given chunk.
+     * Gets all the claim partitions that exist in a given chunk.
      * @param chunkLocation The integer pair defining a chunk's X and Z coordinates.
      * @return An array of claim partitions that exist in that claim. May return null.
      */
-    fun getClaimsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
+    fun getClaimPartitionsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
         return chunkClaimPartitions[chunkLocation]
     }
 
@@ -57,7 +57,8 @@ class ClaimContainer {
      * @return A claim at the current position if available. May return null.
      */
     fun getClaimAtLocation(location: Location) : Claim? {
-        val claimsInChunk = getClaimsAtChunk(getChunkLocation(getPositionFromLocation(location))) ?: return null
+        val claimsInChunk = getClaimPartitionsAtChunk(
+            getChunkLocation(getPositionFromLocation(location))) ?: return null
 
         for (claimPartition in claimsInChunk) {
             if (claimPartition.isLocationInClaim(location)) {
