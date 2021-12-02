@@ -311,6 +311,48 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets all player permission associated with a particular claim owner.
+     * @param ownerID The unique identifier for the claim owner.
+     * @return An array of player claim permissions.
+     */
+    fun getAllPlayersOwnerPermissions(ownerID: UUID) : ArrayList<ClaimPlayer> {
+        val sqlQuery = "SELECT * FROM players WHERE claimOwnerId=?;"
+
+        val claimPlayers: ArrayList<ClaimPlayer> = arrayListOf()
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, ownerID.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                var foundExistingPlayer = false
+
+                // Add to existing player entry if found
+                for (claimPlayer in claimPlayers) {
+                    if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
+                        claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                        foundExistingPlayer = true
+                    }
+                }
+
+                // Skip next step if existing player has already been added
+                if (foundExistingPlayer) {
+                    continue
+                }
+
+                // Add new ClaimPlayer entry to list if it doesn't already exist
+                val newClaimPlayer = ClaimPlayer(UUID.fromString(resultSet.getString(1)))
+                newClaimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                claimPlayers.add(newClaimPlayer)
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return claimPlayers
+    }
+
+    /**
      * Gets all player permission associated with a particular claim.
      * @param claimID The unique identifier for the claim.
      * @return An array of player claim permissions.
