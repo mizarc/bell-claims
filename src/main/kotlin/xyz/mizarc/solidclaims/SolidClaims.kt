@@ -11,6 +11,7 @@ import xyz.mizarc.solidclaims.events.ClaimEventHandler
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
     internal var configIO: ConfigIO = ConfigIO(this)
+    val databaseStorage = DatabaseStorage(this)
     lateinit var claimContainer: ClaimContainer
     lateinit var ownerContainer: OwnerContainer
 
