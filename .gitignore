@@ -52,6 +52,9 @@ gradle-app.setting
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**/kotlinc.xml
+.idea/**/misc.xml
+.idea/**/sqldialects.xml
 
 # Generated files
 .idea/**/contentModel.xml
