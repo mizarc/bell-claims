@@ -18,18 +18,6 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
     @Suppress("UNUSED_PARAMETER")
     companion object {
         var handleEvents = false
-
-        /**
-         * The generic function to cancel any cancellable event.
-         * TODO: Check the permissions context of this event callback.
-         */
-        fun cancelEvent(listener: Listener, event: Event) {
-            if (handleEvents) {
-                if (event is Cancellable) {
-                    event.isCancelled = true
-                }
-            }
-        }
     }
 
     init {
