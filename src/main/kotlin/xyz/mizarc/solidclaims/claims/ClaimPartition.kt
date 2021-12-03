@@ -31,6 +31,13 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return false
     }
 
+    fun isBoxInClaim(otherFirstPosition: Pair<Int, Int>, otherSecondPosition: Pair<Int, Int>) : Boolean {
+        return firstPosition.first <= otherSecondPosition.first
+                && firstPosition.second >= otherFirstPosition.first
+                && firstPosition.second <= otherSecondPosition.second
+                && secondPosition.second >= otherFirstPosition.second
+    }
+
     /**
      * Gets the list of X and Z block positions that define the edges of a claim.
      * @return A set of Integer pairs specifying the X and Z coordinates of each position.

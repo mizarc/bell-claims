@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Location
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Associates a player with two different locations to get the locations intended to make a claim out of
