@@ -1,9 +1,11 @@
 package xyz.mizarc.solidclaims.events
 
+import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
@@ -34,25 +36,38 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
             return
         }
 
-        // Set second location
+        // Set second location & Check if it overlaps an existing claim
         playerClaimBuilder.secondLocation = event.clickedBlock?.location!!
-        checkValidClaim(playerClaimBuilder)
+        if (!checkValidClaim(playerClaimBuilder)) {
+            event.player.sendMessage("That selection overlaps an existing claim.")
+            return
+        }
+
+        // Create Claim & Partition
+        val newClaim = Claim(event.clickedBlock!!.world.uid, Bukkit.getOfflinePlayer(event.player.uniqueId))
+        val newClaimPartition = ClaimPartition(
+            newClaim,
+            claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+            claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
     }
 
-    fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) {
+    fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) : Boolean {
         val chunks = claimContainer.getClaimChunks(
             claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
             claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
 
-        val partitionsInClaim: MutableSet<ClaimPartition> = mutableSetOf()
-        for(chunk in chunks) {
-            partitionsInClaim.addAll(claimContainer.getClaimPartitionsAtChunk(chunk)!!)
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            existingPartitions.addAll(claimContainer.getClaimPartitionsAtChunk(chunk)!!)
         }
 
+        for (partition in existingPartitions) {
+            if (partition.isBoxInClaim(claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+                    claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
+                return false
+            }
+        }
 
-        /*val newClaim: ClaimPartition = ClaimPartition(
-            claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
-            claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation))
-        claimContainer.getClaimPartitionsAtChunk()*/
+        return true
     }
 }
