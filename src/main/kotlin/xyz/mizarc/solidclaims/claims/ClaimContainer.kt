@@ -75,8 +75,8 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param worldId The unique identifier for the world the claim is to be created in.
      * @param owner The player who should own the world.
      */
-    fun addClaim(worldId: UUID, owner: OfflinePlayer) {
-        claims.add(Claim(worldId, owner))
+    fun addClaim(claim: Claim) {
+        claims.add(claim)
     }
 
     /**
@@ -84,9 +84,9 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param worldId The unique identifier for the world the claim is to be created in.
      * @param owner The player who should own the world.
      */
-    fun addNewClaim(worldId: UUID, owner: OfflinePlayer) {
-        addClaim(worldId, owner)
-        database.addClaim(worldId, owner.uniqueId)
+    fun addNewClaim(claim: Claim) {
+        addClaim(claim)
+        database.addClaim(claim.worldId, claim.owner.uniqueId)
     }
 
     /**
@@ -96,18 +96,18 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addClaimPartition(claim: Claim, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : Boolean {
+    fun addClaimPartition(claimPartition: ClaimPartition) : Boolean {
         // Check if partition in defined location already exists
-        for (claimPartition in claimPartitions) {
-            if (claimPartition.firstPosition == firstLocation && claimPartition.secondPosition == secondLocation) {
+        for (existingClaimPartition in claimPartitions) {
+            if (claimPartition.firstPosition == claimPartition.firstPosition &&
+                claimPartition.secondPosition == claimPartition.secondPosition) {
                 return false
             }
         }
 
         // Add partition to both flat array and chunk map
-        val claimPartition = ClaimPartition(claim, firstLocation, secondLocation)
         claimPartitions.add(claimPartition)
-        val claimChunks = getClaimChunks(firstLocation, secondLocation)
+        val claimChunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
         for (chunk in claimChunks) {
             if (chunkClaimPartitions[chunk] == null) {
                 chunkClaimPartitions[chunk] = ArrayList()
@@ -125,9 +125,9 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addNewClaimPartition(claim: Claim, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
-        addClaimPartition(claim, firstLocation, secondLocation)
-        database.addClaimPartition(claim.id, firstLocation, secondLocation)
+    fun addNewClaimPartition(claimPartition: ClaimPartition) {
+        addClaimPartition(claimPartition)
+        database.addClaimPartition(claimPartition.claim.id, claimPartition.firstPosition, claimPartition.secondPosition)
     }
 
     /**
