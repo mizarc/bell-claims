@@ -2,13 +2,14 @@ package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
+import xyz.mizarc.solidclaims.DatabaseStorage
 import java.util.*
 import kotlin.collections.ArrayList
 
 /**
  * Contains and provides features for navigating claims and claim partitions.
  */
-class ClaimContainer {
+class ClaimContainer(var database: DatabaseStorage) {
     lateinit var claims: ArrayList<Claim>
     lateinit var claimPartitions: ArrayList<ClaimPartition>
     lateinit var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>>
@@ -79,6 +80,16 @@ class ClaimContainer {
     }
 
     /**
+     * Creates a new claim and adds it to the database.
+     * @param worldId The unique identifier for the world the claim is to be created in.
+     * @param owner The player who should own the world.
+     */
+    fun addNewClaim(worldId: UUID, owner: OfflinePlayer) {
+        addClaim(worldId, owner)
+        database.addClaim(worldId, owner.uniqueId)
+    }
+
+    /**
      * Creates a new claim partition for a claim.
      * @param claim The Claim object to be linked to.
      * @param firstLocation The integer pair defining the first position.
@@ -105,6 +116,18 @@ class ClaimContainer {
         }
 
         return true
+    }
+
+    /**
+     * Creates a new claim partition for a claim and adds it to the database.
+     * @param claim The Claim object to be linked to.
+     * @param firstLocation The integer pair defining the first position.
+     * @param secondLocation The integer pair defining the second position.
+     * @return True if a claim partition has been created and not overlapping any other partition.
+     */
+    fun addNewClaimPartition(claim: Claim, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
+        addClaimPartition(claim, firstLocation, secondLocation)
+        database.addClaimPartition(claim.id, firstLocation, secondLocation)
     }
 
     /**

@@ -10,6 +10,10 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
 
+/**
+ * Actions based on utilising the claim tool.
+ * @property claimContainer A reference to the claim containers to modify.
+ */
 class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
     var playerClaimBuilders: ArrayList<PlayerClaimBuilder> = ArrayList()
 
@@ -51,6 +55,10 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
             claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
     }
 
+    /**
+     * Compares a new claim to the existing claims to see if they overlap.
+     * @param playerClaimBuilder
+     */
     fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) : Boolean {
         val chunks = claimContainer.getClaimChunks(
             claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
