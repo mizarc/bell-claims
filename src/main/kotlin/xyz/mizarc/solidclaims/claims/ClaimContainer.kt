@@ -14,15 +14,6 @@ class ClaimContainer(var database: DatabaseStorage) {
     var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>> = mutableMapOf()
 
     /**
-     * Converts the block coordinates to chunk coordinates.
-     * @param position The integer pair defining a block's X and Z coordinates.
-     * @return An integer pair defining a chunk's X and Z coordinates.
-     */
-    fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
-        return Pair(position.first shr 4, position.second shr 4)
-    }
-
-    /**
      * Gets all the claim partitions that exist in a given chunk.
      * @param chunkLocation The integer pair defining a chunk's X and Z coordinates.
      * @return An array of claim partitions that exist in that claim. May return null.
@@ -129,22 +120,33 @@ class ClaimContainer(var database: DatabaseStorage) {
         database.addClaimPartition(claimPartition.claim.id, claimPartition.firstPosition, claimPartition.secondPosition)
     }
 
-    /**
-     * Converts a position of integer pairs to a location object.
-     * @param claim The claim as a reference.
-     * @param position The integer pair defining the position in world.
-     * @return A location object based on the specified world and position.
-     */
-    fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
-        return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
-    }
+    companion object {
+        /**
+         * Converts the block coordinates to chunk coordinates.
+         * @param position The integer pair defining a block's X and Z coordinates.
+         * @return An integer pair defining a chunk's X and Z coordinates.
+         */
+        fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
+            return Pair(position.first shr 4, position.second shr 4)
+        }
 
-    /**
-     * Convert a location object to an integer pair of X and Z.
-     * @param location The location object to convert.
-     * @return An integer pair of X and Z.
-     */
-    fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
-        return Pair(location.x.toInt(), location.z.toInt())
+        /**
+         * Converts a position of integer pairs to a location object.
+         * @param claim The claim as a reference.
+         * @param position The integer pair defining the position in world.
+         * @return A location object based on the specified world and position.
+         */
+        fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
+            return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
+        }
+
+        /**
+         * Convert a location object to an integer pair of X and Z.
+         * @param location The location object to convert.
+         * @return An integer pair of X and Z.
+         */
+        fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
+            return Pair(location.x.toInt(), location.z.toInt())
+        }
     }
 }
