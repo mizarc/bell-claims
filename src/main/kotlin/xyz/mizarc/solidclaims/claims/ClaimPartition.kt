@@ -11,6 +11,23 @@ import org.bukkit.Location
  * @property secondPosition The pair of integers defining the second position.
  */
 class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var secondPosition: Pair<Int, Int>) {
+    init {
+        // Make it so that the first position coordinates are smaller than the second position coordinates.
+        if (firstPosition.first > secondPosition.first) {
+            val newFirstPosition = Pair(secondPosition.first, firstPosition.second)
+            val newSecondPosition = Pair(firstPosition.first, secondPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
+
+        if (firstPosition.second > secondPosition.second) {
+            val newFirstPosition = Pair(firstPosition.first, secondPosition.second)
+            val newSecondPosition = Pair(secondPosition.first, firstPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
+    }
+
     /**
      * Checks whether the specified location in the world is within the bounds of this claim.
      * @param location The location object to check for.
