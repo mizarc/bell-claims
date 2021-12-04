@@ -8,6 +8,7 @@ import xyz.mizarc.solidclaims.commands.ClaimCommand
 import xyz.mizarc.solidclaims.commands.HandleEventsCommand
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
 import xyz.mizarc.solidclaims.events.ClaimToolListener
+import xyz.mizarc.solidclaims.events.ClaimVisualiser
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
@@ -23,6 +24,7 @@ class SolidClaims : JavaPlugin() {
         ownerContainer = OwnerContainer()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
         server.pluginManager.registerEvents(ClaimToolListener(this.claimContainer), this)
+        server.pluginManager.registerEvents(ClaimVisualiser(this), this)
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(HandleEventsCommand())
