@@ -59,10 +59,10 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
      * Gets the list of X and Z block positions that define the edges of a claim.
      * @return A set of Integer pairs specifying the X and Z coordinates of each position.
      */
-    fun getEdgeBlockPositions() : MutableSet<Pair<Int, Int>> {
-        var blocks : MutableSet<Pair<Int, Int>> = mutableSetOf()
+    fun getEdgeBlockPositions() : Array<Pair<Int, Int>> {
+        val blocks : ArrayList<Pair<Int, Int>> = ArrayList()
         for (block in firstPosition.first..secondPosition.first) {
-            blocks.add(Pair(block, firstPosition.second.toInt()))
+            blocks.add(Pair(block, firstPosition.second))
         }
         for (block in firstPosition.first..secondPosition.first) {
             blocks.add(Pair(block, secondPosition.second))
@@ -73,7 +73,7 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         for (block in firstPosition.second..secondPosition.second) {
             blocks.add(Pair(block, secondPosition.first))
         }
-        return blocks
+        return blocks.toTypedArray()
     }
 
     /**
