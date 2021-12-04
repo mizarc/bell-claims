@@ -53,8 +53,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
         val newClaim = Claim(event.clickedBlock!!.world.uid, Bukkit.getOfflinePlayer(event.player.uniqueId))
         val newClaimPartition = ClaimPartition(
             newClaim,
-            claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
-            claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
 
         // Add to list of claims
         claimContainer.addNewClaim(newClaim)
@@ -69,8 +69,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
      */
     fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) : Boolean {
         val chunks = claimContainer.getClaimChunks(
-            claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
-            claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
 
         val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
         for (chunk in chunks) {
@@ -79,8 +79,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
         }
 
         for (partition in existingPartitions) {
-            if (partition.isBoxInClaim(claimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
-                    claimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
+            if (partition.isBoxInClaim(ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+                    ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
                 return false
             }
         }
