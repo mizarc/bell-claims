@@ -12,13 +12,13 @@ import xyz.mizarc.solidclaims.events.ClaimToolListener
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
     internal var configIO: ConfigIO = ConfigIO(this)
-    lateinit var database: DatabaseStorage
+    var database: DatabaseStorage = DatabaseStorage(this)
     lateinit var claimContainer: ClaimContainer
     lateinit var ownerContainer: OwnerContainer
 
 
     override fun onEnable() {
-        logger.info("SolidClaims has been Enabled")
+        database.openConnection()
         claimContainer = ClaimContainer(database)
         ownerContainer = OwnerContainer()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
@@ -27,6 +27,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(HandleEventsCommand())
         loadDataFromDatabase()
+        logger.info("SolidClaims has been Enabled")
     }
 
     override fun onDisable() {
