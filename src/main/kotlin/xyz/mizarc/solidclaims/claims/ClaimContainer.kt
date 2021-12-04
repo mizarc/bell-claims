@@ -1,7 +1,6 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
-import org.bukkit.OfflinePlayer
 import xyz.mizarc.solidclaims.DatabaseStorage
 import java.util.*
 import kotlin.collections.ArrayList
@@ -10,9 +9,9 @@ import kotlin.collections.ArrayList
  * Contains and provides features for navigating claims and claim partitions.
  */
 class ClaimContainer(var database: DatabaseStorage) {
-    lateinit var claims: ArrayList<Claim>
-    lateinit var claimPartitions: ArrayList<ClaimPartition>
-    lateinit var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>>
+    var claims: ArrayList<Claim> = ArrayList()
+    var claimPartitions: ArrayList<ClaimPartition> = ArrayList()
+    var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>> = mutableMapOf()
 
     /**
      * Converts the block coordinates to chunk coordinates.
