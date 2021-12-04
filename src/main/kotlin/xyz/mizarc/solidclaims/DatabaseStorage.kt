@@ -99,7 +99,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 claims.add(Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
-                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(4))),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     claimPermissions,
                     claimPlayers
                 ))
@@ -559,7 +559,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimPermissionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
-                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id);"
+                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
