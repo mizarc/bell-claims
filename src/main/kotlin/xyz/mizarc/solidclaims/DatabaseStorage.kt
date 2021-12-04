@@ -28,6 +28,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
             )
             createClaimTable()
             createClaimPartitionTable()
+            createClaimPermissionTable()
             createPlayerTable()
         } catch (error: SQLException) {
             error.printStackTrace()

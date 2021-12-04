@@ -37,8 +37,8 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun loadDataFromDatabase() {
-        val claims = database.getAllClaims()
-        for (claim in claims!!) {
+        val claims = database.getAllClaims() ?: return
+        for (claim in claims) {
             claimContainer.addClaim(claim)
 
             val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
