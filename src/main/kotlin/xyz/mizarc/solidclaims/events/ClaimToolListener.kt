@@ -24,18 +24,20 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
         if (event.item!!.itemMeta != getClaimTool().itemMeta) return
 
         // Check if player is already making a claim
+        var playerClaimBuilder = PlayerClaimBuilder(event.player.uniqueId)
         var isMakingClaim = false
         for (player in playerClaimBuilders) {
             if (player.playerId == event.player.uniqueId) {
                 isMakingClaim = true
+                playerClaimBuilder = player
                 break
             }
         }
 
         // Set first location
-        val playerClaimBuilder = PlayerClaimBuilder(event.player.uniqueId)
         if (!isMakingClaim) {
             playerClaimBuilder.firstLocation = event.clickedBlock?.location!!
+            playerClaimBuilders.add(playerClaimBuilder)
             event.player.sendMessage("New claim building started. First position has been selected.")
             return
         }
@@ -57,6 +59,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
         // Add to list of claims
         claimContainer.addNewClaim(newClaim)
         claimContainer.addNewClaimPartition(newClaimPartition)
+        playerClaimBuilders.remove(playerClaimBuilder)
+        event.player.sendMessage("New claim has been created.")
     }
 
     /**
