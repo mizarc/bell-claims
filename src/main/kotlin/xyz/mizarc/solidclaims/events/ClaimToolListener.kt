@@ -36,14 +36,14 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
 
         // Set first location
         if (!isMakingClaim) {
-            playerClaimBuilder.firstLocation = event.clickedBlock?.location!!
+            playerClaimBuilder.firstLocation = event.clickedBlock?.location
             playerClaimBuilders.add(playerClaimBuilder)
             event.player.sendMessage("New claim building started. First position has been selected.")
             return
         }
 
         // Set second location & Check if it overlaps an existing claim
-        playerClaimBuilder.secondLocation = event.clickedBlock?.location!!
+        playerClaimBuilder.secondLocation = event.clickedBlock?.location
         if (!checkValidClaim(playerClaimBuilder)) {
             event.player.sendMessage("That selection overlaps an existing claim.")
             return
@@ -74,7 +74,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
 
         val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
         for (chunk in chunks) {
-            existingPartitions.addAll(claimContainer.getClaimPartitionsAtChunk(chunk)!!)
+            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
         }
 
         for (partition in existingPartitions) {
