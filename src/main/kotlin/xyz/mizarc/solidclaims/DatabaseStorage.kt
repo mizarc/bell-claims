@@ -118,7 +118,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for the player.
      */
     fun addClaim(worldId: UUID, ownerId: UUID) {
-        val sqlQuery = "INSERT INTO claims (world, owner) VALUES (?, ?);"
+        val sqlQuery = "INSERT INTO claims (worldId, ownerId) VALUES (?, ?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, worldId.toString())
@@ -526,8 +526,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store claim data if it doesn't exist.
      */
     private fun createClaimTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
-                "owner TEXT NOT NULL);"
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, worldId TEXT NOT NULL, " +
+                "ownerId TEXT NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
