@@ -30,7 +30,6 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         for (part in partitions) {
             borders.addAll(part.getEdgeBlockPositions())
         }
-
         // TODO: Make this not flood packets please
         for (block in borders) {
             for (y in -64..255) {
@@ -55,10 +54,10 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     @Suppress("SameParameterValue")
     private fun getSurroundingChunks(loc: Pair<Int, Int>, radius: Int): Array<Pair<Int, Int>> {
         val sideLength = (radius * 2) + 1 // Make it always odd (eg. radius of 2 results in 5x5 square
-        val chunks: Array<Pair<Int, Int>> = Array(sideLength) {Pair(0, 0)}
+        val chunks: Array<Pair<Int, Int>> = Array(sideLength * sideLength) {Pair(0, 0)}
 
-        for (x in 0..sideLength) {
-            for (z in 0..sideLength) {
+        for (x in 0 until sideLength) {
+            for (z in 0 until sideLength) {
                 chunks[(x * sideLength) + z] = Pair(loc.first + x - radius, loc.second + z - radius)
             }
         }
