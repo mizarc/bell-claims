@@ -50,7 +50,7 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
 
     fun isBoxInClaim(otherFirstPosition: Pair<Int, Int>, otherSecondPosition: Pair<Int, Int>) : Boolean {
         return firstPosition.first <= otherSecondPosition.first
-                && firstPosition.second >= otherFirstPosition.first
+                && secondPosition.first >= otherFirstPosition.first
                 && firstPosition.second <= otherSecondPosition.second
                 && secondPosition.second >= otherFirstPosition.second
     }
