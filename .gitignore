@@ -55,6 +55,10 @@ gradle-app.setting
 .idea/**/kotlinc.xml
 .idea/**/misc.xml
 .idea/**/sqldialects.xml
+.idea/**/git_toolbox_prj.xml
+.idea/**/compiler.xml
+.idea/**/Project_Default.xml
+.idea/**/runConfigurations.xml
 
 # Generated files
 .idea/**/contentModel.xml
