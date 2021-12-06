@@ -16,7 +16,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
 
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        val holdingClaimTool = event.player.inventory.itemInMainHand == getClaimTool() || event.player.inventory.itemInOffHand == getClaimTool()
+        val holdingClaimTool = event.player.inventory.getItem(event.newSlot) == getClaimTool() || event.player.inventory.itemInOffHand == getClaimTool()
         val state: Boolean = playerVisualisingState[event.player] ?: !holdingClaimTool // If map does not contain player, set value to opposite of holdingClaimTool to force it to update
         if (state == holdingClaimTool) return
 
