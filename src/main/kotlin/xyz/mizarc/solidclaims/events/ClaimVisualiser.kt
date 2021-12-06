@@ -22,7 +22,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
 
         playerVisualisingState[event.player] = holdingClaimTool // Register state to the cache
 
-        val chunks = getSurroundingChunks(ClaimContainer.getPositionFromLocation(event.player.location), 2)
+        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(event.player.location)), 2)
         val partitions = getClaimPartitionsInChunks(chunks)
         if (partitions.isEmpty()) return
 
