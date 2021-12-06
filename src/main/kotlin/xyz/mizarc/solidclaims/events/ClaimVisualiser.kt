@@ -33,7 +33,9 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         // TODO: Make this not flood packets please
         for (block in borders) {
             for (y in -64..255) {
-                event.player.sendBlockChange(Location(event.player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble()), Material.CYAN_GLAZED_TERRACOTTA.createBlockData())
+                val blockLocation = Location(event.player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble())
+                if (blockLocation.block.blockData.material == Material.AIR) continue
+                event.player.sendBlockChange(blockLocation, Material.CYAN_GLAZED_TERRACOTTA.createBlockData())
             }
         }
     }
