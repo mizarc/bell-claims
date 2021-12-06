@@ -68,10 +68,10 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
             blocks.add(Pair(block, secondPosition.second))
         }
         for (block in firstPosition.second..secondPosition.second) {
-            blocks.add(Pair(block, firstPosition.first))
+            blocks.add(Pair(firstPosition.first, block))
         }
         for (block in firstPosition.second..secondPosition.second) {
-            blocks.add(Pair(block, secondPosition.first))
+            blocks.add(Pair(secondPosition.first, block))
         }
         return blocks.toTypedArray()
     }
