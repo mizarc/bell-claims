@@ -89,8 +89,8 @@ class ClaimContainer(var database: DatabaseStorage) {
     fun addClaimPartition(claimPartition: ClaimPartition) : Boolean {
         // Check if partition in defined location already exists
         for (existingClaimPartition in claimPartitions) {
-            if (claimPartition.firstPosition == claimPartition.firstPosition &&
-                claimPartition.secondPosition == claimPartition.secondPosition) {
+            if (claimPartition.firstPosition == existingClaimPartition.firstPosition &&
+                claimPartition.secondPosition == existingClaimPartition.firstPosition) {
                 return false
             }
         }
