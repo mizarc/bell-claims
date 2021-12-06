@@ -33,9 +33,11 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         // TODO: Make this not flood packets please
         for (block in borders) {
             for (y in -64..255) {
+                var blockData = Material.CYAN_GLAZED_TERRACOTTA.createBlockData() // Set the visualisation block
                 val blockLocation = Location(event.player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble())
                 if (blockLocation.block.blockData.material == Material.AIR) continue
-                event.player.sendBlockChange(blockLocation, Material.CYAN_GLAZED_TERRACOTTA.createBlockData())
+                if (!playerVisualisingState[event.player]!!) blockData = event.player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+                event.player.sendBlockChange(blockLocation, blockData)
             }
         }
     }
