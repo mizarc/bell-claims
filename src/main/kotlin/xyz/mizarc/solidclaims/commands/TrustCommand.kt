@@ -16,7 +16,7 @@ class TrustCommand : BaseCommand() {
 
     @Default
     @CommandCompletion("@players @permissions")
-    fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: String) {
+    fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 
         // Check if there is a claim at the player's location
@@ -25,43 +25,30 @@ class TrustCommand : BaseCommand() {
             return
         }
 
-        var perm: ClaimPermission? = null
-
-        for (p in ClaimPermission.values()) {
-            if (permission == p.alias) {
-                perm = p
-                break
-            }
-        }
-
-        if (perm == null) {
-            player.sendMessage("$permission does not exist!")
-            return
-        }
-
         val claimPlayers = claimPartition.claim.claimPlayers
         for (claimPlayer in claimPlayers) {
             if (claimPlayer.id == otherPlayer.player.uniqueId) {
 
                 // Check if player already has the permission
-                if (perm in claimPlayer.claimPermissions) {
+                if (permission in claimPlayer.claimPermissions) {
                     player.sendMessage(
-                        "${Bukkit.getPlayer(player.uniqueId)?.name} already has permission ${perm.name}")
+                        "${Bukkit.getPlayer(player.uniqueId)?.name} already has permission ${permission.name}")
                     return
                 }
 
                 // Add new permission to player access
-                claimPlayer.claimPermissions.add(perm)
-                player.sendMessage("${Bukkit.getPlayer(
-                        otherPlayer.player.uniqueId)?.name} has been given the permission ${perm.name} for this claim")
+                claimPlayer.claimPermissions.add(permission)
+                player.sendMessage(
+                    "${otherPlayer.player.name} has been given the permission ${permission.name} for this claim")
                 return
             }
         }
 
         // Add new player and permission
         val playerAccess = ClaimPlayer(otherPlayer.player.uniqueId)
-        playerAccess.claimPermissions.add(perm)
+        playerAccess.claimPermissions.add(permission)
+        claimPartition.claim.claimPlayers.add(playerAccess)
         player.sendMessage("${Bukkit.getPlayer(
-                otherPlayer.player.uniqueId)?.name} has been given the permission ${perm.name} for this claim")
+                otherPlayer.player.uniqueId)?.name} has been given the permission ${permission.name} for this claim")
     }
 }
