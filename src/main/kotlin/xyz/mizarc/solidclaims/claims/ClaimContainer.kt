@@ -47,13 +47,13 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param location The location object defining the position in the world.
      * @return A claim at the current position if available. May return null.
      */
-    fun getClaimAtLocation(location: Location) : Claim? {
+    fun getClaimPartitionAtLocation(location: Location) : ClaimPartition? {
         val claimsInChunk = getClaimPartitionsAtChunk(
             getChunkLocation(getPositionFromLocation(location))) ?: return null
 
         for (claimPartition in claimsInChunk) {
             if (claimPartition.isLocationInClaim(location)) {
-                return claimPartition.claim
+                return claimPartition
             }
         }
 
