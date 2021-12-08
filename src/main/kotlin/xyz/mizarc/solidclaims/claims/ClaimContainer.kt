@@ -120,6 +120,50 @@ class ClaimContainer(var database: DatabaseStorage) {
         database.addClaimPartition(claimPartition.claim.id, claimPartition.firstPosition, claimPartition.secondPosition)
     }
 
+    /**
+     * Removes a claim from memory.
+     * @param claim The instance of the claim.
+     */
+    fun removeClaim(claim: Claim) {
+        claims.remove(claim)
+    }
+
+    /**
+     * Removes a claim from memory and database.
+     * @param claim The instance of the claim.
+     */
+    fun removePersistentClaim(claim: Claim) : Boolean {
+        removeClaim(claim)
+        database.removeClaim(claim.id)
+        return true
+    }
+
+    /**
+     * Removes a claim partition from memory.
+     * @param claimPartition The instance of the claim.
+     */
+    fun removeClaimPartition(claimPartition: ClaimPartition) : Boolean {
+        claimPartitions.remove(claimPartition)
+
+        val chunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
+        for (chunk in chunks) {
+            val savedChunk = chunkClaimPartitions[chunk] ?: return false
+            savedChunk.remove(claimPartition)
+        }
+
+        return true
+    }
+
+    /**
+     * Removes a claim partition from memory and database.
+     * @param claimPartition The instance of the claim.
+     */
+    fun removePersistentClaimPartition(claimPartition: ClaimPartition) : Boolean {
+        removeClaimPartition(claimPartition)
+        database.removeClaimPartition(claimPartition.firstPosition, claimPartition.secondPosition)
+        return true
+    }
+
     companion object {
         /**
          * Converts the block coordinates to chunk coordinates.
