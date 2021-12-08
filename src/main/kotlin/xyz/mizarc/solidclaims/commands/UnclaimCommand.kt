@@ -23,12 +23,20 @@ class UnclaimCommand : BaseCommand() {
     fun onPartition(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 
+        // Check if there is a claim at the player's location
         if (claimPartition == null) {
             player.sendMessage("There is no claim partition at your current location.")
             return
         }
 
+        // Remove claim partition
         plugin.claimContainer.removeClaimPartition(claimPartition)
+
+        // Remove claim if there are no more partitions attached to it
+        if (claimPartition.claim.claimPartitions.isEmpty()) {
+            plugin.claimContainer.removePersistentClaim(claimPartition.claim)
+        }
+
         player.sendMessage("This claim partition has been removed")
     }
 
