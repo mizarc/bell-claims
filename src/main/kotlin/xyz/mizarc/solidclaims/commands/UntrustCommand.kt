@@ -30,7 +30,7 @@ class UntrustCommand : BaseCommand() {
         for (claimPlayer in claimPlayers) {
             if (claimPlayer.id == otherPlayer.player.uniqueId) {
 
-                // Check if player already has the permission
+                // Check if player doesn't have the permission
                 if (permission !in claimPlayer.claimPermissions) {
                     player.sendMessage(
                         "${Bukkit.getPlayer(player.uniqueId)?.name} doesn't have permission ${permission.name}")
@@ -44,5 +44,9 @@ class UntrustCommand : BaseCommand() {
                 return
             }
         }
+
+        player.sendMessage(
+            "${Bukkit.getPlayer(player.uniqueId)?.name} doesn't have permission ${permission.name}")
+        return
     }
 }
