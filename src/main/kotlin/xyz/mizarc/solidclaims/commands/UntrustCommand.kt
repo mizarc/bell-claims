@@ -11,7 +11,7 @@ import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimPlayer
 import xyz.mizarc.solidclaims.events.ClaimPermission
 
-@CommandAlias("trust")
+@CommandAlias("untrust")
 class UntrustCommand : BaseCommand() {
     @Dependency
     lateinit var plugin : SolidClaims
