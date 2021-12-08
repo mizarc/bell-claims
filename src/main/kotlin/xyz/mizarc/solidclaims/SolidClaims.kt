@@ -1,13 +1,11 @@
 package xyz.mizarc.solidclaims
 
 import co.aikar.commands.PaperCommandManager
+import com.google.common.collect.ImmutableList
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.OwnerContainer
-import xyz.mizarc.solidclaims.commands.ClaimCommand
-import xyz.mizarc.solidclaims.commands.HandleEventsCommand
-import xyz.mizarc.solidclaims.commands.TrustCommand
-import xyz.mizarc.solidclaims.commands.UnclaimCommand
+import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import xyz.mizarc.solidclaims.events.ClaimToolListener
@@ -32,6 +30,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
+        commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(HandleEventsCommand())
         commandManager.commandCompletions.registerCompletion("permissions") {
             val perms: ArrayList<String> = ArrayList()
