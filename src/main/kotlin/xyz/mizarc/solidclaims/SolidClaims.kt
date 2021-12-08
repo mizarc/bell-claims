@@ -9,6 +9,7 @@ import xyz.mizarc.solidclaims.commands.HandleEventsCommand
 import xyz.mizarc.solidclaims.commands.TrustCommand
 import xyz.mizarc.solidclaims.commands.UnclaimCommand
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
+import xyz.mizarc.solidclaims.events.ClaimPermission
 import xyz.mizarc.solidclaims.events.ClaimToolListener
 import xyz.mizarc.solidclaims.events.ClaimVisualiser
 
@@ -32,6 +33,13 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(HandleEventsCommand())
+        commandManager.commandCompletions.registerCompletion("permissions") {
+            val perms: ArrayList<String> = ArrayList()
+            for (p in ClaimPermission.values()) {
+                perms.add(p.alias)
+            }
+            perms
+        }
         loadDataFromDatabase()
         logger.info("SolidClaims has been Enabled")
     }
