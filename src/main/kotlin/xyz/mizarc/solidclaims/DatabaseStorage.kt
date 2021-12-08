@@ -63,13 +63,20 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 val claimPlayers: ArrayList<ClaimPlayer> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
 
-                return Claim(
+                val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     claimPermissions,
-                    claimPlayers,
+                    claimPlayers
                 )
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+
+                return claim
             }
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -96,13 +103,20 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 val claimPlayers: ArrayList<ClaimPlayer> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
 
-                claims.add(Claim(
+                val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     claimPermissions,
                     claimPlayers
-                ))
+                )
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+
+                claims.add(claim)
             }
             return claims
 
