@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.commands
 
+import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
@@ -11,7 +12,7 @@ import xyz.mizarc.solidclaims.claims.ClaimPlayer
 import xyz.mizarc.solidclaims.events.ClaimPermission
 
 @CommandAlias("trust")
-class UntrustCommand {
+class UntrustCommand : BaseCommand() {
     @Dependency
     lateinit var plugin : SolidClaims
 
