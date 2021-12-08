@@ -31,15 +31,10 @@ enum class ClaimPermission(val parent: ClaimPermission?, val alias: String, val 
         Pair(PlayerInteractEvent::class.java,               ::cancelEvent))),
 
     /**
-     * When a block is broken by a player.
+     * When a block is broken/placed by a player.
      */
-    BlockBreak(AllBlocks, "blockBreak", arrayOf(
-        Pair(BlockBreakEvent::class.java,                   ::cancelEvent))),
-
-    /**
-     * When a block is placed by a player.
-     */
-    BlockPlace(AllBlocks, "blockPlace", arrayOf(
+    Build(AllBlocks, "build", arrayOf(
+        Pair(BlockBreakEvent::class.java,                   ::cancelEvent),
         Pair(BlockPlaceEvent::class.java,                   ::cancelEvent),
         Pair(BlockMultiPlaceEvent::class.java,              ::cancelEvent))),
 
@@ -121,6 +116,9 @@ enum class ClaimPermission(val parent: ClaimPermission?, val alias: String, val 
             }
         }
 
+        /**
+         * Get all ClaimPermissions that encompass [event].
+         */
         fun getPermissionsForEvent(event: Class<out Event>) : Array<ClaimPermission> {
             val perms: ArrayList<ClaimPermission> = ArrayList()
             for (v in values()) {
