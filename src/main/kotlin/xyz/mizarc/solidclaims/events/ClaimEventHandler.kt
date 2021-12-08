@@ -49,7 +49,8 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         if (!handleEvents) return // TODO: Remove debug
         if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
         val location = event.player.location
-        val claim = claimContainer.getClaimAtLocation(location) ?: return
+        val claimPartition = claimContainer.getClaimPartitionAtLocation(location) ?: return
+        val claim = claimPartition.claim
         val player = ClaimPlayer(event.player.uniqueId) // TODO: Get an actual player instead of constructing one
 
         // TODO: If player is not in claim list, use default permissions
