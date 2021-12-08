@@ -6,6 +6,7 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.OwnerContainer
 import xyz.mizarc.solidclaims.commands.ClaimCommand
 import xyz.mizarc.solidclaims.commands.HandleEventsCommand
+import xyz.mizarc.solidclaims.commands.TrustCommand
 import xyz.mizarc.solidclaims.commands.UnclaimCommand
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
 import xyz.mizarc.solidclaims.events.ClaimToolListener
@@ -29,6 +30,7 @@ class SolidClaims : JavaPlugin() {
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())
+        commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(HandleEventsCommand())
         loadDataFromDatabase()
         logger.info("SolidClaims has been Enabled")
