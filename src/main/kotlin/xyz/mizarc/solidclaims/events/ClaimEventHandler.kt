@@ -1,13 +1,11 @@
 package xyz.mizarc.solidclaims.events
 
-import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerEvent
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.ClaimPlayer
 
 /**
  * Handles the registration of defined events with their associated actions.
@@ -15,21 +13,8 @@ import xyz.mizarc.solidclaims.claims.ClaimPlayer
  * @property claimContainer A reference to the ClaimContainer instance
  */
 class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
-    @Suppress("UNUSED_PARAMETER")
     companion object {
         var handleEvents = false
-
-        /**
-         * The generic function to cancel any cancellable event.
-         * TODO: Check the permissions context of this event callback.
-         */
-        fun cancelEvent(listener: Listener, event: Event) {
-            if (handleEvents) {
-                if (event is Cancellable) {
-                    event.isCancelled = true
-                }
-            }
-        }
     }
 
     init {
@@ -49,28 +34,37 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         if (!handleEvents) return // TODO: Remove debug
         if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
         val location = event.player.location
-        val claimPartition = claimContainer.getClaimPartitionAtLocation(location) ?: return
-        val claim = claimPartition.claim
-        val player = ClaimPlayer(event.player.uniqueId) // TODO: Get an actual player instead of constructing one
+        val claim = claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
+        val player = solidClaims.database.getPlayerClaimPermissions(event.player.uniqueId, claim.id)
 
-        // TODO: If player is not in claim list, use default permissions
-        if (!(claim.claimPlayers.contains(player))) {
-            var priority = Int.MAX_VALUE // Higher number == lower priority
-            var executor: ((l: Listener, e: Event) -> Unit)? = null
-            player.claimPermissions.forEach { p ->
-                if (priority < p.priority) return@forEach
-                run events@ {
-                    p.events.forEach { e ->
-                        if (e.first == event::class.java) {
-                            priority = p.priority
-                            executor = e.second
-                            return@events
-                        }
+        val claimPerms = player?.claimPermissions ?: claim.defaultPermissions
+        val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java)
+
+        var executor: ((l: Listener, e: Event) -> Unit)? = null
+
+        fun checkPermissionParents(p: ClaimPermission): Boolean {
+            var pRef: ClaimPermission? = p
+            while (pRef?.parent != null) {
+                if (claimPerms.contains(pRef.parent)) {
+                    return true
+                }
+                pRef = pRef.parent
+            }
+            return false
+        }
+
+        for (e in eventPerms) {
+            if (claimPerms.contains(e) || checkPermissionParents(e)) {
+                for (ee in e.events) {
+                    if (ee.first == event::class.java) {
+                        executor = ee.second
+                        break
                     }
                 }
             }
-            executor?.invoke(listener, event)
         }
+
+        executor?.invoke(listener, event)
     }
 
     /**
