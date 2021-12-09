@@ -6,7 +6,7 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.SolidClaims
-import xyz.mizarc.solidclaims.claims.ClaimPlayer
+import xyz.mizarc.solidclaims.claims.PlayerAccess
 import xyz.mizarc.solidclaims.events.ClaimPermission
 
 @CommandAlias("trust")
@@ -25,7 +25,7 @@ class TrustCommand : BaseCommand() {
             return
         }
 
-        val claimPlayers = claimPartition.claim.claimPlayers
+        val claimPlayers = claimPartition.claim.playerAccesses
         for (claimPlayer in claimPlayers) {
             if (claimPlayer.id == otherPlayer.player.uniqueId) {
 
@@ -45,9 +45,9 @@ class TrustCommand : BaseCommand() {
         }
 
         // Add new player and permission
-        val playerAccess = ClaimPlayer(otherPlayer.player.uniqueId)
+        val playerAccess = PlayerAccess(otherPlayer.player.uniqueId)
         playerAccess.claimPermissions.add(permission)
-        claimPartition.claim.claimPlayers.add(playerAccess)
+        claimPartition.claim.playerAccesses.add(playerAccess)
         player.sendMessage("${Bukkit.getPlayer(
                 otherPlayer.player.uniqueId)?.name} has been given the permission ${permission.name} for this claim")
     }
