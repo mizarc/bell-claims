@@ -8,7 +8,6 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.SolidClaims
-import xyz.mizarc.solidclaims.claims.ClaimPlayer
 import xyz.mizarc.solidclaims.events.ClaimPermission
 
 @CommandAlias("untrust")
@@ -26,7 +25,7 @@ class UntrustCommand : BaseCommand() {
             return
         }
 
-        val claimPlayers = claimPartition.claim.claimPlayers
+        val claimPlayers = claimPartition.claim.playerAccesses
         for (claimPlayer in claimPlayers) {
             if (claimPlayer.id == otherPlayer.player.uniqueId) {
 

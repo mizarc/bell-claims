@@ -1,7 +1,6 @@
 package xyz.mizarc.solidclaims
 
 import co.aikar.commands.PaperCommandManager
-import com.google.common.collect.ImmutableList
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.OwnerContainer

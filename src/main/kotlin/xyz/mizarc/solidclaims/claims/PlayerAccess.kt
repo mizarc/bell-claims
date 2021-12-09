@@ -9,7 +9,7 @@ import kotlin.collections.ArrayList
  * @property id The unique identifier for a player.
  * @property claimPermissions An array of claim permissions.
  */
-class ClaimPlayer(var id: UUID, var claimPermissions: ArrayList<ClaimPermission>) {
+class PlayerAccess(var id: UUID, var claimPermissions: ArrayList<ClaimPermission>) {
     /**
      * Constructs a ClaimPlayer without a default list of permissions.
      * @param id The unique identifier for a player.

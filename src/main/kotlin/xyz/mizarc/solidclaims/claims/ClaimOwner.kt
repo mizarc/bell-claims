@@ -12,7 +12,7 @@ import kotlin.collections.ArrayList
  * @param playerPermissions The permissions assigned to a particular player.
  */
 class ClaimOwner(var ownerId: UUID, var globalPermissions: ArrayList<ClaimPermission>,
-                 var playerPermissions: ArrayList<ClaimPlayer>) {
+                 var playerPermissions: ArrayList<PlayerAccess>) {
     /**
      * Constructs a ClaimOwner without any permissions.
      * @param ownerId The unique identifier for the player.
