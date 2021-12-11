@@ -30,7 +30,7 @@ class UnclaimCommand : BaseCommand() {
         }
 
         // Remove claim partition
-        plugin.claimContainer.removeClaimPartition(claimPartition)
+        plugin.claimContainer.removePersistentClaimPartition(claimPartition)
 
         // Remove claim if there are no more partitions attached to it
         if (claimPartition.claim.claimPartitions.isEmpty()) {
