@@ -9,12 +9,12 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
 
 /**
  * Handles the registration of defined events with their associated actions.
- * @property solidClaims A reference to the plugin instance
+ * @property plugin A reference to the plugin instance
  * @property claimContainer A reference to the ClaimContainer instance
  */
-class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
+class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContainer) : Listener {
     companion object {
-        var handleEvents = false
+        var handleEvents = true
     }
 
     init {
@@ -33,9 +33,11 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
     private fun handleClaimEvent(listener: Listener, event: Event) {
         if (!handleEvents) return // TODO: Remove debug
         if (event !is PlayerEvent) return // TODO: Check for non-player events to handle
+        // NOTE: If player breaks block inside of claim while standing outside of claim, this does not reflect that
+        // TODO: Fix this behaviour
         val location = event.player.location
         val claim = claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
-        val player = solidClaims.database.getPlayerClaimPermissions(event.player.uniqueId, claim.id)
+        val player = plugin.database.getPlayerClaimPermissions(event.player.uniqueId, claim.id)
 
         val claimPerms = player?.claimPermissions ?: claim.defaultPermissions
         val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java)
@@ -54,7 +56,7 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         }
 
         for (e in eventPerms) {
-            if (claimPerms.contains(e) || checkPermissionParents(e)) {
+            if (!claimPerms.contains(e) || !checkPermissionParents(e)) {
                 for (ee in e.events) {
                     if (ee.first == event::class.java) {
                         executor = ee.second
@@ -71,6 +73,6 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
      * An alias to the PluginManager.registerEvent() function that handles some parameters automatically.
      */
     private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) =
-        solidClaims.server.pluginManager.registerEvent(event, this, EventPriority.NORMAL, executor,
-            solidClaims, true)
+        plugin.server.pluginManager.registerEvent(event, this, EventPriority.NORMAL, executor,
+            plugin, true)
 }
