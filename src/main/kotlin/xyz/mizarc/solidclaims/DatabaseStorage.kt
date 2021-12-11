@@ -3,7 +3,7 @@ package xyz.mizarc.solidclaims
 import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
-import xyz.mizarc.solidclaims.claims.ClaimPlayer
+import xyz.mizarc.solidclaims.claims.PlayerAccess
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.Connection
 import java.sql.DriverManager
@@ -28,6 +28,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
             )
             createClaimTable()
             createClaimPartitionTable()
+            createClaimPermissionTable()
             createPlayerTable()
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -59,16 +60,23 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
                 val claimPermissions = getClaimPermissions(id) ?: return null
-                val claimPlayers: ArrayList<ClaimPlayer> =
+                val playerAccesses: ArrayList<PlayerAccess> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
 
-                return Claim(
+                val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     claimPermissions,
-                    claimPlayers,
+                    playerAccesses
                 )
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+
+                return claim
             }
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -92,16 +100,23 @@ class DatabaseStorage(var plugin: SolidClaims) {
             while (resultSet.next()) {
                 val claimPermissions: ArrayList<ClaimPermission> =
                     getClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
-                val claimPlayers: ArrayList<ClaimPlayer> =
+                val playerAccesses: ArrayList<PlayerAccess> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
 
-                claims.add(Claim(
+                val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
-                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(4))),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     claimPermissions,
-                    claimPlayers
-                ))
+                    playerAccesses
+                )
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+
+                claims.add(claim)
             }
             return claims
 
@@ -117,12 +132,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param worldId The unique identifier for the world.
      * @param ownerId The unique identifier for the player.
      */
-    fun addClaim(worldId: UUID, ownerId: UUID) {
-        val sqlQuery = "INSERT INTO claims (world, owner) VALUES (?, ?);"
+    fun addClaim(id: UUID, worldId: UUID, ownerId: UUID) {
+        val sqlQuery = "INSERT INTO claims (id, worldId, ownerId) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, worldId.toString())
-            statement.setString(2, ownerId.toString())
+            statement.setString(1, id.toString())
+            statement.setString(2, worldId.toString())
+            statement.setString(3, ownerId.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -303,11 +319,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerID The unique identifier for the claim owner.
      * @return An array of player claim permissions. May return null.
      */
-    fun getAllPlayersOwnerPermissions(ownerID: UUID) : ArrayList<ClaimPlayer>? {
-        val sqlQuery = "SELECT * FROM players WHERE claimOwnerId=?;"
+    fun getAllPlayersOwnerPermissions(ownerID: UUID) : ArrayList<PlayerAccess>? {
+        val sqlQuery = "SELECT * FROM playerAccess WHERE claimOwnerId=?;"
 
         try {
-            val claimPlayers: ArrayList<ClaimPlayer> = arrayListOf()
+            val playerAccesses: ArrayList<PlayerAccess> = arrayListOf()
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, ownerID.toString())
             val resultSet = statement.executeQuery()
@@ -316,7 +332,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 var foundExistingPlayer = false
 
                 // Add to existing player entry if found
-                for (claimPlayer in claimPlayers) {
+                for (claimPlayer in playerAccesses) {
                     if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
                         claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
                         foundExistingPlayer = true
@@ -329,12 +345,12 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 }
 
                 // Add new ClaimPlayer entry to list if it doesn't already exist
-                val newClaimPlayer = ClaimPlayer(UUID.fromString(resultSet.getString(1)))
-                newClaimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
-                claimPlayers.add(newClaimPlayer)
+                val newPlayerAccess = PlayerAccess(UUID.fromString(resultSet.getString(1)))
+                newPlayerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                playerAccesses.add(newPlayerAccess)
             }
 
-            return claimPlayers
+            return playerAccesses
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -347,11 +363,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param claimID The unique identifier for the claim.
      * @return An array of player claim permissions. May return null.
      */
-    fun getAllPlayersClaimPermissions(claimID: UUID) : ArrayList<ClaimPlayer>? {
-        val sqlQuery = "SELECT * FROM players WHERE claimId=?;"
+    fun getAllPlayersClaimPermissions(claimID: UUID) : ArrayList<PlayerAccess>? {
+        val sqlQuery = "SELECT * FROM playerAccess WHERE claimId=?;"
 
         try {
-            val claimPlayers: ArrayList<ClaimPlayer> = arrayListOf()
+            val playerAccesses: ArrayList<PlayerAccess> = arrayListOf()
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claimID.toString())
             val resultSet = statement.executeQuery()
@@ -360,7 +376,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 var foundExistingPlayer = false
 
                 // Add to existing player entry if found
-                for (claimPlayer in claimPlayers) {
+                for (claimPlayer in playerAccesses) {
                     if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
                         claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
                         foundExistingPlayer = true
@@ -373,12 +389,12 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 }
 
                 // Add new ClaimPlayer entry to list if it doesn't already exist
-                val newClaimPlayer = ClaimPlayer(UUID.fromString(resultSet.getString(1)))
-                newClaimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
-                claimPlayers.add(newClaimPlayer)
+                val newPlayerAccess = PlayerAccess(UUID.fromString(resultSet.getString(1)))
+                newPlayerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                playerAccesses.add(newPlayerAccess)
             }
 
-            return claimPlayers
+            return playerAccesses
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -392,21 +408,21 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for a claim owner.
      * @return A ClaimPlayer object. May return null.
      */
-    fun getPlayerOwnerPermissions(playerId: UUID, ownerId: UUID) : ClaimPlayer? {
-        val sqlQuery = "SELECT * FROM players WHERE playerId=? AND claimOwnerId=?;"
+    fun getPlayerOwnerPermissions(playerId: UUID, ownerId: UUID) : PlayerAccess? {
+        val sqlQuery = "SELECT * FROM playerAccess WHERE playerId=? AND claimOwnerId=?;"
 
         try {
-            val claimPlayer = ClaimPlayer(playerId)
+            val playerAccess = PlayerAccess(playerId)
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             statement.setString(2, ownerId.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                playerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
             }
 
-            return claimPlayer
+            return playerAccess
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -420,21 +436,21 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param claimId The unique identifier for the claim.
      * @return A ClaimPlayer object. May Return Null.
      */
-    fun getPlayerClaimPermissions(playerId: UUID, claimId: UUID) : ClaimPlayer? {
-        val sqlQuery = "SELECT * FROM players WHERE playerId=? AND claimId=?;"
+    fun getPlayerClaimPermissions(playerId: UUID, claimId: UUID) : PlayerAccess? {
+        val sqlQuery = "SELECT * FROM playerAccess WHERE playerId=? AND claimId=?;"
 
         try {
-            val claimPlayer = ClaimPlayer(playerId)
+            val playerAccess = PlayerAccess(playerId)
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             statement.setString(2, claimId.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                playerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
             }
 
-            return claimPlayer
+            return playerAccess
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -449,7 +465,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param permission The permission key name.
      */
     fun addPlayerOwnerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
-        val sqlQuery = "INSERT INTO players (playerId, claimOwnerId, permission) VALUES (?,?,?);"
+        val sqlQuery = "INSERT INTO playerAccess (playerId, claimOwnerId, permission) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
@@ -469,7 +485,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param permission The permission key name.
      */
     fun removePlayerOwnerPermission(playerId: UUID, claimOwnerId: UUID, permission: String) {
-        val sqlQuery = "DELETE FROM players WHERE playerId=? AND claimOwnerId=? AND permission=?;"
+        val sqlQuery = "DELETE FROM playerAccess WHERE playerId=? AND claimOwnerId=? AND permission=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
@@ -489,7 +505,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param permission The permission key name.
      */
     fun addPlayerClaimPermission(playerId: UUID, claimId: UUID, permission: String) {
-        val sqlQuery = "INSERT INTO players (playerId, claimId, permission) VALUES (?,?,?);"
+        val sqlQuery = "INSERT INTO playerAccess (playerId, claimId, permission) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
@@ -509,7 +525,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param permission The permission key name.
      */
     fun removePlayerClaimPermission(playerId: UUID, claimId: UUID, permission: String) {
-        val sqlQuery = "DELETE FROM players WHERE playerId=? AND claimId=? AND permission=?;"
+        val sqlQuery = "DELETE FROM playerAccess WHERE playerId=? AND claimId=? AND permission=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
@@ -526,8 +542,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store claim data if it doesn't exist.
      */
     private fun createClaimTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
-                "owner TEXT NOT NULL);"
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, worldId TEXT NOT NULL, " +
+                "ownerId TEXT NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
@@ -557,7 +573,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimPermissionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT NOT NULL, " +
-                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id);"
+                "permission TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
@@ -571,7 +587,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store player permission data if it doesn't exist.
      */
     private fun createPlayerTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS players (playerId TEXT, claimOwnerId TEXT, " +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS playerAccess (playerId TEXT, claimOwnerId TEXT, " +
                 "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)

@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.*
 
-typealias EventExecutor = Pair<Class<out Event>, (l: Listener, e: Event) -> Unit>
+typealias ClaimEventExecutor = Pair<Class<out Event>, (l: Listener, e: Event) -> Unit>
 
 /**
  * Represents a string value that pertains to certain events, the action that occurs on that event,
@@ -31,7 +31,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val alias: String, val 
         Pair(PlayerInteractEvent::class.java,               ::cancelEvent))),
 
     /**
-     * When a block is broken by a player.
+     * When a block is broken/placed by a player.
      */
     BlockBreak(AllBlocks, "blockBreak", arrayOf(
         Pair(BlockBreakEvent::class.java,                   ::cancelEvent))),
