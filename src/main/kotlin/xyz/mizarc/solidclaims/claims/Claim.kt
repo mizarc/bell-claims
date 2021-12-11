@@ -14,16 +14,33 @@ import kotlin.collections.ArrayList
  * @property id The unique identifier for the claim.
  * @property worldId the unique identifier for the world.
  * @property owner A reference to the owning player.
- * @property claimPlayers A list of trusted players.
+ * @property defaultPermissions The permissions of this claim for all players
+ * @property playerAccesses A list of trusted players.
+ * @property claimPartitions The partitions linked to this claim.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
-            var defaultPermissions: ArrayList<ClaimPermission>, var claimPlayers: ArrayList<ClaimPlayer>) {
+            var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
+            var claimPartitions: ArrayList<ClaimPartition>) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
-    constructor(worldId: UUID, owner: OfflinePlayer) : this(UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList())
+    constructor(worldId: UUID, owner: OfflinePlayer) : this(
+        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList())
+
+    /**
+     * Compiles a new claim based on everything but the claim partitions.
+     * @param id The unique identifier for the claim.
+     * @param worldId The unique identifier of the world the claim is to be made in.
+     * @param owner A reference to the owning player.
+     * @param defaultPermissions The permissions of this claim for all players
+     * @param playerAccesses A list of trusted players.
+     */
+    constructor(id: UUID, worldId: UUID, owner: OfflinePlayer,
+                defaultPermissions: ArrayList<ClaimPermission>, playerAccesses: ArrayList<PlayerAccess>) : this(
+        id, worldId, owner, defaultPermissions, playerAccesses, ArrayList()
+    )
 
     /**
      * Gets a reference to the world if available.

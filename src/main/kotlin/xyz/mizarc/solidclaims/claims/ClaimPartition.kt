@@ -11,6 +11,23 @@ import org.bukkit.Location
  * @property secondPosition The pair of integers defining the second position.
  */
 class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var secondPosition: Pair<Int, Int>) {
+    init {
+        // Make it so that the first position coordinates are smaller than the second position coordinates.
+        if (firstPosition.first > secondPosition.first) {
+            val newFirstPosition = Pair(secondPosition.first, firstPosition.second)
+            val newSecondPosition = Pair(firstPosition.first, secondPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
+
+        if (firstPosition.second > secondPosition.second) {
+            val newFirstPosition = Pair(firstPosition.first, secondPosition.second)
+            val newSecondPosition = Pair(secondPosition.first, firstPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
+    }
+
     /**
      * Checks whether the specified location in the world is within the bounds of this claim.
      * @param location The location object to check for.
@@ -31,25 +48,32 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return false
     }
 
+    fun isBoxInClaim(otherFirstPosition: Pair<Int, Int>, otherSecondPosition: Pair<Int, Int>) : Boolean {
+        return firstPosition.first <= otherSecondPosition.first
+                && secondPosition.first >= otherFirstPosition.first
+                && firstPosition.second <= otherSecondPosition.second
+                && secondPosition.second >= otherFirstPosition.second
+    }
+
     /**
      * Gets the list of X and Z block positions that define the edges of a claim.
      * @return A set of Integer pairs specifying the X and Z coordinates of each position.
      */
-    fun getEdgeBlockPositions() : MutableSet<Pair<Int, Int>> {
-        var blocks : MutableSet<Pair<Int, Int>> = mutableSetOf()
+    fun getEdgeBlockPositions() : Array<Pair<Int, Int>> {
+        val blocks : ArrayList<Pair<Int, Int>> = ArrayList()
         for (block in firstPosition.first..secondPosition.first) {
-            blocks.add(Pair(block, firstPosition.second.toInt()))
+            blocks.add(Pair(block, firstPosition.second))
         }
         for (block in firstPosition.first..secondPosition.first) {
             blocks.add(Pair(block, secondPosition.second))
         }
         for (block in firstPosition.second..secondPosition.second) {
-            blocks.add(Pair(block, firstPosition.first))
+            blocks.add(Pair(firstPosition.first, block))
         }
         for (block in firstPosition.second..secondPosition.second) {
-            blocks.add(Pair(block, secondPosition.first))
+            blocks.add(Pair(secondPosition.first, block))
         }
-        return blocks
+        return blocks.toTypedArray()
     }
 
     /**

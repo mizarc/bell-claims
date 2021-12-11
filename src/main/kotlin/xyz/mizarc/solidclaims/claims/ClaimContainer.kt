@@ -1,33 +1,24 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
-import org.bukkit.OfflinePlayer
+import xyz.mizarc.solidclaims.DatabaseStorage
 import java.util.*
 import kotlin.collections.ArrayList
 
 /**
  * Contains and provides features for navigating claims and claim partitions.
  */
-class ClaimContainer {
-    lateinit var claims: ArrayList<Claim>
-    lateinit var claimPartitions: ArrayList<ClaimPartition>
-    lateinit var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>>
+class ClaimContainer(var database: DatabaseStorage) {
+    var claims: ArrayList<Claim> = ArrayList()
+    var claimPartitions: ArrayList<ClaimPartition> = ArrayList()
+    var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>> = mutableMapOf()
 
     /**
-     * Converts the block coordinates to chunk coordinates.
-     * @param position The integer pair defining a block's X and Z coordinates.
-     * @return An integer pair defining a chunk's X and Z coordinates.
-     */
-    fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
-        return Pair(position.first shr 4, position.second shr 4)
-    }
-
-    /**
-     * Gets all the claims that exist in a given chunk.
+     * Gets all the claim partitions that exist in a given chunk.
      * @param chunkLocation The integer pair defining a chunk's X and Z coordinates.
      * @return An array of claim partitions that exist in that claim. May return null.
      */
-    fun getClaimsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
+    fun getClaimPartitionsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
         return chunkClaimPartitions[chunkLocation]
     }
 
@@ -56,12 +47,13 @@ class ClaimContainer {
      * @param location The location object defining the position in the world.
      * @return A claim at the current position if available. May return null.
      */
-    fun getClaimAtLocation(location: Location) : Claim? {
-        val claimsInChunk = getClaimsAtChunk(getChunkLocation(getPositionFromLocation(location))) ?: return null
+    fun getClaimPartitionAtLocation(location: Location) : ClaimPartition? {
+        val claimsInChunk = getClaimPartitionsAtChunk(
+            getChunkLocation(getPositionFromLocation(location))) ?: return null
 
         for (claimPartition in claimsInChunk) {
             if (claimPartition.isLocationInClaim(location)) {
-                return claimPartition.claim
+                return claimPartition
             }
         }
 
@@ -73,8 +65,18 @@ class ClaimContainer {
      * @param worldId The unique identifier for the world the claim is to be created in.
      * @param owner The player who should own the world.
      */
-    fun addClaim(worldId: UUID, owner: OfflinePlayer) {
-        claims.add(Claim(worldId, owner))
+    fun addClaim(claim: Claim) {
+        claims.add(claim)
+    }
+
+    /**
+     * Creates a new claim and adds it to the database.
+     * @param worldId The unique identifier for the world the claim is to be created in.
+     * @param owner The player who should own the world.
+     */
+    fun addNewClaim(claim: Claim) {
+        addClaim(claim)
+        database.addClaim(claim.id, claim.worldId, claim.owner.uniqueId)
     }
 
     /**
@@ -84,18 +86,18 @@ class ClaimContainer {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addClaimPartition(claim: Claim, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : Boolean {
+    fun addClaimPartition(claimPartition: ClaimPartition) : Boolean {
         // Check if partition in defined location already exists
-        for (claimPartition in claimPartitions) {
-            if (claimPartition.firstPosition == firstLocation && claimPartition.secondPosition == secondLocation) {
+        for (existingClaimPartition in claimPartitions) {
+            if (claimPartition.firstPosition == existingClaimPartition.firstPosition &&
+                claimPartition.secondPosition == existingClaimPartition.firstPosition) {
                 return false
             }
         }
 
         // Add partition to both flat array and chunk map
-        val claimPartition = ClaimPartition(claim, firstLocation, secondLocation)
         claimPartitions.add(claimPartition)
-        val claimChunks = getClaimChunks(firstLocation, secondLocation)
+        val claimChunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
         for (chunk in claimChunks) {
             if (chunkClaimPartitions[chunk] == null) {
                 chunkClaimPartitions[chunk] = ArrayList()
@@ -107,21 +109,90 @@ class ClaimContainer {
     }
 
     /**
-     * Converts a position of integer pairs to a location object.
-     * @param claim The claim as a reference.
-     * @param position The integer pair defining the position in world.
-     * @return A location object based on the specified world and position.
+     * Creates a new claim partition for a claim and adds it to the database.
+     * @param claim The Claim object to be linked to.
+     * @param firstLocation The integer pair defining the first position.
+     * @param secondLocation The integer pair defining the second position.
+     * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
-        return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
+    fun addNewClaimPartition(claimPartition: ClaimPartition) {
+        addClaimPartition(claimPartition)
+        database.addClaimPartition(claimPartition.claim.id, claimPartition.firstPosition, claimPartition.secondPosition)
     }
 
     /**
-     * Convert a location object to an integer pair of X and Z.
-     * @param location The location object to convert.
-     * @return An integer pair of X and Z.
+     * Removes a claim from memory.
+     * @param claim The instance of the claim.
      */
-    fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
-        return Pair(location.x.toInt(), location.z.toInt())
+    fun removeClaim(claim: Claim) {
+        claims.remove(claim)
+    }
+
+    /**
+     * Removes a claim from memory and database.
+     * @param claim The instance of the claim.
+     */
+    fun removePersistentClaim(claim: Claim) : Boolean {
+        removeClaim(claim)
+        database.removeClaim(claim.id)
+        return true
+    }
+
+    /**
+     * Removes a claim partition from memory.
+     * @param claimPartition The instance of the claim.
+     */
+    fun removeClaimPartition(claimPartition: ClaimPartition) : Boolean {
+        claimPartitions.remove(claimPartition)
+
+        val chunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
+        for (chunk in chunks) {
+            val savedChunk = chunkClaimPartitions[chunk] ?: return false
+            savedChunk.remove(claimPartition)
+        }
+
+        claimPartition.claim.claimPartitions.remove(claimPartition)
+
+        return true
+    }
+
+    /**
+     * Removes a claim partition from memory and database.
+     * @param claimPartition The instance of the claim.
+     */
+    fun removePersistentClaimPartition(claimPartition: ClaimPartition) : Boolean {
+        removeClaimPartition(claimPartition)
+        database.removeClaimPartition(claimPartition.firstPosition, claimPartition.secondPosition)
+        return true
+    }
+
+    companion object {
+        /**
+         * Converts the block coordinates to chunk coordinates.
+         * @param position The integer pair defining a block's X and Z coordinates.
+         * @return An integer pair defining a chunk's X and Z coordinates.
+         */
+        fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
+            return Pair(position.first shr 4, position.second shr 4)
+        }
+
+        /**
+         * Converts a position of integer pairs to a location object.
+         * @param claim The claim as a reference.
+         * @param position The integer pair defining the position in world.
+         * @return A location object based on the specified world and position.
+         */
+        fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
+            return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
+        }
+
+        /**
+         * Convert a location object to an integer pair of X and Z.
+         * @param location The location object to convert.
+         * @return An integer pair of X and Z.
+         */
+        fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
+            return Pair(location.x.toInt(), location.z.toInt())
+        }
     }
 }
