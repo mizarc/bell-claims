@@ -12,9 +12,9 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
  * @property plugin A reference to the plugin instance
  * @property claimContainer A reference to the ClaimContainer instance
  */
-class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimContainer) : Listener {
+class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContainer) : Listener {
     companion object {
-        var handleEvents = false
+        var handleEvents = true
     }
 
     init {
@@ -36,8 +36,8 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         // NOTE: If player breaks block inside of claim while standing outside of claim, this does not reflect that
         // TODO: Fix this behaviour
         val location = event.player.location
-        val claim = claimContainer.getClaimAtLocation(location) ?: return
-        val player = solidClaims.databaseStorage.getPlayerClaimPermissions(event.player.uniqueId, claim.id)
+        val claim = claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
+        val player = plugin.database.getPlayerClaimPermissions(event.player.uniqueId, claim.id)
 
         val claimPerms = player?.claimPermissions ?: claim.defaultPermissions
         val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java)
@@ -56,7 +56,7 @@ class ClaimEventHandler(var solidClaims: SolidClaims, var claimContainer: ClaimC
         }
 
         for (e in eventPerms) {
-            if (claimPerms.contains(e) || checkPermissionParents(e)) {
+            if (!claimPerms.contains(e) || !checkPermissionParents(e)) {
                 for (ee in e.events) {
                     if (ee.first == event::class.java) {
                         executor = ee.second
