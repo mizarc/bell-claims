@@ -45,6 +45,6 @@ class ChatInfoBuilder(var title: String) {
     }
 
     private fun newLine() {
-        elements.append("\n")
+        elements.append("\n").reset()
     }
 }
