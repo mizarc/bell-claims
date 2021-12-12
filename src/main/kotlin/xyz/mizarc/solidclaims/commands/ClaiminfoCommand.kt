@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.claims.ClaimPartition
 import kotlin.math.absoluteValue
 
 @CommandAlias("Claiminfo")
@@ -32,18 +33,27 @@ class ClaiminfoCommand : BaseCommand() {
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", "123129")
         chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
-        chatInfo.addLinked("Block Count", getBlockCount(claim).toString())
+        chatInfo.addLinked("Block Count", getTotalBlockCount(claim).toString())
         chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
+        chatInfo.addSpace()
+        chatInfo.addHeader("Current Partition")
+        chatInfo.addLinked("First Corner", claimPartition.firstPosition.toString())
+        chatInfo.addLinked("Second Corner", claimPartition.secondPosition.toString())
+        chatInfo.addLinked("Block Count", getBlockCount(claimPartition).toString())
 
         player.spigot().sendMessage(*chatInfo.create())
     }
 
-    private fun getBlockCount(claim: Claim) : Int {
+    private fun getTotalBlockCount(claim: Claim) : Int {
         var count = 0
         for (partition in claim.claimPartitions) {
-            count += ((partition.secondPosition.first - partition.firstPosition.first + 1) *
-                    (partition.secondPosition.second - partition.firstPosition.second + 1)).absoluteValue
+            count += getBlockCount(partition)
         }
         return count
+    }
+
+    private fun getBlockCount(partition: ClaimPartition) : Int {
+        return ((partition.secondPosition.first - partition.firstPosition.first + 1) *
+                (partition.secondPosition.second - partition.firstPosition.second + 1)).absoluteValue
     }
 }
