@@ -5,9 +5,10 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 import xyz.mizarc.solidclaims.ChatInfoBuilder
 import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.claims.Claim
+import kotlin.math.absoluteValue
 
 @CommandAlias("Claiminfo")
 class ClaiminfoCommand : BaseCommand() {
@@ -30,9 +31,19 @@ class ClaiminfoCommand : BaseCommand() {
         chatInfo.addSpace()
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", "123129")
-        chatInfo.addLinked("Blocks", "1")
-        chatInfo.addLinked("Trusted Users", "7")
+        chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
+        chatInfo.addLinked("Block Count", getBlockCount(claim).toString())
+        chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
 
         player.spigot().sendMessage(*chatInfo.create())
+    }
+
+    private fun getBlockCount(claim: Claim) : Int {
+        var count = 0
+        for (partition in claim.claimPartitions) {
+            count += ((partition.secondPosition.first - partition.firstPosition.first + 1) *
+                    (partition.secondPosition.second - partition.firstPosition.second + 1)).absoluteValue
+        }
+        return count
     }
 }
