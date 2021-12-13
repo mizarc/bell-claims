@@ -40,7 +40,27 @@ class ChatInfoBuilder(var title: String) {
     }
 
     fun create() : Array<BaseComponent> {
-        val finalisedElement = elements.append("\n-------------------------------------").color(ChatColor.AQUA)
+        var underLine = ""
+        for (i in 0 until 36) {
+            underLine += "-"
+        }
+
+        val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
+        return finalisedElement.create()
+    }
+
+    fun createPaged(currentPage: Int, pages: Int) : Array<BaseComponent> {
+        val pageText = " Page ${currentPage}/${pages} "
+        var underLine = ""
+        for (i in 0 until 18 - pageText.count() / 2) {
+            underLine += "-"
+        }
+        underLine += pageText
+        for (i in 0 until 18 - pageText.count() / 2) {
+            underLine += "-"
+        }
+
+        val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
         return finalisedElement.create()
     }
 
