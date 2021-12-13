@@ -29,6 +29,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(ClaiminfoCommand())
+        commandManager.registerCommand(TrustlistCommand())
         commandManager.registerCommand(HandleEventsCommand())
         commandManager.commandCompletions.registerCompletion("permissions") {
             val perms: ArrayList<String> = ArrayList()
