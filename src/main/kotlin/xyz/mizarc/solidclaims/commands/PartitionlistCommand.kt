@@ -39,6 +39,5 @@ class PartitionlistCommand : ClaimCommand() {
         }
         player.spigot().sendMessage(*chatInfo.createPaged(page,
             ceil((claim.playerAccesses.count() / 10.0)).toInt()))
-
     }
 }

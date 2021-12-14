@@ -53,7 +53,6 @@ class SolidClaims : JavaPlugin() {
             claimContainer.addClaim(claim)
 
             val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
-            claim.claimPartitions.addAll(claimPartitions)
             for (partition in claimPartitions) {
                 claimContainer.addClaimPartition(partition)
             }
