@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -11,7 +12,7 @@ import kotlin.math.ceil
 class PartitionlistCommand : ClaimCommand() {
 
     @Subcommand("partitionlist")
-    fun onPartitionlist(player: Player, page: Int) {
+    fun onPartitionlist(player: Player, @Default("1") page: Int) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 
         // Check if there is a claim at the player's location
