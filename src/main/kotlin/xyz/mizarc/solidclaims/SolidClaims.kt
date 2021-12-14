@@ -28,7 +28,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(UntrustCommand())
-        commandManager.registerCommand(ClaiminfoCommand())
+        commandManager.registerCommand(InfoCommand())
         commandManager.registerCommand(TrustlistCommand())
         commandManager.registerCommand(PartitionlistCommand())
         commandManager.registerCommand(HandleEventsCommand())
