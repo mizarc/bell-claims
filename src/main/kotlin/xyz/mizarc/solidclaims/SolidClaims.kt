@@ -3,7 +3,6 @@ package xyz.mizarc.solidclaims
 import co.aikar.commands.PaperCommandManager
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.OwnerContainer
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
 import xyz.mizarc.solidclaims.events.ClaimPermission
@@ -15,7 +14,7 @@ class SolidClaims : JavaPlugin() {
     internal var configIO: ConfigIO = ConfigIO(this)
     var database: DatabaseStorage = DatabaseStorage(this)
     var claimContainer = ClaimContainer(database)
-    var ownerContainer = OwnerContainer()
+    var playerContainer = PlayerContainer()
 
 
     override fun onEnable() {
