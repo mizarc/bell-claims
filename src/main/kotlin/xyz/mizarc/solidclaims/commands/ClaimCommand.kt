@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.getClaimTool
 
-class ClaimCommand : BaseCommand() {
+open class ClaimCommand : BaseCommand() {
     @Dependency
     lateinit var plugin : SolidClaims
 

@@ -14,14 +14,12 @@ class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
     internal var configIO: ConfigIO = ConfigIO(this)
     var database: DatabaseStorage = DatabaseStorage(this)
-    lateinit var claimContainer: ClaimContainer
-    lateinit var ownerContainer: OwnerContainer
+    var claimContainer = ClaimContainer(database)
+    var ownerContainer = OwnerContainer()
 
 
     override fun onEnable() {
         database.openConnection()
-        claimContainer = ClaimContainer(database)
-        ownerContainer = OwnerContainer()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
         server.pluginManager.registerEvents(ClaimToolListener(this.claimContainer), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
