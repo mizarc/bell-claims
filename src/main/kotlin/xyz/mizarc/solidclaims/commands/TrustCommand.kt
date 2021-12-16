@@ -9,12 +9,10 @@ import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.PlayerAccess
 import xyz.mizarc.solidclaims.events.ClaimPermission
 
-@CommandAlias("trust")
-class TrustCommand : BaseCommand() {
-    @Dependency
-    lateinit var plugin : SolidClaims
+@CommandAlias("claim")
+class TrustCommand : ClaimCommand() {
 
-    @Default
+    @Subcommand("trust")
     @CommandCompletion("@players @permissions")
     fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
