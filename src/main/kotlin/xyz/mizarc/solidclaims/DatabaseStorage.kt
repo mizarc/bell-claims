@@ -709,7 +709,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createPlayerStateTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS playerState (playerId TEXT, claimLimit INTEGER, " +
-                "claimBlockLimit INTEGER, bonusClaims INTEGER, bonusClaimBlocks INTEGER"
+                "claimBlockLimit INTEGER, bonusClaims INTEGER, bonusClaimBlocks INTEGER);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
