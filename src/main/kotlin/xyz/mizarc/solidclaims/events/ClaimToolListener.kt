@@ -55,6 +55,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
             newClaim,
             ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
             ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
+        newClaim.mainPartition = newClaimPartition
 
         // Add to list of claims
         claimContainer.addNewClaim(newClaim)
