@@ -29,7 +29,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             createClaimTable()
             createClaimPartitionTable()
             createClaimPermissionTable()
-            createPlayerTable()
+            createPlayerAccessTable()
+            createPlayerStateTable()
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -78,6 +79,44 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
                 return claim
             }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    fun getClaimsByPlayer(playerId: UUID) : ArrayList<Claim>? {
+        try {
+            // Get specified claim
+            val sqlQuery = "SELECT * FROM claims WHERE playerId=?;"
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            val resultSet = statement.executeQuery()
+            val claims = ArrayList<Claim>()
+            while (resultSet.next()) {
+                val claimPermissions = getClaimPermissions(playerId) ?: return null
+                val playerAccesses: ArrayList<PlayerAccess> =
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+
+                val claim = Claim(
+                    UUID.fromString(resultSet.getString(1)),
+                    UUID.fromString(resultSet.getString(2)),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    claimPermissions,
+                    playerAccesses
+                )
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+                claims.add(claim)
+
+
+            }
+
+            return claims
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -539,6 +578,34 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets a player's state from the database.
+     *
+     */
+    fun getPlayerState(playerId: UUID) : PlayerState? {
+        val sqlQuery = "SELECT * FROM playerState WHERE id=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                val claims = getClaimsByPlayer(playerId)
+                val playerAccess = getAllPlayersOwnerPermissions(playerId)
+                return PlayerState(
+                    playerId, resultSet.getInt(2), resultSet.getInt(3),
+                    resultSet.getInt(4), resultSet.getInt(5), claims!!, playerAccess!!
+                )
+            }
+
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    /**
      * Creates a new table to store claim data if it doesn't exist.
      */
     private fun createClaimTable() {
@@ -586,9 +653,24 @@ class DatabaseStorage(var plugin: SolidClaims) {
     /**
      * Creates a new table to store player permission data if it doesn't exist.
      */
-    private fun createPlayerTable() {
+    private fun createPlayerAccessTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS playerAccess (playerId TEXT, claimOwnerId TEXT, " +
                 "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Creates a new table to store player state data if it doesn't exist.
+     */
+    private fun createPlayerStateTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS playerState (playerId TEXT, claimLimit INTEGER, " +
+                "claimBlockLimit INTEGER, bonusClaims INTEGER, bonusClaimBlocks INTEGER"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
