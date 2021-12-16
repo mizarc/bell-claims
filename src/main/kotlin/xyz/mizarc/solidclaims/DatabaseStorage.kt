@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.PlayerAccess
@@ -603,6 +604,44 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
 
         return null
+    }
+
+    /**
+     * Adds a new player state instance to the database.
+     * @param worldId The unique identifier for the world.
+     * @param ownerId The unique identifier for the player.
+     */
+    fun addPlayerState(playerState: PlayerState) {
+        val sqlQuery = "INSERT INTO playerState (id, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
+                "VALUES (?,?,?,?,?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerState.id.toString())
+            statement.setInt(2, playerState.claimLimit)
+            statement.setInt(3, playerState.claimBlockLimit)
+            statement.setInt(4, playerState.bonusClaims)
+            statement.setInt(5, playerState.bonusClaimBlocks)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Removes a player state from the database.
+     * @param id The unique identifier for the claim.
+     */
+    fun removePlayerState(playerState: PlayerState) {
+        val sqlQuery = "DELETE FROM playerState WHERE id=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerState.id.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
     }
 
     /**
