@@ -30,14 +30,6 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(UntrustCommand())
-        commandManager.registerCommand(HandleEventsCommand())
-        commandManager.commandCompletions.registerCompletion("permissions") {
-            val perms: ArrayList<String> = ArrayList()
-            for (p in ClaimPermission.values()) {
-                perms.add(p.alias)
-            }
-            perms
-        }
         loadDataFromDatabase()
         logger.info("SolidClaims has been Enabled")
     }
