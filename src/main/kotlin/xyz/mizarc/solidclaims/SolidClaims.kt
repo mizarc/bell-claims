@@ -14,7 +14,7 @@ class SolidClaims : JavaPlugin() {
     internal var configIO: ConfigIO = ConfigIO(this)
     var database: DatabaseStorage = DatabaseStorage(this)
     var claimContainer = ClaimContainer(database)
-    var playerContainer = PlayerContainer()
+    var playerContainer = PlayerContainer(database)
 
 
     override fun onEnable() {
