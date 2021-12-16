@@ -612,7 +612,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for the player.
      */
     fun addPlayerState(playerState: PlayerState) {
-        val sqlQuery = "INSERT INTO playerState (id, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
+        val sqlQuery = "INSERT INTO playerState (playerId, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
                 "VALUES (?,?,?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
@@ -633,7 +633,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param id The unique identifier for the claim.
      */
     fun removePlayerState(playerState: PlayerState) {
-        val sqlQuery = "DELETE FROM playerState WHERE id=?;"
+        val sqlQuery = "DELETE FROM playerState WHERE playerId=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerState.id.toString())

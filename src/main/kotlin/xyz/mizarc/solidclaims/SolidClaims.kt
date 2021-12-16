@@ -4,10 +4,7 @@ import co.aikar.commands.PaperCommandManager
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.commands.*
-import xyz.mizarc.solidclaims.events.ClaimEventHandler
-import xyz.mizarc.solidclaims.events.ClaimPermission
-import xyz.mizarc.solidclaims.events.ClaimToolListener
-import xyz.mizarc.solidclaims.events.ClaimVisualiser
+import xyz.mizarc.solidclaims.events.*
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
@@ -16,12 +13,12 @@ class SolidClaims : JavaPlugin() {
     var claimContainer = ClaimContainer(database)
     var playerContainer = PlayerContainer(database)
 
-
     override fun onEnable() {
         database.openConnection()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
         server.pluginManager.registerEvents(ClaimToolListener(this.claimContainer), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(this.playerContainer), this)
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())

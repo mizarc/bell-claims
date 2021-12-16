@@ -8,7 +8,7 @@ import kotlin.collections.ArrayList
  * Holds a collection of every player on the server.
  */
 class PlayerContainer(var database: DatabaseStorage) {
-    lateinit var playerStates: ArrayList<PlayerState>
+    var playerStates: ArrayList<PlayerState> = ArrayList()
 
     /**
      * Gets a specific player state.
