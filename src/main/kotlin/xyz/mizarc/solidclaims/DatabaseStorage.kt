@@ -90,7 +90,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
     fun getClaimsByPlayer(playerId: UUID) : ArrayList<Claim>? {
         try {
             // Get specified claim
-            val sqlQuery = "SELECT * FROM claims WHERE playerId=?;"
+            val sqlQuery = "SELECT * FROM claims WHERE ownerId=?;"
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             val resultSet = statement.executeQuery()
