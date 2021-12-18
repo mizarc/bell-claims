@@ -55,6 +55,9 @@ class SolidClaims : JavaPlugin() {
                 for (partition in claimPartitions) {
                     claimContainer.addClaimPartition(partition)
                 }
+
+                val mainPartition = database.getMainPartitionByClaim(claim)
+                claim.mainPartition = mainPartition
             }
         }
 
