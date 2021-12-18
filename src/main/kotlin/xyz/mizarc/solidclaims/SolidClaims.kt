@@ -20,6 +20,7 @@ class SolidClaims : JavaPlugin() {
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(this.playerContainer), this)
         commandManager = PaperCommandManager(this)
+        commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
@@ -44,13 +45,23 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun loadDataFromDatabase() {
-        val claims = database.getAllClaims() ?: return
-        for (claim in claims) {
-            claimContainer.addClaim(claim)
+        val claims = database.getAllClaims()
+        if (claims != null)
+        {
+            for (claim in claims) {
+                claimContainer.addClaim(claim)
 
-            val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
-            for (partition in claimPartitions) {
-                claimContainer.addClaimPartition(partition)
+                val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
+                for (partition in claimPartitions) {
+                    claimContainer.addClaimPartition(partition)
+                }
+            }
+        }
+
+        val playerStates = database.getAllPlayerStates()
+        if (playerStates != null) {
+            for (playerState in playerStates) {
+                playerContainer.addPlayer(playerState)
             }
         }
     }

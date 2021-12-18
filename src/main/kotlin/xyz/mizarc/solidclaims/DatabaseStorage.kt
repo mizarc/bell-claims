@@ -606,6 +606,31 @@ class DatabaseStorage(var plugin: SolidClaims) {
         return null
     }
 
+    fun getAllPlayerStates() : ArrayList<PlayerState>? {
+        val playerStates = ArrayList<PlayerState>()
+
+        try {
+            // Get all claims
+            val sqlQuery = "SELECT * FROM playerState;"
+            val statement = connection.prepareStatement(sqlQuery)
+            val resultSet = statement.executeQuery()
+            while (resultSet.next()) {
+                val claims = getClaimsByPlayer(UUID.fromString(resultSet.getString(1)))
+                val playerAccess = getAllPlayersOwnerPermissions(UUID.fromString(resultSet.getString(1)))
+                playerStates.add(PlayerState(
+                    UUID.fromString(resultSet.getString(1)), resultSet.getInt(2), resultSet.getInt(3),
+                    resultSet.getInt(4), resultSet.getInt(5), claims!!, playerAccess!!)
+                )
+            }
+            return playerStates
+
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
     /**
      * Adds a new player state instance to the database.
      * @param worldId The unique identifier for the world.
