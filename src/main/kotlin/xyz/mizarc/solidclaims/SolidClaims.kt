@@ -6,7 +6,6 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.OwnerContainer
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.ClaimEventHandler
-import xyz.mizarc.solidclaims.events.ClaimPermission
 import xyz.mizarc.solidclaims.events.ClaimToolListener
 import xyz.mizarc.solidclaims.events.ClaimVisualiser
 
