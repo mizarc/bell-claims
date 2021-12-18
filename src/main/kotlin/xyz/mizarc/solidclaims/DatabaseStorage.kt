@@ -246,21 +246,53 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets the assigned main partition of a claim.
+     * @param claim The claim to read from.
+     */
+    fun getMainPartitionByClaim(claim: Claim) : ClaimPartition? {
+        val sqlQuery = "SELECT * FROM claimPartitions WHERE claimId=? AND main=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claim.id.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                return (ClaimPartition(claim,
+                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
+                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    /**
      * Adds a new claim partition to the database.
      * @param id The unique identifier for the claim to be associated with.
      * @param firstLocation The integer pair defining the first location.
      * @param secondLocation The integer pair defining the second location.
      */
-    fun addClaimPartition(id: UUID, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
+    fun addClaimPartition(claimPartition: ClaimPartition) {
         val sqlQuery = "INSERT INTO claimPartitions (claimId, firstLocationX, firstLocationZ, " +
-                "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?);"
+                "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?,?);"
         try {
+            // Set int if partition is the claim's main partition
+            var isMain = 0
+            if (claimPartition.claim.mainPartition!!.firstPosition == claimPartition.firstPosition)
+            {
+                isMain = 1
+            }
+
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setInt(2, firstLocation.first)
-            statement.setInt(3, firstLocation.second)
-            statement.setInt(4, secondLocation.first)
-            statement.setInt(5, secondLocation.second)
+            statement.setString(1, claimPartition.claim.id.toString())
+            statement.setInt(2, claimPartition.firstPosition.first)
+            statement.setInt(3, claimPartition.firstPosition.second)
+            statement.setInt(4, claimPartition.secondPosition.first)
+            statement.setInt(5, claimPartition.secondPosition.second)
+            statement.setInt(6, isMain)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -689,7 +721,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimPartitionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
-                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
+                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL," +
+                "main INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
