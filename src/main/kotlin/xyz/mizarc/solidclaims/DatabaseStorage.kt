@@ -583,7 +583,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      *
      */
     fun getPlayerState(playerId: UUID) : PlayerState? {
-        val sqlQuery = "SELECT * FROM playerState WHERE id=?;"
+        val sqlQuery = "SELECT * FROM playerStates WHERE id=?;"
 
         try {
             val statement = connection.prepareStatement(sqlQuery)
@@ -611,7 +611,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
         try {
             // Get all claims
-            val sqlQuery = "SELECT * FROM playerState;"
+            val sqlQuery = "SELECT * FROM playerStates;"
             val statement = connection.prepareStatement(sqlQuery)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
@@ -637,7 +637,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for the player.
      */
     fun addPlayerState(playerState: PlayerState) {
-        val sqlQuery = "INSERT INTO playerState (playerId, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
+        val sqlQuery = "INSERT INTO playerStates (playerId, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
                 "VALUES (?,?,?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
@@ -658,7 +658,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param id The unique identifier for the claim.
      */
     fun removePlayerState(playerState: PlayerState) {
-        val sqlQuery = "DELETE FROM playerState WHERE playerId=?;"
+        val sqlQuery = "DELETE FROM playerStates WHERE playerId=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerState.id.toString())
@@ -733,7 +733,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store player state data if it doesn't exist.
      */
     private fun createPlayerStateTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS playerState (playerId TEXT, claimLimit INTEGER, " +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS playerStates (playerId TEXT, claimLimit INTEGER, " +
                 "claimBlockLimit INTEGER, bonusClaims INTEGER, bonusClaimBlocks INTEGER);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
