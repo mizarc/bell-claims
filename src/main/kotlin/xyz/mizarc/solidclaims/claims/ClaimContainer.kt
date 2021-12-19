@@ -117,7 +117,7 @@ class ClaimContainer(var database: DatabaseStorage) {
      */
     fun addNewClaimPartition(claimPartition: ClaimPartition) {
         addClaimPartition(claimPartition)
-        database.addClaimPartition(claimPartition.claim.id, claimPartition.firstPosition, claimPartition.secondPosition)
+        database.addClaimPartition(claimPartition)
     }
 
     /**
