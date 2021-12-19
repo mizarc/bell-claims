@@ -48,4 +48,12 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
     fun getWorld() : World? {
         return Bukkit.getWorld(worldId)
     }
+
+    fun getBlockCount() : Int {
+        var count = 0
+        for (partition in claimPartitions) {
+            count += partition.getBlockCount()
+        }
+        return count
+    }
 }
