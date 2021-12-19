@@ -50,7 +50,8 @@ class ClaimlistCommand : BaseCommand() {
                 "<${(playerClaims[i].mainPartition!!.firstPosition.first + 
                         playerClaims[i].mainPartition!!.secondPosition.first) / 2}, " +
                         "${(playerClaims[i].mainPartition!!.firstPosition.second +
-                        playerClaims[i].mainPartition!!.secondPosition.second) / 2}>"
+                        playerClaims[i].mainPartition!!.secondPosition.second) / 2}> " +
+                        "(${playerClaims[i].getBlockCount()} Blocks)"
                 )
         }
         player.spigot().sendMessage(*chatInfo.createPaged(page,
