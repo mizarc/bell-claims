@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import xyz.mizarc.solidclaims.PlayerContainer
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
@@ -14,7 +15,7 @@ import xyz.mizarc.solidclaims.getClaimTool
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
  */
-class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
+class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer: PlayerContainer) : Listener {
     var playerClaimBuilders: ArrayList<PlayerClaimBuilder> = ArrayList()
 
     @EventHandler
@@ -58,6 +59,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer) : Listener {
         newClaim.mainPartition = newClaimPartition
 
         // Add to list of claims
+        playerContainer.getPlayer(event.player.uniqueId)?.claims?.add(newClaim)
         claimContainer.addNewClaim(newClaim)
         claimContainer.addNewClaimPartition(newClaimPartition)
         playerClaimBuilders.remove(playerClaimBuilder)

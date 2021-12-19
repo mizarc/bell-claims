@@ -16,9 +16,9 @@ class SolidClaims : JavaPlugin() {
     override fun onEnable() {
         database.openConnection()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
-        server.pluginManager.registerEvents(ClaimToolListener(this.claimContainer), this)
+        server.pluginManager.registerEvents(ClaimToolListener(claimContainer, playerContainer), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
-        server.pluginManager.registerEvents(PlayerRegistrationListener(this.playerContainer), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
