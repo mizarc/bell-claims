@@ -76,7 +76,7 @@ class ClaimContainer(var database: DatabaseStorage) {
      */
     fun addNewClaim(claim: Claim) {
         addClaim(claim)
-        database.addClaim(claim.id, claim.worldId, claim.owner.uniqueId)
+        database.addClaim(claim)
     }
 
     /**
