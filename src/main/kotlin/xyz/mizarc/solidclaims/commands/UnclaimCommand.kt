@@ -34,6 +34,7 @@ class UnclaimCommand : BaseCommand() {
 
         // Remove claim if there are no more partitions attached to it
         if (claimPartition.claim.claimPartitions.isEmpty()) {
+            plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
             plugin.claimContainer.removePersistentClaim(claimPartition.claim)
         }
 
@@ -55,6 +56,7 @@ class UnclaimCommand : BaseCommand() {
         for (partition in claim.claimPartitions) {
             plugin.claimContainer.removePersistentClaimPartition(partition)
         }
+        plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
         plugin.claimContainer.removePersistentClaim(claim)
 
         player.sendMessage("The entire claim has been removed.")
