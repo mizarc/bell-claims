@@ -1,13 +1,14 @@
 package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.BaseCommand
-import co.aikar.commands.annotation.CommandAlias
-import co.aikar.commands.annotation.Default
-import co.aikar.commands.annotation.Dependency
+import co.aikar.commands.annotation.*
+import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
 import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.claims.Claim
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
@@ -16,10 +17,19 @@ class ClaimlistCommand : BaseCommand() {
     lateinit var plugin: SolidClaims
 
     @Default
-    fun onClaimlist(player: Player, @Default("1") page: Int) {
+    @CommandCompletion("@nothing @players")
+    @Syntax("[count] [player]")
+    fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
+        val playerClaims: ArrayList<Claim>
+        if (otherPlayer != null) {
+            playerClaims = plugin.playerContainer.getPlayer(otherPlayer.uniqueId)?.claims!!
+        }
+        else {
+            playerClaims = plugin.playerContainer.getPlayer(player.uniqueId)?.claims!!
+        }
+
         // Check if player has claims
-        val playerClaims = plugin.playerContainer.getPlayer(player.uniqueId)?.claims
-        if (playerClaims == null || playerClaims.isEmpty()) {
+        if (playerClaims.isEmpty()) {
             player.sendMessage("This player has no claims.")
             return
         }
@@ -31,7 +41,7 @@ class ClaimlistCommand : BaseCommand() {
         }
 
         // Output list of trusted players
-        val chatInfo = ChatInfoBuilder("Claim Trusted Players")
+        val chatInfo = ChatInfoBuilder("Claims")
         for (i in 0..9 + page) {
             if (i > playerClaims.count() - 1) {
                 break
