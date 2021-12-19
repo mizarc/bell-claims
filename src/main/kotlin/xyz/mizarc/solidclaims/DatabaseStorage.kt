@@ -180,13 +180,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param worldId The unique identifier for the world.
      * @param ownerId The unique identifier for the player.
      */
-    fun addClaim(id: UUID, worldId: UUID, ownerId: UUID) {
+    fun addClaim(claim: Claim) {
         val sqlQuery = "INSERT INTO claims (id, worldId, ownerId) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setString(2, worldId.toString())
-            statement.setString(3, ownerId.toString())
+            statement.setString(1, claim.id.toString())
+            statement.setString(2, claim.worldId.toString())
+            statement.setString(3, claim.owner.uniqueId.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
