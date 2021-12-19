@@ -108,13 +108,16 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     playerAccesses
                 )
 
+                val mainPartition = getMainPartitionByClaim(claim)
+                if (mainPartition != null) {
+                    claim.mainPartition = mainPartition
+                }
+
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
                     claim.claimPartitions = partitions
                 }
                 claims.add(claim)
-
-
             }
 
             return claims
@@ -150,6 +153,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     claimPermissions,
                     playerAccesses
                 )
+
+                val mainPartition = getMainPartitionByClaim(claim)
+                if (mainPartition != null) {
+                    claim.mainPartition = mainPartition
+                }
 
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
@@ -255,6 +263,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claim.id.toString())
+            statement.setInt(2, 1)
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
@@ -277,7 +286,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     fun addClaimPartition(claimPartition: ClaimPartition) {
         val sqlQuery = "INSERT INTO claimPartitions (claimId, firstLocationX, firstLocationZ, " +
-                "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?,?);"
+                "secondLocationX, secondLocationZ, main) VALUES (?,?,?,?,?,?);"
         try {
             // Set int if partition is the claim's main partition
             var isMain = 0
