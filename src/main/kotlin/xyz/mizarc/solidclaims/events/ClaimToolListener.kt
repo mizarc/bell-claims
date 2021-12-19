@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -38,6 +39,11 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         // Set first location
         if (!isMakingClaim) {
             playerClaimBuilder.firstLocation = event.clickedBlock?.location
+            if (!checkValidBlock(event.clickedBlock?.location!!)) {
+                event.player.sendMessage("That spot is in an existing claim.")
+                return
+            }
+
             playerClaimBuilders.add(playerClaimBuilder)
             event.player.sendMessage("New claim building started. First position has been selected.")
             return
@@ -64,6 +70,29 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimContainer.addNewClaimPartition(newClaimPartition)
         playerClaimBuilders.remove(playerClaimBuilder)
         event.player.sendMessage("New claim has been created.")
+    }
+
+    /**
+     *
+     */
+    fun checkValidBlock(location: Location) : Boolean {
+        val chunks = claimContainer.getClaimChunks(
+            ClaimContainer.getPositionFromLocation(location),
+            ClaimContainer.getPositionFromLocation(location))
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition.isLocationInClaim(location)) {
+                return false
+            }
+        }
+
+        return true
     }
 
     /**
