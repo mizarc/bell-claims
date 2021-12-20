@@ -11,4 +11,28 @@ class PlayerState(var id: UUID, var claimLimit: Int, var claimBlockLimit: Int,
 
     constructor(id: UUID, claimLimit: Int, claimBlockLimit: Int) :
             this(id, claimLimit, claimBlockLimit, 0, 0, arrayListOf(), arrayListOf())
+
+    fun getUsedClaimCount() : Int {
+        var count = 0
+        for (claim in claims) {
+            count += 1
+        }
+        return count
+    }
+
+    fun getUsedClaimBlockCount() : Int {
+        var count = 0
+        for (claim in claims) {
+            count += claim.getBlockCount()
+        }
+        return count
+    }
+
+    fun getTotalClaimLimit() : Int {
+        return claimLimit + bonusClaims
+    }
+
+    fun getTotalClaimBlockLimit() : Int {
+        return claimBlockLimit + bonusClaimBlocks
+    }
 }
