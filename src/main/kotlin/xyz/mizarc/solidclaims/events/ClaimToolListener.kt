@@ -48,7 +48,12 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             }
 
             playerClaimBuilders.add(playerClaimBuilder)
-            event.player.sendMessage("New claim building started. First position has been selected.")
+            val remainingClaims = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimLimit() -
+                    playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimCount()
+            val remainingClaimBlocks = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit() -
+                    playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount()
+            event.player.sendMessage("New claim building started. " +
+                    "You have $remainingClaimBlocks Blocks and $remainingClaims Areas remaining.")
             return
         }
 
