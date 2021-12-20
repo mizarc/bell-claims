@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.PlayerAccess
@@ -29,7 +30,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             createClaimTable()
             createClaimPartitionTable()
             createClaimPermissionTable()
-            createPlayerTable()
+            createPlayerAccessTable()
+            createPlayerStateTable()
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -85,6 +87,47 @@ class DatabaseStorage(var plugin: SolidClaims) {
         return null
     }
 
+    fun getClaimsByPlayer(playerId: UUID) : ArrayList<Claim>? {
+        try {
+            // Get specified claim
+            val sqlQuery = "SELECT * FROM claims WHERE ownerId=?;"
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            val resultSet = statement.executeQuery()
+            val claims = ArrayList<Claim>()
+            while (resultSet.next()) {
+                val claimPermissions = getClaimPermissions(playerId) ?: return null
+                val playerAccesses: ArrayList<PlayerAccess> =
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+
+                val claim = Claim(
+                    UUID.fromString(resultSet.getString(1)),
+                    UUID.fromString(resultSet.getString(2)),
+                    Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    claimPermissions,
+                    playerAccesses
+                )
+
+                val mainPartition = getMainPartitionByClaim(claim)
+                if (mainPartition != null) {
+                    claim.mainPartition = mainPartition
+                }
+
+                val partitions = getClaimPartitionsByClaim(claim)
+                if (partitions != null) {
+                    claim.claimPartitions = partitions
+                }
+                claims.add(claim)
+            }
+
+            return claims
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
     /**
      * Gets a list of every claim in the database.
      * @return Array of claim objects. May return null.
@@ -111,6 +154,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     playerAccesses
                 )
 
+                val mainPartition = getMainPartitionByClaim(claim)
+                if (mainPartition != null) {
+                    claim.mainPartition = mainPartition
+                }
+
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
                     claim.claimPartitions = partitions
@@ -132,13 +180,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param worldId The unique identifier for the world.
      * @param ownerId The unique identifier for the player.
      */
-    fun addClaim(id: UUID, worldId: UUID, ownerId: UUID) {
+    fun addClaim(claim: Claim) {
         val sqlQuery = "INSERT INTO claims (id, worldId, ownerId) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setString(2, worldId.toString())
-            statement.setString(3, ownerId.toString())
+            statement.setString(1, claim.id.toString())
+            statement.setString(2, claim.worldId.toString())
+            statement.setString(3, claim.owner.uniqueId.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -206,21 +254,54 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets the assigned main partition of a claim.
+     * @param claim The claim to read from.
+     */
+    fun getMainPartitionByClaim(claim: Claim) : ClaimPartition? {
+        val sqlQuery = "SELECT * FROM claimPartitions WHERE claimId=? AND main=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claim.id.toString())
+            statement.setInt(2, 1)
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                return (ClaimPartition(claim,
+                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
+                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    /**
      * Adds a new claim partition to the database.
      * @param id The unique identifier for the claim to be associated with.
      * @param firstLocation The integer pair defining the first location.
      * @param secondLocation The integer pair defining the second location.
      */
-    fun addClaimPartition(id: UUID, firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
+    fun addClaimPartition(claimPartition: ClaimPartition) {
         val sqlQuery = "INSERT INTO claimPartitions (claimId, firstLocationX, firstLocationZ, " +
-                "secondLocationX, secondLocationZ) VALUES (?,?,?,?,?);"
+                "secondLocationX, secondLocationZ, main) VALUES (?,?,?,?,?,?);"
         try {
+            // Set int if partition is the claim's main partition
+            var isMain = 0
+            if (claimPartition.claim.mainPartition!!.firstPosition == claimPartition.firstPosition)
+            {
+                isMain = 1
+            }
+
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setInt(2, firstLocation.first)
-            statement.setInt(3, firstLocation.second)
-            statement.setInt(4, secondLocation.first)
-            statement.setInt(5, secondLocation.second)
+            statement.setString(1, claimPartition.claim.id.toString())
+            statement.setInt(2, claimPartition.firstPosition.first)
+            statement.setInt(3, claimPartition.firstPosition.second)
+            statement.setInt(4, claimPartition.secondPosition.first)
+            statement.setInt(5, claimPartition.secondPosition.second)
+            statement.setInt(6, isMain)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -539,6 +620,97 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Gets a player's state from the database.
+     *
+     */
+    fun getPlayerState(playerId: UUID) : PlayerState? {
+        val sqlQuery = "SELECT * FROM playerStates WHERE id=?;"
+
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerId.toString())
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                val claims = getClaimsByPlayer(playerId)
+                val playerAccess = getAllPlayersOwnerPermissions(playerId)
+                return PlayerState(
+                    playerId, resultSet.getInt(2), resultSet.getInt(3),
+                    resultSet.getInt(4), resultSet.getInt(5), claims!!, playerAccess!!
+                )
+            }
+
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    fun getAllPlayerStates() : ArrayList<PlayerState>? {
+        val playerStates = ArrayList<PlayerState>()
+
+        try {
+            // Get all claims
+            val sqlQuery = "SELECT * FROM playerStates;"
+            val statement = connection.prepareStatement(sqlQuery)
+            val resultSet = statement.executeQuery()
+            while (resultSet.next()) {
+                val claims = getClaimsByPlayer(UUID.fromString(resultSet.getString(1)))
+                val playerAccess = getAllPlayersOwnerPermissions(UUID.fromString(resultSet.getString(1)))
+                playerStates.add(PlayerState(
+                    UUID.fromString(resultSet.getString(1)), resultSet.getInt(2), resultSet.getInt(3),
+                    resultSet.getInt(4), resultSet.getInt(5), claims!!, playerAccess!!)
+                )
+            }
+            return playerStates
+
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    /**
+     * Adds a new player state instance to the database.
+     * @param worldId The unique identifier for the world.
+     * @param ownerId The unique identifier for the player.
+     */
+    fun addPlayerState(playerState: PlayerState) {
+        val sqlQuery = "INSERT INTO playerStates (playerId, claimLimit, claimBlockLimit, bonusClaims, bonusClaimBlocks) " +
+                "VALUES (?,?,?,?,?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerState.id.toString())
+            statement.setInt(2, playerState.claimLimit)
+            statement.setInt(3, playerState.claimBlockLimit)
+            statement.setInt(4, playerState.bonusClaims)
+            statement.setInt(5, playerState.bonusClaimBlocks)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Removes a player state from the database.
+     * @param id The unique identifier for the claim.
+     */
+    fun removePlayerState(playerState: PlayerState) {
+        val sqlQuery = "DELETE FROM playerStates WHERE playerId=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, playerState.id.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
      * Creates a new table to store claim data if it doesn't exist.
      */
     private fun createClaimTable() {
@@ -558,7 +730,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimPartitionTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstLocationX INTEGER NOT NULL," +
-                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL);"
+                "firstLocationZ INTEGER NOT NULL, secondLocationX INTEGER NOT NULL, secondLocationZ INTEGER NOT NULL," +
+                "main INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
@@ -586,9 +759,24 @@ class DatabaseStorage(var plugin: SolidClaims) {
     /**
      * Creates a new table to store player permission data if it doesn't exist.
      */
-    private fun createPlayerTable() {
+    private fun createPlayerAccessTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS playerAccess (playerId TEXT, claimOwnerId TEXT, " +
                 "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Creates a new table to store player state data if it doesn't exist.
+     */
+    private fun createPlayerStateTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS playerStates (playerId TEXT, claimLimit INTEGER, " +
+                "claimBlockLimit INTEGER, bonusClaims INTEGER, bonusClaimBlocks INTEGER);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
