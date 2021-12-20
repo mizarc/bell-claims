@@ -40,6 +40,10 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Set first location
+        val remainingClaims = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimLimit() -
+                playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimCount()
+        val remainingClaimBlocks = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit() -
+                playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount()
         if (!isMakingClaim) {
             playerClaimBuilder.firstLocation = event.clickedBlock?.location
             if (!checkValidBlock(event.clickedBlock?.location!!)) {
@@ -47,11 +51,13 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
                 return
             }
 
+            // Check if the player already hit claim limit.
+            if (remainingClaims < 1) {
+                event.player.sendMessage("You have already hit your claim limit.")
+                return
+            }
+
             playerClaimBuilders.add(playerClaimBuilder)
-            val remainingClaims = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimLimit() -
-                    playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimCount()
-            val remainingClaimBlocks = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit() -
-                    playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount()
             event.player.sendMessage("New claim building started. " +
                     "You have $remainingClaimBlocks Blocks and $remainingClaims Areas remaining.")
             return
@@ -61,6 +67,13 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         playerClaimBuilder.secondLocation = event.clickedBlock?.location
         if (!checkValidClaim(playerClaimBuilder)) {
             event.player.sendMessage("That selection overlaps an existing claim.")
+            return
+        }
+
+        // Check if selection is greater than the player's remaining claim blocks
+        if (playerClaimBuilder.getBlockCount()!! > remainingClaimBlocks) {
+            event.player.sendMessage("That selection would require an additional " +
+                    "${playerClaimBuilder.getBlockCount()!! - remainingClaimBlocks} claim blocks")
             return
         }
 
