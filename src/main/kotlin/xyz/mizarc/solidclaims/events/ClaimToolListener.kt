@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.NetherWartsState
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -84,6 +85,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
             ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
         newClaim.mainPartition = newClaimPartition
+        newClaim.claimPartitions.add(newClaimPartition)
 
         // Add to list of claims
         playerContainer.getPlayer(event.player.uniqueId)?.claims?.add(newClaim)
