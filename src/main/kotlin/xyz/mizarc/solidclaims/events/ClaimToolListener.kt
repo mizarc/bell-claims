@@ -54,7 +54,14 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
             // Check if the player already hit claim limit.
             if (remainingClaims < 1) {
-                event.player.sendMessage("You have already hit your claim limit.")
+                event.player.sendMessage("You have already hit your claim limit. Try removing an existing claim.")
+                return
+            }
+
+            // Check if the player already hit claim limit.
+            if (remainingClaimBlocks < 1) {
+                event.player.sendMessage("You have already hit your claim block limit. " +
+                        "Try removing or resizing an existing claim.")
                 return
             }
 
