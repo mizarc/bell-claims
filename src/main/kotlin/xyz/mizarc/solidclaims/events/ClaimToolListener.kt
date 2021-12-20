@@ -2,10 +2,13 @@ package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import xyz.mizarc.solidclaims.PlayerContainer
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
@@ -72,6 +75,23 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         event.player.sendMessage("New claim has been created.")
     }
 
+    @EventHandler
+    fun onToolSwitch(event: PlayerItemHeldEvent) {
+        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) {
+            return
+        }
+
+        val playerClaimBuilder = getPlayerMakingClaim(event.player)
+        if (playerClaimBuilder != null) {
+            cancelClaimCreation(playerClaimBuilder)
+            event.player.sendMessage("Claim tool unequipped. Claim building has been cancelled.")
+        }
+    }
+
+    fun cancelClaimCreation(playerClaimBuilder: PlayerClaimBuilder) {
+        playerClaimBuilders.remove(playerClaimBuilder)
+    }
+
     /**
      *
      */
@@ -118,5 +138,19 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         return true
+    }
+
+    /**
+     * Gets the PlayerClaimBuilder object of the player if they are making a claim.
+     * @param player The player object to check.
+     * @return The PlayerClaimBuilder object of the player.
+     */
+    fun getPlayerMakingClaim(player: Player) : PlayerClaimBuilder? {
+        for (builderPlayer in playerClaimBuilders) {
+            if (builderPlayer.playerId == player.uniqueId) {
+                return builderPlayer
+            }
+        }
+        return null
     }
 }
