@@ -1,103 +1,73 @@
 package xyz.mizarc.solidclaims.events
 
 import org.bukkit.event.Event
-import org.bukkit.event.Listener
-import org.bukkit.event.player.*
-import org.bukkit.event.inventory.*
-import org.bukkit.event.block.*
-import org.bukkit.event.entity.*
-
-typealias ClaimEventExecutor = Pair<Class<out Event>, (l: Listener, e: Event) -> Unit>
 
 /**
  * Represents a string value that pertains to certain events, the action that occurs on that event,
  * and the priority of that action over other PermissionKeys that act upon the same event.
  */
-enum class ClaimPermission(val parent: ClaimPermission?, val alias: String, val events: Array<ClaimEventExecutor>) {
+enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<PermissionExecutor>) {
     /**
      * Every event. This has the least priority, and any explicit changes to other permissions will override the
      * actions of this one.
      */
-    All(null, "all", arrayOf(
-        Pair(PlayerInteractEvent::class.java,               ClaimEventBehaviour::cancelEvent),
-        Pair(InventoryOpenEvent::class.java,                ClaimEventBehaviour::cancelEvent),
-        Pair(PlayerInteractEntityEvent::class.java,         ClaimEventBehaviour::cancelEvent))),
+    All(null, arrayOf(PermissionBehaviour.playerInteract, PermissionBehaviour.playerInteractEntity, PermissionBehaviour.entityDamageByEntity)),
 
     /**
      * All block-related events. This includes breaking, placing, and interacting with any blocks.
      */
-    AllBlocks(All, "allBlocks", arrayOf(
-        Pair(PlayerInteractEvent::class.java,               ClaimEventBehaviour::cancelEvent))),
+    AllBlocks(All, arrayOf(PermissionBehaviour.playerInteract)),
 
     /**
      * When a block is broken/placed by a player.
      */
-    Build(AllBlocks, "build", arrayOf(
-        Pair(BlockBreakEvent::class.java,                   ClaimEventBehaviour::cancelEvent),
-        Pair(BlockPlaceEvent::class.java,                   ClaimEventBehaviour::cancelEvent),
-        Pair(BlockMultiPlaceEvent::class.java,              ClaimEventBehaviour::cancelEvent))),
+    Build(AllBlocks, arrayOf(PermissionBehaviour.blockBreak)),
 
     /**
      * When a block is interacted with by a player.
      */
-    BlockInteract(AllBlocks, "blockInteract", arrayOf(
-        Pair(BlockDamageEvent::class.java,                  ClaimEventBehaviour::cancelEvent),
-        Pair(NotePlayEvent::class.java,                     ClaimEventBehaviour::cancelEvent),
-        Pair(PlayerArmorStandManipulateEvent::class.java,   ClaimEventBehaviour::cancelEvent),
-        Pair(PlayerTakeLecternBookEvent::class.java,        ClaimEventBehaviour::cancelEvent),
-        Pair(PlayerUnleashEntityEvent::class.java,          ClaimEventBehaviour::cancelEvent),
-        Pair(BlockFertilizeEvent::class.java,               ClaimEventBehaviour::cancelEvent))),
-    // PlayerShearBlock, TargetHit, AnvilDamage
+    BlockInteract(AllBlocks, arrayOf(PermissionBehaviour.blockDamage, PermissionBehaviour.armorStandManipulate, PermissionBehaviour.takeLecternBook, PermissionBehaviour.fertilize)),
 
     /**
      * All inventory-related events. This is triggered every time a player opens anything with a stateful inventory.
      */
-    AllInventories(All, "allInventories", arrayOf(
-        Pair(InventoryOpenEvent::class.java,                ClaimEventBehaviour::cancelEvent))),
+    AllInventories(All, arrayOf(PermissionBehaviour.inventoryOpen)),
 
     /**
      * When a chest is opened by a player.
      */
-    OpenChest(AllInventories, "openChest", arrayOf(
-        Pair(InventoryOpenEvent::class.java,                ClaimEventBehaviour::cancelEvent))),
+    OpenChest(AllInventories, arrayOf(PermissionBehaviour.openChest)),
 
     /**
      * When a furnace is opened by a player.
      */
-    OpenFurnace(AllInventories, "openFurnace", arrayOf(
-        Pair(InventoryOpenEvent::class.java,                ClaimEventBehaviour::cancelEvent))),
+    OpenFurnace(AllInventories, arrayOf(PermissionBehaviour.openFurnace)),
 
     /**
      * All entity interaction-related events. This includes hurting, trading, leashing, and any other kind of
      * interaction with any entity.
      */
-    AllEntities(All, "allEntities", arrayOf(
-        Pair(PlayerInteractEntityEvent::class.java,         ClaimEventBehaviour::cancelEvent))),
+    AllEntities(All, arrayOf(PermissionBehaviour.playerInteractEntity)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
      */
-    VillagerTrade(AllEntities, "villagerTrade", arrayOf(
-        Pair(PlayerInteractEntityEvent::class.java,         ClaimEventBehaviour::cancelEvent))),
+    VillagerTrade(AllEntities, arrayOf(PermissionBehaviour.villagerTrade)),
 
     /**
      * When an entity is hurt by a player.
      */
-    EntityHurt(AllEntities, "entityHurt", arrayOf(
-        Pair(EntityDamageByEntityEvent::class.java,         ClaimEventBehaviour::cancelEvent))),
+    EntityHurt(AllEntities, arrayOf(PermissionBehaviour.playerDamageEntity)),
 
     /**
      * When an entity is leashed by a player.
      */
-    EntityLeash(AllEntities, "entityLeash", arrayOf(
-        Pair(PlayerLeashEntityEvent::class.java,            ClaimEventBehaviour::cancelEvent))),
+    EntityLeash(AllEntities, arrayOf(PermissionBehaviour.leashEntity)),
 
     /**
      * When an entity is sheared by a player.
      */
-    EntityShear(AllEntities, "entityShear", arrayOf(
-        Pair(PlayerShearEntityEvent::class.java,            ClaimEventBehaviour::cancelEvent)));
-
+    EntityShear(AllEntities, arrayOf(PermissionBehaviour.shearEntity));
 
     companion object {
         /**
@@ -107,13 +77,27 @@ enum class ClaimPermission(val parent: ClaimPermission?, val alias: String, val 
             val perms: ArrayList<ClaimPermission> = ArrayList()
             for (v in values()) {
                 for (e in v.events) {
-                    if (e.first == event) {
+                    if (e.eventClass == event) {
                         perms.add(v)
                         continue
                     }
                 }
             }
             return perms.toTypedArray()
+        }
+
+        /**
+         * Get the first PermissionExecutor that handles [event].
+         */
+        fun getPermissionExecutorForEvent(event: Class<out Event>): PermissionExecutor? {
+            for (v in values()) {
+                for (pe in v.events) {
+                    if (pe.eventClass == event) {
+                        return pe
+                    }
+                }
+            }
+            return null
         }
     }
 }
