@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims.events
 import org.bukkit.Location
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.absoluteValue
 
 /**
  * Associates a player with two different locations to get the locations intended to make a claim out of
@@ -16,4 +17,13 @@ class PlayerClaimBuilder(var playerId: UUID, var firstLocation: Location?, var s
      * @param playerId The unique identifier of the player.
      */
     constructor(playerId: UUID) : this(playerId, null, null)
+
+    fun getBlockCount() : Int? {
+        if (firstLocation == null || secondLocation == null) {
+            return null
+        }
+
+        return ((secondLocation!!.x.toInt() - firstLocation!!.x.toInt() + 1) *
+                (secondLocation!!.z.toInt() - firstLocation!!.z.toInt() + 1)).absoluteValue
+    }
 }

@@ -28,27 +28,14 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", "123129")
         chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
-        chatInfo.addLinked("Block Count", getTotalBlockCount(claim).toString())
+        chatInfo.addLinked("Block Count", claim.getBlockCount().toString())
         chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
         chatInfo.addLinked("First Corner", claimPartition.firstPosition.toString())
         chatInfo.addLinked("Second Corner", claimPartition.secondPosition.toString())
-        chatInfo.addLinked("Block Count", getBlockCount(claimPartition).toString())
+        chatInfo.addLinked("Block Count", claimPartition.getBlockCount().toString())
 
         player.spigot().sendMessage(*chatInfo.create())
-    }
-
-    private fun getTotalBlockCount(claim: Claim) : Int {
-        var count = 0
-        for (partition in claim.claimPartitions) {
-            count += getBlockCount(partition)
-        }
-        return count
-    }
-
-    private fun getBlockCount(partition: ClaimPartition) : Int {
-        return ((partition.secondPosition.first - partition.firstPosition.first + 1) *
-                (partition.secondPosition.second - partition.firstPosition.second + 1)).absoluteValue
     }
 }

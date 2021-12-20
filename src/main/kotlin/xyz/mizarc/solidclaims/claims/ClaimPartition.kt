@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
+import kotlin.math.absoluteValue
 
 /**
  * A partition of a claim. Claims can be made up of multiple partitions that defines the overall shape. A single
@@ -74,6 +75,11 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
             blocks.add(Pair(secondPosition.first, block))
         }
         return blocks.toTypedArray()
+    }
+
+    fun getBlockCount() : Int {
+        return ((secondPosition.first - firstPosition.first + 1) *
+                (secondPosition.second - firstPosition.second + 1)).absoluteValue
     }
 
     /**

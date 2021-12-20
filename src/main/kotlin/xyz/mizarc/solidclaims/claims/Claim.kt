@@ -20,14 +20,14 @@ import kotlin.collections.ArrayList
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
             var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
-            var claimPartitions: ArrayList<ClaimPartition>) {
+            var claimPartitions: ArrayList<ClaimPartition>, var mainPartition: ClaimPartition?) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
     constructor(worldId: UUID, owner: OfflinePlayer) : this(
-        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList())
+        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList(), null)
 
     /**
      * Compiles a new claim based on everything but the claim partitions.
@@ -39,8 +39,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
      */
     constructor(id: UUID, worldId: UUID, owner: OfflinePlayer,
                 defaultPermissions: ArrayList<ClaimPermission>, playerAccesses: ArrayList<PlayerAccess>) : this(
-        id, worldId, owner, defaultPermissions, playerAccesses, ArrayList()
-    )
+        id, worldId, owner, defaultPermissions, playerAccesses, ArrayList(), null)
 
     /**
      * Gets a reference to the world if available.
@@ -48,5 +47,13 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
      */
     fun getWorld() : World? {
         return Bukkit.getWorld(worldId)
+    }
+
+    fun getBlockCount() : Int {
+        var count = 0
+        for (partition in claimPartitions) {
+            count += partition.getBlockCount()
+        }
+        return count
     }
 }
