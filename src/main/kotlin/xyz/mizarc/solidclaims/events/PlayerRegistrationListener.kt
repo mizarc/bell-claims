@@ -10,7 +10,7 @@ class PlayerRegistrationListener(val playerContainer: PlayerContainer) : Listene
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        val playerState = PlayerState(event.player.uniqueId, 5000, 5000)
+        val playerState = PlayerState(event.player.uniqueId, 5, 5000)
         playerContainer.addNewPlayer(playerState)
     }
 }
