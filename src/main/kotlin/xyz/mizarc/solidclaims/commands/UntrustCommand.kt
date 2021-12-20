@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.Default
+import co.aikar.commands.annotation.PreCommand
 import co.aikar.commands.annotation.Subcommand
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
@@ -10,16 +11,28 @@ import xyz.mizarc.solidclaims.events.ClaimPermission
 
 @CommandAlias("claim")
 class UntrustCommand : ClaimCommand() {
-
-    @Subcommand("untrust")
-    fun onUntrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
+    @PreCommand
+    fun preCommand(player: Player): Boolean {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 
         // Check if there is a claim at the player's location
         if (claimPartition == null) {
-            player.sendMessage("There is no claim at your current location.")
-            return
+            player.sendMessage("There is no claim partition at your current location.")
+            return true
         }
+
+        // Check if player owns claim
+        if (player.uniqueId == claimPartition.claim.owner.uniqueId) {
+            player.sendMessage("You don't have permission to modify this claim.")
+            return true
+        }
+
+        return false
+    }
+
+    @Subcommand("untrust")
+    fun onUntrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
+        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 
         val claimPlayers = claimPartition.claim.playerAccesses
         for (claimPlayer in claimPlayers) {
