@@ -35,4 +35,13 @@ class PlayerState(var id: UUID, var claimLimit: Int, var claimBlockLimit: Int,
     fun getTotalClaimBlockLimit() : Int {
         return claimBlockLimit + bonusClaimBlocks
     }
+
+    fun getRemainingClaimCount() : Int {
+        return getTotalClaimLimit() - getUsedClaimCount()
+    }
+
+    fun getRemainingClaimBlockCount() : Int {
+        return getTotalClaimBlockLimit() - getUsedClaimBlockCount()
+    }
+
 }
