@@ -31,10 +31,12 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    fun updateVisualisation(player: Player) {
+    fun updateVisualisation(player: Player, force: Boolean) {
         val holdingClaimTool = player.inventory.itemInMainHand == getClaimTool() || player.inventory.itemInOffHand == getClaimTool()
-        val state = playerVisualisingState[player] ?: !holdingClaimTool
-        if (state == holdingClaimTool) return
+        if (!force) { // Do not skip update if forced
+            val state = playerVisualisingState[player] ?: !holdingClaimTool
+            if (state == holdingClaimTool) return
+        }
         playerVisualisingState[player] = holdingClaimTool
 
         val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(player.location)), plugin.server.viewDistance)
@@ -69,24 +71,24 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
 
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
     }
 
     @EventHandler
     fun onPickupClaimTool(event: EntityPickupItemEvent) {
         if (event.entityType != EntityType.PLAYER) return
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.entity as Player) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.entity as Player, false) }) // Run task after this tick
     }
 
     @EventHandler
     fun onDropClaimTool(event: PlayerDropItemEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
     }
 
     @EventHandler
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
         val player = event.whoClicked as Player
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(player) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(player, false) }) // Run task after this tick
     }
 
     /**
