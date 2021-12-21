@@ -166,6 +166,15 @@ class ClaimContainer(var database: DatabaseStorage) {
         return true
     }
 
+    fun modifyClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
+        return removeClaimPartition(oldClaimPartition) && addClaimPartition(newClaimPartition)
+    }
+
+    fun modifyPersistentClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
+        return modifyClaimPartition(oldClaimPartition, newClaimPartition) &&
+                database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
+    }
+
     companion object {
         /**
          * Converts the block coordinates to chunk coordinates.
