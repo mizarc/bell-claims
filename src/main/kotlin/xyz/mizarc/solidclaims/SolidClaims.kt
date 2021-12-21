@@ -12,6 +12,7 @@ class SolidClaims : JavaPlugin() {
     var database: DatabaseStorage = DatabaseStorage(this)
     var claimContainer = ClaimContainer(database)
     var playerContainer = PlayerContainer(database)
+    var claimVisualiser = ClaimVisualiser(this)
 
     override fun onEnable() {
         database.openConnection()
