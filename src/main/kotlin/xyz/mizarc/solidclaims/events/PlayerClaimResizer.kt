@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Location
+import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import java.util.*
 import kotlin.math.absoluteValue
@@ -16,6 +17,12 @@ class PlayerClaimResizer(var playerId: UUID, var claimPartition: ClaimPartition,
     lateinit var newSecondPosition: Pair<Int, Int>
     lateinit var newClaimPartition: ClaimPartition
 
+    /**
+     * Alternative constructor that omits the new corner position to be added later
+     */
+    constructor(playerId: UUID, claimPartition: ClaimPartition, selectedCorner: Pair<Int, Int>):
+            this(playerId, claimPartition, selectedCorner, null)
+
     fun setNewCorner() : ClaimPartition {
         if (selectedCorner.first == claimPartition.firstPosition.first) {
             newFirstPosition = Pair(newLocation!!.x.toInt(), 0)
@@ -30,28 +37,30 @@ class PlayerClaimResizer(var playerId: UUID, var claimPartition: ClaimPartition,
         }
 
         if (selectedCorner.second == claimPartition.firstPosition.second) {
-            newFirstPosition = Pair(newFirstPosition.first, newLocation!!.x.toInt())
+            newFirstPosition = Pair(newFirstPosition.first, newLocation!!.z.toInt())
         } else {
             newFirstPosition = Pair(newFirstPosition.first, claimPartition.firstPosition.second)
         }
 
         if (selectedCorner.second == claimPartition.secondPosition.second) {
-            newSecondPosition = Pair(newFirstPosition.first, newLocation!!.x.toInt())
+            newSecondPosition = Pair(newSecondPosition.first, newLocation!!.z.toInt())
         } else {
-            newSecondPosition = Pair(newFirstPosition.first, claimPartition.secondPosition.second)
+            newSecondPosition = Pair(newSecondPosition.first, claimPartition.secondPosition.second)
         }
-        newClaimPartition.firstPosition = newFirstPosition
-        newClaimPartition.secondPosition = newSecondPosition
+        newClaimPartition = ClaimPartition(claimPartition.claim, newFirstPosition, newSecondPosition)
         newClaimPartition.sortPositionSizes()
         return newClaimPartition
     }
 
     fun extraBlockCount() : Int? {
-        if (::newFirstPosition.isInitialized || ::newSecondPosition.isInitialized) {
+        if (!::newFirstPosition.isInitialized || !::newSecondPosition.isInitialized) {
             return null
         }
 
         return ((newSecondPosition.first - newFirstPosition.first + 1) *
-                (newSecondPosition.second - newFirstPosition.second + 1)).absoluteValue
+                (newSecondPosition.second - newFirstPosition.second + 1)).absoluteValue -
+                ((claimPartition.secondPosition.first - claimPartition.firstPosition.first + 1) *
+                        (claimPartition.secondPosition.second - claimPartition.firstPosition.second + 1))
+                    .absoluteValue
     }
 }
