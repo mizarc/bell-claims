@@ -20,7 +20,8 @@ import xyz.mizarc.solidclaims.getClaimTool
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
  */
-class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer: PlayerContainer) : Listener {
+class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer: PlayerContainer,
+                        val claimVisualiser: ClaimVisualiser) : Listener {
     var playerClaimBuilders: ArrayList<PlayerClaimBuilder> = ArrayList()
     var playerClaimResizers: ArrayList<PlayerClaimResizer> = ArrayList()
 
@@ -31,7 +32,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         if (event.item!!.itemMeta != getClaimTool().itemMeta) return
 
         // Check if player is already making a claim
-        var playerClaimBuilder = PlayerClaimBuilder(event.player.uniqueId)
+        lateinit var playerClaimBuilder: PlayerClaimBuilder
         var isMakingClaim = false
         for (player in playerClaimBuilders) {
             if (player.playerId == event.player.uniqueId) {
@@ -52,94 +53,124 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             }
         }
 
-        // Set first location
-        val remainingClaims = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimLimit() -
-                playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimCount()
-        val remainingClaimBlocks = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit() -
-                playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount()
-        if (!isMakingClaim) {
-            // Apply the resize
-            if (isResizing) {
-                playerClaimResizer.newLocation = event.clickedBlock?.location
-                playerClaimResizer.setNewCorner()
-                if (playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount() +
-                        playerClaimResizer.extraBlockCount()!! >
-                        playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit()) {
-                    event.player.sendMessage("That resize would require an additional " +
-                            "${playerClaimResizer.extraBlockCount()!! - remainingClaimBlocks}")
-                    return
-                }
-
-                claimContainer.modifyPersistentClaimPartition(
-                    playerClaimResizer.claimPartition, playerClaimResizer.setNewCorner())
-                event.player.sendMessage("Claim corner resized.")
-                return
-            }
-
-            // Get the corner the player wants to resize
-            if (getCornerBlockPartition(event.clickedBlock?.location!!) != null) {
-                playerClaimResizers.add(PlayerClaimResizer(event.player.uniqueId,
-                    getCornerBlockPartition(event.clickedBlock!!.location)!!,
-                    Pair(event.clickedBlock!!.location.x.toInt(), event.clickedBlock!!.location.z.toInt())))
-                event.player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
-                return
-            }
-
-            playerClaimBuilder.firstLocation = event.clickedBlock?.location
-
-            if (!checkValidBlock(event.clickedBlock?.location!!)) {
-                event.player.sendMessage("That spot is in an existing claim.")
-                return
-            }
-
-            // Check if the player already hit claim limit.
-            if (remainingClaims < 1) {
-                event.player.sendMessage("You have already hit your claim limit. Try removing an existing claim.")
-                return
-            }
-
-            // Check if the player already hit claim limit.
-            if (remainingClaimBlocks < 1) {
-                event.player.sendMessage("You have already hit your claim block limit. " +
-                        "Try removing or resizing an existing claim.")
-                return
-            }
-
-            playerClaimBuilders.add(playerClaimBuilder)
-            event.player.sendMessage("New claim building started. " +
-                    "You have $remainingClaimBlocks Blocks and $remainingClaims Areas remaining.")
+        // Resize existing claim
+        if (isResizing) {
+            createNewPartitionArea(event.player, event.clickedBlock!!.location, playerClaimResizer)
             return
         }
 
+        // Make new claim
+        if (isMakingClaim) {
+            createClaim(event.player, event.clickedBlock!!.location, playerClaimBuilder)
+            return
+        }
+
+        // Select corner of existing claim
+        if (selectExistingCorner(event.player, event.clickedBlock!!.location)) {
+            return
+        }
+
+        selectFirstLocation(event.player, event.clickedBlock!!.location)
+    }
+
+    /**
+     * Selects the corner of the claim that is going to be resized.
+     */
+    fun selectFirstLocation(player: Player, location: Location) {
+        // Check if the selected spot exists in an existing claim.
+        if (!checkValidBlock(location)) {
+            player.sendMessage("That spot is in an existing claim.")
+            return
+        }
+
+        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
+        val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
+
+        // Check if the player has already hit the claim limit.
+        if (remainingClaimCount < 1) {
+            return player.sendMessage("You have already hit your claim limit. Try removing an existing claim.")
+        }
+
+        // Check if the player already hit claim block limit.
+        if (remainingClaimBlockCount < 1) {
+            return player.sendMessage("You have already hit your claim block limit. " +
+                    "Try removing or resizing an existing claim.")
+        }
+
+        playerClaimBuilders.add(PlayerClaimBuilder(player.uniqueId, location))
+        return player.sendMessage("New claim building started. " +
+                "You have $remainingClaimBlockCount Blocks and $remainingClaimCount Areas remaining.")
+    }
+
+    /**
+     * Creates a new claim using a claim builder.
+     */
+    fun createClaim(player: Player, location: Location, claimBuilder: PlayerClaimBuilder) {
         // Set second location & Check if it overlaps an existing claim
-        playerClaimBuilder.secondLocation = event.clickedBlock?.location
-        if (!checkValidClaim(playerClaimBuilder)) {
-            event.player.sendMessage("That selection overlaps an existing claim.")
-            return
+        claimBuilder.secondLocation = location
+        if (!checkValidClaim(claimBuilder)) {
+            return player.sendMessage("That selection overlaps an existing claim.")
         }
+
+        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
+        val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
 
         // Check if selection is greater than the player's remaining claim blocks
-        if (playerClaimBuilder.getBlockCount()!! > remainingClaimBlocks) {
-            event.player.sendMessage("That selection would require an additional " +
-                    "${playerClaimBuilder.getBlockCount()!! - remainingClaimBlocks} claim blocks")
-            return
+        if (claimBuilder.getBlockCount()!! > remainingClaimBlockCount) {
+            return player.sendMessage("That selection would require an additional " +
+                    "${claimBuilder.getBlockCount()!! - remainingClaimCount} claim blocks")
         }
 
         // Create Claim & Partition
-        val newClaim = Claim(event.clickedBlock!!.world.uid, Bukkit.getOfflinePlayer(event.player.uniqueId))
+        val newClaim = Claim(location.world!!.uid, Bukkit.getOfflinePlayer(player.uniqueId))
         val newClaimPartition = ClaimPartition(
             newClaim,
-            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
-            ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
+            ClaimContainer.getPositionFromLocation(claimBuilder.firstLocation),
+            ClaimContainer.getPositionFromLocation(claimBuilder.secondLocation!!))
         newClaim.mainPartition = newClaimPartition
         newClaim.claimPartitions.add(newClaimPartition)
 
         // Add to list of claims
-        playerContainer.getPlayer(event.player.uniqueId)?.claims?.add(newClaim)
+        playerContainer.getPlayer(player.uniqueId)?.claims?.add(newClaim)
         claimContainer.addNewClaim(newClaim)
         claimContainer.addNewClaimPartition(newClaimPartition)
-        playerClaimBuilders.remove(playerClaimBuilder)
-        event.player.sendMessage("New claim has been created.")
+        playerClaimBuilders.remove(claimBuilder)
+        claimVisualiser.updateVisualisation(player, true)
+        player.sendMessage("New claim has been created.")
+    }
+
+    /**
+     * Selects an existing claim corner if it exists.
+     */
+    fun selectExistingCorner(player: Player, location: Location) : Boolean {
+        if (getCornerBlockPartition(location) == null) {
+            return false
+        }
+
+        playerClaimResizers.add(PlayerClaimResizer(player.uniqueId, getCornerBlockPartition(location)!!,
+            Pair(location.x.toInt(), location.z.toInt())))
+        player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
+        return true
+    }
+
+    /**
+     * Selects a new position to resize the claim.
+     */
+    fun createNewPartitionArea(player: Player, location: Location, claimResizer: PlayerClaimResizer) {
+        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
+
+        // Check if claim takes too much space
+        if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
+                playerContainer.getPlayer(player.uniqueId)!!.getTotalClaimBlockLimit()) {
+            return player.sendMessage("That resize would require an additional " +
+                    "${claimResizer.extraBlockCount()!! - remainingClaimBlockCount} blocks")
+        }
+
+        // Apply the resize
+        claimResizer.newLocation = location
+        claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, claimResizer.setNewCorner())
+        claimVisualiser.updateVisualisation(player, true)
+        return player.sendMessage("Claim corner resized.")
     }
 
     @EventHandler
@@ -160,7 +191,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         val playerClaimResizer = getPlayerResizingClaim(event.player)
         if (playerClaimResizer != null) {
             cancelClaimResizing(playerClaimResizer)
-            event.player.sendMessage("Claim tool unequipped. Claim resizing.")
+            event.player.sendMessage("Claim tool unequipped. Claim resizing has been cancelled.")
         }
     }
 
@@ -221,7 +252,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      */
     fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) : Boolean {
         val chunks = claimContainer.getClaimChunks(
-            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
             ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
 
         val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
@@ -231,7 +262,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         for (partition in existingPartitions) {
-            if (partition.isBoxInClaim(ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation!!),
+            if (partition.isBoxInClaim(ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
                     ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
                 return false
             }

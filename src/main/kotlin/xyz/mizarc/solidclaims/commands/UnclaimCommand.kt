@@ -62,6 +62,7 @@ class UnclaimCommand : BaseCommand() {
         }
         plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
         plugin.claimContainer.removePersistentClaim(claim)
+        plugin.claimVisualiser.updateVisualisation(player, true)
 
         player.sendMessage("The entire claim has been removed.")
     }
