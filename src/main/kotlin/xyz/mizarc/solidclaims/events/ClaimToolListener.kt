@@ -2,14 +2,12 @@ package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.NetherWartsState
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import xyz.mizarc.solidclaims.PlayerContainer
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
@@ -158,6 +156,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      */
     fun createNewPartitionArea(player: Player, location: Location, claimResizer: PlayerClaimResizer) {
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
+        claimResizer.newLocation = location
+        claimResizer.setNewCorner()
 
         // Check if claim takes too much space
         if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
@@ -167,7 +167,6 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Apply the resize
-        claimResizer.newLocation = location
         claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, claimResizer.setNewCorner())
         claimVisualiser.updateVisualisation(player, true)
         return player.sendMessage("Claim corner resized.")
