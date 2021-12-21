@@ -110,6 +110,11 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             return player.sendMessage("That selection overlaps an existing claim.")
         }
 
+        println(claimBuilder.getXLength())
+        if (claimBuilder.getXLength() < 5 || claimBuilder.getZLength() < 5) {
+            return player.sendMessage("The claim must be at least 5x5 blocks.")
+        }
+
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
 
@@ -158,6 +163,10 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimResizer.newLocation = location
         val newPartition = claimResizer.setNewCorner()
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
+
+        if (claimResizer.getXLength() < 5 || claimResizer.getZLength() < 5) {
+            return player.sendMessage("The claim must be at least 5x5 blocks.")
+        }
 
         // Check if claim takes too much space
         if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
