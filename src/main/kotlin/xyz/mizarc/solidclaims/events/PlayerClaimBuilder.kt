@@ -13,10 +13,11 @@ import kotlin.math.absoluteValue
  */
 class PlayerClaimBuilder(var playerId: UUID, var firstLocation: Location?, var secondLocation: Location?) {
     /**
-     * Creates a PlayerClaimBuilder object with empty location values.
+     * Creates a PlayerClaimBuilder object with only the first location value.
      * @param playerId The unique identifier of the player.
+     * @param firstLocation The location of the first corner.
      */
-    constructor(playerId: UUID) : this(playerId, null, null)
+    constructor(playerId: UUID, firstLocation: Location) : this(playerId, firstLocation, null)
 
     fun getBlockCount() : Int? {
         if (firstLocation == null || secondLocation == null) {
