@@ -22,7 +22,7 @@ class UntrustCommand : ClaimCommand() {
         }
 
         // Check if player owns claim
-        if (player.uniqueId == claimPartition.claim.owner.uniqueId) {
+        if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
             player.sendMessage("You don't have permission to modify this claim.")
             return true
         }
