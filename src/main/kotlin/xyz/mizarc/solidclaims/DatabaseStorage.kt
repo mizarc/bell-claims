@@ -342,9 +342,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
             statement.setInt(3, newClaimPartition.secondPosition.first)
             statement.setInt(4, newClaimPartition.secondPosition.second)
             statement.setInt(5, oldClaimPartition.firstPosition.first)
-            statement.setInt(2, oldClaimPartition.firstPosition.second)
-            statement.setInt(3, oldClaimPartition.secondPosition.first)
-            statement.setInt(4, oldClaimPartition.secondPosition.second)
+            statement.setInt(6, oldClaimPartition.firstPosition.second)
+            statement.setInt(7, oldClaimPartition.secondPosition.first)
+            statement.setInt(8, oldClaimPartition.secondPosition.second)
             statement.executeUpdate()
             statement.close()
             return true
