@@ -22,6 +22,7 @@ import xyz.mizarc.solidclaims.getClaimTool
  */
 class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer: PlayerContainer) : Listener {
     var playerClaimBuilders: ArrayList<PlayerClaimBuilder> = ArrayList()
+    var playerClaimResizers: ArrayList<PlayerClaimResizer> = ArrayList()
 
     @EventHandler
     fun onUseClaimTool(event: PlayerInteractEvent) {
@@ -40,13 +41,52 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             }
         }
 
+        // Check if player is already making a resize
+        lateinit var playerClaimResizer: PlayerClaimResizer
+        var isResizing = false
+        for (player in playerClaimResizers) {
+            if (player.playerId == event.player.uniqueId) {
+                isResizing = true
+                playerClaimResizer = player
+                break
+            }
+        }
+
         // Set first location
         val remainingClaims = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimLimit() -
                 playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimCount()
         val remainingClaimBlocks = playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit() -
                 playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount()
         if (!isMakingClaim) {
+            // Apply the resize
+            if (isResizing) {
+                playerClaimResizer.newLocation = event.clickedBlock?.location
+                playerClaimResizer.setNewCorner()
+                if (playerContainer.getPlayer(event.player.uniqueId)!!.getUsedClaimBlockCount() +
+                        playerClaimResizer.extraBlockCount()!! >
+                        playerContainer.getPlayer(event.player.uniqueId)!!.getTotalClaimBlockLimit()) {
+                    event.player.sendMessage("That resize would require an additional " +
+                            "${playerClaimResizer.extraBlockCount()!! - remainingClaimBlocks}")
+                    return
+                }
+
+                claimContainer.modifyPersistentClaimPartition(
+                    playerClaimResizer.claimPartition, playerClaimResizer.setNewCorner())
+                event.player.sendMessage("Claim corner resized.")
+                return
+            }
+
+            // Get the corner the player wants to resize
+            if (getCornerBlockPartition(event.clickedBlock?.location!!) != null) {
+                playerClaimResizers.add(PlayerClaimResizer(event.player.uniqueId,
+                    getCornerBlockPartition(event.clickedBlock!!.location)!!,
+                    Pair(event.clickedBlock!!.location.x.toInt(), event.clickedBlock!!.location.z.toInt())))
+                event.player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
+                return
+            }
+
             playerClaimBuilder.firstLocation = event.clickedBlock?.location
+
             if (!checkValidBlock(event.clickedBlock?.location!!)) {
                 event.player.sendMessage("That spot is in an existing claim.")
                 return
@@ -108,15 +148,48 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             return
         }
 
+        // Cancel claim building
         val playerClaimBuilder = getPlayerMakingClaim(event.player)
         if (playerClaimBuilder != null) {
             cancelClaimCreation(playerClaimBuilder)
             event.player.sendMessage("Claim tool unequipped. Claim building has been cancelled.")
+            return
+        }
+
+        // Cancel claim resizing
+        val playerClaimResizer = getPlayerResizingClaim(event.player)
+        if (playerClaimResizer != null) {
+            cancelClaimResizing(playerClaimResizer)
+            event.player.sendMessage("Claim tool unequipped. Claim resizing.")
         }
     }
 
     fun cancelClaimCreation(playerClaimBuilder: PlayerClaimBuilder) {
         playerClaimBuilders.remove(playerClaimBuilder)
+    }
+
+    fun cancelClaimResizing(playerClaimResizer: PlayerClaimResizer) {
+        playerClaimResizers.remove(playerClaimResizer)
+    }
+
+    fun getCornerBlockPartition(location: Location) : ClaimPartition? {
+        val chunks = claimContainer.getClaimChunks(
+            ClaimContainer.getPositionFromLocation(location),
+            ClaimContainer.getPositionFromLocation(location))
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (ClaimContainer.getPositionFromLocation(location) in partition.getCornerBlockPositions()) {
+                return partition
+            }
+        }
+
+        return null
     }
 
     /**
@@ -176,6 +249,20 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         for (builderPlayer in playerClaimBuilders) {
             if (builderPlayer.playerId == player.uniqueId) {
                 return builderPlayer
+            }
+        }
+        return null
+    }
+
+    /**
+     * Gets the PlayerClaimBuilder object of the player if they are making a claim.
+     * @param player The player object to check.
+     * @return The PlayerClaimBuilder object of the player.
+     */
+    fun getPlayerResizingClaim(player: Player) : PlayerClaimResizer? {
+        for (resizerPlayer in playerClaimResizers) {
+            if (resizerPlayer.playerId == player.uniqueId) {
+                return resizerPlayer
             }
         }
         return null
