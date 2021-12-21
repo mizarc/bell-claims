@@ -198,6 +198,7 @@ class PermissionBehaviour {
          */
         private fun getEntityDamageSourcePlayer(e: Event): Player? {
             if (e !is EntityDamageByEntityEvent) return null
+            if (e.damager.type != EntityType.PLAYER) return null
             return e.damager as Player
         }
 
