@@ -63,4 +63,12 @@ class PlayerClaimResizer(var playerId: UUID, var claimPartition: ClaimPartition,
                         (claimPartition.secondPosition.second - claimPartition.firstPosition.second + 1))
                     .absoluteValue
     }
+
+    fun getXLength() : Int {
+        return (newFirstPosition.first - newSecondPosition.first).absoluteValue
+    }
+
+    fun getZLength() : Int {
+        return (newFirstPosition.second - newSecondPosition.second).absoluteValue.toInt()
+    }
 }

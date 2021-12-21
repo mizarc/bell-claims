@@ -27,4 +27,12 @@ class PlayerClaimBuilder(var playerId: UUID, var firstLocation: Location, var se
         return ((secondLocation!!.x.toInt() - firstLocation.x.toInt() + 1) *
                 (secondLocation!!.z.toInt() - firstLocation.z.toInt() + 1)).absoluteValue
     }
+
+    fun getXLength() : Int {
+        return (firstLocation.x - secondLocation!!.x).absoluteValue.toInt()
+    }
+
+    fun getZLength() : Int {
+        return (firstLocation.z - secondLocation!!.z).absoluteValue.toInt()
+    }
 }
