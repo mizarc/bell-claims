@@ -155,9 +155,9 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      * Selects a new position to resize the claim.
      */
     fun createNewPartitionArea(player: Player, location: Location, claimResizer: PlayerClaimResizer) {
-        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         claimResizer.newLocation = location
-        claimResizer.setNewCorner()
+        val newPartition = claimResizer.setNewCorner()
+        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
 
         // Check if claim takes too much space
         if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
@@ -167,7 +167,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Apply the resize
-        claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, claimResizer.setNewCorner())
+        claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, newPartition)
+        playerClaimResizers.remove(claimResizer)
         claimVisualiser.updateVisualisation(player, true)
         return player.sendMessage("Claim corner resized.")
     }
