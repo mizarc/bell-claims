@@ -332,8 +332,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     fun modifyClaimPartitionLocation(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        val sqlQuery = "UPDATE claimPartitions SET firstLocationX=? AND firstLocationZ=? AND " +
-                "secondLocationX=? AND secondLocationZ=? WHERE firstLocationX=? AND firstLocationZ=? AND " +
+        val sqlQuery = "UPDATE claimPartitions SET firstLocationX=?, firstLocationZ=?, " +
+                "secondLocationX=?, secondLocationZ=? WHERE firstLocationX=? AND firstLocationZ=? AND " +
                 "secondLocationX=? AND secondLocationZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
