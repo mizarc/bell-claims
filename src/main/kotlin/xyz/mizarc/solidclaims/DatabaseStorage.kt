@@ -331,6 +331,28 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
+    fun modifyClaimPartitionLocation(oldFirstLocation: Pair<Int, Int>, oldSecondLocation: Pair<Int, Int>,
+                                     newFirstLocation: Pair<Int, Int>, newSecondLocation: Pair<Int, Int>) {
+        val sqlQuery = "UPDATE claimPartitions SET firstLocationX=? AND firstLocationZ=? AND " +
+                "secondLocationX=? AND secondLocationZ=? WHERE firstLocationX=? AND firstLocationZ=? AND " +
+                "secondLocationX=? AND secondLocationZ=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, newFirstLocation.first)
+            statement.setInt(2, newFirstLocation.second)
+            statement.setInt(3, newSecondLocation.first)
+            statement.setInt(4, newSecondLocation.second)
+            statement.setInt(5, oldFirstLocation.first)
+            statement.setInt(6, oldFirstLocation.second)
+            statement.setInt(7, oldSecondLocation.first)
+            statement.setInt(8, oldSecondLocation.second)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
     /**
      * Gets the default permissions associated with a claim.
      * @param claimID The unique identifier of the claim.
