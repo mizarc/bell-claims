@@ -77,6 +77,15 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return blocks.toTypedArray()
     }
 
+    fun getCornerBlockPositions() : ArrayList<Pair<Int, Int>> {
+        val blocks : ArrayList<Pair<Int, Int>> = ArrayList()
+        blocks.add(Pair(firstPosition.first, firstPosition.second))
+        blocks.add(Pair(firstPosition.first, secondPosition.second))
+        blocks.add(Pair(secondPosition.first, firstPosition.second))
+        blocks.add(Pair(secondPosition.first, secondPosition.second))
+        return blocks
+    }
+
     fun getBlockCount() : Int {
         return ((secondPosition.first - firstPosition.first + 1) *
                 (secondPosition.second - firstPosition.second + 1)).absoluteValue
