@@ -13,20 +13,7 @@ import kotlin.math.absoluteValue
  */
 class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var secondPosition: Pair<Int, Int>) {
     init {
-        // Make it so that the first position coordinates are smaller than the second position coordinates.
-        if (firstPosition.first > secondPosition.first) {
-            val newFirstPosition = Pair(secondPosition.first, firstPosition.second)
-            val newSecondPosition = Pair(firstPosition.first, secondPosition.second)
-            firstPosition = newFirstPosition
-            secondPosition = newSecondPosition
-        }
-
-        if (firstPosition.second > secondPosition.second) {
-            val newFirstPosition = Pair(firstPosition.first, secondPosition.second)
-            val newSecondPosition = Pair(secondPosition.first, firstPosition.second)
-            firstPosition = newFirstPosition
-            secondPosition = newSecondPosition
-        }
+        sortPositionSizes()
     }
 
     /**
@@ -105,5 +92,24 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
      */
     fun getSecondLocation() : Location {
         return Location(claim.getWorld(), secondPosition.first.toDouble(), 0.0, secondPosition.second.toDouble())
+    }
+
+    /**
+     * Make it so that the first position coordinates are smaller than the second position coordinates.
+     */
+    fun sortPositionSizes() {
+        if (firstPosition.first > secondPosition.first) {
+            val newFirstPosition = Pair(secondPosition.first, firstPosition.second)
+            val newSecondPosition = Pair(firstPosition.first, secondPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
+
+        if (firstPosition.second > secondPosition.second) {
+            val newFirstPosition = Pair(firstPosition.first, secondPosition.second)
+            val newSecondPosition = Pair(secondPosition.first, firstPosition.second)
+            firstPosition = newFirstPosition
+            secondPosition = newSecondPosition
+        }
     }
 }
