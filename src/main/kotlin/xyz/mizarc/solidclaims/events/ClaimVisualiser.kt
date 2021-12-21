@@ -31,7 +31,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    private fun updateVisualisation(player: Player) {
+    fun updateVisualisation(player: Player) {
         val holdingClaimTool = player.inventory.itemInMainHand == getClaimTool() || player.inventory.itemInOffHand == getClaimTool()
         val state = playerVisualisingState[player] ?: !holdingClaimTool
         if (state == holdingClaimTool) return
