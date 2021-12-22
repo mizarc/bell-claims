@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.events
 
+import com.google.common.math.IntMath.sqrt
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -14,6 +15,8 @@ import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
+import java.math.RoundingMode
+import kotlin.math.abs
 
 private const val yRange = 50
 
@@ -473,6 +476,9 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         )
     }
 
+    /**
+     * Unrender old claims for [player] and all surrounding players within a radius.
+     */
     fun unrenderOldClaims(player: Player) {
         if (oldPartitions.isEmpty()) return
 
@@ -481,13 +487,43 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
             borders.addAll(part.getEdgeBlockPositions())
         }
 
+        // Get the furthest block of the claim from the player location
+        var furthestBlock = 0
+        for (block in borders) {
+            val xDiff = abs(player.location.blockX - block.first)
+            val zDiff = abs(player.location.blockZ - block.second)
+            val length = sqrt((xDiff*xDiff) + (zDiff*zDiff), RoundingMode.CEILING)
+            if (length > furthestBlock) furthestBlock = length
+        }
+
+        val players = getNearbyPlayers(player.location, furthestBlock)
+
         for (block in borders) {
             for (y in -64..320) {
                 val blockLocation = Location(player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble())
                 val blockData = player.world.getBlockAt(blockLocation).blockData
-                player.sendBlockChange(blockLocation, blockData)
+                for (p in players) {
+                    p.sendBlockChange(blockLocation, blockData)
+                }
             }
         }
+    }
+
+    /**
+     * Get all players within server render distance plus [radiusModifier] and return an array of them.
+     */
+    private fun getNearbyPlayers(loc: Location, radiusModifier: Int): Array<Player> {
+        val players: ArrayList<Player> = ArrayList()
+        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(loc)), plugin.server.viewDistance+(radiusModifier shr 4))
+
+        for (player in plugin.server.onlinePlayers) {
+            if (player.location.world != loc.world) continue
+            if (chunks.contains(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(player.location)))) {
+                players.add(player)
+            }
+        }
+
+        return players.toTypedArray()
     }
 
     /**
