@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.PlayerAccess
 import java.util.*
 import kotlin.collections.ArrayList
@@ -34,5 +35,13 @@ class PlayerState(var id: UUID, var claimLimit: Int, var claimBlockLimit: Int,
 
     fun getTotalClaimBlockLimit() : Int {
         return claimBlockLimit + bonusClaimBlocks
+    }
+
+    fun getRemainingClaimCount() : Int {
+        return getTotalClaimLimit() - getUsedClaimCount()
+    }
+
+    fun getRemainingClaimBlockCount() : Int {
+        return getTotalClaimBlockLimit() - getUsedClaimBlockCount()
     }
 }

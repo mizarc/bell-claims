@@ -29,8 +29,9 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @return An array of integer pairs defining chunk locations.
      */
     fun getClaimChunks(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : ArrayList<Pair<Int, Int>> {
-        val firstChunk = getChunkLocation(firstLocation)
-        val secondChunk = getChunkLocation(secondLocation)
+        val newLocations = sortPositionSizes(firstLocation, secondLocation)
+        val firstChunk = getChunkLocation(newLocations.first)
+        val secondChunk = getChunkLocation(newLocations.second)
 
         val chunks: ArrayList<Pair<Int, Int>> = ArrayList()
         for (x in firstChunk.first..secondChunk.first) {
@@ -105,6 +106,10 @@ class ClaimContainer(var database: DatabaseStorage) {
             chunkClaimPartitions[chunk]?.add(claimPartition)
         }
 
+        // Add partition to claim object
+        if (!claimPartition.claim.claimPartitions.contains(claimPartition)) {
+            claimPartition.claim.claimPartitions.add(claimPartition)
+        }
         return true
     }
 
@@ -152,7 +157,6 @@ class ClaimContainer(var database: DatabaseStorage) {
         }
 
         claimPartition.claim.claimPartitions.remove(claimPartition)
-
         return true
     }
 
@@ -164,6 +168,15 @@ class ClaimContainer(var database: DatabaseStorage) {
         removeClaimPartition(claimPartition)
         database.removeClaimPartition(claimPartition.firstPosition, claimPartition.secondPosition)
         return true
+    }
+
+    fun modifyClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
+        return removeClaimPartition(oldClaimPartition) && addClaimPartition(newClaimPartition)
+    }
+
+    fun modifyPersistentClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
+        return modifyClaimPartition(oldClaimPartition, newClaimPartition) &&
+                database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
     }
 
     companion object {
@@ -193,6 +206,24 @@ class ClaimContainer(var database: DatabaseStorage) {
          */
         fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
             return Pair(location.x.toInt(), location.z.toInt())
+        }
+
+        fun sortPositionSizes(firstPosition: Pair<Int, Int>, secondPosition: Pair<Int, Int>) :
+                Pair<Pair<Int, Int>, Pair<Int, Int>> {
+            var newFirstPosition = Pair(firstPosition.first, firstPosition.second)
+            var newSecondPosition = Pair(secondPosition.first, secondPosition.second)
+
+            if (firstPosition.first > secondPosition.first) {
+                newFirstPosition = Pair(secondPosition.first, firstPosition.second)
+                newSecondPosition = Pair(firstPosition.first, secondPosition.second)
+            }
+
+            if (firstPosition.second > secondPosition.second) {
+                newFirstPosition = Pair(newFirstPosition.first, secondPosition.second)
+                newSecondPosition = Pair(newSecondPosition.first, firstPosition.second)
+            }
+
+            return Pair(newFirstPosition, newSecondPosition)
         }
     }
 }

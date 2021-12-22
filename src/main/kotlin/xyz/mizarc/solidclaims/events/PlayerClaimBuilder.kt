@@ -11,19 +11,28 @@ import kotlin.math.absoluteValue
  * @property firstLocation The location of the first claim corner.
  * @property secondLocation The location of the second claim corner.
  */
-class PlayerClaimBuilder(var playerId: UUID, var firstLocation: Location?, var secondLocation: Location?) {
+class PlayerClaimBuilder(var playerId: UUID, var firstLocation: Location, var secondLocation: Location?) {
     /**
-     * Creates a PlayerClaimBuilder object with empty location values.
+     * Creates a PlayerClaimBuilder object with only the first location value.
      * @param playerId The unique identifier of the player.
+     * @param firstLocation The location of the first corner.
      */
-    constructor(playerId: UUID) : this(playerId, null, null)
+    constructor(playerId: UUID, firstLocation: Location) : this(playerId, firstLocation, null)
 
     fun getBlockCount() : Int? {
-        if (firstLocation == null || secondLocation == null) {
+        if (secondLocation == null) {
             return null
         }
 
-        return ((secondLocation!!.x.toInt() - firstLocation!!.x.toInt() + 1) *
-                (secondLocation!!.z.toInt() - firstLocation!!.z.toInt() + 1)).absoluteValue
+        return ((secondLocation!!.x.toInt() - firstLocation.x.toInt() + 1) *
+                (secondLocation!!.z.toInt() - firstLocation.z.toInt() + 1)).absoluteValue
+    }
+
+    fun getXLength() : Int {
+        return (firstLocation.x - secondLocation!!.x).absoluteValue.toInt()
+    }
+
+    fun getZLength() : Int {
+        return (firstLocation.z - secondLocation!!.z).absoluteValue.toInt()
     }
 }

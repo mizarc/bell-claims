@@ -22,7 +22,7 @@ class UnclaimCommand : BaseCommand() {
         }
 
         // Check if player owns claim
-        if (player.uniqueId == claimPartition.claim.owner.uniqueId) {
+        if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
             player.sendMessage("You don't have permission to modify this claim.")
             return true
         }
@@ -62,6 +62,7 @@ class UnclaimCommand : BaseCommand() {
         }
         plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
         plugin.claimContainer.removePersistentClaim(claim)
+        plugin.claimVisualiser.updateVisualisation(player, true)
 
         player.sendMessage("The entire claim has been removed.")
     }
