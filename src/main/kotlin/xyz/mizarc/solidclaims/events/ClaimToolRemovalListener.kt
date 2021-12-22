@@ -103,11 +103,16 @@ class ClaimToolRemovalListener : Listener {
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val droppedItems = event.drops
+        val itemsToRemove = arrayListOf<ItemStack>()
         for (droppedItem in droppedItems) {
             val itemMeta = droppedItem.itemMeta
             if (itemMeta == getClaimTool().itemMeta) {
-                droppedItems.remove(droppedItem)
+                itemsToRemove.add(droppedItem)
             }
+        }
+
+        for (item in itemsToRemove) {
+            droppedItems.remove(item)
         }
     }
 }
