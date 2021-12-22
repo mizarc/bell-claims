@@ -43,6 +43,13 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // Determine if this event happened inside of a claim's boundaries
         val claim = plugin.claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
 
+        // If player is owner, do nothing.
+        if (player != null) {
+            if (player.uniqueId == claim.owner.uniqueId) {
+                return
+            }
+        }
+
         var claimTrustee: PlayerAccess? = null // The relevant claim's trustee, if the player is trusted
         for (p in claim.playerAccesses) {
             if (p.id == player?.uniqueId) {
