@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import xyz.mizarc.solidclaims.getClaimTool
 
 
-class ClaimToolRemovalListener() : Listener {
+class ClaimToolRemovalListener : Listener {
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
         val itemStack = event.itemDrop.itemStack
