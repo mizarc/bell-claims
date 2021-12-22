@@ -23,6 +23,7 @@ class SolidClaims : JavaPlugin() {
             claimContainer, playerContainer, claimVisualiser), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
+        server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
