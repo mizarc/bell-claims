@@ -106,7 +106,9 @@ class ClaimContainer(var database: DatabaseStorage) {
         }
 
         // Add partition to claim object
-        claimPartition.claim.claimPartitions.add(claimPartition)
+        if (!claimPartition.claim.claimPartitions.contains(claimPartition)) {
+            claimPartition.claim.claimPartitions.add(claimPartition)
+        }
         return true
     }
 
