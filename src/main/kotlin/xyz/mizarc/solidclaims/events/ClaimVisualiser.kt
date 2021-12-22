@@ -15,8 +15,12 @@ import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
 
+private const val yRange = 50
+
 class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
+
+    var oldPartitions: ArrayList<ClaimPartition> = ArrayList()
 
     companion object {
         private val transparentMaterials = arrayOf(
@@ -467,6 +471,23 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
             Material.RED_CARPET,
             Material.BLACK_CARPET
         )
+    }
+
+    fun unrenderOldClaims(player: Player) {
+        if (oldPartitions.isEmpty()) return
+
+        val borders: ArrayList<Pair<Int, Int>> = ArrayList()
+        for (part in oldPartitions) {
+            borders.addAll(part.getEdgeBlockPositions())
+        }
+
+        for (block in borders) {
+            for (y in -64..320) {
+                val blockLocation = Location(player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble())
+                val blockData = player.world.getBlockAt(blockLocation).blockData
+                player.sendBlockChange(blockLocation, blockData)
+            }
+        }
     }
 
     /**
