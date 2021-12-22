@@ -153,7 +153,6 @@ class ClaimContainer(var database: DatabaseStorage) {
             savedChunk.remove(claimPartition)
         }
 
-        // Remove partition from claim objectt
         claimPartition.claim.claimPartitions.remove(claimPartition)
         return true
     }
