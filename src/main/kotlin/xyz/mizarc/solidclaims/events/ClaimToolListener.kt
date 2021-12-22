@@ -274,9 +274,11 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             existingPartitions.addAll(partitionsAtChunk)
         }
 
+        val sortedPositions = ClaimContainer.sortPositionSizes(
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
+            ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))
         for (partition in existingPartitions) {
-            if (partition.isBoxInClaim(ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
-                    ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
+            if (partition.isBoxInClaim(sortedPositions.first, sortedPositions.second)) {
                 return false
             }
         }
