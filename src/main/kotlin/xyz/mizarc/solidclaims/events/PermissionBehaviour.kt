@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Location
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Monster
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
@@ -30,7 +31,6 @@ class PermissionBehaviour {
     companion object {
         val playerInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelEvent, ::getPlayerInteractLocation, ::getPlayerEventSource)
         val playerInteractEntity = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelEvent, ::getPlayerInteractEntityLocation, ::getPlayerEventSource)
-        val entityDamageByEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockBreakLocation, ::getBlockBreaker)
         val inventoryOpen = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelEvent, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
         val openChest = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenChest, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
@@ -54,11 +54,12 @@ class PermissionBehaviour {
         }
 
         /**
-         * Cancel entity damage if caused by a player entity.
+         * Cancel entity damage if caused by a player entity. Does not cancel if entity is considered a monster.
          */
         private fun cancelEntityDamageEvent(listener: Listener, event: Event) {
             if (event !is EntityDamageByEntityEvent) return
             if (event.damager !is Player) return
+            if (event.entity is Monster) return
             event.isCancelled = true
         }
 
