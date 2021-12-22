@@ -7,8 +7,11 @@ import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.PlayerInventory
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.getClaimTool
+
 
 open class ClaimCommand : BaseCommand() {
     @Dependency
@@ -17,13 +20,27 @@ open class ClaimCommand : BaseCommand() {
     @CommandAlias("claim")
     @CommandPermission("solidclaims.claim")
     @Syntax("claim")
-    fun onClaim(sender: CommandSender) {
-        if (sender !is Player) {
-            sender.sendMessage("This command can only be run by a player.")
+    fun onClaim(player: Player) {
+        if (isItemInInventory(player.inventory)) {
+            player.sendMessage("You already have the claim tool in your inventory.")
+            return
         }
 
-        val player: Player = sender as Player
-        sender.sendMessage("You have been given the claim tool")
         player.inventory.addItem(getClaimTool())
+        player.sendMessage("You have been given the claim tool")
+    }
+
+    /**
+     * Check if item is already in the player's inventory
+     * @param inventory The provided inventory
+     * @return True if the item exists in the inventory
+     */
+    fun isItemInInventory(inventory: PlayerInventory) : Boolean {
+        for (item in inventory.contents) {
+            if (item == getClaimTool()) {
+                return true
+            }
+        }
+        return false
     }
 }
