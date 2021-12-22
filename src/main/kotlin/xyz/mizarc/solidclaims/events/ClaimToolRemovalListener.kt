@@ -1,13 +1,16 @@
 package xyz.mizarc.solidclaims.events
 
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.persistence.PersistentDataType
 import xyz.mizarc.solidclaims.getClaimTool
 
 
@@ -91,8 +94,19 @@ class ClaimToolRemovalListener : Listener {
         // Cancel event if offhand has item and main hand is empty
         val offHandItemMeta = offHandItem.itemMeta
         if (offHandItemMeta != null) {
-            if (mainHandItemMeta  == getClaimTool().itemMeta && mainHandItem.type == Material.AIR) {
+            if (mainHandItemMeta == getClaimTool().itemMeta && mainHandItem.type == Material.AIR) {
                 event.isCancelled = true
+            }
+        }
+    }
+
+    @EventHandler
+    fun onPlayerDeath(event: PlayerDeathEvent) {
+        val droppedItems = event.drops
+        for (droppedItem in droppedItems) {
+            val itemMeta = droppedItem.itemMeta
+            if (itemMeta == getClaimTool().itemMeta) {
+                droppedItems.remove(droppedItem)
             }
         }
     }
