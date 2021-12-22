@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import xyz.mizarc.solidclaims.getClaimTool
 
@@ -61,6 +62,24 @@ class ClaimToolRemovalListener : Listener {
         val itemStack = event.currentItem ?: return
         val itemMeta = itemStack.itemMeta
         if (itemMeta == getClaimTool().itemMeta) {
+            event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    fun onNumberSwap(event: InventoryClickEvent) {
+        // Cancel if event isn't a shift click
+        if (event.hotbarButton == -1) {
+            return
+        }
+
+        // Cancel if inventory is not top inventory
+        if (event.clickedInventory != event.view.topInventory) {
+            return
+        }
+
+        // Cancel if no item in slot
+        if (event.whoClicked.inventory.getItem(event.hotbarButton)?.itemMeta == getClaimTool().itemMeta) {
             event.isCancelled = true
         }
     }
