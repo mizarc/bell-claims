@@ -11,7 +11,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
      * Every event. This has the least priority, and any explicit changes to other permissions will override the
      * actions of this one.
      */
-    All(null, arrayOf(PermissionBehaviour.playerInteract, PermissionBehaviour.playerInteractEntity, PermissionBehaviour.entityDamageByEntity)),
+    All(null, arrayOf(PermissionBehaviour.playerInteract, PermissionBehaviour.playerInteractEntity, PermissionBehaviour.playerDamageEntity)),
 
     /**
      * All block-related events. This includes breaking, placing, and interacting with any blocks.

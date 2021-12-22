@@ -30,7 +30,6 @@ class PermissionBehaviour {
     companion object {
         val playerInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelEvent, ::getPlayerInteractLocation, ::getPlayerEventSource)
         val playerInteractEntity = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelEvent, ::getPlayerInteractEntityLocation, ::getPlayerEventSource)
-        val entityDamageByEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockBreakLocation, ::getBlockBreaker)
         val inventoryOpen = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelEvent, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
         val openChest = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenChest, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
