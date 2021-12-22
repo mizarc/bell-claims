@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.*
+import java.util.*
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
@@ -39,23 +40,22 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun loadDataFromDatabase() {
-        val claims = database.getAllClaims()
-        if (claims != null)
-        {
-            for (claim in claims) {
-                claimContainer.addClaim(claim)
-
-                val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
-                for (partition in claimPartitions) {
-                    claimContainer.addClaimPartition(partition)
-                }
-            }
-        }
-
         val playerStates = database.getAllPlayerStates()
         if (playerStates != null) {
+
+            // Add players
             for (playerState in playerStates) {
                 playerContainer.addPlayer(playerState)
+
+                // Add claims
+                for (claim in playerState.claims) {
+                    claimContainer.addClaim(claim)
+
+                    // Add partitions
+                    for (partition in claim.claimPartitions) {
+                        claimContainer.addClaimPartition(partition)
+                    }
+                }
             }
         }
     }
