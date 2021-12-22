@@ -160,13 +160,19 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
     fun createNewPartitionArea(player: Player, location: Location, claimResizer: PlayerClaimResizer) {
         claimResizer.newLocation = location
         val newPartition = claimResizer.setNewCorner()
-        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
 
+        // Check if selection overlaps an existing claim
+        if (!checkValidClaim(claimResizer)) {
+            return player.sendMessage("That selection overlaps an existing claim.")
+        }
+
+        // Check if claim meets minimum size
         if (claimResizer.getXLength() < 5 || claimResizer.getZLength() < 5) {
             return player.sendMessage("The claim must be at least 5x5 blocks.")
         }
 
         // Check if claim takes too much space
+        val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
                 playerContainer.getPlayer(player.uniqueId)!!.getTotalClaimBlockLimit()) {
             return player.sendMessage("That resize would require an additional " +
@@ -271,6 +277,30 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         for (partition in existingPartitions) {
             if (partition.isBoxInClaim(ClaimContainer.getPositionFromLocation(playerClaimBuilder.firstLocation),
                     ClaimContainer.getPositionFromLocation(playerClaimBuilder.secondLocation!!))) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fun checkValidClaim(playerClaimResizer: PlayerClaimResizer) : Boolean {
+        val chunks = claimContainer.getClaimChunks(
+            playerClaimResizer.newFirstPosition,
+            playerClaimResizer.newSecondPosition)
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition == playerClaimResizer.claimPartition) {
+                continue
+            }
+
+            if (partition.isBoxInClaim(playerClaimResizer.newFirstPosition, playerClaimResizer.newSecondPosition)) {
                 return false
             }
         }
