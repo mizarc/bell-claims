@@ -3,8 +3,10 @@ package xyz.mizarc.solidclaims
 import co.aikar.commands.PaperCommandManager
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
+import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.*
+import java.util.*
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
@@ -12,11 +14,13 @@ class SolidClaims : JavaPlugin() {
     var database: DatabaseStorage = DatabaseStorage(this)
     var claimContainer = ClaimContainer(database)
     var playerContainer = PlayerContainer(database)
+    var claimVisualiser = ClaimVisualiser(this)
 
     override fun onEnable() {
         database.openConnection()
         server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
-        server.pluginManager.registerEvents(ClaimToolListener(claimContainer, playerContainer), this)
+        server.pluginManager.registerEvents(ClaimToolListener(
+            claimContainer, playerContainer, claimVisualiser), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
         commandManager = PaperCommandManager(this)
@@ -24,6 +28,9 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
+        commandManager.registerCommand(PartitionlistCommand())
+        commandManager.registerCommand(TrustlistCommand())
+        commandManager.registerCommand(InfoCommand())
         commandManager.registerCommand(UntrustCommand())
         loadDataFromDatabase()
         logger.info("SolidClaims has been Enabled")
@@ -34,23 +41,22 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun loadDataFromDatabase() {
-        val claims = database.getAllClaims()
-        if (claims != null)
-        {
-            for (claim in claims) {
-                claimContainer.addClaim(claim)
-
-                val claimPartitions = database.getClaimPartitionsByClaim(claim) ?: continue
-                for (partition in claimPartitions) {
-                    claimContainer.addClaimPartition(partition)
-                }
-            }
-        }
-
         val playerStates = database.getAllPlayerStates()
         if (playerStates != null) {
+
+            // Add players
             for (playerState in playerStates) {
                 playerContainer.addPlayer(playerState)
+
+                // Add claims
+                for (claim in playerState.claims) {
+                    claimContainer.addClaim(claim)
+
+                    // Add partitions
+                    for (partition in claim.claimPartitions) {
+                        claimContainer.addClaimPartition(partition)
+                    }
+                }
             }
         }
     }
