@@ -16,16 +16,12 @@ import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
 
 class ClaimVisualiser(val plugin: SolidClaims) : Listener {
-    var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
+    private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
 
     companion object {
-        // TODO: Cover more transparent materials
-        private val transparentMaterials = arrayOf(
-            Material.AIR,
-            Material.WATER,
-            Material.LAVA,
-            Material.GLASS
-        )
+        private fun excludedMaterial(block: Material): Boolean {
+            return !block.isSolid || block.isAir || !block.isOccluding
+        }
     }
 
     /**
@@ -49,10 +45,10 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         }
 
         for (block in borders) {
-            for (y in player.location.blockY-25..player.location.blockY+25) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            for (y in player.location.blockY-50..player.location.blockY+50) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = Material.CYAN_GLAZED_TERRACOTTA.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble()) // Get the location of the block being considered currently
-                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+                if (excludedMaterial(blockData.material)) return
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
@@ -66,7 +62,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     private fun isBlockVisible(loc: Location): Boolean {
         val above = Location(loc.world, loc.x, loc.y+1, loc.z).block.blockData.material
         val below = Location(loc.world, loc.x, loc.y-1, loc.z).block.blockData.material
-        return transparentMaterials.contains(above) || transparentMaterials.contains(below)
+        return excludedMaterial(above) || excludedMaterial(below)
     }
 
     @EventHandler
