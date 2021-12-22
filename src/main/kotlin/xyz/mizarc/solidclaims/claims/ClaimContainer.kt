@@ -105,6 +105,8 @@ class ClaimContainer(var database: DatabaseStorage) {
             chunkClaimPartitions[chunk]?.add(claimPartition)
         }
 
+        // Add partition to claim object
+        claimPartition.claim.claimPartitions.add(claimPartition)
         return true
     }
 
@@ -151,8 +153,8 @@ class ClaimContainer(var database: DatabaseStorage) {
             savedChunk.remove(claimPartition)
         }
 
+        // Remove partition from claim objectt
         claimPartition.claim.claimPartitions.remove(claimPartition)
-
         return true
     }
 
