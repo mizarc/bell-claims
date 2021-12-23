@@ -182,6 +182,9 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         // Apply the resize
         claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, newPartition)
         playerClaimResizers.remove(claimResizer)
+        claimVisualiser.oldPartitions.add(claimResizer.claimPartition)
+        claimVisualiser.unrenderOldClaims(player)
+        claimVisualiser.oldPartitions.clear()
         claimVisualiser.updateVisualisation(player, true)
         return player.sendMessage("Claim corner resized.")
     }
