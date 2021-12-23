@@ -31,7 +31,6 @@ class TrustCommand : ClaimCommand() {
     }
 
     @Subcommand("trust")
-    @CommandCompletion("@players @permissions")
     fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 
