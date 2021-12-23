@@ -5,9 +5,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.getClaimTool
