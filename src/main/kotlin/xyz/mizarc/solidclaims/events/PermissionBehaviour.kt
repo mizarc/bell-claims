@@ -7,9 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockDamageEvent
-import org.bukkit.event.block.BlockFertilizeEvent
+import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -31,7 +29,7 @@ class PermissionBehaviour {
     companion object {
         val playerInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelEvent, ::getPlayerInteractLocation, ::getPlayerEventSource)
         val playerInteractEntity = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelEvent, ::getPlayerInteractEntityLocation, ::getPlayerEventSource)
-        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockBreakLocation, ::getBlockBreaker)
+        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
         val inventoryOpen = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelEvent, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
         val openChest = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenChest, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
         val openFurnace = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenFurnace, ::getInventoryBlockLocation, ::getInventoryInteractPlayer)
@@ -39,10 +37,10 @@ class PermissionBehaviour {
         val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
         val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
-        val blockDamage = PermissionExecutor(BlockDamageEvent::class.java, ::cancelEvent, ::getBlockDamageLocation, ::getBlockDamager)
+        val blockDamage = PermissionExecutor(BlockDamageEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockDamager)
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getFertilizeBlockLocation, ::getBlockFertilizer)
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
 
         /**
          * Cancel any cancellable event.
@@ -99,10 +97,10 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of a block being fertilized.
+         * Get the location of a block involved in a block event.
          */
-        private fun getFertilizeBlockLocation(e: Event): Location? {
-            if (e !is BlockFertilizeEvent) return null
+        private fun getBlockLocation(e: Event): Location? {
+            if (e !is BlockEvent) return null
             return e.block.location
         }
 
@@ -144,14 +142,6 @@ class PermissionBehaviour {
         private fun getArmorStandManipulator(e: Event): Player? {
             if (e !is PlayerArmorStandManipulateEvent) return null
             return e.player
-        }
-
-        /**
-         * Get the location of a block being damaged.
-         */
-        private fun getBlockDamageLocation(e: Event): Location? {
-            if (e !is BlockDamageEvent) return null
-            return e.block.location
         }
 
         /**
@@ -209,14 +199,6 @@ class PermissionBehaviour {
         private fun getBlockBreaker(e: Event): Player? {
             if (e !is BlockBreakEvent) return null
             return e.player
-        }
-
-        /**
-         * Get the location of a block that was broken.
-         */
-        private fun getBlockBreakLocation(e: Event): Location? {
-            if (e !is BlockBreakEvent) return null
-            return e.block.location
         }
 
         /**
