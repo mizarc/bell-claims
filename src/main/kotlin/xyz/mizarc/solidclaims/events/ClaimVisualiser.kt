@@ -530,8 +530,11 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
     fun updateVisualisation(player: Player, force: Boolean) {
-        val holdingClaimTool = player.inventory.itemInMainHand.itemMeta == getClaimTool().itemMeta ||
-                player.inventory.itemInOffHand.itemMeta == getClaimTool().itemMeta
+        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
+        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
+
+        val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
+                (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
         if (!force) { // Do not skip update if forced
             val state = playerVisualisingState[player] ?: !holdingClaimTool
             if (state == holdingClaimTool) return
