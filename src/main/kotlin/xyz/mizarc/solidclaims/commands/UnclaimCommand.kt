@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.claims.ClaimPartition
 
 
 @CommandAlias("unclaim")
@@ -41,11 +42,16 @@ class UnclaimCommand : BaseCommand() {
 
         // Remove claim partition
         plugin.claimContainer.removePersistentClaimPartition(claimPartition)
+        plugin.claimVisualiser.oldPartitions.add(claimPartition)
+        plugin.claimVisualiser.unrenderOldClaims(player)
+        plugin.claimVisualiser.oldPartitions.clear()
 
         // Remove claim if there are no more partitions attached to it
         if (claimPartition.claim.claimPartitions.isEmpty()) {
             plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
             plugin.claimContainer.removePersistentClaim(claimPartition.claim)
+            player.sendMessage("The claim has been removed.")
+            return
         }
 
         player.sendMessage("This claim partition has been removed")
@@ -57,13 +63,22 @@ class UnclaimCommand : BaseCommand() {
 
         // Remove claim and all partitions
         val claim = claimPartition.claim
+        val partitionsToRemove = ArrayList<ClaimPartition>()
         for (partition in claim.claimPartitions) {
+            partitionsToRemove.add(partition)
+
+        }
+        for (partition in partitionsToRemove) {
             plugin.claimContainer.removePersistentClaimPartition(partition)
         }
+
         plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
         plugin.claimContainer.removePersistentClaim(claim)
+        plugin.claimVisualiser.oldPartitions.addAll(partitionsToRemove)
+        plugin.claimVisualiser.unrenderOldClaims(player)
+        plugin.claimVisualiser.oldPartitions.clear()
         plugin.claimVisualiser.updateVisualisation(player, true)
 
-        player.sendMessage("The entire claim has been removed.")
+        player.sendMessage("The claim has been removed.")
     }
 }
