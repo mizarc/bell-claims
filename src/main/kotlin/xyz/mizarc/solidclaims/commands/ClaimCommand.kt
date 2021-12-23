@@ -36,7 +36,7 @@ open class ClaimCommand : BaseCommand() {
     fun isItemInInventory(inventory: PlayerInventory) : Boolean {
         for (item in inventory.contents) {
             if (item == null) continue
-            if (item.itemMeta == getClaimTool().itemMeta) {
+            if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
                 return true
             }
         }
