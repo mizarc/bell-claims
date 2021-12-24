@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.events.ClaimRule
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -19,15 +20,16 @@ import kotlin.collections.ArrayList
  * @property claimPartitions The partitions linked to this claim.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
-            var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
-            var claimPartitions: ArrayList<ClaimPartition>, var mainPartition: ClaimPartition?) {
+            var defaultPermissions: ArrayList<ClaimPermission>, var rules: ArrayList<ClaimRule>,
+            var playerAccesses: ArrayList<PlayerAccess>, var claimPartitions: ArrayList<ClaimPartition>,
+            var mainPartition: ClaimPartition?) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
     constructor(worldId: UUID, owner: OfflinePlayer) : this(
-        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList(), null)
+        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList(), ArrayList(), null)
 
     /**
      * Compiles a new claim based on everything but the claim partitions.
@@ -35,11 +37,13 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      * @param defaultPermissions The permissions of this claim for all players
+     * @param rules The non-player-related rules for this claim
      * @param playerAccesses A list of trusted players.
      */
     constructor(id: UUID, worldId: UUID, owner: OfflinePlayer,
-                defaultPermissions: ArrayList<ClaimPermission>, playerAccesses: ArrayList<PlayerAccess>) : this(
-        id, worldId, owner, defaultPermissions, playerAccesses, ArrayList(), null)
+                defaultPermissions: ArrayList<ClaimPermission>, rules: ArrayList<ClaimRule>,
+                playerAccesses: ArrayList<PlayerAccess>) : this(
+        id, worldId, owner, defaultPermissions, rules, playerAccesses, ArrayList(), null)
 
     /**
      * Gets a reference to the world if available.
