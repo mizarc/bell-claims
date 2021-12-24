@@ -211,6 +211,42 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Modifies the name of a claim.
+     * @param id The unique identifier for the claim.
+     * @param name The name to set the claim to.
+     */
+    fun modifyClaimName(id: UUID, name: String) {
+        val sqlQuery = "UPDATE claims SET name=? WHERE id=?"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, id.toString())
+            statement.setString(2, name)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Modifies the description of a claim.
+     * @param id The unique identifier for the claim.
+     * @param description The description to set.
+     */
+    fun modifyClaimDescription(id: UUID, description: String) {
+        val sqlQuery = "UPDATE claims SET description=? WHERE id=?"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, id.toString())
+            statement.setString(2, description)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
      * Gets a list of all claim partitions associated with a list of claims.
      * @param claims The claims to read from.
      * @return An array of claim partition objects. May return null.
