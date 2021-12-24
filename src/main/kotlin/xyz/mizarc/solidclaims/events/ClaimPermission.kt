@@ -3,8 +3,7 @@ package xyz.mizarc.solidclaims.events
 import org.bukkit.event.Event
 
 /**
- * Represents a string value that pertains to certain events, the action that occurs on that event,
- * and the priority of that action over other PermissionKeys that act upon the same event.
+ * Represents the expected behaviour of certain events in claims and the hierarchy of one permission to any others.
  */
 enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<PermissionExecutor>) {
     /**
