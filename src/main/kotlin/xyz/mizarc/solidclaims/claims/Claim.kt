@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
  * @property playerAccesses A list of trusted players.
  * @property claimPartitions The partitions linked to this claim.
  */
-class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
+class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, var name: String?, var description: String?,
             var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
             var claimPartitions: ArrayList<ClaimPartition>, var mainPartition: ClaimPartition?) {
     /**
@@ -27,7 +27,8 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
      * @param owner A reference to the owning player.
      */
     constructor(worldId: UUID, owner: OfflinePlayer) : this(
-        UUID.randomUUID(), worldId, owner, ArrayList(), ArrayList(), ArrayList(), null)
+        UUID.randomUUID(), worldId, owner, null, null,
+        ArrayList(), ArrayList(), ArrayList(), null)
 
     /**
      * Compiles a new claim based on everything but the claim partitions.
@@ -39,7 +40,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer,
      */
     constructor(id: UUID, worldId: UUID, owner: OfflinePlayer,
                 defaultPermissions: ArrayList<ClaimPermission>, playerAccesses: ArrayList<PlayerAccess>) : this(
-        id, worldId, owner, defaultPermissions, playerAccesses, ArrayList(), null)
+        id, worldId, owner, null, null, defaultPermissions, playerAccesses, ArrayList(), null)
 
     /**
      * Gets a reference to the world if available.
