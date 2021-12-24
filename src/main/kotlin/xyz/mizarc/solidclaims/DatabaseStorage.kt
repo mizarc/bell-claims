@@ -738,7 +738,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, worldId TEXT NOT NULL, " +
-                "ownerId TEXT NOT NULL);"
+                "ownerId TEXT NOT NULL, name TEXT, description TEXT);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
