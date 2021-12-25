@@ -41,9 +41,10 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      * @param defaultPermissions The permissions of this claim for all players
      * @param playerAccesses A list of trusted players.
      */
-    constructor(id: UUID, worldId: UUID, owner: OfflinePlayer, creationTime: Instant,
-                defaultPermissions: ArrayList<ClaimPermission>, playerAccesses: ArrayList<PlayerAccess>) : this(
-        id, worldId, owner, creationTime, null, null, defaultPermissions, playerAccesses, ArrayList(), null)
+    constructor(id: UUID, worldId: UUID, owner: OfflinePlayer, creationTime: Instant, name: String?,
+                description: String?, defaultPermissions: ArrayList<ClaimPermission>,
+                playerAccesses: ArrayList<PlayerAccess>) : this(id, worldId, owner, creationTime, name, description,
+        defaultPermissions, playerAccesses, ArrayList(), null)
 
     /**
      * Gets a reference to the world if available.

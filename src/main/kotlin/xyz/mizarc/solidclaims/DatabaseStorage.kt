@@ -72,6 +72,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
@@ -108,6 +110,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
@@ -157,6 +161,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
                     Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
