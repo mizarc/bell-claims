@@ -46,7 +46,14 @@ class ClaimlistCommand : BaseCommand() {
             if (i > playerClaims.count() - 1) {
                 break
             }
-            chatInfo.addLinked(playerClaims[i].id.toString().substring(0, 7),
+
+            val name: String = if (playerClaims[i].name != null) {
+                playerClaims[i].name!!
+            } else {
+                playerClaims[i].id.toString().substring(0, 7)
+            }
+
+            chatInfo.addLinked(name,
                 "<${(playerClaims[i].mainPartition!!.firstPosition.first + 
                         playerClaims[i].mainPartition!!.secondPosition.first) / 2}, " +
                         "${(playerClaims[i].mainPartition!!.firstPosition.second +

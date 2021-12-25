@@ -9,6 +9,8 @@ import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -61,14 +63,17 @@ class DatabaseStorage(var plugin: SolidClaims) {
             statement.setString(1, id.toString())
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
-                val claimPermissions = getClaimPermissions(id) ?: return null
+                val claimPermissions = getClaimPermissions(id) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
-                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
 
                 val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
@@ -96,23 +101,28 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             val claims = ArrayList<Claim>()
             while (resultSet.next()) {
-                val claimPermissions = getClaimPermissions(playerId) ?: return null
+                val claimPermissions = getClaimPermissions(playerId) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
-                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
 
                 val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
 
+                // Get main partition
                 val mainPartition = getMainPartitionByClaim(claim)
                 if (mainPartition != null) {
                     claim.mainPartition = mainPartition
                 }
 
+                // Get all partitions
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
                     claim.claimPartitions = partitions
@@ -150,6 +160,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     claimPermissions,
                     playerAccesses
                 )
@@ -181,12 +194,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for the player.
      */
     fun addClaim(claim: Claim) {
-        val sqlQuery = "INSERT INTO claims (id, worldId, ownerId) VALUES (?,?,?);"
+        val sqlQuery = "INSERT INTO claims (id, worldId, ownerId, creationTime) VALUES (?,?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claim.id.toString())
             statement.setString(2, claim.worldId.toString())
             statement.setString(3, claim.owner.uniqueId.toString())
+            statement.setString(4, Instant.now().toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -203,6 +217,42 @@ class DatabaseStorage(var plugin: SolidClaims) {
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, id.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Modifies the name of a claim.
+     * @param id The unique identifier for the claim.
+     * @param name The name to set the claim to.
+     */
+    fun modifyClaimName(id: UUID, name: String) {
+        val sqlQuery = "UPDATE claims SET name=? WHERE id=?"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, name)
+            statement.setString(2, id.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
+     * Modifies the description of a claim.
+     * @param id The unique identifier for the claim.
+     * @param description The description to set.
+     */
+    fun modifyClaimDescription(id: UUID, description: String) {
+        val sqlQuery = "UPDATE claims SET description=? WHERE id=?"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, description)
+            statement.setString(2, id.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -474,16 +524,18 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val playerAccesses: ArrayList<PlayerAccess> = arrayListOf()
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claimID.toString())
+            println(claimID.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
                 var foundExistingPlayer = false
 
                 // Add to existing player entry if found
-                for (claimPlayer in playerAccesses) {
-                    if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
-                        claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                for (playerAccess in playerAccesses) {
+                    if (UUID.fromString(resultSet.getString(1)) == playerAccess.id) {
+                        playerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
                         foundExistingPlayer = true
+                        break
                     }
                 }
 
@@ -608,13 +660,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param claimId The unique identifier for the claim.
      * @param permission The permission key name.
      */
-    fun addPlayerClaimPermission(playerId: UUID, claimId: UUID, permission: String) {
+    fun addPlayerClaimPermission(playerId: UUID, claimId: UUID, permission: ClaimPermission) {
         val sqlQuery = "INSERT INTO playerAccess (playerId, claimId, permission) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             statement.setString(2, claimId.toString())
-            statement.setString(3, permission)
+            statement.setString(3, permission.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -738,7 +790,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, worldId TEXT NOT NULL, " +
-                "ownerId TEXT NOT NULL);"
+                "ownerId TEXT NOT NULL, creationTime TEXT NOT NULL, name TEXT, description TEXT);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
