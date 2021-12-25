@@ -22,9 +22,17 @@ class InfoCommand : ClaimCommand() {
         }
 
         val claim = claimPartition.claim
-        val chatInfo = ChatInfoBuilder("Claim Summary")
-        chatInfo.addParagraph("lorem ipsum")
-        chatInfo.addSpace()
+        val name = if (claim.name != null) {
+            claim.name
+        } else {
+            "Claim"
+        }
+
+        val chatInfo = ChatInfoBuilder("$name Summary")
+        if (claim.description != null) {
+            chatInfo.addParagraph("${claim.description}")
+            chatInfo.addSpace()
+        }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", "123129")
         chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
