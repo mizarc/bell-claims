@@ -9,6 +9,8 @@ import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -69,6 +71,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
                     claimPermissions,
                     playerAccesses
                 )
@@ -104,6 +107,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
                     claimPermissions,
                     playerAccesses
                 )
@@ -150,6 +154,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     UUID.fromString(resultSet.getString(1)),
                     UUID.fromString(resultSet.getString(2)),
                     Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString(3))),
+                    Instant.parse(resultSet.getString(4)),
                     claimPermissions,
                     playerAccesses
                 )
@@ -181,12 +186,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param ownerId The unique identifier for the player.
      */
     fun addClaim(claim: Claim) {
-        val sqlQuery = "INSERT INTO claims (id, worldId, ownerId) VALUES (?,?,?);"
+        val sqlQuery = "INSERT INTO claims (id, worldId, ownerId, creationTime) VALUES (?,?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claim.id.toString())
             statement.setString(2, claim.worldId.toString())
             statement.setString(3, claim.owner.uniqueId.toString())
+            statement.setString(4, Instant.now().toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -774,7 +780,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      */
     private fun createClaimTable() {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, worldId TEXT NOT NULL, " +
-                "ownerId TEXT NOT NULL, name TEXT, description TEXT);"
+                "ownerId TEXT NOT NULL, creationTime TEXT NOT NULL, name TEXT, description TEXT);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()

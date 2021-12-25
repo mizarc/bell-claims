@@ -13,6 +13,7 @@ import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.getClaimTool
+import java.time.Instant
 
 /**
  * Actions based on utilising the claim tool.
@@ -124,7 +125,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Create Claim & Partition
-        val newClaim = Claim(location.world!!.uid, Bukkit.getOfflinePlayer(player.uniqueId))
+        val newClaim = Claim(location.world!!.uid, Bukkit.getOfflinePlayer(player.uniqueId), Instant.now())
         val newClaimPartition = ClaimPartition(
             newClaim,
             ClaimContainer.getPositionFromLocation(claimBuilder.firstLocation),
