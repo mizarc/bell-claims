@@ -32,32 +32,17 @@ class TrustCommand : ClaimCommand() {
 
     @Subcommand("trust")
     fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
+        val claim = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!.claim
 
-        val claimPlayers = claimPartition.claim.playerAccesses
-        for (claimPlayer in claimPlayers) {
-            if (claimPlayer.id == otherPlayer.player.uniqueId) {
-
-                // Check if player already has the permission
-                if (permission in claimPlayer.claimPermissions) {
-                    player.sendMessage(
-                        "${Bukkit.getPlayer(player.uniqueId)?.name} already has permission ${permission.name}")
-                    return
-                }
-
-                // Add new permission to player access
-                claimPlayer.claimPermissions.add(permission)
-                player.sendMessage(
-                    "${otherPlayer.player.name} has been given the permission ${permission.name} for this claim")
+        //val claimPlayers = claimPartition.claim.playerAccesses
+        if (plugin.claimContainer.addNewClaimPermission(claim, otherPlayer.player, permission)) {
+                player.sendMessage("${Bukkit.getPlayer(
+                    otherPlayer.player.uniqueId)?.name} has been given the permission ${permission.name} for this claim")
                 return
-            }
         }
 
-        // Add new player and permission
-        val playerAccess = PlayerAccess(otherPlayer.player.uniqueId)
-        playerAccess.claimPermissions.add(permission)
-        claimPartition.claim.playerAccesses.add(playerAccess)
-        player.sendMessage("${Bukkit.getPlayer(
-                otherPlayer.player.uniqueId)?.name} has been given the permission ${permission.name} for this claim")
+        player.sendMessage(
+            "${Bukkit.getPlayer(player.uniqueId)?.name} already has permission ${permission.name}")
+        return
     }
 }

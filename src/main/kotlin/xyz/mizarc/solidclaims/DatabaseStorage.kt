@@ -63,9 +63,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
             statement.setString(1, id.toString())
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
-                val claimPermissions = getClaimPermissions(id) ?: return null
+                val claimPermissions = getClaimPermissions(id) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
-                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
 
                 val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
@@ -99,9 +99,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             val claims = ArrayList<Claim>()
             while (resultSet.next()) {
-                val claimPermissions = getClaimPermissions(playerId) ?: return null
+                val claimPermissions = getClaimPermissions(playerId) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
-                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
 
                 val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
@@ -112,11 +112,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     playerAccesses
                 )
 
+                // Get main partition
                 val mainPartition = getMainPartitionByClaim(claim)
                 if (mainPartition != null) {
                     claim.mainPartition = mainPartition
                 }
 
+                // Get all partitions
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
                     claim.claimPartitions = partitions
@@ -516,16 +518,18 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val playerAccesses: ArrayList<PlayerAccess> = arrayListOf()
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claimID.toString())
+            println(claimID.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
                 var foundExistingPlayer = false
 
                 // Add to existing player entry if found
-                for (claimPlayer in playerAccesses) {
-                    if (UUID.fromString(resultSet.getString(1)) == claimPlayer.id) {
-                        claimPlayer.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
+                for (playerAccess in playerAccesses) {
+                    if (UUID.fromString(resultSet.getString(1)) == playerAccess.id) {
+                        playerAccess.claimPermissions.add(ClaimPermission.valueOf(resultSet.getString(4)))
                         foundExistingPlayer = true
+                        break
                     }
                 }
 
@@ -650,13 +654,13 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param claimId The unique identifier for the claim.
      * @param permission The permission key name.
      */
-    fun addPlayerClaimPermission(playerId: UUID, claimId: UUID, permission: String) {
+    fun addPlayerClaimPermission(playerId: UUID, claimId: UUID, permission: ClaimPermission) {
         val sqlQuery = "INSERT INTO playerAccess (playerId, claimId, permission) VALUES (?,?,?);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, playerId.toString())
             statement.setString(2, claimId.toString())
-            statement.setString(3, permission)
+            statement.setString(3, permission.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
