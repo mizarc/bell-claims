@@ -9,11 +9,11 @@ class ChatInfoBuilder(var title: String) {
 
     init {
         var titleLine = ""
-        for (i in 0 until 18 - title.length / 2) {
+        for (i in 0 until 26 - title.length / 2) {
             titleLine += "-"
         }
         titleLine += " $title "
-        for (i in 0 until 18 - title.length / 2) {
+        for (i in 0 until 26 - title.length / 2) {
             titleLine += "-"
         }
         elements = ComponentBuilder(titleLine).color(ChatColor.AQUA)
@@ -41,7 +41,7 @@ class ChatInfoBuilder(var title: String) {
 
     fun create() : Array<BaseComponent> {
         var underLine = ""
-        for (i in 0 until 36) {
+        for (i in 0 until 52) {
             underLine += "-"
         }
 
@@ -52,11 +52,11 @@ class ChatInfoBuilder(var title: String) {
     fun createPaged(currentPage: Int, pages: Int) : Array<BaseComponent> {
         val pageText = " Page ${currentPage}/${pages} "
         var underLine = ""
-        for (i in 0 until 18 - pageText.count() / 2) {
+        for (i in 0 until 26 - pageText.count() / 2) {
             underLine += "-"
         }
         underLine += pageText
-        for (i in 0 until 18 - pageText.count() / 2) {
+        for (i in 0 until 26 - pageText.count() / 2) {
             underLine += "-"
         }
 
