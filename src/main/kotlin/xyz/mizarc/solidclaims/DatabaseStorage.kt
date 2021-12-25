@@ -225,8 +225,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
         val sqlQuery = "UPDATE claims SET name=? WHERE id=?"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setString(2, name)
+            statement.setString(1, name)
+            statement.setString(2, id.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -243,8 +243,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
         val sqlQuery = "UPDATE claims SET description=? WHERE id=?"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, id.toString())
-            statement.setString(2, description)
+            statement.setString(1, description)
+            statement.setString(2, id.toString())
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
