@@ -4,9 +4,11 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimPartition
-import kotlin.math.absoluteValue
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
+
 
 @CommandAlias("claim")
 class InfoCommand : ClaimCommand() {
@@ -22,11 +24,22 @@ class InfoCommand : ClaimCommand() {
         }
 
         val claim = claimPartition.claim
-        val chatInfo = ChatInfoBuilder("Claim Summary")
-        chatInfo.addParagraph("lorem ipsum")
-        chatInfo.addSpace()
+        val name = if (claim.name != null) {
+            claim.name
+        } else {
+            "Claim"
+        }
+
+        val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
+            .withLocale(Locale.UK)
+            .withZone(ZoneId.systemDefault())
+        val chatInfo = ChatInfoBuilder("$name Summary")
+        if (claim.description != null) {
+            chatInfo.addParagraph("${claim.description}")
+            chatInfo.addSpace()
+        }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
-        chatInfo.addLinked("Creation Date", "123129")
+        chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
         chatInfo.addLinked("Block Count", claim.getBlockCount().toString())
         chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
