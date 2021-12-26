@@ -19,9 +19,9 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     MobGriefing(arrayOf(RuleBehaviour.mobGriefing)),
 
     /**
-     * When TNT or other blocks explode.
+     * When TNT or other entities explode.
      */
-    TNT(arrayOf(RuleBehaviour.blockExplode)),
+    Explosions(arrayOf(RuleBehaviour.entityExplode)),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.
