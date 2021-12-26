@@ -1,6 +1,8 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
+import xyz.mizarc.solidclaims.events.PlayerClaimBuilder
+import javax.swing.text.Position
 import kotlin.math.absoluteValue
 
 /**
@@ -36,11 +38,66 @@ class ClaimPartition(var claim: Claim, var firstPosition: Pair<Int, Int>, var se
         return false
     }
 
+    fun isPositionInClaim(position: Pair<Int, Int>) : Boolean {
+        if (position.first >= firstPosition.first
+            && position.first <= secondPosition.first
+            && position.second >= firstPosition.second
+            && position.second <= secondPosition.second) {
+            return true
+        }
+
+        return false
+    }
+
     fun isBoxInClaim(otherFirstPosition: Pair<Int, Int>, otherSecondPosition: Pair<Int, Int>) : Boolean {
         return firstPosition.first <= otherSecondPosition.first
                 && secondPosition.first >= otherFirstPosition.first
                 && firstPosition.second <= otherSecondPosition.second
                 && secondPosition.second >= otherFirstPosition.second
+    }
+
+    fun isNewClaimTouchingClaim(claimBuilder: PlayerClaimBuilder) : Boolean {
+        // Direction of existing claim. 0 = Up, 1, = Down, 2 = Left, 3 = Right.
+        // Top
+        if (claimBuilder.secondPosition!!.second < firstPosition.second) {
+            println("a")
+            for (block in claimBuilder.getTopEdgeBlockPositions()) {
+                print("${block.first} ${block.second}")
+                if (isPositionInClaim(Pair(block.first, block.second + 1))) {
+                    return true
+                }
+            }
+        }
+        // Bottom
+        if (claimBuilder.firstPosition.second > secondPosition.second) {
+            println("b")
+            for (block in claimBuilder.getBottomEdgeBlockPositions()) {
+                if (isPositionInClaim(Pair(block.first, block.second - 1))) {
+                    return true
+                }
+            }
+        }
+        // Left
+        if (claimBuilder.firstPosition.first > secondPosition.first) {
+            println("c")
+            for (block in claimBuilder.getLeftEdgeBlockPositions()) {
+                if (isPositionInClaim(Pair(block.first - 1, block.second))) {
+                    return true
+                }
+            }
+        }
+        // Right
+        if (claimBuilder.secondPosition!!.first < firstPosition.first) {
+            println("d")
+            for (block in claimBuilder.getRightEdgeBlockPositions()) {
+                if (isPositionInClaim(Pair(block.first + 1, block.second))) {
+                    return true
+                }
+            }
+        }
+
+        println("i")
+        return false
     }
 
     /**
