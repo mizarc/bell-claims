@@ -8,13 +8,13 @@ class ChatInfoBuilder(var title: String) {
     private var elements: ComponentBuilder
 
     init {
-        var titleLine = ""
-        for (i in 0 until 18 - title.length / 2) {
-            titleLine += "-"
+        var titleLine = "§m"
+        for (i in 0 until 26 - title.length / 2) {
+            titleLine += " "
         }
-        titleLine += " $title "
-        for (i in 0 until 18 - title.length / 2) {
-            titleLine += "-"
+        titleLine += "§r $title §m"
+        for (i in 0 until 26 - title.length / 2) {
+            titleLine += " "
         }
         elements = ComponentBuilder(titleLine).color(ChatColor.AQUA)
     }
@@ -40,9 +40,9 @@ class ChatInfoBuilder(var title: String) {
     }
 
     fun create() : Array<BaseComponent> {
-        var underLine = ""
-        for (i in 0 until 36) {
-            underLine += "-"
+        var underLine = "§m"
+        for (i in 0 until 52) {
+            underLine += " "
         }
 
         val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
@@ -50,14 +50,14 @@ class ChatInfoBuilder(var title: String) {
     }
 
     fun createPaged(currentPage: Int, pages: Int) : Array<BaseComponent> {
-        val pageText = " Page ${currentPage}/${pages} "
-        var underLine = ""
-        for (i in 0 until 18 - pageText.count() / 2) {
-            underLine += "-"
+        val pageText = "§r Page ${currentPage}/${pages} §m"
+        var underLine = "§m"
+        for (i in 0 until 26 - pageText.count() / 2) {
+            underLine += " "
         }
         underLine += pageText
-        for (i in 0 until 18 - pageText.count() / 2) {
-            underLine += "-"
+        for (i in 0 until 26 - pageText.count() / 2) {
+            underLine += " "
         }
 
         val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
