@@ -1,7 +1,9 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
+import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.DatabaseStorage
+import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -177,6 +179,37 @@ class ClaimContainer(var database: DatabaseStorage) {
     fun modifyPersistentClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
         return modifyClaimPartition(oldClaimPartition, newClaimPartition) &&
                 database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
+    }
+
+    fun addClaimPermission(claim: Claim, playerAccess: PlayerAccess) : Boolean {
+        for (claimPlayer in claim.playerAccesses) {
+            if (claimPlayer.id == playerAccess.id) {
+                return false
+            }
+        }
+        claim.playerAccesses.add(playerAccess)
+        return true
+    }
+
+    fun addClaimPermission(claim: Claim, player: Player, permission: ClaimPermission) : Boolean {
+        for (claimPlayer in claim.playerAccesses) {
+            if (claimPlayer.id == player.uniqueId) {
+                if (permission in claimPlayer.claimPermissions) {
+                    return false
+                }
+                claimPlayer.claimPermissions.add(permission)
+                return true
+            }
+        }
+        val playerAccess = PlayerAccess(player.uniqueId)
+        playerAccess.claimPermissions.add(permission)
+        claim.playerAccesses.add(playerAccess)
+        return true
+    }
+
+    fun addNewClaimPermission(claim: Claim, player: Player, permission: ClaimPermission) : Boolean {
+        database.addPlayerClaimPermission(player.uniqueId, claim.id, permission)
+        return addClaimPermission(claim, player, permission)
     }
 
     companion object {
