@@ -43,7 +43,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      * @param playerAccesses A list of trusted players.
      */
     constructor(id: UUID, worldId: UUID, owner: OfflinePlayer, creationTime: Instant, name: String?,
-                description: String?,defaultPermissions: ArrayList<ClaimPermission>, rules: ArrayList<ClaimRule>,
+                description: String?, rules: ArrayList<ClaimRule>, defaultPermissions: ArrayList<ClaimPermission>,
                 playerAccesses: ArrayList<PlayerAccess>) : this(
         id, worldId, owner, creationTime, name, description, rules,
         defaultPermissions, playerAccesses, ArrayList(), null)

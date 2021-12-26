@@ -6,6 +6,7 @@ import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.PlayerAccess
 import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.events.ClaimRule
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -31,6 +32,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
             )
             createClaimTable()
             createClaimPartitionTable()
+            createClaimRuleTable()
             createClaimPermissionTable()
             createPlayerAccessTable()
             createPlayerStateTable()
@@ -63,6 +65,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             statement.setString(1, id.toString())
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
+                val claimRules: ArrayList<ClaimRule> =
+                    getClaimRules(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
                 val claimPermissions = getClaimPermissions(id) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
@@ -74,6 +78,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     Instant.parse(resultSet.getString(4)),
                     resultSet.getString(5),
                     resultSet.getString(6),
+                    claimRules,
                     claimPermissions,
                     playerAccesses
                 )
@@ -101,6 +106,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
             val claims = ArrayList<Claim>()
             while (resultSet.next()) {
+                val claimRules: ArrayList<ClaimRule> =
+                    getClaimRules(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
                 val claimPermissions = getClaimPermissions(playerId) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
                     getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
@@ -112,6 +119,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     Instant.parse(resultSet.getString(4)),
                     resultSet.getString(5),
                     resultSet.getString(6),
+                    claimRules,
                     claimPermissions,
                     playerAccesses
                 )
@@ -151,10 +159,12 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val statement = connection.prepareStatement(sqlQuery)
             val resultSet = statement.executeQuery()
             while (resultSet.next()) {
+                val claimRules: ArrayList<ClaimRule> =
+                    getClaimRules(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
                 val claimPermissions: ArrayList<ClaimPermission> =
-                    getClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
                 val playerAccesses: ArrayList<PlayerAccess> =
-                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: return null
+                    getAllPlayersClaimPermissions(UUID.fromString(resultSet.getString(1))) ?: arrayListOf()
 
                 val claim = Claim(
                     UUID.fromString(resultSet.getString(1)),
@@ -163,6 +173,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                     Instant.parse(resultSet.getString(4)),
                     resultSet.getString(5),
                     resultSet.getString(6),
+                    claimRules,
                     claimPermissions,
                     playerAccesses
                 )
@@ -402,6 +413,53 @@ class DatabaseStorage(var plugin: SolidClaims) {
             error.printStackTrace()
         }
         return false
+    }
+
+    fun getClaimRules(claimId: UUID) : ArrayList<ClaimRule>? {
+        val sqlQuery = "SELECT * FROM claimRules WHERE claimId=?;"
+
+        try {
+            val claimRules: ArrayList<ClaimRule> = ArrayList()
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimId.toString())
+            val permissionResultSet = statement.executeQuery()
+
+            while (permissionResultSet.next()) {
+                claimRules.add(ClaimRule.valueOf(permissionResultSet.getString(2)))
+            }
+
+            return claimRules
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        return null
+    }
+
+    fun addClaimRule(claimId: UUID, claimRule: ClaimRule) {
+        val sqlQuery = "INSERT INTO claimRules (claimId, rule) VALUES (?,?);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimId.toString())
+            statement.setString(2, claimRule.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaimRule(claimId: UUID, claimRule: ClaimRule) {
+        val sqlQuery = "DELETE FROM claimRules WHERE claimId=? AND rule=?;"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setString(1, claimId.toString())
+            statement.setString(2, claimRule.toString())
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
     }
 
     /**
@@ -807,6 +865,18 @@ class DatabaseStorage(var plugin: SolidClaims) {
         val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstPositionX INTEGER NOT NULL," +
                 "firstPositionZ INTEGER NOT NULL, secondPositionX INTEGER NOT NULL, secondPositionZ INTEGER NOT NULL," +
                 "main INTEGER NOT NULL);"
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    private fun createClaimRuleTable() {
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimRules (claimId TEXT NOT NULL, " +
+                "rule TEXT NOT NULL, FOREIGN KEY (claimId) REFERENCES claims(id));"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.executeUpdate()
