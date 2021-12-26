@@ -26,6 +26,9 @@
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/**/kotlinc.xml
+.idea/**/sqldialects.xml
+.idea/**/runConfigurations.xml
 
 # Gradle
 .idea/**/gradle.xml
@@ -158,3 +161,4 @@ gradle-app.setting
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/kotlin,gradle,intellij
+/.idea/git_toolbox_prj.xml

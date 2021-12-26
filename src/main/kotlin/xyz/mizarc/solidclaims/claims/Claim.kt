@@ -5,7 +5,7 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.time.Instant
-import java.time.ZonedDateTime
+import xyz.mizarc.solidclaims.events.ClaimRule
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -21,9 +21,9 @@ import kotlin.collections.ArrayList
  * @property claimPartitions The partitions linked to this claim.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
-            var name: String?, var description: String?, var defaultPermissions: ArrayList<ClaimPermission>,
-            var playerAccesses: ArrayList<PlayerAccess>, var claimPartitions: ArrayList<ClaimPartition>,
-            var mainPartition: ClaimPartition?) {
+            var name: String?, var description: String?, var rules: ArrayList<ClaimRule>,
+            var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
+            var claimPartitions: ArrayList<ClaimPartition>, var mainPartition: ClaimPartition?) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
@@ -31,7 +31,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      */
     constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant) : this(
         UUID.randomUUID(), worldId, owner, creationTime, null, null,
-        ArrayList(), ArrayList(), ArrayList(), null)
+        ArrayList(), ArrayList(), ArrayList(), ArrayList(), null)
 
     /**
      * Compiles a new claim based on everything but the claim partitions.
@@ -39,11 +39,13 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      * @param defaultPermissions The permissions of this claim for all players
+     * @param rules The non-player-related rules for this claim
      * @param playerAccesses A list of trusted players.
      */
     constructor(id: UUID, worldId: UUID, owner: OfflinePlayer, creationTime: Instant, name: String?,
-                description: String?, defaultPermissions: ArrayList<ClaimPermission>,
-                playerAccesses: ArrayList<PlayerAccess>) : this(id, worldId, owner, creationTime, name, description,
+                description: String?, rules: ArrayList<ClaimRule>, defaultPermissions: ArrayList<ClaimPermission>,
+                playerAccesses: ArrayList<PlayerAccess>) : this(
+        id, worldId, owner, creationTime, name, description, rules,
         defaultPermissions, playerAccesses, ArrayList(), null)
 
     /**
