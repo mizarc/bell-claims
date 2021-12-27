@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims
 
+import xyz.mizarc.solidclaims.events.PlayerClaimBuilder
 import kotlin.math.absoluteValue
 
 /**
@@ -10,6 +11,76 @@ import kotlin.math.absoluteValue
 class Area(var lowerPosition: Position, var upperPosition: Position) {
     init {
         sortPositionSizes()
+    }
+
+    /**
+     * Checks if the specified position exists within the bounds of this area.
+     * @param position The position to check
+     * @return True if in area.
+     */
+    fun isPositionInArea(position: Position): Boolean {
+        if (position.x >= lowerPosition.x
+            && position.x <= upperPosition.x
+            && position.z >= lowerPosition.z
+            && position.z <= upperPosition.z) {
+            return true
+        }
+
+        return false
+    }
+
+    /**
+     * Checks if an area is overlapping this one.
+     * @param area The area to check
+     * @return True if area overlaps.
+     */
+    fun isAreaOverlap(area: Area): Boolean {
+        return lowerPosition.x <= area.upperPosition.x
+                && upperPosition.x >= area.lowerPosition.x
+                && lowerPosition.z <= area.upperPosition.z
+                && upperPosition.z >= area.lowerPosition.z
+    }
+
+    /**
+     * Checks if area is directly adjacent to this one.
+     * @param area The area to check
+     * @return True if area is adjacent.
+     */
+    fun isAreaAdjacent(area: Area): Boolean {
+        // Top
+        if (area.upperPosition.z < lowerPosition.z) {
+            for (block in area.getTopEdgeBlockPositions()) {
+                if (isPositionInArea(Position(block.x, block.z + 1))) {
+                    return true
+                }
+            }
+        }
+        // Bottom
+        if (area.lowerPosition.z > upperPosition.z) {
+            for (block in area.getBottomEdgeBlockPositions()) {
+                if (isPositionInArea(Position(block.x, block.z - 1))) {
+                    return true
+                }
+            }
+        }
+        // Left
+        if (area.lowerPosition.x > upperPosition.x) {
+            for (block in area.getLeftEdgeBlockPositions()) {
+                if (isPositionInArea(Position(block.x - 1, block.z))) {
+                    return true
+                }
+            }
+        }
+        // Right
+        if (area.upperPosition.x < lowerPosition.x) {
+            for (block in area.getRightEdgeBlockPositions()) {
+                if (isPositionInArea(Position(block.x + 1, block.z))) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     /**
