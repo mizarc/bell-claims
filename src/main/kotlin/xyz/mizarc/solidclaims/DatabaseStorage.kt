@@ -291,8 +291,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
             while (resultSet.next()) {
                 claims.add(ClaimPartition(claim,
-                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
-                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+                    Area(Position(resultSet.getInt(2), resultSet.getInt(3)),
+                    Position(resultSet.getInt(4), resultSet.getInt(5)))))
             }
 
             return claims
@@ -318,8 +318,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
             while (resultSet.next()) {
                 return (ClaimPartition(claim,
-                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
-                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+                    Area(Position(resultSet.getInt(2), resultSet.getInt(3)),
+                        Position(resultSet.getInt(4), resultSet.getInt(5)))))
             }
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -340,17 +340,17 @@ class DatabaseStorage(var plugin: SolidClaims) {
         try {
             // Set int if partition is the claim's main partition
             var isMain = 0
-            if (claimPartition.claim.mainPartition!!.firstPosition == claimPartition.firstPosition)
+            if (claimPartition.claim.mainPartition!!.area.lowerPosition == claimPartition.area.lowerPosition)
             {
                 isMain = 1
             }
 
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claimPartition.claim.id.toString())
-            statement.setInt(2, claimPartition.firstPosition.first)
-            statement.setInt(3, claimPartition.firstPosition.second)
-            statement.setInt(4, claimPartition.secondPosition.first)
-            statement.setInt(5, claimPartition.secondPosition.second)
+            statement.setInt(2, claimPartition.area.lowerPosition.x)
+            statement.setInt(3, claimPartition.area.lowerPosition.z)
+            statement.setInt(4, claimPartition.area.upperPosition.x)
+            statement.setInt(5, claimPartition.area.upperPosition.z)
             statement.setInt(6, isMain)
             statement.executeUpdate()
             statement.close()
@@ -365,15 +365,15 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param firstLocation The integer pair defining the first location.
      * @param secondLocation The integer pair defining the second location.
      */
-    fun removeClaimPartition(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
+    fun removeClaimPartition(claimPartition: ClaimPartition) {
         val sqlQuery = "DELETE FROM claimPartitions WHERE firstPositionX=? AND firstPositionZ=? AND " +
                 "secondPositionX=? AND secondPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, firstLocation.first)
-            statement.setInt(2, firstLocation.second)
-            statement.setInt(3, secondLocation.first)
-            statement.setInt(4, secondLocation.second)
+            statement.setInt(1, claimPartition.area.lowerPosition.x)
+            statement.setInt(2, claimPartition.area.lowerPosition.z)
+            statement.setInt(3, claimPartition.area.upperPosition.x)
+            statement.setInt(4, claimPartition.area.upperPosition.z)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -387,14 +387,14 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 "secondPositionX=? AND secondPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, newClaimPartition.firstPosition.first)
-            statement.setInt(2, newClaimPartition.firstPosition.second)
-            statement.setInt(3, newClaimPartition.secondPosition.first)
-            statement.setInt(4, newClaimPartition.secondPosition.second)
-            statement.setInt(5, oldClaimPartition.firstPosition.first)
-            statement.setInt(6, oldClaimPartition.firstPosition.second)
-            statement.setInt(7, oldClaimPartition.secondPosition.first)
-            statement.setInt(8, oldClaimPartition.secondPosition.second)
+            statement.setInt(1, newClaimPartition.area.lowerPosition.x)
+            statement.setInt(2, newClaimPartition.area.lowerPosition.z)
+            statement.setInt(3, newClaimPartition.area.upperPosition.x)
+            statement.setInt(4, newClaimPartition.area.upperPosition.z)
+            statement.setInt(5, oldClaimPartition.area.lowerPosition.x)
+            statement.setInt(6, oldClaimPartition.area.lowerPosition.z)
+            statement.setInt(7, oldClaimPartition.area.upperPosition.x)
+            statement.setInt(8, oldClaimPartition.area.upperPosition.z)
             statement.executeUpdate()
             statement.close()
             return true
