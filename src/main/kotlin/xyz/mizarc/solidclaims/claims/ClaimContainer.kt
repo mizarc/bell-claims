@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
+import org.bukkit.World
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.Area
 import xyz.mizarc.solidclaims.DatabaseStorage
@@ -16,6 +17,71 @@ class ClaimContainer(var database: DatabaseStorage) {
     var claims: ArrayList<Claim> = ArrayList()
     var claimPartitions: ArrayList<ClaimPartition> = ArrayList()
     var chunkClaimPartitions: MutableMap<Position, ArrayList<ClaimPartition>> = mutableMapOf()
+
+    fun getCornerPartition(position: Position, world: World): ClaimPartition? {
+        val chunk = getChunkLocation(position)
+        val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return null
+
+        for (partition in partitionsAtChunk) {
+            if (partition.isPositionInCorner(position, world)) {
+                return partition
+            }
+        }
+
+        return null
+    }
+
+    fun isPositionOverlap(position: Position, world: World): Boolean {
+        val chunk = getChunkLocation(position)
+        val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return false
+
+        for (partition in partitionsAtChunk) {
+            if (partition.isPositionInPartition(position, world)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun isAreaOverlap(area: Area, world: World): Boolean {
+        val chunks = getClaimChunks(area)
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition.isAreaOverlap(area, world)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun isPartitionOverlap(partition: ClaimPartition): Boolean {
+        val chunks = getClaimChunks(partition.area)
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (existingPartition in existingPartitions) {
+            if (partition == existingPartition) {
+                continue
+            }
+            if (partition.isAreaOverlap(partition.area, partition.claim.getWorld()!!)) {
+                return true
+            }
+        }
+
+        return false
+    }
 
     /**
      * Gets all the claim partitions that exist in a given chunk.

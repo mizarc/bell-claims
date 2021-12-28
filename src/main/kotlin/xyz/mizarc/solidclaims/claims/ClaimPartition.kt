@@ -9,10 +9,12 @@ import xyz.mizarc.solidclaims.Position
  * partition holds the positions of two corners of a rectangle and the claim associated with it.
  * @constructor Creates a partition with all required data.
  * @property claim The claim linked to this partition.
- * @property firstPosition The pair of integers defining the first position.
- * @property secondPosition The pair of integers defining the second position.
+ * @property area The area defining the space of this partition.
  */
 class ClaimPartition(var claim: Claim, var area: Area) {
+    fun isPositionInCorner(position: Position, world: World): Boolean {
+        return (area.isPositionInCorner(position) && (world.uid == claim.worldId))
+    }
     /**
      * Checks whether the specified position in the world is within the bounds of this claim.
      * @param position The position to check for.
@@ -25,20 +27,20 @@ class ClaimPartition(var claim: Claim, var area: Area) {
 
     /**
      * Checks whether the specified area in the world overlaps this claim
-     * @param position The position to check for.
+     * @param areaQuery The area to check.
      * @param world The world of the position.
      * @return True if the position is within the claim.
      */
-    fun isAreaOverlapsPartition(areaQuery: Area, world: World): Boolean {
+    fun isAreaOverlap(areaQuery: Area, world: World): Boolean {
         return (area.isAreaOverlap(area)) && (world.uid == claim.worldId)
     }
 
     /**
      * Checks if area is directly adjacent to this one.
-     * @param area The area to check
+     * @param areaQuery The area to check.
      * @return True if area is adjacent.
      */
-    fun isPartitionAdjacent(areaQuery: Area, world: World): Boolean {
+    fun isAreaAdjacent(areaQuery: Area, world: World): Boolean {
         return area.isAreaAdjacent(areaQuery) && (world.uid == claim.worldId)
     }
 }
