@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims
 
+import org.bukkit.Location
 import kotlin.math.absoluteValue
 
 /**
@@ -10,6 +11,25 @@ import kotlin.math.absoluteValue
 class Area(var lowerPosition: Position, var upperPosition: Position) {
     init {
         sortPositionSizes()
+    }
+
+    /**
+     * Checks if the position is on one of the four corners of the claim
+     * @param The position to check
+     * @return True if in corner.
+     */
+    fun isPositionInCorner(position: Position): Boolean {
+        if (position == lowerPosition || position == upperPosition) {
+            return true
+        }
+        if (position == Position(lowerPosition.x, upperPosition.z)) {
+            return true
+        }
+        if (position == Position(upperPosition.x, lowerPosition.z)) {
+            return true
+        }
+
+        return false
     }
 
     /**
