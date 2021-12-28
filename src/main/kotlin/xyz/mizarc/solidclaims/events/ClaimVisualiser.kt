@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import xyz.mizarc.solidclaims.Position
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
@@ -482,16 +483,16 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     fun unrenderOldClaims(player: Player) {
         if (oldPartitions.isEmpty()) return
 
-        val borders: ArrayList<Pair<Int, Int>> = ArrayList()
+        val borders: ArrayList<Position> = ArrayList()
         for (part in oldPartitions) {
-            borders.addAll(part.getEdgeBlockPositions())
+            borders.addAll(part.area.getEdgeBlockPositions())
         }
 
         // Get the furthest block of the claim from the player location
         var furthestBlock = 0
         for (block in borders) {
-            val xDiff = abs(player.location.blockX - block.first)
-            val zDiff = abs(player.location.blockZ - block.second)
+            val xDiff = abs(player.location.blockX - block.x)
+            val zDiff = abs(player.location.blockZ - block.z)
             val length = sqrt((xDiff*xDiff) + (zDiff*zDiff), RoundingMode.CEILING)
             if (length > furthestBlock) furthestBlock = length
         }
@@ -500,7 +501,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
 
         for (block in borders) {
             for (y in -64..320) {
-                val blockLocation = Location(player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble())
+                val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble())
                 val blockData = player.world.getBlockAt(blockLocation).blockData
                 for (p in players) {
                     p.sendBlockChange(blockLocation, blockData)
@@ -514,11 +515,11 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
      */
     private fun getNearbyPlayers(loc: Location, radiusModifier: Int): Array<Player> {
         val players: ArrayList<Player> = ArrayList()
-        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(loc)), plugin.server.viewDistance+(radiusModifier shr 4))
+        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(Position(loc)), plugin.server.viewDistance+(radiusModifier shr 4))
 
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != loc.world) continue
-            if (chunks.contains(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(player.location)))) {
+            if (chunks.contains(ClaimContainer.getChunkLocation(Position(player.location)))) {
                 players.add(player)
             }
         }
@@ -541,19 +542,20 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         }
         playerVisualisingState[player] = holdingClaimTool
 
-        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(ClaimContainer.getPositionFromLocation(player.location)), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(
+            ClaimContainer.getChunkLocation(Position(player.location)), plugin.server.viewDistance)
         val partitions = getClaimPartitionsInChunks(chunks)
         if (partitions.isEmpty()) return
 
-        val borders: ArrayList<Pair<Int, Int>> = ArrayList()
-        for (part in partitions) {
-            borders.addAll(part.getEdgeBlockPositions())
+        val borders: ArrayList<Position> = ArrayList()
+        for (partition in partitions) {
+            borders.addAll(partition.area.getEdgeBlockPositions())
         }
 
         for (block in borders) {
             for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = Material.CYAN_GLAZED_TERRACOTTA.createBlockData() // Set the visualisation block
-                val blockLocation = Location(player.location.world, block.first.toDouble(), y.toDouble(), block.second.toDouble()) // Get the location of the block being considered currently
+                val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble()) // Get the location of the block being considered currently
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = Material.CYAN_CARPET.createBlockData()
@@ -597,7 +599,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     /**
      * Determine what claim partitions are within [chunks]
      */
-    private fun getClaimPartitionsInChunks(chunks: Array<Pair<Int, Int>>): Array<ClaimPartition> {
+    private fun getClaimPartitionsInChunks(chunks: Array<Position>): Array<ClaimPartition> {
         val claims: ArrayList<ClaimPartition> = ArrayList()
 
         for (chunk in chunks) {
@@ -614,13 +616,13 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
      * Get a square of chunks centering on [loc] with a size of [radius]
      */
     @Suppress("SameParameterValue")
-    private fun getSurroundingChunks(loc: Pair<Int, Int>, radius: Int): Array<Pair<Int, Int>> {
+    private fun getSurroundingChunks(position: Position, radius: Int): Array<Position> {
         val sideLength = (radius * 2) + 1 // Make it always odd (eg. radius of 2 results in 5x5 square)
-        val chunks: Array<Pair<Int, Int>> = Array(sideLength * sideLength) {Pair(0, 0)}
+        val chunks = Array(sideLength * sideLength) {Position(0,0)}
 
         for (x in 0 until sideLength) {
             for (z in 0 until sideLength) {
-                chunks[(x * sideLength) + z] = Pair(loc.first + x - radius, loc.second + z - radius)
+                chunks[(x * sideLength) + z] = Position(position.x + x - radius, position.z + z - radius)
             }
         }
 
