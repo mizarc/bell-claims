@@ -9,6 +9,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import xyz.mizarc.solidclaims.PlayerContainer
+import xyz.mizarc.solidclaims.Position
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.ClaimPartition
@@ -21,8 +22,8 @@ import java.time.Instant
  */
 class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer: PlayerContainer,
                         val claimVisualiser: ClaimVisualiser) : Listener {
-    var playerClaimBuilders: ArrayList<PlayerClaimBuilder> = ArrayList()
-    var playerClaimResizers: ArrayList<PlayerClaimResizer> = ArrayList()
+    var playerClaimBuilders: ArrayList<AreaBuilder> = ArrayList()
+    var partitionResizeBuilders: ArrayList<PartitionResizeBuilder> = ArrayList()
 
     @EventHandler
     fun onUseClaimTool(event: PlayerInteractEvent) {
@@ -31,7 +32,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         if (event.item!!.itemMeta != getClaimTool().itemMeta) return
 
         // Check if player is already making a claim
-        lateinit var playerClaimBuilder: PlayerClaimBuilder
+        lateinit var playerClaimBuilder: AreaBuilder
         var isMakingClaim = false
         for (player in playerClaimBuilders) {
             if (player.playerId == event.player.uniqueId) {
@@ -42,19 +43,19 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Check if player is already making a resize
-        lateinit var playerClaimResizer: PlayerClaimResizer
+        lateinit var partitionResizeBuilder: PartitionResizeBuilder
         var isResizing = false
-        for (player in playerClaimResizers) {
+        for (player in partitionResizeBuilders) {
             if (player.playerId == event.player.uniqueId) {
                 isResizing = true
-                playerClaimResizer = player
+                partitionResizeBuilder = player
                 break
             }
         }
 
         // Resize existing claim
         if (isResizing) {
-            createNewPartitionArea(event.player, event.clickedBlock!!.location, playerClaimResizer)
+            createNewPartitionArea(event.player, event.clickedBlock!!.location, partitionResizeBuilder)
             return
         }
 
@@ -77,7 +78,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      */
     fun selectFirstLocation(player: Player, location: Location) {
         // Check if the selected spot exists in an existing claim.
-        if (!checkValidBlock(location)) {
+        if (claimContainer.isPositionOverlap(Position(location), location.world!!)) {
             player.sendMessage("That spot is in an existing claim.")
             return
         }
@@ -96,7 +97,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
                     "Try removing or resizing an existing claim.")
         }
 
-        playerClaimBuilders.add(PlayerClaimBuilder(player.uniqueId, Pair(location.x.toInt(), location.z.toInt())))
+        playerClaimBuilders.add(AreaBuilder(player.uniqueId, Position(location.x.toInt(), location.z.toInt())))
         return player.sendMessage("New claim building started. " +
                 "You have $remainingClaimBlockCount Blocks and $remainingClaimCount Areas remaining.")
     }
@@ -104,15 +105,15 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
     /**
      * Creates a new claim using a claim builder.
      */
-    fun createClaim(player: Player, location: Location, claimBuilder: PlayerClaimBuilder) {
-        claimBuilder.secondPosition = Pair(location.x.toInt(), location.z.toInt())
-        claimBuilder.sortPositionSizes()
+    fun createClaim(player: Player, location: Location, claimBuilder: AreaBuilder) {
+        claimBuilder.secondPosition = Position(location.x.toInt(), location.z.toInt())
+        val area = claimBuilder.build() ?: return
         // Set second location & Check if it overlaps an existing claim
-        if (!checkValidClaim(claimBuilder)) {
+        if (claimContainer.isAreaOverlap(area, location.world!!)) {
             return player.sendMessage("That selection overlaps an existing claim.")
         }
 
-        if (claimBuilder.getXLength() < 5 || claimBuilder.getZLength() < 5) {
+        if (area.getXLength() < 5 || area.getZLength() < 5) {
             return player.sendMessage("The claim must be at least 5x5 blocks.")
         }
 
@@ -120,20 +121,20 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
 
         // Check if selection is greater than the player's remaining claim blocks
-        if (claimBuilder.getBlockCount()!! > remainingClaimBlockCount) {
+        if (area.getBlockCount() > remainingClaimBlockCount) {
             return player.sendMessage("That selection would require an additional " +
-                    "${claimBuilder.getBlockCount()!! - remainingClaimCount} claim blocks")
+                    "${area.getBlockCount() - remainingClaimCount} claim blocks")
         }
 
-        val adjacentClaim = checkAdjacentClaims(claimBuilder)
-        if (adjacentClaim != null) {
-            appendPartitionToClaim(player, claimBuilder, adjacentClaim)
+        val adjacentPartition = claimContainer.getPartitionAdjacent(area, location.world!!)
+        if (adjacentPartition != null) {
+            appendPartitionToClaim(player, claimBuilder, adjacentPartition.claim)
             return
         }
 
         // Create Claim & Partition
         val newClaim = Claim(location.world!!.uid, Bukkit.getOfflinePlayer(player.uniqueId), Instant.now())
-        val newClaimPartition = ClaimPartition(newClaim, claimBuilder.firstPosition, claimBuilder.secondPosition!!)
+        val newClaimPartition = ClaimPartition(newClaim, area)
         newClaim.mainPartition = newClaimPartition
 
         // Add to list of claims
@@ -145,8 +146,9 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         player.sendMessage("New claim has been created.")
     }
 
-    fun appendPartitionToClaim(player: Player, claimBuilder: PlayerClaimBuilder, claim: Claim) {
-        val newClaimPartition = ClaimPartition(claim, claimBuilder.firstPosition, claimBuilder.secondPosition!!)
+    fun appendPartitionToClaim(player: Player, claimBuilder: AreaBuilder, claim: Claim) {
+        val area = claimBuilder.build() ?: return
+        val newClaimPartition = ClaimPartition(claim, area)
         claimContainer.addNewClaimPartition(newClaimPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
@@ -157,12 +159,9 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      * Selects an existing claim corner if it exists.
      */
     fun selectExistingCorner(player: Player, location: Location) : Boolean {
-        if (getCornerBlockPartition(location) == null) {
-            return false
-        }
+        val partition = claimContainer.getCornerPartition(Position(location), location.world!!) ?: return false
 
-        playerClaimResizers.add(PlayerClaimResizer(player.uniqueId, getCornerBlockPartition(location)!!,
-            Pair(location.x.toInt(), location.z.toInt())))
+        partitionResizeBuilders.add(PartitionResizeBuilder(player.uniqueId, partition, Position(location)))
         player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
         return true
     }
@@ -170,17 +169,17 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
     /**
      * Selects a new position to resize the claim.
      */
-    fun createNewPartitionArea(player: Player, location: Location, claimResizer: PlayerClaimResizer) {
-        claimResizer.newLocation = location
-        val newPartition = claimResizer.setNewCorner()
+    fun createNewPartitionArea(player: Player, location: Location, claimResizer: PartitionResizeBuilder) {
+        claimResizer.setNewCorner(Position(location.x.toInt(), location.z.toInt()))
+        val newPartition = claimResizer.build()
 
         // Check if selection overlaps an existing claim
-        if (!checkValidClaim(claimResizer)) {
+        if (!claimContainer.isPartitionOverlap(newPartition)) {
             return player.sendMessage("That selection overlaps an existing claim.")
         }
 
         // Check if claim meets minimum size
-        if (claimResizer.getXLength() < 5 || claimResizer.getZLength() < 5) {
+        if (newPartition.area.getXLength() < 5 || newPartition.area.getZLength() < 5) {
             return player.sendMessage("The claim must be at least 5x5 blocks.")
         }
 
@@ -192,9 +191,28 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
                     "${claimResizer.extraBlockCount()!! - remainingClaimBlockCount} blocks")
         }
 
+        // Check if claim resize would result in this claim being disconnected from the main
+        claimContainer.removeClaimPartition(claimResizer.claimPartition)
+        if (!claimResizer.claimPartition.claim.isPartitionConnectedToMain(newPartition)) {
+            claimContainer.addClaimPartition(claimResizer.claimPartition)
+            return player.sendMessage(
+                "That resize would result in this partition being disconnected from the main partition.")
+        }
+
+        // Check if claim resize would result in any claim islands
+        claimContainer.addClaimPartition(newPartition)
+        if (claimResizer.claimPartition.claim.isAnyDisconnectedPartitions()) {
+            claimContainer.removeClaimPartition(newPartition)
+            claimContainer.addClaimPartition(claimResizer.claimPartition)
+            return player.sendMessage(
+                "That resize would result in an unconnected partition island."
+            )
+        }
+
         // Apply the resize
+        claimContainer.removeClaimPartition(claimResizer.build())
         claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, newPartition)
-        playerClaimResizers.remove(claimResizer)
+        partitionResizeBuilders.remove(claimResizer)
         claimVisualiser.oldPartitions.add(claimResizer.claimPartition)
         claimVisualiser.unrenderOldClaims(player)
         claimVisualiser.oldPartitions.clear()
@@ -224,104 +242,12 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
     }
 
-    fun cancelClaimCreation(playerClaimBuilder: PlayerClaimBuilder) {
+    fun cancelClaimCreation(playerClaimBuilder: AreaBuilder) {
         playerClaimBuilders.remove(playerClaimBuilder)
     }
 
-    fun cancelClaimResizing(playerClaimResizer: PlayerClaimResizer) {
-        playerClaimResizers.remove(playerClaimResizer)
-    }
-
-    fun getCornerBlockPartition(location: Location) : ClaimPartition? {
-        val chunks = claimContainer.getClaimChunks(
-            ClaimContainer.getPositionFromLocation(location),
-            ClaimContainer.getPositionFromLocation(location))
-
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
-        for (chunk in chunks) {
-            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            existingPartitions.addAll(partitionsAtChunk)
-        }
-
-        for (partition in existingPartitions) {
-            if (ClaimContainer.getPositionFromLocation(location) in partition.getCornerBlockPositions()) {
-                return partition
-            }
-        }
-
-        return null
-    }
-
-    /**
-     *
-     */
-    fun checkValidBlock(location: Location) : Boolean {
-        val chunks = claimContainer.getClaimChunks(
-            ClaimContainer.getPositionFromLocation(location),
-            ClaimContainer.getPositionFromLocation(location))
-
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
-        for (chunk in chunks) {
-            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            existingPartitions.addAll(partitionsAtChunk)
-        }
-
-        for (partition in existingPartitions) {
-            if (partition.isLocationInClaim(location)) {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    /**
-     * Compares a new claim to the existing claims to see if they overlap.
-     * @param playerClaimBuilder
-     */
-    fun checkValidClaim(playerClaimBuilder: PlayerClaimBuilder) : Boolean {
-        val chunks = claimContainer.getClaimChunks(
-            playerClaimBuilder.firstPosition, playerClaimBuilder.secondPosition!!)
-
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
-        for (chunk in chunks) {
-            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            existingPartitions.addAll(partitionsAtChunk)
-        }
-
-        val sortedPositions = ClaimContainer.sortPositionSizes(
-            playerClaimBuilder.firstPosition, playerClaimBuilder.secondPosition!!)
-        for (partition in existingPartitions) {
-            if (partition.isBoxInClaim(sortedPositions.first, sortedPositions.second)) {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    fun checkValidClaim(playerClaimResizer: PlayerClaimResizer) : Boolean {
-        val chunks = claimContainer.getClaimChunks(
-            playerClaimResizer.newFirstPosition,
-            playerClaimResizer.newSecondPosition)
-
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
-        for (chunk in chunks) {
-            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            existingPartitions.addAll(partitionsAtChunk)
-        }
-
-        for (partition in existingPartitions) {
-            if (partition == playerClaimResizer.claimPartition) {
-                continue
-            }
-
-            if (partition.isBoxInClaim(playerClaimResizer.newFirstPosition, playerClaimResizer.newSecondPosition)) {
-                return false
-            }
-        }
-
-        return true
+    fun cancelClaimResizing(partitionResizeBuilder: PartitionResizeBuilder) {
+        partitionResizeBuilders.remove(partitionResizeBuilder)
     }
 
     /**
@@ -329,7 +255,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      * @param player The player object to check.
      * @return The PlayerClaimBuilder object of the player.
      */
-    fun getPlayerMakingClaim(player: Player) : PlayerClaimBuilder? {
+    fun getPlayerMakingClaim(player: Player) : AreaBuilder? {
         for (builderPlayer in playerClaimBuilders) {
             if (builderPlayer.playerId == player.uniqueId) {
                 return builderPlayer
@@ -343,33 +269,10 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
      * @param player The player object to check.
      * @return The PlayerClaimBuilder object of the player.
      */
-    fun getPlayerResizingClaim(player: Player) : PlayerClaimResizer? {
-        for (resizerPlayer in playerClaimResizers) {
+    fun getPlayerResizingClaim(player: Player) : PartitionResizeBuilder? {
+        for (resizerPlayer in partitionResizeBuilders) {
             if (resizerPlayer.playerId == player.uniqueId) {
                 return resizerPlayer
-            }
-        }
-        return null
-    }
-
-    fun checkAdjacentClaims(claimBuilder: PlayerClaimBuilder) : Claim? {
-        val firstPos = claimBuilder.firstPosition
-        val secondPos = claimBuilder.secondPosition!!
-        val chunks = claimContainer.getClaimChunks(
-            Pair(firstPos.first - 1, firstPos.second - 1),
-            Pair(secondPos.first + 1, secondPos.second + 1)
-        )
-
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
-        for (chunk in chunks) {
-            val partitionsAtChunk = claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            existingPartitions.addAll(partitionsAtChunk)
-        }
-
-        for (partition in existingPartitions) {
-            println("Testing partition ${partition.claim.name}")
-            if (partition.isNewClaimTouchingClaim(claimBuilder)) {
-                return partition.claim
             }
         }
         return null

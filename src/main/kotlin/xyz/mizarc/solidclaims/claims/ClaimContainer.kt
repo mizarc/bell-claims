@@ -31,6 +31,24 @@ class ClaimContainer(var database: DatabaseStorage) {
         return null
     }
 
+    fun getPartitionAdjacent(area: Area, world: World): ClaimPartition? {
+        val chunks = getClaimChunks(area)
+
+        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition.isAreaAdjacent(area, world)) {
+                return partition
+            }
+        }
+
+        return null
+    }
+
     fun isPositionOverlap(position: Position, world: World): Boolean {
         val chunk = getChunkLocation(position)
         val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return false

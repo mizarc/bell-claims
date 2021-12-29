@@ -32,7 +32,7 @@ class ClaimPartition(var claim: Claim, var area: Area) {
      * @return True if the position is within the claim.
      */
     fun isAreaOverlap(areaQuery: Area, world: World): Boolean {
-        return (area.isAreaOverlap(area)) && (world.uid == claim.worldId)
+        return (area.isAreaOverlap(areaQuery)) && (world.uid == claim.worldId)
     }
 
     /**
