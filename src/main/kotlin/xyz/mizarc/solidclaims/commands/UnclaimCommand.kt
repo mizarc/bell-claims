@@ -40,11 +40,22 @@ class UnclaimCommand : BaseCommand() {
     fun onPartition(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 
+        // Check if claim resize would result in any claim islands
+        plugin.claimContainer.removeClaimPartition(claimPartition)
+        if (claimPartition.claim.isAnyDisconnectedPartitions()) {
+            plugin.claimContainer.addClaimPartition(claimPartition)
+            return player.sendMessage(
+                "That resize would result in an unconnected partition island."
+            )
+        }
+
         // Remove claim partition
+        plugin.claimContainer.addClaimPartition(claimPartition)
         plugin.claimContainer.removePersistentClaimPartition(claimPartition)
         plugin.claimVisualiser.oldPartitions.add(claimPartition)
         plugin.claimVisualiser.unrenderOldClaims(player)
         plugin.claimVisualiser.oldPartitions.clear()
+
 
         // Remove claim if there are no more partitions attached to it
         if (claimPartition.claim.claimPartitions.isEmpty()) {
