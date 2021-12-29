@@ -15,7 +15,6 @@ import kotlin.math.absoluteValue
 class PartitionResizeBuilder(var playerId: UUID, var claimPartition: ClaimPartition, var selectedCorner: Position) {
     lateinit var newLowerPosition: Position
     lateinit var newUpperPosition: Position
-    lateinit var newClaimPartition: ClaimPartition
 
     /**
      * Specifies the new corner to replace an existing corner.

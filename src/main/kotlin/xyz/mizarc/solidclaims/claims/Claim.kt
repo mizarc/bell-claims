@@ -57,8 +57,67 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
     fun getBlockCount() : Int {
         var count = 0
         for (partition in claimPartitions) {
-            count += partition.getBlockCount()
+            count += partition.area.getBlockCount()
         }
         return count
+    }
+
+    fun getAdjacentPartitions(partition: ClaimPartition): ArrayList<ClaimPartition> {
+        val adjacentPartitions = ArrayList<ClaimPartition>()
+        for (existingPartition in claimPartitions) {
+            if (existingPartition.isAreaAdjacent(partition.area, partition.claim.getWorld()!!)) {
+                adjacentPartitions.add(existingPartition)
+            }
+        }
+        return adjacentPartitions
+    }
+
+    fun getLinkedAdjacentPartitions(partition: ClaimPartition): ArrayList<ClaimPartition> {
+        val adjacentPartitions = ArrayList<ClaimPartition>()
+        for (existingPartition in claimPartitions) {
+            if (existingPartition.isAreaAdjacent(partition.area, partition.claim.getWorld()!!) && existingPartition.claim == partition.claim) {
+                adjacentPartitions.add(existingPartition)
+            }
+        }
+        return adjacentPartitions
+    }
+
+    fun isPartitionConnectedToMain(partition: ClaimPartition): Boolean {
+        val traversedPartitions = ArrayList<ClaimPartition>()
+        val partitionQueries = ArrayList<ClaimPartition>()
+        partitionQueries.add(partition)
+        while(partitionQueries.isNotEmpty()) {
+            val partitionsToAdd = ArrayList<ClaimPartition>()
+            val partitionsToRemove = ArrayList<ClaimPartition>()
+            for (partitionQuery in partitionQueries) {
+                val adjacentPartitions = getLinkedAdjacentPartitions(partitionQuery)
+                for (adjacentPartition in adjacentPartitions) {
+                    if (adjacentPartition.area.lowerPosition == mainPartition!!.area.lowerPosition &&
+                        adjacentPartition.area.upperPosition == mainPartition!!.area.upperPosition) {
+                        return true
+                    }
+                    if (adjacentPartition in traversedPartitions) {
+                        continue
+                    }
+
+                    partitionsToAdd.add(adjacentPartition)
+                }
+                partitionsToRemove.add(partitionQuery)
+                traversedPartitions.add(partitionQuery)
+            }
+            partitionQueries.removeAll(partitionsToRemove)
+            partitionQueries.addAll(partitionsToAdd)
+            partitionsToAdd.clear()
+        }
+        return false
+    }
+
+    fun isAnyDisconnectedPartitions(): Boolean {
+        for (partition in claimPartitions) {
+            if (!isPartitionConnectedToMain(partition)) {
+                return true
+            }
+        }
+        return false
     }
 }
