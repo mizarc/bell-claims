@@ -114,10 +114,18 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
 
     fun isAnyDisconnectedPartitions(): Boolean {
         for (partition in claimPartitions) {
+            if (isPartitionMain(partition)) {
+                continue
+            }
             if (!isPartitionConnectedToMain(partition)) {
                 return true
             }
         }
         return false
+    }
+
+    fun isPartitionMain(partition: ClaimPartition): Boolean {
+        return (partition.claim.mainPartition!!.area.lowerPosition == partition.area.lowerPosition &&
+            partition.claim.mainPartition!!.area.upperPosition == partition.area.upperPosition)
     }
 }
