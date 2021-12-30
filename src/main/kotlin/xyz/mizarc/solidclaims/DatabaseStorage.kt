@@ -1,17 +1,13 @@
 package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimPartition
-import xyz.mizarc.solidclaims.claims.PlayerAccess
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import xyz.mizarc.solidclaims.events.ClaimRule
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.time.Instant
-import java.time.ZonedDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -85,7 +81,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
-                    claim.claimPartitions = partitions
+                    claim.partitions = partitions
                 }
 
                 return claim
@@ -133,7 +129,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
                 // Get all partitions
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
-                    claim.claimPartitions = partitions
+                    claim.partitions = partitions
                 }
                 claims.add(claim)
             }
@@ -185,7 +181,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
                 val partitions = getClaimPartitionsByClaim(claim)
                 if (partitions != null) {
-                    claim.claimPartitions = partitions
+                    claim.partitions = partitions
                 }
 
                 claims.add(claim)
@@ -272,18 +268,56 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Modifies the description of a claim.
+     * @param id The unique identifier for the claim.
+     * @param description The description to set.
+     */
+    fun modifyMainPartition(oldMainPartition: Partition, newMainPartition: Partition) {
+        val sqlQuery = "UPDATE claimPartitions SET main=? WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
+
+        // Set old main to 0
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, 0)
+            statement.setInt(2, oldMainPartition.area.lowerPosition.x)
+            statement.setInt(3, oldMainPartition.area.lowerPosition.z)
+            statement.setInt(4, oldMainPartition.area.upperPosition.x)
+            statement.setInt(5, oldMainPartition.area.upperPosition.z)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        // Set new main to 1
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, 1)
+            statement.setInt(2, newMainPartition.area.lowerPosition.x)
+            statement.setInt(3, newMainPartition.area.lowerPosition.z)
+            statement.setInt(4, newMainPartition.area.upperPosition.x)
+            statement.setInt(5, newMainPartition.area.upperPosition.z)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
      * Gets a list of all claim partitions associated with a list of claims.
      * @param claims The claims to read from.
      * @return An array of claim partition objects. May return null.
      */
-    fun getAllClaimPartitions(claims: ArrayList<Claim>) : ArrayList<ClaimPartition>? {
-        val claimPartitions: ArrayList<ClaimPartition> = arrayListOf()
+    fun getAllClaimPartitions(claims: ArrayList<Claim>) : ArrayList<Partition>? {
+        val partitions: ArrayList<Partition> = arrayListOf()
         for (claim in claims) {
             val claimPartition = getClaimPartitionsByClaim(claim) ?: return null
-            claimPartitions.addAll(claimPartition)
+            partitions.addAll(claimPartition)
         }
 
-        return claimPartitions
+        return partitions
     }
 
     /**
@@ -291,19 +325,22 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param claim The claim to read from.
      * @return An array of claim partition objects. May return null.
      */
-    fun getClaimPartitionsByClaim(claim: Claim) : ArrayList<ClaimPartition>? {
+    fun getClaimPartitionsByClaim(claim: Claim) : ArrayList<Partition>? {
         val sqlQuery = "SELECT * FROM claimPartitions WHERE claimId=?;"
 
         try {
-            val claims : ArrayList<ClaimPartition> = arrayListOf()
+            val claims : ArrayList<Partition> = arrayListOf()
             val statement = connection.prepareStatement(sqlQuery)
             statement.setString(1, claim.id.toString())
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                claims.add(ClaimPartition(claim,
-                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
-                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+                claims.add(Partition(claim,
+                    Area(
+                        Position(resultSet.getInt(2), resultSet.getInt(3)),
+                    Position(resultSet.getInt(4), resultSet.getInt(5))
+                    )
+                ))
             }
 
             return claims
@@ -318,7 +355,7 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Gets the assigned main partition of a claim.
      * @param claim The claim to read from.
      */
-    fun getMainPartitionByClaim(claim: Claim) : ClaimPartition? {
+    fun getMainPartitionByClaim(claim: Claim) : Partition? {
         val sqlQuery = "SELECT * FROM claimPartitions WHERE claimId=? AND main=?;"
 
         try {
@@ -328,9 +365,12 @@ class DatabaseStorage(var plugin: SolidClaims) {
             val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                return (ClaimPartition(claim,
-                    Pair(resultSet.getInt(2), resultSet.getInt(3)),
-                    Pair(resultSet.getInt(4), resultSet.getInt(5))))
+                return (Partition(claim,
+                    Area(
+                        Position(resultSet.getInt(2), resultSet.getInt(3)),
+                        Position(resultSet.getInt(4), resultSet.getInt(5))
+                    )
+                ))
             }
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -345,23 +385,23 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param firstLocation The integer pair defining the first location.
      * @param secondLocation The integer pair defining the second location.
      */
-    fun addClaimPartition(claimPartition: ClaimPartition) {
-        val sqlQuery = "INSERT INTO claimPartitions (claimId, firstPositionX, firstPositionZ, " +
-                "secondPositionX, secondPositionZ, main) VALUES (?,?,?,?,?,?);"
+    fun addClaimPartition(partition: Partition) {
+        val sqlQuery = "INSERT INTO claimPartitions (claimId, lowerPositionX, lowerPositionZ, " +
+                "upperPositionX, upperPositionZ, main) VALUES (?,?,?,?,?,?);"
         try {
             // Set int if partition is the claim's main partition
             var isMain = 0
-            if (claimPartition.claim.mainPartition!!.firstPosition == claimPartition.firstPosition)
+            if (partition.claim.mainPartition!!.area.lowerPosition == partition.area.lowerPosition)
             {
                 isMain = 1
             }
 
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setString(1, claimPartition.claim.id.toString())
-            statement.setInt(2, claimPartition.firstPosition.first)
-            statement.setInt(3, claimPartition.firstPosition.second)
-            statement.setInt(4, claimPartition.secondPosition.first)
-            statement.setInt(5, claimPartition.secondPosition.second)
+            statement.setString(1, partition.claim.id.toString())
+            statement.setInt(2, partition.area.lowerPosition.x)
+            statement.setInt(3, partition.area.lowerPosition.z)
+            statement.setInt(4, partition.area.upperPosition.x)
+            statement.setInt(5, partition.area.upperPosition.z)
             statement.setInt(6, isMain)
             statement.executeUpdate()
             statement.close()
@@ -376,15 +416,15 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param firstLocation The integer pair defining the first location.
      * @param secondLocation The integer pair defining the second location.
      */
-    fun removeClaimPartition(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) {
-        val sqlQuery = "DELETE FROM claimPartitions WHERE firstPositionX=? AND firstPositionZ=? AND " +
-                "secondPositionX=? AND secondPositionZ=?;"
+    fun removeClaimPartition(partition: Partition) {
+        val sqlQuery = "DELETE FROM claimPartitions WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, firstLocation.first)
-            statement.setInt(2, firstLocation.second)
-            statement.setInt(3, secondLocation.first)
-            statement.setInt(4, secondLocation.second)
+            statement.setInt(1, partition.area.lowerPosition.x)
+            statement.setInt(2, partition.area.lowerPosition.z)
+            statement.setInt(3, partition.area.upperPosition.x)
+            statement.setInt(4, partition.area.upperPosition.z)
             statement.executeUpdate()
             statement.close()
         } catch (error: SQLException) {
@@ -392,20 +432,20 @@ class DatabaseStorage(var plugin: SolidClaims) {
         }
     }
 
-    fun modifyClaimPartitionLocation(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        val sqlQuery = "UPDATE claimPartitions SET firstPositionX=?, firstPositionZ=?, " +
-                "secondPositionX=?, secondPositionZ=? WHERE firstPositionX=? AND firstPositionZ=? AND " +
-                "secondPositionX=? AND secondPositionZ=?;"
+    fun modifyClaimPartitionLocation(oldPartition: Partition, newPartition: Partition) : Boolean {
+        val sqlQuery = "UPDATE claimPartitions SET lowerPositionX=?, lowerPositionZ=?, " +
+                "upperPositionX=?, upperPositionZ=? WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, newClaimPartition.firstPosition.first)
-            statement.setInt(2, newClaimPartition.firstPosition.second)
-            statement.setInt(3, newClaimPartition.secondPosition.first)
-            statement.setInt(4, newClaimPartition.secondPosition.second)
-            statement.setInt(5, oldClaimPartition.firstPosition.first)
-            statement.setInt(6, oldClaimPartition.firstPosition.second)
-            statement.setInt(7, oldClaimPartition.secondPosition.first)
-            statement.setInt(8, oldClaimPartition.secondPosition.second)
+            statement.setInt(1, newPartition.area.lowerPosition.x)
+            statement.setInt(2, newPartition.area.lowerPosition.z)
+            statement.setInt(3, newPartition.area.upperPosition.x)
+            statement.setInt(4, newPartition.area.upperPosition.z)
+            statement.setInt(5, oldPartition.area.lowerPosition.x)
+            statement.setInt(6, oldPartition.area.lowerPosition.z)
+            statement.setInt(7, oldPartition.area.upperPosition.x)
+            statement.setInt(8, oldPartition.area.upperPosition.z)
             statement.executeUpdate()
             statement.close()
             return true
@@ -862,8 +902,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store claim partition data if it doesn't exist.
      */
     private fun createClaimPartitionTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstPositionX INTEGER NOT NULL," +
-                "firstPositionZ INTEGER NOT NULL, secondPositionX INTEGER NOT NULL, secondPositionZ INTEGER NOT NULL," +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, lowerPositionX INTEGER NOT NULL," +
+                "lowerPositionZ INTEGER NOT NULL, upperPositionX INTEGER NOT NULL, upperPositionZ INTEGER NOT NULL," +
                 "main INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)

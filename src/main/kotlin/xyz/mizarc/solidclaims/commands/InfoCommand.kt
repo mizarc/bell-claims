@@ -24,11 +24,7 @@ class InfoCommand : ClaimCommand() {
         }
 
         val claim = claimPartition.claim
-        val name = if (claim.name != null) {
-            claim.name
-        } else {
-            "Claim"
-        }
+        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
 
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
             .withLocale(Locale.UK)
@@ -40,14 +36,14 @@ class InfoCommand : ClaimCommand() {
         }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
-        chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
+        chatInfo.addLinked("Partition Count", claim.partitions.count().toString())
         chatInfo.addLinked("Block Count", claim.getBlockCount().toString())
         chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
-        chatInfo.addLinked("First Corner", claimPartition.firstPosition.toString())
-        chatInfo.addLinked("Second Corner", claimPartition.secondPosition.toString())
-        chatInfo.addLinked("Block Count", claimPartition.getBlockCount().toString())
+        chatInfo.addLinked("First Corner", claimPartition.area.lowerPosition.toString())
+        chatInfo.addLinked("Second Corner", claimPartition.area.upperPosition.toString())
+        chatInfo.addLinked("Block Count", claimPartition.area.getBlockCount().toString())
 
         player.spigot().sendMessage(*chatInfo.create())
     }

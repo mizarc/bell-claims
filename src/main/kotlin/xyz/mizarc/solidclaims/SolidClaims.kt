@@ -33,6 +33,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(RenameCommand())
         commandManager.registerCommand(DescriptionCommand())
+        commandManager.registerCommand(SetmainCommand())
         commandManager.registerCommand(AddRuleCommand())
         commandManager.registerCommand(RemoveRuleCommand())
         loadDataFromDatabase()
@@ -56,7 +57,7 @@ class SolidClaims : JavaPlugin() {
                     claimContainer.addClaim(claim)
 
                     // Add partitions
-                    for (partition in claim.claimPartitions) {
+                    for (partition in claim.partitions) {
                         claimContainer.addClaimPartition(partition)
                     }
                 }
