@@ -66,8 +66,14 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // Determine if this event happened inside of a claim's boundaries
         val claim = plugin.claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
 
-        // If player is owner, do nothing.
         if (player != null) {
+            // If player has override, do nothing.
+            val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
+            if (playerState!!.claimOverride) {
+                return
+            }
+
+            // If player is owner, do nothing.
             if (player.uniqueId == claim.owner.uniqueId) {
                 return
             }
