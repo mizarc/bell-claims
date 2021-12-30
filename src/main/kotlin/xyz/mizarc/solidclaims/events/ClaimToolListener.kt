@@ -207,7 +207,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         // Check if claim resize would result in any claim islands
         claimContainer.addClaimPartition(newPartition)
         if (claimResizer.partition.claim.isAnyDisconnectedPartitions()) {
-            if (claimResizer.partition.claim.isPartitionMain(claimResizer.partition)) {
+            if (claimResizer.partition.claim.isPartitionMain(newPartition)) {
                 claimResizer.partition.claim.mainPartition = claimResizer.partition
             }
             claimContainer.removeClaimPartition(newPartition)
