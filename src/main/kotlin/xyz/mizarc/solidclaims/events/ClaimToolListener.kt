@@ -152,6 +152,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimContainer.addNewClaimPartition(newPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
+        val claimName = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
         player.sendMessage("New claim partition has been added to ${claim.name}.")
     }
 
