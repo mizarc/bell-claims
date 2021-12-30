@@ -263,6 +263,11 @@ class ClaimContainer(var database: DatabaseStorage) {
                 database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
     }
 
+    fun modifyMainPartition(claim: Claim, partition: ClaimPartition) {
+        database.modifyMainPartition(claim.id, claim.mainPartition!!, partition)
+        claim.mainPartition = partition
+    }
+
     fun addClaimPermission(claim: Claim, playerAccess: PlayerAccess) : Boolean {
         for (claimPlayer in claim.playerAccesses) {
             if (claimPlayer.id == playerAccess.id) {
