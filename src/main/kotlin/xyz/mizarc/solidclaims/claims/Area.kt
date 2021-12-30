@@ -1,6 +1,5 @@
-package xyz.mizarc.solidclaims
+package xyz.mizarc.solidclaims.claims
 
-import org.bukkit.Location
 import kotlin.math.absoluteValue
 
 /**

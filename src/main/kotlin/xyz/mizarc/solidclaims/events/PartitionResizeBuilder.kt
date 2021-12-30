@@ -1,7 +1,7 @@
 package xyz.mizarc.solidclaims.events
 
-import xyz.mizarc.solidclaims.Area
-import xyz.mizarc.solidclaims.Position
+import xyz.mizarc.solidclaims.claims.Area
+import xyz.mizarc.solidclaims.claims.Position
 import xyz.mizarc.solidclaims.claims.Partition
 import java.util.*
 import kotlin.math.absoluteValue

@@ -1,8 +1,6 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.World
-import xyz.mizarc.solidclaims.Area
-import xyz.mizarc.solidclaims.Position
 
 /**
  * A partition of a claim. Claims can be made up of multiple partitions that defines the overall shape. A single
