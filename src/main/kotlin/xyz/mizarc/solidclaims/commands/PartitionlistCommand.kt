@@ -28,7 +28,8 @@ class PartitionlistCommand : ClaimCommand() {
         }
 
         // Output list of partitions
-        val chatInfo = ChatInfoBuilder("Claim Partitions")
+        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
+        val chatInfo = ChatInfoBuilder("$name Partitions")
         for (i in 0..9 + page) {
             if (i > claim.partitions.count() - 1) {
                 break

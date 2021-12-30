@@ -47,11 +47,8 @@ class ClaimlistCommand : BaseCommand() {
                 break
             }
 
-            val name: String = if (playerClaims[i].name != null) {
-                playerClaims[i].name!!
-            } else {
+            val name: String = if (playerClaims[i].name != null) playerClaims[i].name!! else
                 playerClaims[i].id.toString().substring(0, 7)
-            }
 
             chatInfo.addLinked(name,
                 "<${(playerClaims[i].mainPartition!!.area.lowerPosition.x + 

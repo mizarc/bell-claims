@@ -24,11 +24,7 @@ class InfoCommand : ClaimCommand() {
         }
 
         val claim = claimPartition.claim
-        val name = if (claim.name != null) {
-            claim.name
-        } else {
-            "Claim"
-        }
+        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
 
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
             .withLocale(Locale.UK)
