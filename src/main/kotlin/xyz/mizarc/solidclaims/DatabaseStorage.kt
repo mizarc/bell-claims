@@ -261,6 +261,44 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     /**
+     * Modifies the description of a claim.
+     * @param id The unique identifier for the claim.
+     * @param description The description to set.
+     */
+    fun modifyMainPartition(id: UUID, oldMainPartition: ClaimPartition, newMainPartition: ClaimPartition) {
+        val sqlQuery = "UPDATE claimPartitions SET main=? WHERE firstPositionX=? AND firstPositionZ=? AND " +
+                "secondPositionX=? AND secondPositionZ=?;"
+
+        // Set old main to 0
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, 0)
+            statement.setInt(2, oldMainPartition.area.lowerPosition.x)
+            statement.setInt(3, oldMainPartition.area.lowerPosition.z)
+            statement.setInt(4, oldMainPartition.area.upperPosition.x)
+            statement.setInt(5, oldMainPartition.area.upperPosition.z)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+
+        // Set new main to 1
+        try {
+            val statement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, 1)
+            statement.setInt(2, newMainPartition.area.lowerPosition.x)
+            statement.setInt(3, newMainPartition.area.lowerPosition.z)
+            statement.setInt(4, newMainPartition.area.upperPosition.x)
+            statement.setInt(5, newMainPartition.area.upperPosition.z)
+            statement.executeUpdate()
+            statement.close()
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    /**
      * Gets a list of all claim partitions associated with a list of claims.
      * @param claims The claims to read from.
      * @return An array of claim partition objects. May return null.

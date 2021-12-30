@@ -35,6 +35,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(RenameCommand())
         commandManager.registerCommand(DescriptionCommand())
+        commandManager.registerCommand(SetmainCommand())
         loadDataFromDatabase()
         logger.info("SolidClaims has been Enabled")
     }
