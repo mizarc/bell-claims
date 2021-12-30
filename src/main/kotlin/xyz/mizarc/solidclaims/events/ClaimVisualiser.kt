@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent
 import xyz.mizarc.solidclaims.Position
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.ClaimPartition
+import xyz.mizarc.solidclaims.claims.Partition
 import xyz.mizarc.solidclaims.getClaimTool
 import java.math.RoundingMode
 import kotlin.math.abs
@@ -24,7 +24,7 @@ private const val yRange = 50
 class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
 
-    var oldPartitions: ArrayList<ClaimPartition> = ArrayList()
+    var oldPartitions: ArrayList<Partition> = ArrayList()
 
     companion object {
         private val transparentMaterials = arrayOf(
@@ -599,8 +599,8 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     /**
      * Determine what claim partitions are within [chunks]
      */
-    private fun getClaimPartitionsInChunks(chunks: Array<Position>): Array<ClaimPartition> {
-        val claims: ArrayList<ClaimPartition> = ArrayList()
+    private fun getClaimPartitionsInChunks(chunks: Array<Position>): Array<Partition> {
+        val claims: ArrayList<Partition> = ArrayList()
 
         for (chunk in chunks) {
             val parts = plugin.claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue

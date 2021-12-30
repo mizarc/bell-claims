@@ -11,7 +11,7 @@ import xyz.mizarc.solidclaims.Position
  * @property claim The claim linked to this partition.
  * @property area The area defining the space of this partition.
  */
-class ClaimPartition(var claim: Claim, var area: Area) {
+class Partition(var claim: Claim, var area: Area) {
     fun isPositionInCorner(position: Position, world: World): Boolean {
         return (area.isPositionInCorner(position) && (world.uid == claim.worldId))
     }

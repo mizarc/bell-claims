@@ -15,10 +15,10 @@ import kotlin.collections.ArrayList
  */
 class ClaimContainer(var database: DatabaseStorage) {
     var claims: ArrayList<Claim> = ArrayList()
-    var claimPartitions: ArrayList<ClaimPartition> = ArrayList()
-    var chunkClaimPartitions: MutableMap<Position, ArrayList<ClaimPartition>> = mutableMapOf()
+    var partitions: ArrayList<Partition> = ArrayList()
+    var chunkPartitions: MutableMap<Position, ArrayList<Partition>> = mutableMapOf()
 
-    fun getCornerPartition(position: Position, world: World): ClaimPartition? {
+    fun getCornerPartition(position: Position, world: World): Partition? {
         val chunk = getChunkLocation(position)
         val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return null
 
@@ -31,10 +31,10 @@ class ClaimContainer(var database: DatabaseStorage) {
         return null
     }
 
-    fun getPartitionAdjacent(area: Area, world: World): ClaimPartition? {
+    fun getPartitionAdjacent(area: Area, world: World): Partition? {
         val chunks = getClaimChunks(area)
 
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
         for (chunk in chunks) {
             val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
             existingPartitions.addAll(partitionsAtChunk)
@@ -65,7 +65,7 @@ class ClaimContainer(var database: DatabaseStorage) {
     fun isAreaOverlap(area: Area, world: World): Boolean {
         val chunks = getClaimChunks(area)
 
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
         for (chunk in chunks) {
             val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
             existingPartitions.addAll(partitionsAtChunk)
@@ -80,10 +80,10 @@ class ClaimContainer(var database: DatabaseStorage) {
         return false
     }
 
-    fun isPartitionOverlap(partition: ClaimPartition): Boolean {
+    fun isPartitionOverlap(partition: Partition): Boolean {
         val chunks = getClaimChunks(partition.area)
 
-        val existingPartitions: MutableSet<ClaimPartition> = mutableSetOf()
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
         for (chunk in chunks) {
             val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
             existingPartitions.addAll(partitionsAtChunk)
@@ -106,8 +106,8 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param chunkLocation The integer pair defining a chunk's X and Z coordinates.
      * @return An array of claim partitions that exist in that claim. May return null.
      */
-    fun getClaimPartitionsAtChunk(chunkLocation: Position) : ArrayList<ClaimPartition>? {
-        return chunkClaimPartitions[chunkLocation]
+    fun getClaimPartitionsAtChunk(chunkLocation: Position) : ArrayList<Partition>? {
+        return chunkPartitions[chunkLocation]
     }
 
     /**
@@ -135,7 +135,7 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param location The location object defining the position in the world.
      * @return A claim at the current position if available. May return null.
      */
-    fun getClaimPartitionAtLocation(location: Location) : ClaimPartition? {
+    fun getClaimPartitionAtLocation(location: Location) : Partition? {
         val claimsInChunk = getClaimPartitionsAtChunk(getChunkLocation(Position(location))) ?: return null
         for (claimPartition in claimsInChunk) {
             if (claimPartition.isPositionInPartition(Position(location), location.world!!)) {
@@ -171,28 +171,28 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addClaimPartition(claimPartition: ClaimPartition) : Boolean {
+    fun addClaimPartition(partition: Partition) : Boolean {
         // Check if partition in defined location already exists
-        for (existingClaimPartition in claimPartitions) {
-            if (claimPartition.area.lowerPosition == existingClaimPartition.area.lowerPosition &&
-                claimPartition.area.upperPosition == existingClaimPartition.area.lowerPosition) {
+        for (existingClaimPartition in partitions) {
+            if (partition.area.lowerPosition == existingClaimPartition.area.lowerPosition &&
+                partition.area.upperPosition == existingClaimPartition.area.lowerPosition) {
                 return false
             }
         }
 
         // Add partition to both flat array and chunk map
-        claimPartitions.add(claimPartition)
-        val claimChunks = getClaimChunks(claimPartition.area)
+        partitions.add(partition)
+        val claimChunks = getClaimChunks(partition.area)
         for (chunk in claimChunks) {
-            if (chunkClaimPartitions[chunk] == null) {
-                chunkClaimPartitions[chunk] = ArrayList()
+            if (chunkPartitions[chunk] == null) {
+                chunkPartitions[chunk] = ArrayList()
             }
-            chunkClaimPartitions[chunk]?.add(claimPartition)
+            chunkPartitions[chunk]?.add(partition)
         }
 
         // Add partition to claim object
-        if (!claimPartition.claim.claimPartitions.contains(claimPartition)) {
-            claimPartition.claim.claimPartitions.add(claimPartition)
+        if (!partition.claim.partitions.contains(partition)) {
+            partition.claim.partitions.add(partition)
         }
         return true
     }
@@ -204,9 +204,9 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addNewClaimPartition(claimPartition: ClaimPartition) {
-        addClaimPartition(claimPartition)
-        database.addClaimPartition(claimPartition)
+    fun addNewClaimPartition(partition: Partition) {
+        addClaimPartition(partition)
+        database.addClaimPartition(partition)
     }
 
     /**
@@ -229,42 +229,42 @@ class ClaimContainer(var database: DatabaseStorage) {
 
     /**
      * Removes a claim partition from memory.
-     * @param claimPartition The instance of the claim.
+     * @param partition The instance of the claim.
      */
-    fun removeClaimPartition(claimPartition: ClaimPartition) : Boolean {
-        claimPartitions.remove(claimPartition)
+    fun removeClaimPartition(partition: Partition) : Boolean {
+        partitions.remove(partition)
 
-        val chunks = getClaimChunks(claimPartition.area)
+        val chunks = getClaimChunks(partition.area)
         for (chunk in chunks) {
-            val savedChunk = chunkClaimPartitions[chunk] ?: return false
-            savedChunk.remove(claimPartition)
+            val savedChunk = chunkPartitions[chunk] ?: return false
+            savedChunk.remove(partition)
         }
 
-        claimPartition.claim.claimPartitions.remove(claimPartition)
+        partition.claim.partitions.remove(partition)
         return true
     }
 
     /**
      * Removes a claim partition from memory and database.
-     * @param claimPartition The instance of the claim.
+     * @param partition The instance of the claim.
      */
-    fun removePersistentClaimPartition(claimPartition: ClaimPartition) : Boolean {
-        removeClaimPartition(claimPartition)
-        database.removeClaimPartition(claimPartition)
+    fun removePersistentClaimPartition(partition: Partition) : Boolean {
+        removeClaimPartition(partition)
+        database.removeClaimPartition(partition)
         return true
     }
 
-    fun modifyClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        return removeClaimPartition(oldClaimPartition) && addClaimPartition(newClaimPartition)
+    fun modifyClaimPartition(oldPartition: Partition, newPartition: Partition) : Boolean {
+        return removeClaimPartition(oldPartition) && addClaimPartition(newPartition)
     }
 
-    fun modifyPersistentClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        return modifyClaimPartition(oldClaimPartition, newClaimPartition) &&
-                database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
+    fun modifyPersistentClaimPartition(oldPartition: Partition, newPartition: Partition) : Boolean {
+        return modifyClaimPartition(oldPartition, newPartition) &&
+                database.modifyClaimPartitionLocation(oldPartition, newPartition)
     }
 
-    fun modifyMainPartition(claim: Claim, partition: ClaimPartition) {
-        database.modifyMainPartition(claim.id, claim.mainPartition!!, partition)
+    fun modifyMainPartition(claim: Claim, partition: Partition) {
+        database.modifyMainPartition(claim.mainPartition!!, partition)
         claim.mainPartition = partition
     }
 
