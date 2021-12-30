@@ -122,11 +122,20 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
         return (lowerPosition.z - upperPosition.z).absoluteValue
     }
 
+    fun getCornerBlockPositions(): ArrayList<Position> {
+        val positions = ArrayList<Position>()
+        positions.add(lowerPosition)
+        positions.add(upperPosition)
+        positions.add(Position(lowerPosition.x, upperPosition.z))
+        positions.add(Position(upperPosition.z, lowerPosition.z))
+        return positions
+    }
+
     /**
      * Gets the list of X and Z block positions that define the edges of an area.
      * @return An array of position objects
      */
-    fun getEdgeBlockPositions(): Array<Position> {
+    fun getEdgeBlockPositions(): ArrayList<Position> {
         val blocks : ArrayList<Position> = ArrayList()
         for (block in lowerPosition.x..upperPosition.x) {
             blocks.add(Position(block, lowerPosition.z))
@@ -136,7 +145,7 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
             blocks.add(Position(lowerPosition.x, block))
             blocks.add(Position(upperPosition.x, block))
         }
-        return blocks.toTypedArray()
+        return blocks
     }
 
     /**
