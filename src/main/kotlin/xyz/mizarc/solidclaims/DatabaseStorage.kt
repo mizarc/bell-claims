@@ -262,8 +262,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param description The description to set.
      */
     fun modifyMainPartition(oldMainPartition: Partition, newMainPartition: Partition) {
-        val sqlQuery = "UPDATE claimPartitions SET main=? WHERE firstPositionX=? AND firstPositionZ=? AND " +
-                "secondPositionX=? AND secondPositionZ=?;"
+        val sqlQuery = "UPDATE claimPartitions SET main=? WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
 
         // Set old main to 0
         try {
@@ -375,8 +375,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param secondLocation The integer pair defining the second location.
      */
     fun addClaimPartition(partition: Partition) {
-        val sqlQuery = "INSERT INTO claimPartitions (claimId, firstPositionX, firstPositionZ, " +
-                "secondPositionX, secondPositionZ, main) VALUES (?,?,?,?,?,?);"
+        val sqlQuery = "INSERT INTO claimPartitions (claimId, lowerPositionX, lowerPositionZ, " +
+                "upperPositionX, upperPositionZ, main) VALUES (?,?,?,?,?,?);"
         try {
             // Set int if partition is the claim's main partition
             var isMain = 0
@@ -406,8 +406,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * @param secondLocation The integer pair defining the second location.
      */
     fun removeClaimPartition(partition: Partition) {
-        val sqlQuery = "DELETE FROM claimPartitions WHERE firstPositionX=? AND firstPositionZ=? AND " +
-                "secondPositionX=? AND secondPositionZ=?;"
+        val sqlQuery = "DELETE FROM claimPartitions WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setInt(1, partition.area.lowerPosition.x)
@@ -422,9 +422,9 @@ class DatabaseStorage(var plugin: SolidClaims) {
     }
 
     fun modifyClaimPartitionLocation(oldPartition: Partition, newPartition: Partition) : Boolean {
-        val sqlQuery = "UPDATE claimPartitions SET firstPositionX=?, firstPositionZ=?, " +
-                "secondPositionX=?, secondPositionZ=? WHERE firstPositionX=? AND firstPositionZ=? AND " +
-                "secondPositionX=? AND secondPositionZ=?;"
+        val sqlQuery = "UPDATE claimPartitions SET lowerPositionX=?, lowerPositionZ=?, " +
+                "upperPositionX=?, upperPositionZ=? WHERE lowerPositionX=? AND lowerPositionZ=? AND " +
+                "upperPositionX=? AND upperPositionZ=?;"
         try {
             val statement = connection.prepareStatement(sqlQuery)
             statement.setInt(1, newPartition.area.lowerPosition.x)
@@ -844,8 +844,8 @@ class DatabaseStorage(var plugin: SolidClaims) {
      * Creates a new table to store claim partition data if it doesn't exist.
      */
     private fun createClaimPartitionTable() {
-        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, firstPositionX INTEGER NOT NULL," +
-                "firstPositionZ INTEGER NOT NULL, secondPositionX INTEGER NOT NULL, secondPositionZ INTEGER NOT NULL," +
+        val sqlQuery = "CREATE TABLE IF NOT EXISTS claimPartitions (claimId TEXT, lowerPositionX INTEGER NOT NULL," +
+                "lowerPositionZ INTEGER NOT NULL, upperPositionX INTEGER NOT NULL, upperPositionZ INTEGER NOT NULL," +
                 "main INTEGER NOT NULL);"
         try {
             val statement = connection.prepareStatement(sqlQuery)
