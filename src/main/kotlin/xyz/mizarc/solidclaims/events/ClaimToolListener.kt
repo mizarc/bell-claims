@@ -152,8 +152,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimContainer.addNewClaimPartition(newPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
-        val claimName = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
-        player.sendMessage("New claim partition has been added to ${claim.name}.")
+        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
+        player.sendMessage("New claim partition has been added to $name.")
     }
 
     /**
@@ -192,10 +192,16 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
                     "${claimResizer.extraBlockCount()!! - remainingClaimBlockCount} blocks")
         }
 
+        if (claimResizer.partition.claim.isPartitionMain(claimResizer.partition)) {
+            claimResizer.partition.claim.mainPartition = newPartition
+        }
+
         // Check if claim resize would result in this claim being disconnected from the main
         claimContainer.removeClaimPartition(claimResizer.partition)
-        if (!claimResizer.partition.claim.isPartitionConnectedToMain(newPartition)) {
+        if (!claimResizer.partition.claim.isPartitionConnectedToMain(newPartition)
+                && !newPartition.claim.isPartitionMain(newPartition)) {
             claimContainer.addClaimPartition(claimResizer.partition)
+            claimResizer.partition.claim.mainPartition = claimResizer.partition
             return player.sendMessage(
                 "That resize would result in this partition being disconnected from the main partition.")
         }
@@ -203,11 +209,16 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         // Check if claim resize would result in any claim islands
         claimContainer.addClaimPartition(newPartition)
         if (claimResizer.partition.claim.isAnyDisconnectedPartitions()) {
+            claimResizer.partition.claim.mainPartition = claimResizer.partition
             claimContainer.removeClaimPartition(newPartition)
             claimContainer.addClaimPartition(claimResizer.partition)
             return player.sendMessage(
                 "That resize would result in an unconnected partition island."
             )
+        }
+
+        if (claimResizer.partition.claim.isPartitionMain(claimResizer.partition)) {
+            claimContainer.modifyMainPartition(claimResizer.partition.claim, newPartition)
         }
 
         // Apply the resize
