@@ -22,7 +22,8 @@ data class RuleExecutor(val eventClass: Class<out Event>, val handler: (l: Liste
 class RuleBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
-        val fireSpread = RuleExecutor(BlockBurnEvent::class.java, ::cancelEvent, ::blockInClaim)
+        val fireBurn = RuleExecutor(BlockBurnEvent::class.java, ::cancelEvent, ::blockInClaim)
+        val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, ::cancelEvent, ::blockInClaim)
         val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEvent, ::entityGriefInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
