@@ -17,6 +17,12 @@ class SolidClaims : JavaPlugin() {
     override fun onEnable() {
         database.openConnection()
         loadDataFromDatabase()
+
+        commandManager = PaperCommandManager(this)
+        registerDependencies()
+        registerCommands()
+        registerEvents()
+
         logger.info("SolidClaims has been Enabled")
     }
 
@@ -24,8 +30,12 @@ class SolidClaims : JavaPlugin() {
         logger.info("SolidClaims has been Disabled")
     }
 
+    private fun registerDependencies() {
+        commandManager.registerDependency(ClaimContainer::class.java, claimContainer)
+        commandManager.registerDependency(PlayerContainer::class.java, playerContainer)
+    }
+
     private fun registerCommands() {
-        commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(UnclaimCommand())
