@@ -1,9 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.Partition
-import xyz.mizarc.solidclaims.claims.PlayerAccess
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.Connection
 import java.sql.DriverManager
@@ -327,8 +325,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
             while (resultSet.next()) {
                 claims.add(Partition(claim,
-                    Area(Position(resultSet.getInt(2), resultSet.getInt(3)),
-                    Position(resultSet.getInt(4), resultSet.getInt(5)))))
+                    Area(
+                        Position(resultSet.getInt(2), resultSet.getInt(3)),
+                    Position(resultSet.getInt(4), resultSet.getInt(5))
+                    )
+                ))
             }
 
             return claims
@@ -354,8 +355,11 @@ class DatabaseStorage(var plugin: SolidClaims) {
 
             while (resultSet.next()) {
                 return (Partition(claim,
-                    Area(Position(resultSet.getInt(2), resultSet.getInt(3)),
-                        Position(resultSet.getInt(4), resultSet.getInt(5)))))
+                    Area(
+                        Position(resultSet.getInt(2), resultSet.getInt(3)),
+                        Position(resultSet.getInt(4), resultSet.getInt(5))
+                    )
+                ))
             }
         } catch (error: SQLException) {
             error.printStackTrace()

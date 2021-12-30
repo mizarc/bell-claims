@@ -3,9 +3,7 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.Area
 import xyz.mizarc.solidclaims.DatabaseStorage
-import xyz.mizarc.solidclaims.Position
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.util.*
 import kotlin.collections.ArrayList

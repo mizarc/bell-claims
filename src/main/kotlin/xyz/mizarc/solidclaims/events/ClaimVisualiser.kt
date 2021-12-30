@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import xyz.mizarc.solidclaims.Position
+import xyz.mizarc.solidclaims.claims.Position
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.Partition
@@ -618,7 +618,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     @Suppress("SameParameterValue")
     private fun getSurroundingChunks(position: Position, radius: Int): Array<Position> {
         val sideLength = (radius * 2) + 1 // Make it always odd (eg. radius of 2 results in 5x5 square)
-        val chunks = Array(sideLength * sideLength) {Position(0,0)}
+        val chunks = Array(sideLength * sideLength) { Position(0,0) }
 
         for (x in 0 until sideLength) {
             for (z in 0 until sideLength) {

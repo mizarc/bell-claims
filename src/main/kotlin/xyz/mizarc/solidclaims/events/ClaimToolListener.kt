@@ -9,7 +9,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import xyz.mizarc.solidclaims.PlayerContainer
-import xyz.mizarc.solidclaims.Position
+import xyz.mizarc.solidclaims.claims.Position
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 import xyz.mizarc.solidclaims.claims.Partition
