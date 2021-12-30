@@ -162,6 +162,22 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
     fun selectExistingCorner(player: Player, location: Location) : Boolean {
         val partition = claimContainer.getCornerPartition(Position(location), location.world!!) ?: return false
 
+        // Check if player state exists
+        val playerState = playerContainer.getPlayer(player.uniqueId)
+        if (playerState == null) {
+            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            return true
+        }
+
+        // Check for permission to modify claim.
+        if (playerState.claimOverride) {
+            val pass: Unit = Unit
+        }
+        else if (partition.claim.owner.uniqueId != player.uniqueId) {
+            player.sendMessage("You don't have permission to modify that claim.")
+            return false
+        }
+
         partitionResizeBuilders.add(PartitionResizeBuilder(player.uniqueId, partition, Position(location)))
         player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
         return true
