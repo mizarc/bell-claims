@@ -171,9 +171,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Check for permission to modify claim.
-        if (playerState.claimOverride) {
-            val pass: Unit = Unit
-        }
+        if (playerState.claimOverride) {}
         else if (partition.claim.owner.uniqueId != player.uniqueId) {
             player.sendMessage("You don't have permission to modify that claim.")
             return false
