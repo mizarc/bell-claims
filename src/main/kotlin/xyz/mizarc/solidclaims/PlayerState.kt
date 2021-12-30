@@ -1,7 +1,6 @@
 package xyz.mizarc.solidclaims
 
 import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.claims.PlayerAccess
 import java.util.*
 import kotlin.collections.ArrayList

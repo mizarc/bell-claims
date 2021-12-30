@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.Location
+import org.bukkit.World
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.DatabaseStorage
 import xyz.mizarc.solidclaims.events.ClaimPermission
@@ -13,16 +14,99 @@ import kotlin.collections.ArrayList
  */
 class ClaimContainer(var database: DatabaseStorage) {
     var claims: ArrayList<Claim> = ArrayList()
-    var claimPartitions: ArrayList<ClaimPartition> = ArrayList()
-    var chunkClaimPartitions: MutableMap<Pair<Int, Int>, ArrayList<ClaimPartition>> = mutableMapOf()
+    var partitions: ArrayList<Partition> = ArrayList()
+    var chunkPartitions: MutableMap<Position, ArrayList<Partition>> = mutableMapOf()
+
+    fun getCornerPartition(position: Position, world: World): Partition? {
+        val chunk = getChunkLocation(position)
+        val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return null
+
+        for (partition in partitionsAtChunk) {
+            if (partition.isPositionInCorner(position, world)) {
+                return partition
+            }
+        }
+
+        return null
+    }
+
+    fun getPartitionAdjacent(area: Area, world: World): Partition? {
+        val chunks = getClaimChunks(area)
+
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition.isAreaAdjacent(area, world)) {
+                return partition
+            }
+        }
+
+        return null
+    }
+
+    fun isPositionOverlap(position: Position, world: World): Boolean {
+        val chunk = getChunkLocation(position)
+        val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: return false
+
+        for (partition in partitionsAtChunk) {
+            if (partition.isPositionInPartition(position, world)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun isAreaOverlap(area: Area, world: World): Boolean {
+        val chunks = getClaimChunks(area)
+
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (partition in existingPartitions) {
+            if (partition.isAreaOverlap(area, world)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun isPartitionOverlap(partition: Partition): Boolean {
+        val chunks = getClaimChunks(partition.area)
+
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
+        for (chunk in chunks) {
+            val partitionsAtChunk = getClaimPartitionsAtChunk(chunk) ?: continue
+            existingPartitions.addAll(partitionsAtChunk)
+        }
+
+        for (existingPartition in existingPartitions) {
+            if (partition == existingPartition) {
+                continue
+            }
+            if (partition.isAreaOverlap(partition.area, partition.claim.getWorld()!!)) {
+                return true
+            }
+        }
+
+        return false
+    }
 
     /**
      * Gets all the claim partitions that exist in a given chunk.
      * @param chunkLocation The integer pair defining a chunk's X and Z coordinates.
      * @return An array of claim partitions that exist in that claim. May return null.
      */
-    fun getClaimPartitionsAtChunk(chunkLocation: Pair<Int, Int>) : ArrayList<ClaimPartition>? {
-        return chunkClaimPartitions[chunkLocation]
+    fun getClaimPartitionsAtChunk(chunkLocation: Position) : ArrayList<Partition>? {
+        return chunkPartitions[chunkLocation]
     }
 
     /**
@@ -31,15 +115,14 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining a second location.
      * @return An array of integer pairs defining chunk locations.
      */
-    fun getClaimChunks(firstLocation: Pair<Int, Int>, secondLocation: Pair<Int, Int>) : ArrayList<Pair<Int, Int>> {
-        val newLocations = sortPositionSizes(firstLocation, secondLocation)
-        val firstChunk = getChunkLocation(newLocations.first)
-        val secondChunk = getChunkLocation(newLocations.second)
+    fun getClaimChunks(area: Area) : ArrayList<Position> {
+        val firstChunk = getChunkLocation(area.lowerPosition)
+        val secondChunk = getChunkLocation(area.upperPosition)
 
-        val chunks: ArrayList<Pair<Int, Int>> = ArrayList()
-        for (x in firstChunk.first..secondChunk.first) {
-            for (z in firstChunk.second..secondChunk.second) {
-                chunks.add(Pair(x, z))
+        val chunks: ArrayList<Position> = ArrayList()
+        for (x in firstChunk.x..secondChunk.x) {
+            for (z in firstChunk.z..secondChunk.z) {
+                chunks.add(Position(x, z))
             }
         }
 
@@ -51,16 +134,13 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param location The location object defining the position in the world.
      * @return A claim at the current position if available. May return null.
      */
-    fun getClaimPartitionAtLocation(location: Location) : ClaimPartition? {
-        val claimsInChunk = getClaimPartitionsAtChunk(
-            getChunkLocation(getPositionFromLocation(location))) ?: return null
-
+    fun getClaimPartitionAtLocation(location: Location) : Partition? {
+        val claimsInChunk = getClaimPartitionsAtChunk(getChunkLocation(Position(location))) ?: return null
         for (claimPartition in claimsInChunk) {
-            if (claimPartition.isLocationInClaim(location)) {
+            if (claimPartition.isPositionInPartition(Position(location), location.world!!)) {
                 return claimPartition
             }
         }
-
         return null
     }
 
@@ -90,28 +170,28 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addClaimPartition(claimPartition: ClaimPartition) : Boolean {
+    fun addClaimPartition(partition: Partition) : Boolean {
         // Check if partition in defined location already exists
-        for (existingClaimPartition in claimPartitions) {
-            if (claimPartition.firstPosition == existingClaimPartition.firstPosition &&
-                claimPartition.secondPosition == existingClaimPartition.firstPosition) {
+        for (existingClaimPartition in partitions) {
+            if (partition.area.lowerPosition == existingClaimPartition.area.lowerPosition &&
+                partition.area.upperPosition == existingClaimPartition.area.lowerPosition) {
                 return false
             }
         }
 
         // Add partition to both flat array and chunk map
-        claimPartitions.add(claimPartition)
-        val claimChunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
+        partitions.add(partition)
+        val claimChunks = getClaimChunks(partition.area)
         for (chunk in claimChunks) {
-            if (chunkClaimPartitions[chunk] == null) {
-                chunkClaimPartitions[chunk] = ArrayList()
+            if (chunkPartitions[chunk] == null) {
+                chunkPartitions[chunk] = ArrayList()
             }
-            chunkClaimPartitions[chunk]?.add(claimPartition)
+            chunkPartitions[chunk]?.add(partition)
         }
 
         // Add partition to claim object
-        if (!claimPartition.claim.claimPartitions.contains(claimPartition)) {
-            claimPartition.claim.claimPartitions.add(claimPartition)
+        if (!partition.claim.partitions.contains(partition)) {
+            partition.claim.partitions.add(partition)
         }
         return true
     }
@@ -123,9 +203,9 @@ class ClaimContainer(var database: DatabaseStorage) {
      * @param secondLocation The integer pair defining the second position.
      * @return True if a claim partition has been created and not overlapping any other partition.
      */
-    fun addNewClaimPartition(claimPartition: ClaimPartition) {
-        addClaimPartition(claimPartition)
-        database.addClaimPartition(claimPartition)
+    fun addNewClaimPartition(partition: Partition) {
+        addClaimPartition(partition)
+        database.addClaimPartition(partition)
     }
 
     /**
@@ -148,38 +228,43 @@ class ClaimContainer(var database: DatabaseStorage) {
 
     /**
      * Removes a claim partition from memory.
-     * @param claimPartition The instance of the claim.
+     * @param partition The instance of the claim.
      */
-    fun removeClaimPartition(claimPartition: ClaimPartition) : Boolean {
-        claimPartitions.remove(claimPartition)
+    fun removeClaimPartition(partition: Partition) : Boolean {
+        partitions.remove(partition)
 
-        val chunks = getClaimChunks(claimPartition.firstPosition, claimPartition.secondPosition)
+        val chunks = getClaimChunks(partition.area)
         for (chunk in chunks) {
-            val savedChunk = chunkClaimPartitions[chunk] ?: return false
-            savedChunk.remove(claimPartition)
+            val savedChunk = chunkPartitions[chunk] ?: return false
+            savedChunk.remove(partition)
         }
 
-        claimPartition.claim.claimPartitions.remove(claimPartition)
+        partition.claim.partitions.remove(partition)
         return true
     }
 
     /**
      * Removes a claim partition from memory and database.
-     * @param claimPartition The instance of the claim.
+     * @param partition The instance of the claim.
      */
-    fun removePersistentClaimPartition(claimPartition: ClaimPartition) : Boolean {
-        removeClaimPartition(claimPartition)
-        database.removeClaimPartition(claimPartition.firstPosition, claimPartition.secondPosition)
+    fun removePersistentClaimPartition(partition: Partition) : Boolean {
+        removeClaimPartition(partition)
+        database.removeClaimPartition(partition)
         return true
     }
 
-    fun modifyClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        return removeClaimPartition(oldClaimPartition) && addClaimPartition(newClaimPartition)
+    fun modifyClaimPartition(oldPartition: Partition, newPartition: Partition) : Boolean {
+        return removeClaimPartition(oldPartition) && addClaimPartition(newPartition)
     }
 
-    fun modifyPersistentClaimPartition(oldClaimPartition: ClaimPartition, newClaimPartition: ClaimPartition) : Boolean {
-        return modifyClaimPartition(oldClaimPartition, newClaimPartition) &&
-                database.modifyClaimPartitionLocation(oldClaimPartition, newClaimPartition)
+    fun modifyPersistentClaimPartition(oldPartition: Partition, newPartition: Partition) : Boolean {
+        return modifyClaimPartition(oldPartition, newPartition) &&
+                database.modifyClaimPartitionLocation(oldPartition, newPartition)
+    }
+
+    fun modifyMainPartition(claim: Claim, partition: Partition) {
+        database.modifyMainPartition(claim.mainPartition!!, partition)
+        claim.mainPartition = partition
     }
 
     fun addClaimPermission(claim: Claim, playerAccess: PlayerAccess) : Boolean {
@@ -243,45 +328,8 @@ class ClaimContainer(var database: DatabaseStorage) {
          * @param position The integer pair defining a block's X and Z coordinates.
          * @return An integer pair defining a chunk's X and Z coordinates.
          */
-        fun getChunkLocation(position: Pair<Int, Int>) : Pair<Int, Int> {
-            return Pair(position.first shr 4, position.second shr 4)
-        }
-
-        /**
-         * Converts a position of integer pairs to a location object.
-         * @param claim The claim as a reference.
-         * @param position The integer pair defining the position in world.
-         * @return A location object based on the specified world and position.
-         */
-        fun getLocationFromPosition(claim: Claim, position: Pair<Int, Int>) : Location {
-            return Location(claim.getWorld(), position.first.toDouble(), 0.0, position.second.toDouble())
-        }
-
-        /**
-         * Convert a location object to an integer pair of X and Z.
-         * @param location The location object to convert.
-         * @return An integer pair of X and Z.
-         */
-        fun getPositionFromLocation(location: Location) : Pair<Int, Int> {
-            return Pair(location.x.toInt(), location.z.toInt())
-        }
-
-        fun sortPositionSizes(firstPosition: Pair<Int, Int>, secondPosition: Pair<Int, Int>) :
-                Pair<Pair<Int, Int>, Pair<Int, Int>> {
-            var newFirstPosition = Pair(firstPosition.first, firstPosition.second)
-            var newSecondPosition = Pair(secondPosition.first, secondPosition.second)
-
-            if (firstPosition.first > secondPosition.first) {
-                newFirstPosition = Pair(secondPosition.first, firstPosition.second)
-                newSecondPosition = Pair(firstPosition.first, secondPosition.second)
-            }
-
-            if (firstPosition.second > secondPosition.second) {
-                newFirstPosition = Pair(newFirstPosition.first, secondPosition.second)
-                newSecondPosition = Pair(newSecondPosition.first, firstPosition.second)
-            }
-
-            return Pair(newFirstPosition, newSecondPosition)
+        fun getChunkLocation(position: Position) : Position {
+            return Position(position.x shr 4, position.z shr 4)
         }
     }
 }

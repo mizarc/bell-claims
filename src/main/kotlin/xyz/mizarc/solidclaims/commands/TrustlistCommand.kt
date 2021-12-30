@@ -35,7 +35,8 @@ class TrustlistCommand : ClaimCommand() {
         }
 
         // Output list of trusted players
-        val chatInfo = ChatInfoBuilder("Claim Trusted Players")
+        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
+        val chatInfo = ChatInfoBuilder("$name Trusted Players")
         for (i in 0..9 + page) {
             if (i > claim.playerAccesses.count() - 1) {
                 break

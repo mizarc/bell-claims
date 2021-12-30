@@ -47,17 +47,14 @@ class ClaimlistCommand : BaseCommand() {
                 break
             }
 
-            val name: String = if (playerClaims[i].name != null) {
-                playerClaims[i].name!!
-            } else {
+            val name: String = if (playerClaims[i].name != null) playerClaims[i].name!! else
                 playerClaims[i].id.toString().substring(0, 7)
-            }
 
             chatInfo.addLinked(name,
-                "<${(playerClaims[i].mainPartition!!.firstPosition.first + 
-                        playerClaims[i].mainPartition!!.secondPosition.first) / 2}, " +
-                        "${(playerClaims[i].mainPartition!!.firstPosition.second +
-                        playerClaims[i].mainPartition!!.secondPosition.second) / 2}> " +
+                "<${(playerClaims[i].mainPartition!!.area.lowerPosition.x + 
+                        playerClaims[i].mainPartition!!.area.upperPosition.x) / 2}, " +
+                        "${(playerClaims[i].mainPartition!!.area.lowerPosition.z +
+                        playerClaims[i].mainPartition!!.area.upperPosition.z) / 2}> " +
                         "(${playerClaims[i].getBlockCount()} Blocks)"
                 )
         }
