@@ -16,12 +16,15 @@ class SolidClaims : JavaPlugin() {
 
     override fun onEnable() {
         database.openConnection()
-        server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
-        server.pluginManager.registerEvents(ClaimToolListener(
-            claimContainer, playerContainer, claimVisualiser), this)
-        server.pluginManager.registerEvents(ClaimVisualiser(this), this)
-        server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
-        server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
+        loadDataFromDatabase()
+        logger.info("SolidClaims has been Enabled")
+    }
+
+    override fun onDisable() {
+        logger.info("SolidClaims has been Disabled")
+    }
+
+    private fun registerCommands() {
         commandManager = PaperCommandManager(this)
         commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
@@ -36,12 +39,15 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(SetmainCommand())
         commandManager.registerCommand(AddRuleCommand())
         commandManager.registerCommand(RemoveRuleCommand())
-        loadDataFromDatabase()
-        logger.info("SolidClaims has been Enabled")
+        commandManager.registerCommand(ClaimOverrideCommand())
     }
 
-    override fun onDisable() {
-        logger.info("SolidClaims has been Disabled")
+    private fun registerEvents() {
+        server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
+        server.pluginManager.registerEvents(ClaimToolListener(claimContainer, playerContainer, claimVisualiser), this)
+        server.pluginManager.registerEvents(ClaimVisualiser(this), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
+        server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
     }
 
     private fun loadDataFromDatabase() {
