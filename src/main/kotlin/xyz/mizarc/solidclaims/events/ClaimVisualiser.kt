@@ -547,18 +547,35 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         val partitions = getClaimPartitionsInChunks(chunks)
         if (partitions.isEmpty()) return
 
+        val mainBorders: ArrayList<Position> = ArrayList()
         val borders: ArrayList<Position> = ArrayList()
         for (partition in partitions) {
+            if (partition.claim.isPartitionMain(partition)) {
+                mainBorders.addAll(partition.area.getEdgeBlockPositions())
+                continue
+            }
             borders.addAll(partition.area.getEdgeBlockPositions())
         }
 
-        for (block in borders) {
+        for (block in mainBorders) {
             for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = Material.CYAN_GLAZED_TERRACOTTA.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble()) // Get the location of the block being considered currently
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = Material.CYAN_CARPET.createBlockData()
+                if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+            }
+        }
+
+        for (block in borders) {
+            for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+                var blockData = Material.LIGHT_GRAY_GLAZED_TERRACOTTA.createBlockData() // Set the visualisation block
+                val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble()) // Get the location of the block being considered currently
+                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+                if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+                if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = Material.LIGHT_BLUE_CARPET.createBlockData()
                 if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
             }
