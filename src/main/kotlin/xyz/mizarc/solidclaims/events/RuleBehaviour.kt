@@ -28,6 +28,7 @@ class RuleBehaviour {
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
         val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, ::cancelEvent, ::explosionInClaim)
+        val blockExplode = RuleExecutor(BlockExplodeEvent::class.java, ::cancelEvent, ::explosionInClaim)
 
         /**
          * Cancel any cancellable event.
