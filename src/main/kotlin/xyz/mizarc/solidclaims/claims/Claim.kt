@@ -23,7 +23,7 @@ import kotlin.collections.ArrayList
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
             var name: String?, var description: String?, var rules: ArrayList<ClaimRule>,
             var defaultPermissions: ArrayList<ClaimPermission>, var playerAccesses: ArrayList<PlayerAccess>,
-            var partitions: ArrayList<ClaimPartition>, var mainPartition: ClaimPartition?) {
+            var partitions: ArrayList<Partition>, var mainPartition: Partition?) {
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
