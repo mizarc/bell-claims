@@ -127,7 +127,7 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
         positions.add(lowerPosition)
         positions.add(upperPosition)
         positions.add(Position(lowerPosition.x, upperPosition.z))
-        positions.add(Position(upperPosition.z, lowerPosition.z))
+        positions.add(Position(upperPosition.x, lowerPosition.z))
         return positions
     }
 
