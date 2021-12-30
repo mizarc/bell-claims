@@ -5,6 +5,7 @@ import org.bukkit.World
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.DatabaseStorage
 import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.events.ClaimRule
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -295,6 +296,30 @@ class ClaimContainer(var database: DatabaseStorage) {
     fun addNewClaimPermission(claim: Claim, player: Player, permission: ClaimPermission) : Boolean {
         database.addPlayerClaimPermission(player.uniqueId, claim.id, permission)
         return addClaimPermission(claim, player, permission)
+    }
+
+    fun addClaimRule(claim: Claim, rule: ClaimRule) : Boolean {
+        return if (rule in claim.rules) {
+            false
+        } else {
+            claim.rules.add(rule)
+            true
+        }
+    }
+
+    fun addNewClaimRule(claim: Claim, rule: ClaimRule) : Boolean {
+        database.addClaimRule(claim.id, rule)
+        return addClaimRule(claim, rule)
+    }
+
+    fun removeClaimRule(claim: Claim, rule: ClaimRule) : Boolean {
+        return if (rule !in claim.rules) {
+            false
+        } else {
+            claim.rules.remove(rule)
+            database.removeClaimRule(claim.id, rule)
+            true
+        }
     }
 
     companion object {
