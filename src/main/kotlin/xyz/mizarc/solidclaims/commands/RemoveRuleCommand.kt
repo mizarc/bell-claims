@@ -17,6 +17,17 @@ class RemoveRuleCommand : ClaimCommand() {
             return true
         }
 
+        // Check if player state exists
+        val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
+        if (playerState == null) {
+            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            return true
+        }
+
+        if (playerState.claimOverride) {
+            return false
+        }
+
         if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
             player.sendMessage("You don't have permission to modify this claim.")
             return true
