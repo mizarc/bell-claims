@@ -12,7 +12,7 @@ import xyz.mizarc.solidclaims.PlayerContainer
 import xyz.mizarc.solidclaims.Position
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.ClaimPartition
+import xyz.mizarc.solidclaims.claims.Partition
 import xyz.mizarc.solidclaims.getClaimTool
 import java.time.Instant
 
@@ -134,13 +134,13 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
         // Create Claim & Partition
         val newClaim = Claim(location.world!!.uid, Bukkit.getOfflinePlayer(player.uniqueId), Instant.now())
-        val newClaimPartition = ClaimPartition(newClaim, area)
-        newClaim.mainPartition = newClaimPartition
+        val newPartition = Partition(newClaim, area)
+        newClaim.mainPartition = newPartition
 
         // Add to list of claims
         playerContainer.getPlayer(player.uniqueId)?.claims?.add(newClaim)
         claimContainer.addNewClaim(newClaim)
-        claimContainer.addNewClaimPartition(newClaimPartition)
+        claimContainer.addNewClaimPartition(newPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
         player.sendMessage("New claim has been created.")
@@ -148,8 +148,8 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
     fun appendPartitionToClaim(player: Player, claimBuilder: AreaBuilder, claim: Claim) {
         val area = claimBuilder.build() ?: return
-        val newClaimPartition = ClaimPartition(claim, area)
-        claimContainer.addNewClaimPartition(newClaimPartition)
+        val newPartition = Partition(claim, area)
+        claimContainer.addNewClaimPartition(newPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
         player.sendMessage("New claim partition has been added to ${claim.name}.")
@@ -192,18 +192,18 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         }
 
         // Check if claim resize would result in this claim being disconnected from the main
-        claimContainer.removeClaimPartition(claimResizer.claimPartition)
-        if (!claimResizer.claimPartition.claim.isPartitionConnectedToMain(newPartition)) {
-            claimContainer.addClaimPartition(claimResizer.claimPartition)
+        claimContainer.removeClaimPartition(claimResizer.partition)
+        if (!claimResizer.partition.claim.isPartitionConnectedToMain(newPartition)) {
+            claimContainer.addClaimPartition(claimResizer.partition)
             return player.sendMessage(
                 "That resize would result in this partition being disconnected from the main partition.")
         }
 
         // Check if claim resize would result in any claim islands
         claimContainer.addClaimPartition(newPartition)
-        if (claimResizer.claimPartition.claim.isAnyDisconnectedPartitions()) {
+        if (claimResizer.partition.claim.isAnyDisconnectedPartitions()) {
             claimContainer.removeClaimPartition(newPartition)
-            claimContainer.addClaimPartition(claimResizer.claimPartition)
+            claimContainer.addClaimPartition(claimResizer.partition)
             return player.sendMessage(
                 "That resize would result in an unconnected partition island."
             )
@@ -211,9 +211,9 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
         // Apply the resize
         claimContainer.removeClaimPartition(claimResizer.build())
-        claimContainer.modifyPersistentClaimPartition(claimResizer.claimPartition, newPartition)
+        claimContainer.modifyPersistentClaimPartition(claimResizer.partition, newPartition)
         partitionResizeBuilders.remove(claimResizer)
-        claimVisualiser.oldPartitions.add(claimResizer.claimPartition)
+        claimVisualiser.oldPartitions.add(claimResizer.partition)
         claimVisualiser.unrenderOldClaims(player)
         claimVisualiser.oldPartitions.clear()
         claimVisualiser.updateVisualisation(player, true)

@@ -3,7 +3,6 @@ package xyz.mizarc.solidclaims.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
 import kotlin.math.ceil
@@ -23,7 +22,7 @@ class PartitionlistCommand : ClaimCommand() {
 
         // Check if page is empty
         val claim = claimPartition.claim
-        if (page * 10 - 9 > claim.claimPartitions.count()) {
+        if (page * 10 - 9 > claim.partitions.count()) {
             player.sendMessage("There are no claim partitions on that page.")
             return
         }
@@ -31,12 +30,12 @@ class PartitionlistCommand : ClaimCommand() {
         // Output list of partitions
         val chatInfo = ChatInfoBuilder("Claim Partitions")
         for (i in 0..9 + page) {
-            if (i > claim.claimPartitions.count() - 1) {
+            if (i > claim.partitions.count() - 1) {
                 break
             }
 
             chatInfo.addLinked((i + 1).toString(),
-                "${claim.claimPartitions[i].area.lowerPosition} ${claim.claimPartitions[i].area.upperPosition}")
+                "${claim.partitions[i].area.lowerPosition} ${claim.partitions[i].area.upperPosition}")
         }
         player.spigot().sendMessage(*chatInfo.createPaged(page,
             ceil((claim.playerAccesses.count() / 10.0)).toInt()))

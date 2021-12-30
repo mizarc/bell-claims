@@ -3,10 +3,8 @@ package xyz.mizarc.solidclaims
 import co.aikar.commands.PaperCommandManager
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.ClaimPartition
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.*
-import java.util.*
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
@@ -57,7 +55,7 @@ class SolidClaims : JavaPlugin() {
                     claimContainer.addClaim(claim)
 
                     // Add partitions
-                    for (partition in claim.claimPartitions) {
+                    for (partition in claim.partitions) {
                         claimContainer.addClaimPartition(partition)
                     }
                 }

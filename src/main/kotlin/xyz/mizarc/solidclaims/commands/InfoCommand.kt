@@ -40,7 +40,7 @@ class InfoCommand : ClaimCommand() {
         }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
-        chatInfo.addLinked("Partition Count", claim.claimPartitions.count().toString())
+        chatInfo.addLinked("Partition Count", claim.partitions.count().toString())
         chatInfo.addLinked("Block Count", claim.getBlockCount().toString())
         chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
         chatInfo.addSpace()
