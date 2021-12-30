@@ -19,7 +19,30 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
     init {
         for (perm in ClaimPermission.values()) {
             for (e in perm.events) {
-                registerEvent(e.eventClass, ::handleClaimEvent)
+                registerEvent(e.eventClass, ::handleClaimPermission)
+            }
+        }
+        for (rule in ClaimRule.values()) {
+            for (r in rule.rules) {
+                registerEvent(r.eventClass, ::handleClaimRule)
+            }
+        }
+    }
+
+    /**
+     * A wrapper function to determine if an event has an appropriate RuleExecutor, and if so, uses it to determine
+     * if the event happened inside of claim boundaries, then passes off its handling to the executor if those checks
+     * pass.
+     */
+    private fun handleClaimRule(listener: Listener, event: Event) {
+        val rule = ClaimRule.getRuleForEvent(event::class.java) ?: return // Get the rule to deal with this event
+        val executor = ClaimRule.getRuleExecutorForEvent(event::class.java, rule) ?: return  // Get the executor from the rule that deals with this event
+        val claims = executor.getClaims(event, plugin.claimContainer) // Get all claims that this event affects
+        if (claims.isEmpty()) return // Check if any claims are affected by the event
+        for (claim in claims) { // If they are, check if they do not allow this event
+            if (!claim.rules.contains(rule)) {
+                executor.handler.invoke(listener, event) // If they do not, invoke the handler
+                return
             }
         }
     }
@@ -29,8 +52,8 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
      * player that the event originated from has permissions within that claim, and if not, which permission event
      * executor has the highest priority, then invoke that executor.
      */
-    private fun handleClaimEvent(listener: Listener, event: Event) {
-        val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java) // Get all ClaimEvents that deal with this event
+    private fun handleClaimPermission(listener: Listener, event: Event) {
+        val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java) // Get all ClaimPermissions that deal with this event
 
         // Get the top PermissionExecutor that deals with this event.
         // NOTE: This assumes that any PermissionExecutor that deals with this event will always return the same values
@@ -81,7 +104,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
                 if (!claimPerms.contains(e)) { // If not, check if it does not contain this permission
                     for (ee in e.events) { // If so, determine the executor to use
                         if (ee.eventClass == event::class.java) {
-                            executor = ee.executor
+                            executor = ee.handler
                             break
                         }
                     }
