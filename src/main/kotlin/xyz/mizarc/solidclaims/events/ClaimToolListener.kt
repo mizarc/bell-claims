@@ -113,21 +113,22 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             return player.sendMessage("That selection overlaps an existing claim.")
         }
 
+        // Check if claim meets minimum size
         if (area.getXLength() < 5 || area.getZLength() < 5) {
             return player.sendMessage("The claim must be at least 5x5 blocks.")
         }
 
+        // Check if selection is greater than the player's remaining claim blocks
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
-
-        // Check if selection is greater than the player's remaining claim blocks
         if (area.getBlockCount() > remainingClaimBlockCount) {
             return player.sendMessage("That selection would require an additional " +
                     "${area.getBlockCount() - remainingClaimCount} claim blocks")
         }
 
+        // Check if new partition is adjacent to an existing claim.
         val adjacentPartition = claimContainer.getPartitionAdjacent(area, location.world!!)
-        if (adjacentPartition != null) {
+        if (adjacentPartition != null && player.uniqueId == adjacentPartition.claim.owner.uniqueId) {
             appendPartitionToClaim(player, claimBuilder, adjacentPartition.claim)
             return
         }
