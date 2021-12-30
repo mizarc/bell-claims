@@ -112,14 +112,14 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the length of the X axis.
      */
     fun getXLength(): Int {
-        return (lowerPosition.x - upperPosition.x).absoluteValue
+        return (lowerPosition.x - upperPosition.x + 1).absoluteValue
     }
 
     /**
      * Gets the length of the Z axis
      */
     fun getZLength(): Int {
-        return (lowerPosition.z - upperPosition.z).absoluteValue
+        return (lowerPosition.z - upperPosition.z + 1).absoluteValue
     }
 
     fun getCornerBlockPositions(): ArrayList<Position> {
