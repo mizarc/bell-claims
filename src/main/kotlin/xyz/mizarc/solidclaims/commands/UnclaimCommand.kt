@@ -18,14 +18,14 @@ class UnclaimCommand : BaseCommand() {
 
         // Check if there is a claim at the player's location
         if (claimPartition == null) {
-            player.sendMessage("There is no claim partition at your current location.")
+            player.sendMessage("§cThere is no claim partition at your current location.")
             return true
         }
 
         // Check if player state exists
         val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
         if (playerState == null) {
-            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return true
         }
 
@@ -35,7 +35,7 @@ class UnclaimCommand : BaseCommand() {
 
         // Check if player owns claim
         if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
-            player.sendMessage("You don't have permission to modify this claim.")
+            player.sendMessage("§cYou don't have permission to modify this claim.")
             return true
         }
 
@@ -56,7 +56,7 @@ class UnclaimCommand : BaseCommand() {
         if (claimPartition.claim.isAnyDisconnectedPartitions()) {
             plugin.claimContainer.addClaimPartition(claimPartition)
             return player.sendMessage(
-                "That resize would result in an unconnected partition island."
+                "§cThat resize would result in an unconnected partition island."
             )
         }
 
@@ -72,11 +72,11 @@ class UnclaimCommand : BaseCommand() {
         if (claimPartition.claim.partitions.isEmpty()) {
             plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
             plugin.claimContainer.removePersistentClaim(claimPartition.claim)
-            player.sendMessage("The claim has been removed.")
+            player.sendMessage("§aThe claim has been removed.")
             return
         }
 
-        player.sendMessage("This claim partition has been removed")
+        player.sendMessage("§aThis claim partition has been removed")
     }
 
     @Subcommand("connected")
@@ -101,6 +101,6 @@ class UnclaimCommand : BaseCommand() {
         plugin.claimVisualiser.oldPartitions.clear()
         plugin.claimVisualiser.updateVisualisation(player, true)
 
-        player.sendMessage("The claim has been removed.")
+        player.sendMessage("§aThe claim has been removed.")
     }
 }

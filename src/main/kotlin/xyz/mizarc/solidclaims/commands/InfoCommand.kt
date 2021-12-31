@@ -19,7 +19,7 @@ class InfoCommand : ClaimCommand() {
 
         // Check if there is a claim at the player's location
         if (claimPartition == null) {
-            player.sendMessage("There is no claim partition at your current location.")
+            player.sendMessage("§cThere is no claim partition at your current location.")
             return
         }
 

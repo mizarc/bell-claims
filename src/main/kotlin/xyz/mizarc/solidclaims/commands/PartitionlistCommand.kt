@@ -16,14 +16,14 @@ class PartitionlistCommand : ClaimCommand() {
 
         // Check if there is a claim at the player's location
         if (claimPartition == null) {
-            player.sendMessage("There is no claim partition at your current location.")
+            player.sendMessage("§cThere is no claim partition at your current location.")
             return
         }
 
         // Check if page is empty
         val claim = claimPartition.claim
         if (page * 10 - 9 > claim.partitions.count()) {
-            player.sendMessage("There are no claim partitions on that page.")
+            player.sendMessage("§cThere are no claim partitions on that page.")
             return
         }
 

@@ -13,14 +13,14 @@ class RemoveRuleCommand : ClaimCommand() {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 
         if (claimPartition == null) {
-            player.sendMessage("There is no claim partition at your current location.")
+            player.sendMessage("§cThere is no claim partition at your current location.")
             return true
         }
 
         // Check if player state exists
         val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
         if (playerState == null) {
-            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return true
         }
 
@@ -29,7 +29,7 @@ class RemoveRuleCommand : ClaimCommand() {
         }
 
         if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
-            player.sendMessage("You don't have permission to modify this claim.")
+            player.sendMessage("§cYou don't have permission to modify this claim.")
             return true
         }
 
@@ -42,10 +42,10 @@ class RemoveRuleCommand : ClaimCommand() {
         val claim = claimPartition.claim
 
         if (plugin.claimContainer.removeClaimRule(claim, rule)) {
-            player.sendMessage("$rule removed for ${claim.name}.")
+            player.sendMessage("§6$rule §aremoved for §6${claim.name}§a.")
             return
         }
 
-        player.sendMessage("$rule was not assigned for ${claim.name}.")
+        player.sendMessage("§6$rule §cwas not assigned for §6${claim.name}§c.")
     }
 }

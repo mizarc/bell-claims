@@ -20,12 +20,12 @@ open class ClaimCommand : BaseCommand() {
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {
-            player.sendMessage("You already have the claim tool in your inventory.")
+            player.sendMessage("§cYou already have the claim tool in your inventory.")
             return
         }
 
         player.inventory.addItem(getClaimTool())
-        player.sendMessage("You have been given the claim tool")
+        player.sendMessage("§cYou have been given the claim tool")
     }
 
     /**
