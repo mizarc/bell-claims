@@ -27,8 +27,8 @@ class RuleBehaviour {
         val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEvent, ::entityGriefInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
-        val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, ::cancelEvent, ::explosionInClaim)
-        val blockExplode = RuleExecutor(BlockExplodeEvent::class.java, ::cancelEvent, ::explosionInClaim)
+        val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, ::preventExplosionDamage, ::entityExplosionInClaim)
+        val blockExplode = RuleExecutor(BlockExplodeEvent::class.java, ::preventExplosionDamage, ::blockExplosionInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -37,6 +37,33 @@ class RuleBehaviour {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
+        }
+
+        /**
+         * Allow explosions to occur, but prevent them from destroying blocks in claims that do not explicitly allow it.
+         */
+        private fun preventExplosionDamage(event: Event, cc: ClaimContainer) {
+            if (event is EntityExplodeEvent) {
+                handleExplosionBlocks(event.blockList(), cc)
+            }
+            if (event is BlockExplodeEvent) {
+                handleExplosionBlocks(event.blockList(), cc)
+            }
+        }
+
+        /**
+         * Edit the explosion's destruction to exclude blocks inside of claims without the rule for it.
+         */
+        private fun handleExplosionBlocks(blocks: MutableList<Block>, cc: ClaimContainer) {
+            val result: ArrayList<Block> = ArrayList()
+            for (block in blocks) {
+                val claim = cc.getClaimPartitionAtLocation(block.location)?.claim
+                if (claim == null || claim.rules.contains(ClaimRule.Explosions)) {
+                    result.add(block)
+                }
+            }
+            blocks.clear()
+            blocks.addAll(result)
         }
 
         /**
@@ -50,10 +77,25 @@ class RuleBehaviour {
         /**
          * Get claims which this explosion affects the blocks of.
          */
-        private fun explosionInClaim(e: Event, cc: ClaimContainer): List<Claim> {
+        private fun blockExplosionInClaim(e: Event, cc: ClaimContainer): List<Claim> {
+            if (e !is BlockExplodeEvent) return listOf()
+            return getExplosionClaims(e.blockList(), cc)
+        }
+
+        /**
+         * Get claims which this explosion affects the blocks of.
+         */
+        private fun entityExplosionInClaim(e: Event, cc: ClaimContainer): List<Claim> {
             if (e !is EntityExplodeEvent) return listOf()
+            return getExplosionClaims(e.blockList(), cc)
+        }
+
+        /**
+         * Get claims that this explosion affects.
+         */
+        private fun getExplosionClaims(blocks: List<Block>, cc: ClaimContainer): List<Claim> {
             val claimList = ArrayList<Claim>()
-            for (block in e.blockList()) {
+            for (block in blocks) {
                 val part = cc.getClaimPartitionAtLocation(block.location)
                 if (part != null) {
                     claimList.add(part.claim)
