@@ -548,11 +548,19 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         val partitions = getClaimPartitionsInChunks(chunks)
         if (partitions.isEmpty()) return
 
+        val noPermissionBorders: ArrayList<Position> = ArrayList()
+        val noPermissionCorners: ArrayList<Position> = ArrayList()
         val mainBorders: ArrayList<Position> = ArrayList()
         val mainCorners: ArrayList<Position> = ArrayList()
         val borders: ArrayList<Position> = ArrayList()
         val corners: ArrayList<Position> = ArrayList()
         for (partition in partitions) {
+            if (partition.claim.owner.uniqueId != player.uniqueId) {
+                noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
+                noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
+                continue
+            }
+
             if (partition.claim.isPartitionMain(partition)) {
                 mainCorners.addAll(partition.area.getCornerBlockPositions())
                 mainBorders.addAll(partition.area.getEdgeBlockPositions())
@@ -562,6 +570,8 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
             borders.addAll(partition.area.getEdgeBlockPositions())
         }
 
+        setVisualisedBlocks(player, noPermissionBorders, Material.RED_GLAZED_TERRACOTTA, Material.RED_CARPET)
+        setVisualisedBlocks(player, noPermissionCorners, Material.BLACK_GLAZED_TERRACOTTA, Material.BLACK_CARPET)
         setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
         setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
         setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
