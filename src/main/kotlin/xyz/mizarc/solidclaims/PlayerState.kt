@@ -8,6 +8,7 @@ import kotlin.collections.ArrayList
 class PlayerState(var id: UUID, var claimLimit: Int, var claimBlockLimit: Int,
                   var bonusClaims: Int, var bonusClaimBlocks: Int,
                   var claims: ArrayList<Claim>, var globalPermissions: ArrayList<PlayerAccess>) {
+    var claimOverride = false
 
     constructor(id: UUID, claimLimit: Int, claimBlockLimit: Int) :
             this(id, claimLimit, claimBlockLimit, 0, 0, arrayListOf(), arrayListOf())
