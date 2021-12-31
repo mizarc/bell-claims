@@ -10,10 +10,10 @@ import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimContainer
 
 /**
- * A data structure that contains the type of an event [eventClass], the function to handle the result of the event [handler],
+ * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
  * and a method to obtain all the claims that the event is affecting [getClaims].
  */
-data class RuleExecutor(val eventClass: Class<out Event>, val handler: (l: Listener, e: Event) -> Unit, val getClaims: (e: Event, cc: ClaimContainer) -> List<Claim>)
+data class RuleExecutor(val eventClass: Class<out Event>, val handler: (e: Event, cc: ClaimContainer) -> Unit, val getClaims: (e: Event, cc: ClaimContainer) -> List<Claim>)
 
 /**
  * A static class object to define the behaviour of event handling for events that affect claims which do not specify
@@ -33,7 +33,7 @@ class RuleBehaviour {
         /**
          * Cancel any cancellable event.
          */
-        private fun cancelEvent(listener: Listener, event: Event) {
+        private fun cancelEvent(event: Event, cc: ClaimContainer) {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
