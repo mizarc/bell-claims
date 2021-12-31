@@ -16,17 +16,17 @@ class ClaimOverrideCommand: BaseCommand() {
     fun onClaimOverride(player: Player) {
         val playerState = playerContainer.getPlayer(player.uniqueId)
         if (playerState == null) {
-            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return
         }
 
         if (playerState.claimOverride) {
             playerState.claimOverride = false
-            player.sendMessage("You are no longer overriding claim permissions.")
+            player.sendMessage("§aYou are no longer overriding claim permissions.")
             return
         }
 
         playerState.claimOverride = true
-        player.sendMessage("You are now overriding claim permissions.")
+        player.sendMessage("§aYou are now overriding claim permissions.")
     }
 }

@@ -79,7 +79,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
     fun selectFirstLocation(player: Player, location: Location) {
         // Check if the selected spot exists in an existing claim.
         if (claimContainer.isPositionOverlap(Position(location), location.world!!)) {
-            player.sendMessage("That spot is in an existing claim.")
+            player.sendMessage("§cThat spot is in an existing claim.")
             return
         }
 
@@ -88,18 +88,18 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
         // Check if the player has already hit the claim limit.
         if (remainingClaimCount < 1) {
-            return player.sendMessage("You have already hit your claim limit. Try removing an existing claim.")
+            return player.sendMessage("§cYou have already hit your claim limit. Try removing an existing claim.")
         }
 
         // Check if the player already hit claim block limit.
         if (remainingClaimBlockCount < 1) {
-            return player.sendMessage("You have already hit your claim block limit. " +
+            return player.sendMessage("§cYou have already hit your claim block limit. " +
                     "Try removing or resizing an existing claim.")
         }
 
         playerClaimBuilders.add(AreaBuilder(player.uniqueId, Position(location.x.toInt(), location.z.toInt())))
-        return player.sendMessage("New claim building started. " +
-                "You have $remainingClaimBlockCount Blocks and $remainingClaimCount Areas remaining.")
+        return player.sendMessage("§aNew claim building started. " +
+                "You have §6$remainingClaimBlockCount §aBlocks and §6$remainingClaimCount §aAreas remaining.")
     }
 
     /**
@@ -110,20 +110,20 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         val area = claimBuilder.build() ?: return
         // Set second location & Check if it overlaps an existing claim
         if (claimContainer.isAreaOverlap(area, location.world!!)) {
-            return player.sendMessage("That selection overlaps an existing claim.")
+            return player.sendMessage("§cThat selection overlaps an existing claim.")
         }
 
         // Check if claim meets minimum size
         if (area.getXLength() < 5 || area.getZLength() < 5) {
-            return player.sendMessage("The claim must be at least 5x5 blocks.")
+            return player.sendMessage("§cThe claim must be at least 5x5 blocks.")
         }
 
         // Check if selection is greater than the player's remaining claim blocks
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         val remainingClaimCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimCount()
         if (area.getBlockCount() > remainingClaimBlockCount) {
-            return player.sendMessage("That selection would require an additional " +
-                    "${area.getBlockCount() - remainingClaimCount} claim blocks")
+            return player.sendMessage("§cThat selection would require an additional " +
+                    "§6${area.getBlockCount() - remainingClaimCount} §cclaim blocks.")
         }
 
         // Check if new partition is adjacent to an existing claim.
@@ -144,7 +144,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimContainer.addNewClaimPartition(newPartition)
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
-        player.sendMessage("New claim has been created.")
+        player.sendMessage("§aNew claim has been created.")
     }
 
     fun appendPartitionToClaim(player: Player, claimBuilder: AreaBuilder, claim: Claim) {
@@ -154,7 +154,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         playerClaimBuilders.remove(claimBuilder)
         claimVisualiser.updateVisualisation(player, true)
         val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
-        player.sendMessage("New claim partition has been added to $name.")
+        player.sendMessage("§aNew claim partition has been added to §6$name.")
     }
 
     /**
@@ -166,19 +166,19 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         // Check if player state exists
         val playerState = playerContainer.getPlayer(player.uniqueId)
         if (playerState == null) {
-            player.sendMessage("Somehow, your player data doesn't exist. Please contact an administrator.")
+            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return true
         }
 
         // Check for permission to modify claim.
         if (playerState.claimOverride) {}
         else if (partition.claim.owner.uniqueId != player.uniqueId) {
-            player.sendMessage("You don't have permission to modify that claim.")
+            player.sendMessage("§cYou don't have permission to modify that claim.")
             return true
         }
 
         partitionResizeBuilders.add(PartitionResizeBuilder(player.uniqueId, partition, Position(location)))
-        player.sendMessage("Claim corner selected. Select a different location to resize the claim.")
+        player.sendMessage("§aClaim corner selected. Select a different location to resize the claim.")
         return true
     }
 
@@ -191,20 +191,20 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
 
         // Check if selection overlaps an existing claim
         if (!claimContainer.isPartitionOverlap(newPartition)) {
-            return player.sendMessage("That selection overlaps an existing claim.")
+            return player.sendMessage("§cThat selection overlaps an existing claim.")
         }
 
         // Check if claim meets minimum size
         if (newPartition.area.getXLength() < 5 || newPartition.area.getZLength() < 5) {
-            return player.sendMessage("The claim must be at least 5x5 blocks.")
+            return player.sendMessage("§cThe claim must be at least 5x5 blocks.")
         }
 
         // Check if claim takes too much space
         val remainingClaimBlockCount = playerContainer.getPlayer(player.uniqueId)!!.getRemainingClaimBlockCount()
         if (playerContainer.getPlayer(player.uniqueId)!!.getUsedClaimBlockCount() + claimResizer.extraBlockCount()!! >
                 playerContainer.getPlayer(player.uniqueId)!!.getTotalClaimBlockLimit()) {
-            return player.sendMessage("That resize would require an additional " +
-                    "${claimResizer.extraBlockCount()!! - remainingClaimBlockCount} blocks")
+            return player.sendMessage("§cThat resize would require an additional " +
+                    "§6${claimResizer.extraBlockCount()!! - remainingClaimBlockCount} §cblocks.")
         }
 
         // Check if partition is the main
@@ -216,7 +216,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         else if (!claimResizer.partition.claim.isPartitionConnectedToMain(newPartition)) {
             claimContainer.addClaimPartition(claimResizer.partition)
             return player.sendMessage(
-                "That resize would result in this partition being disconnected from the main partition.")
+                "§cThat resize would result in this partition being disconnected from the main partition.")
         }
 
         // Check if claim resize would result in any claim islands
@@ -228,7 +228,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
             claimContainer.removeClaimPartition(newPartition)
             claimContainer.addClaimPartition(claimResizer.partition)
             return player.sendMessage(
-                "That resize would result in an unconnected partition island."
+                "§cThat resize would result in an unconnected partition island."
             )
         }
 
@@ -244,7 +244,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         claimVisualiser.unrenderOldClaims(player)
         claimVisualiser.oldPartitions.clear()
         claimVisualiser.updateVisualisation(player, true)
-        return player.sendMessage("Claim corner resized.")
+        return player.sendMessage("§aClaim corner resized.")
     }
 
     @EventHandler
@@ -257,7 +257,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         val playerClaimBuilder = getPlayerMakingClaim(event.player)
         if (playerClaimBuilder != null) {
             cancelClaimCreation(playerClaimBuilder)
-            event.player.sendMessage("Claim tool unequipped. Claim building has been cancelled.")
+            event.player.sendMessage("§cClaim tool unequipped. Claim building has been cancelled.")
             return
         }
 
@@ -265,7 +265,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         val playerClaimResizer = getPlayerResizingClaim(event.player)
         if (playerClaimResizer != null) {
             cancelClaimResizing(playerClaimResizer)
-            event.player.sendMessage("Claim tool unequipped. Claim resizing has been cancelled.")
+            event.player.sendMessage("§cClaim tool unequipped. Claim resizing has been cancelled.")
         }
     }
 

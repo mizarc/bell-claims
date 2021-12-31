@@ -17,20 +17,20 @@ class TrustlistCommand : ClaimCommand() {
 
         // Check if there is a claim at the player's location
         if (claimPartition == null) {
-            player.sendMessage("There is no claim partition at your current location.")
+            player.sendMessage("§cThere is no claim partition at your current location.")
             return
         }
 
         // Check if claim has no trusted players
         val claim = claimPartition.claim
         if (claim.playerAccesses.isEmpty()) {
-            player.sendMessage("This claim has no trusted players.")
+            player.sendMessage("§cThis claim has no trusted players.")
             return
         }
 
         // Check if page is empty
         if (page * 10 - 9 > claim.playerAccesses.count()) {
-            player.sendMessage("There are no trusted player entries on that page.")
+            player.sendMessage("§cThere are no trusted player entries on that page.")
             return
         }
 

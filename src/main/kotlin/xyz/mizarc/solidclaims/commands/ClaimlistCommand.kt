@@ -30,13 +30,13 @@ class ClaimlistCommand : BaseCommand() {
 
         // Check if player has claims
         if (playerClaims.isEmpty()) {
-            player.sendMessage("This player has no claims.")
+            player.sendMessage("§cThis player has no claims.")
             return
         }
 
         // Check if page is empty
         if (page * 10 - 9 > playerClaims.count()) {
-            player.sendMessage("There are no trusted player entries on that page.")
+            player.sendMessage("§cThere are no trusted player entries on that page.")
             return
         }
 
