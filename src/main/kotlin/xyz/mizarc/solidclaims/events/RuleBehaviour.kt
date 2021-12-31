@@ -1,5 +1,7 @@
 package xyz.mizarc.solidclaims.events
 
+import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
@@ -113,27 +115,32 @@ class RuleBehaviour {
         }
 
         /**
-         * Get claims that this piston machine operates in.
+         * Get claims for piston extends.
          */
         private fun pistonExtendInClaim(e: Event, cc: ClaimContainer): List<Claim> {
             if (e !is BlockPistonExtendEvent) return listOf()
-            val claimList = ArrayList<Claim>()
-            for (block in e.blocks) {
-                val part = cc.getClaimPartitionAtLocation(block.location)
-                if (part != null) {
-                    claimList.add(part.claim)
-                }
-            }
-            return claimList.distinct()
+            return getPistonClaims(e.blocks, e.direction, cc)
         }
 
         /**
-         * Get claims that this piston machine operates in.
+         * Get claims for piston retracts.
          */
         private fun pistonRetractInClaim(e: Event, cc: ClaimContainer): List<Claim> {
             if (e !is BlockPistonRetractEvent) return listOf()
+            return getPistonClaims(e.blocks, e.direction, cc)
+        }
+
+        /**
+         * Get claims that this machine operates in, accounting for where the blocks will be if the piston event is
+         * allowed to occur.
+         */
+        private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, cc: ClaimContainer): List<Claim> {
             val claimList = ArrayList<Claim>()
-            for (block in e.blocks) {
+            val checks: ArrayList<Block> = ArrayList()
+            for (c in blocks) {
+                checks.add(c.getRelative(direction))
+            }
+            for (block in checks) {
                 val part = cc.getClaimPartitionAtLocation(block.location)
                 if (part != null) {
                     claimList.add(part.claim)
