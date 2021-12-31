@@ -18,7 +18,7 @@ import org.bukkit.event.player.*
  * A data structure that contains the type of an event [eventClass], the function to handle the result of the event [handler],
  * a method to obtain the location of the event [location], and a method to obtain the player causing the event [source].
  */
-data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l: Listener, e: Event) -> Unit, val location: (e: Event) -> Location?, val source: (e: Event) -> Player?)
+data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l: Listener, e: Event) -> Boolean, val location: (e: Event) -> Location?, val source: (e: Event) -> Player?)
 
 /**
  * A static class object to define the behaviour of event handling for events that occur within claims where the
@@ -45,55 +45,61 @@ class PermissionBehaviour {
         /**
          * Cancel any cancellable event.
          */
-        private fun cancelEvent(listener: Listener, event: Event) {
+        private fun cancelEvent(listener: Listener, event: Event): Boolean {
             if (event is Cancellable) {
                 event.isCancelled = true
+                return true
             }
+            return false
         }
 
         /**
          * Cancel entity damage if caused by a player entity. Does not cancel if entity is considered a monster.
          */
-        private fun cancelEntityDamageEvent(listener: Listener, event: Event) {
-            if (event !is EntityDamageByEntityEvent) return
-            if (event.damager !is Player) return
-            if (event.entity is Monster) return
+        private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Player) return false
+            if (event.entity is Monster) return false
             event.isCancelled = true
+            return true
         }
 
         /**
          * Cancel inventory open events if the inventory is a chest.
          */
-        private fun cancelOpenChest(listener: Listener, event: Event) {
-            if (event !is InventoryOpenEvent) return
+        private fun cancelOpenChest(listener: Listener, event: Event): Boolean {
+            if (event !is InventoryOpenEvent) return false
             val t = event.inventory.type
             if (t != InventoryType.CHEST &&
                 t != InventoryType.SHULKER_BOX &&
-                t != InventoryType.BARREL) return
+                t != InventoryType.BARREL) return false
             event.isCancelled = true
+            return true
         }
 
         /**
          * Cancel inventory open events if the inventory is a furnace.
          */
-        private fun cancelOpenFurnace(listener: Listener, event: Event) {
-            if (event !is InventoryOpenEvent) return
+        private fun cancelOpenFurnace(listener: Listener, event: Event): Boolean {
+            if (event !is InventoryOpenEvent) return false
             val t = event.inventory.type
             if (t != InventoryType.FURNACE &&
                 t != InventoryType.BLAST_FURNACE &&
-                t != InventoryType.SMOKER) return
+                t != InventoryType.SMOKER) return false
             event.isCancelled = true
+            return true
         }
 
         /**
          * Cancel entity interactions if the player is trading with a village.
          */
-        private fun cancelVillagerTrade(listener: Listener, event: Event) {
-            if (event !is PlayerInteractEntityEvent) return
+        private fun cancelVillagerTrade(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
             if (event.rightClicked.type == EntityType.VILLAGER ||
                 event.rightClicked.type == EntityType.WANDERING_TRADER ) {
                 event.isCancelled = true
             }
+            return true
         }
 
         /**
