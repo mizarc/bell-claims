@@ -11,7 +11,7 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     /**
      * When a block is lit on fire.
      */
-    FireSpread(arrayOf(RuleBehaviour.fireSpread)),
+    FireSpread(arrayOf(RuleBehaviour.fireSpread, RuleBehaviour.fireBurn)),
 
     /**
      * When a mob destroys or otherwise changes blocks.
@@ -21,7 +21,7 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     /**
      * When TNT or other entities explode.
      */
-    Explosions(arrayOf(RuleBehaviour.entityExplode)),
+    Explosions(arrayOf(RuleBehaviour.entityExplode, RuleBehaviour.blockExplode)),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.

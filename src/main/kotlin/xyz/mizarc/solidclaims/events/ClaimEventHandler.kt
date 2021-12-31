@@ -41,7 +41,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         if (claims.isEmpty()) return // Check if any claims are affected by the event
         for (claim in claims) { // If they are, check if they do not allow this event
             if (!claim.rules.contains(rule)) {
-                executor.handler.invoke(listener, event) // If they do not, invoke the handler
+                executor.handler.invoke(event, plugin.claimContainer) // If they do not, invoke the handler
                 return
             }
         }
