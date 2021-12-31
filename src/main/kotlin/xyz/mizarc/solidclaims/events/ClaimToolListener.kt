@@ -174,7 +174,7 @@ class ClaimToolListener(val claimContainer: ClaimContainer, val playerContainer:
         if (playerState.claimOverride) {}
         else if (partition.claim.owner.uniqueId != player.uniqueId) {
             player.sendMessage("You don't have permission to modify that claim.")
-            return false
+            return true
         }
 
         partitionResizeBuilders.add(PartitionResizeBuilder(player.uniqueId, partition, Position(location)))
