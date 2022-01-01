@@ -120,7 +120,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
 
         // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
         if (executor?.invoke(listener, event) == true) {
-            player?.sendMessage("${ChatColor.RED}You are not allowed to do that here!")
+            player?.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.name}§c.")
         }
     }
 
