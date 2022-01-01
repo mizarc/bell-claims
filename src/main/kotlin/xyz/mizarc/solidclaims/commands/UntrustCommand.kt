@@ -1,9 +1,6 @@
 package xyz.mizarc.solidclaims.commands
 
-import co.aikar.commands.annotation.CommandAlias
-import co.aikar.commands.annotation.Default
-import co.aikar.commands.annotation.PreCommand
-import co.aikar.commands.annotation.Subcommand
+import co.aikar.commands.annotation.*
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -42,6 +39,7 @@ class UntrustCommand : ClaimCommand() {
     }
 
     @Subcommand("untrust")
+    @CommandPermission("solidclaims.command.untrust")
     fun onUntrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 

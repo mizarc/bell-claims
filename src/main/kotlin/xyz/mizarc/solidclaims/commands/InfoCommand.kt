@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
@@ -14,6 +15,7 @@ import java.util.*
 class InfoCommand : ClaimCommand() {
 
     @Subcommand("info")
+    @CommandPermission("solidclaims.command.info")
     fun onClaiminfo(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
 

@@ -43,11 +43,13 @@ class UnclaimCommand : BaseCommand() {
     }
 
     @Default
+    @CommandPermission("solidclaims.command.unclaim")
     fun onUnclaim(player: Player) {
         onPartition(player)
     }
 
     @Subcommand("partition")
+    @CommandPermission("solidclaims.command.unclaim.partition")
     fun onPartition(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 
@@ -80,6 +82,7 @@ class UnclaimCommand : BaseCommand() {
     }
 
     @Subcommand("connected")
+    @CommandPermission("solidclaims.command.unclaim.connected")
     fun onConnected(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
 
