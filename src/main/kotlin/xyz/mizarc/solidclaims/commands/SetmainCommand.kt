@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.PreCommand
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
@@ -38,6 +39,7 @@ class SetmainCommand: ClaimCommand() {
     }
 
     @Subcommand("setmain")
+    @CommandPermission("solidclaims.command.setmain")
     fun onSetmain(player: Player) {
         val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location) ?: return
         plugin.claimContainer.modifyMainPartition(claimPartition.claim, claimPartition)

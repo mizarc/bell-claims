@@ -16,7 +16,7 @@ open class ClaimCommand : BaseCommand() {
     lateinit var plugin : SolidClaims
 
     @CommandAlias("claim")
-    @CommandPermission("solidclaims.claim")
+    @CommandPermission("solidclaims.command.claim")
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {

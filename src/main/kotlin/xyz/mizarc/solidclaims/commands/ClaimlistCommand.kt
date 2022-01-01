@@ -17,6 +17,7 @@ class ClaimlistCommand : BaseCommand() {
     lateinit var plugin: SolidClaims
 
     @Default
+    @CommandPermission("solidclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
