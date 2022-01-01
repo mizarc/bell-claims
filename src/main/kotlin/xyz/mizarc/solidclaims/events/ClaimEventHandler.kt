@@ -90,7 +90,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
         val claimPerms = claimTrustee?.claimPermissions ?: claim.defaultPermissions
 
-        var executor: ((l: Listener, e: Event) -> Unit)? = null // The function that handles the result of this event
+        var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
         // Determine if the claim permissions contains any of the parent permissions to this one
         fun checkPermissionParents(p: ClaimPermission): Boolean {
@@ -118,9 +118,10 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
             }
         }
 
-        executor?.invoke(listener, event)
         // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
-        if (executor != null) player?.sendMessage("${ChatColor.RED}You are not allowed to do that here!")
+        if (executor?.invoke(listener, event) == true) {
+            player?.sendMessage("${ChatColor.RED}You are not allowed to do that here!")
+        }
     }
 
     /**
