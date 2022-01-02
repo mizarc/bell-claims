@@ -25,7 +25,7 @@ open class ClaimCommand : BaseCommand() {
         }
 
         player.inventory.addItem(getClaimTool())
-        player.sendMessage("§cYou have been given the claim tool")
+        player.sendMessage("§aYou have been given the claim tool")
     }
 
     /**
