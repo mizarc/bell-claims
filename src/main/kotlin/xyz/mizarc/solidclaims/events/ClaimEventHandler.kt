@@ -60,28 +60,26 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // for location and player as any other for this event would
         val tempExecutor = ClaimPermission.getPermissionExecutorForEvent(event::class.java) ?: return
 
-        val player: Player? = tempExecutor.source.invoke(event) // The player that caused this event, if any
+        val player: Player = tempExecutor.source.invoke(event) ?: return // The player that caused this event, if any
         val location: Location = tempExecutor.location.invoke(event) ?: return // If no location was found, do nothing
 
-        // Determine if this event happened inside of a claim's boundaries
+        // Determine if this event happened inside a claim's boundaries
         val claim = plugin.claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
 
-        if (player != null) {
-            // If player has override, do nothing.
-            val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
-            if (playerState!!.claimOverride) {
-                return
-            }
+        // If player has override, do nothing.
+        val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
+        if (playerState!!.claimOverride) {
+            return
+        }
 
-            // If player is owner, do nothing.
-            if (player.uniqueId == claim.owner.uniqueId) {
-                return
-            }
+        // If player is owner, do nothing.
+        if (player.uniqueId == claim.owner.uniqueId) {
+            return
         }
 
         var claimTrustee: PlayerAccess? = null // The relevant claim's trustee, if the player is trusted
         for (p in claim.playerAccesses) {
-            if (p.id == player?.uniqueId) {
+            if (p.id == player.uniqueId) {
                 claimTrustee = p
                 break
             }
