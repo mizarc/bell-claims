@@ -60,28 +60,26 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // for location and player as any other for this event would
         val tempExecutor = ClaimPermission.getPermissionExecutorForEvent(event::class.java) ?: return
 
-        val player: Player? = tempExecutor.source.invoke(event) // The player that caused this event, if any
+        val player: Player = tempExecutor.source.invoke(event) ?: return // The player that caused this event, if any
         val location: Location = tempExecutor.location.invoke(event) ?: return // If no location was found, do nothing
 
-        // Determine if this event happened inside of a claim's boundaries
+        // Determine if this event happened inside a claim's boundaries
         val claim = plugin.claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
 
-        if (player != null) {
-            // If player has override, do nothing.
-            val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
-            if (playerState!!.claimOverride) {
-                return
-            }
+        // If player has override, do nothing.
+        val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
+        if (playerState!!.claimOverride) {
+            return
+        }
 
-            // If player is owner, do nothing.
-            if (player.uniqueId == claim.owner.uniqueId) {
-                return
-            }
+        // If player is owner, do nothing.
+        if (player.uniqueId == claim.owner.uniqueId) {
+            return
         }
 
         var claimTrustee: PlayerAccess? = null // The relevant claim's trustee, if the player is trusted
         for (p in claim.playerAccesses) {
-            if (p.id == player?.uniqueId) {
+            if (p.id == player.uniqueId) {
                 claimTrustee = p
                 break
             }
@@ -89,6 +87,10 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
 
         // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
         val claimPerms = claimTrustee?.claimPermissions ?: claim.defaultPermissions
+
+        for (perm in eventPerms) {
+            if (claimPerms.contains(perm)) return
+        }
 
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
@@ -120,7 +122,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
 
         // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
         if (executor?.invoke(listener, event) == true) {
-            player?.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
+            player.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
         }
     }
 

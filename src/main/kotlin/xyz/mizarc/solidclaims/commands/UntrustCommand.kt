@@ -46,12 +46,17 @@ class UntrustCommand : ClaimCommand() {
         val claimPlayers = claimPartition.claim.playerAccesses
         for (claimPlayer in claimPlayers) {
             if (claimPlayer.id == otherPlayer.player.uniqueId) {
+                val childrenPerms = ClaimPermission.getAllPermissionChildren(permission)
 
                 // Check if player doesn't have the permission
-                if (permission !in claimPlayer.claimPermissions) {
+                if (permission !in claimPlayer.claimPermissions && childrenPerms.isEmpty()) {
                     player.sendMessage(
-                        "§6${Bukkit.getPlayer(player.uniqueId)?.name} §cdoesn't have permission §6${permission.name}§c.")
+                        "§6${otherPlayer.player.name} §cdoesn't have permission §6${permission.name}§c.")
                     return
+                }
+
+                for (child in childrenPerms) {
+                    claimPlayer.claimPermissions.remove(child)
                 }
 
                 // Remove permission from player access
@@ -63,7 +68,7 @@ class UntrustCommand : ClaimCommand() {
         }
 
         player.sendMessage(
-            "§6${Bukkit.getPlayer(player.uniqueId)?.name} §cdoesn't have permission §6${permission.name}§c.")
+            "§6${otherPlayer.player.name} §cdoesn't have permission §6${permission.name}§c.")
         return
     }
 }

@@ -10,27 +10,53 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
      * Every event. This has the least priority, and any explicit changes to other permissions will override the
      * actions of this one.
      */
-    All(null, arrayOf(PermissionBehaviour.playerInteract, PermissionBehaviour.playerInteractEntity, PermissionBehaviour.playerDamageEntity)),
+    All(null, arrayOf(
+        PermissionBehaviour.blockBreak,
+        PermissionBehaviour.blockPlace,
+        PermissionBehaviour.openChest,
+        PermissionBehaviour.openFurnace,
+        PermissionBehaviour.villagerTrade,
+        PermissionBehaviour.playerDamageEntity,
+        PermissionBehaviour.leashEntity,
+        PermissionBehaviour.shearEntity,
+        PermissionBehaviour.blockDamage,
+        PermissionBehaviour.armorStandManipulate,
+        PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.fertilize)),
 
     /**
      * All block-related events. This includes breaking, placing, and interacting with any blocks.
      */
-    AllBlocks(All, arrayOf(PermissionBehaviour.playerInteract)),
+    AllBlocks(All, arrayOf(
+        PermissionBehaviour.blockBreak,
+        PermissionBehaviour.blockPlace,
+        PermissionBehaviour.blockDamage,
+        PermissionBehaviour.armorStandManipulate,
+        PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.fertilize)),
 
     /**
      * When a block is broken/placed by a player.
      */
-    Build(AllBlocks, arrayOf(PermissionBehaviour.blockBreak)),
+    Build(AllBlocks, arrayOf(PermissionBehaviour.blockBreak, PermissionBehaviour.blockPlace)),
 
     /**
      * When a block is interacted with by a player.
      */
-    BlockInteract(AllBlocks, arrayOf(PermissionBehaviour.blockDamage, PermissionBehaviour.armorStandManipulate, PermissionBehaviour.takeLecternBook, PermissionBehaviour.fertilize)),
+    BlockInteract(AllBlocks, arrayOf(
+        PermissionBehaviour.blockDamage,
+        PermissionBehaviour.armorStandManipulate,
+        PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.fertilize)),
 
     /**
      * All inventory-related events. This is triggered every time a player opens anything with a stateful inventory.
      */
-    AllInventories(All, arrayOf(PermissionBehaviour.inventoryOpen)),
+    AllInventories(All, arrayOf(
+        PermissionBehaviour.openChest,
+        PermissionBehaviour.openFurnace,
+        PermissionBehaviour.openAnvil,
+        PermissionBehaviour.villagerTrade)),
 
     /**
      * When a chest is opened by a player.
@@ -43,15 +69,23 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     OpenFurnace(AllInventories, arrayOf(PermissionBehaviour.openFurnace)),
 
     /**
-     * All entity interaction-related events. This includes hurting, trading, leashing, and any other kind of
-     * interaction with any entity.
+     * When an anvil is opened by a player.
      */
-    AllEntities(All, arrayOf(PermissionBehaviour.playerInteractEntity)),
+    OpenAnvil(AllInventories, arrayOf(PermissionBehaviour.openAnvil)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
      */
-    VillagerTrade(AllEntities, arrayOf(PermissionBehaviour.villagerTrade)),
+    VillagerTrade(AllInventories, arrayOf(PermissionBehaviour.villagerTrade)),
+
+    /**
+     * All entity interaction-related events. This includes hurting, trading, leashing, and any other kind of
+     * interaction with any entity.
+     */
+    AllEntities(All, arrayOf(
+        PermissionBehaviour.playerDamageEntity,
+        PermissionBehaviour.leashEntity,
+        PermissionBehaviour.shearEntity)),
 
     /**
      * When an entity is hurt by a player.
@@ -97,6 +131,18 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
                 }
             }
             return null
+        }
+
+        /**
+         * Get all children of this permission
+         */
+        fun getAllPermissionChildren(perm: ClaimPermission): Array<ClaimPermission> {
+            val children = ArrayList<ClaimPermission>()
+            for (v in values()) {
+                if (v == perm) continue
+                if (v.parent == perm || children.contains(v.parent)) children.add(v)
+            }
+            return children.toTypedArray()
         }
     }
 }
