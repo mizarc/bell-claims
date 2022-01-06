@@ -88,6 +88,10 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
         val claimPerms = claimTrustee?.claimPermissions ?: claim.defaultPermissions
 
+        for (perm in eventPerms) {
+            if (claimPerms.contains(perm)) return
+        }
+
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
         // Determine if the claim permissions contains any of the parent permissions to this one
