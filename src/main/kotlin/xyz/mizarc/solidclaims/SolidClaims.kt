@@ -8,7 +8,7 @@ import xyz.mizarc.solidclaims.events.*
 
 class SolidClaims : JavaPlugin() {
     internal lateinit var commandManager: PaperCommandManager
-    internal var configIO: ConfigIO = ConfigIO(this)
+    internal var config: Config = Config(this)
     var database: DatabaseStorage = DatabaseStorage(this)
     var claimContainer = ClaimContainer(database)
     var playerContainer = PlayerContainer(database)
