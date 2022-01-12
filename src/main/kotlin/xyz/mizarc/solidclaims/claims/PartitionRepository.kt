@@ -1,13 +1,13 @@
 package xyz.mizarc.solidclaims.claims
 
 import org.bukkit.World
-import xyz.mizarc.solidclaims.Container
 import xyz.mizarc.solidclaims.DatabaseStorage
+import xyz.mizarc.solidclaims.Repository
 import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PartitionRepository(private val storage: DatabaseStorage): Container<Partition> {
+class PartitionRepository(private val storage: DatabaseStorage): Repository<Partition> {
     var partitions: ArrayList<Partition> = ArrayList()
     var chunkPartitions: MutableMap<Position, ArrayList<Partition>> = mutableMapOf()
 
@@ -19,7 +19,7 @@ class PartitionRepository(private val storage: DatabaseStorage): Container<Parti
         return partitions
     }
 
-    fun getById(id: UUID): Partition? {
+    override fun getById(id: UUID): Partition? {
         for (partition in partitions) {
             if (partition.id == id) {
                 return partition
