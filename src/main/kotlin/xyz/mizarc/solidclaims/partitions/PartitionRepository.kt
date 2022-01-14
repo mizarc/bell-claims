@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.claims
+package xyz.mizarc.solidclaims.partitions
 
 import co.aikar.idb.Database
 import org.bukkit.World
@@ -21,8 +21,10 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         try {
             val results = storage.connection.getResults("SELECT * FROM claimPartitions")
             for (result in results) {
-                val area = Area(Position(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
-                    Position(result.getInt("upperPositionX"), result.getInt("upperPositionZ")))
+                val area = Area(
+                    Position(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
+                    Position(result.getInt("upperPositionX"), result.getInt("upperPositionZ"))
+                )
                 val partition = Partition(UUID.fromString(result.getString("id")),
                     UUID.fromString(result.getString("claimId")), area)
                 partitions.add(partition)
