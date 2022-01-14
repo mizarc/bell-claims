@@ -1,6 +1,5 @@
-package xyz.mizarc.solidclaims.claims
+package xyz.mizarc.solidclaims.partitions
 
-import org.bukkit.World
 import java.util.*
 import kotlin.collections.ArrayList
 
