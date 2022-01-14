@@ -15,7 +15,7 @@ class PlayerAccessMapper(private val storage: DatabaseStorage): Mapper<PlayerAcc
     fun getByClaim(claimId: UUID): ArrayList<PlayerAccess> {
         val playerAccesses = ArrayList<PlayerAccess>()
         try {
-            val results = storage.connection.getResults("SELECT * FROM claims WHERE claimId=?;", claimId)
+            val results = storage.connection.getResults("SELECT * FROM playerAccess WHERE claimId=?;", claimId)
             for (result in results) {
                 playerAccesses.add(PlayerAccess(UUID.fromString(result.getString("claimId")),
                     UUID.fromString(result.getString("playerId")), ClaimPermission.valueOf("permission")))
@@ -29,7 +29,7 @@ class PlayerAccessMapper(private val storage: DatabaseStorage): Mapper<PlayerAcc
     fun getByPlayer(claimId: UUID, playerId: UUID): ArrayList<PlayerAccess> {
         val playerAccesses = ArrayList<PlayerAccess>()
         try {
-            val results = storage.connection.getResults("SELECT * FROM claims " +
+            val results = storage.connection.getResults("SELECT * FROM playerAccess " +
                     "WHERE playerId=?;", claimId, playerId)
             for (result in results) {
                 playerAccesses.add(PlayerAccess(UUID.fromString(result.getString("claimId")),
