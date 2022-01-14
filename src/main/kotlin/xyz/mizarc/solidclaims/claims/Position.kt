@@ -9,4 +9,8 @@ import org.bukkit.Location
  */
 data class Position(val x: Int, val z: Int) {
     constructor(location: Location): this(location.blockX, location.blockZ)
+
+    fun toChunk(): Position {
+        return Position(x shr 4, z shr 4)
+    }
 }
