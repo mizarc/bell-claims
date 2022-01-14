@@ -1,13 +1,14 @@
 package xyz.mizarc.solidclaims.claims
 
+import co.aikar.idb.Database
 import org.bukkit.World
-import xyz.mizarc.solidclaims.DatabaseStorage
 import xyz.mizarc.solidclaims.Repository
+import xyz.mizarc.solidclaims.storage.Storage
 import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PartitionRepository(private val storage: DatabaseStorage): Repository<Partition> {
+class PartitionRepository(private val storage: Storage<Database>): Repository<Partition> {
     var partitions: ArrayList<Partition> = ArrayList()
     var chunkPartitions: MutableMap<Position, ArrayList<Partition>> = mutableMapOf()
 
