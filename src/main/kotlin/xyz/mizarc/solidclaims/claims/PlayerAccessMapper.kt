@@ -1,6 +1,6 @@
 package xyz.mizarc.solidclaims.claims
 
-import xyz.mizarc.solidclaims.DatabaseStorage
+import xyz.mizarc.solidclaims.storage.DatabaseStorage
 import xyz.mizarc.solidclaims.Mapper
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.sql.SQLException
