@@ -13,6 +13,29 @@ class PartitionRepository(private val storage: DatabaseStorage): Repository<Part
 
     init {
         createTable()
+        preload()
+    }
+
+    fun preload() {
+        try {
+            val results = storage.connection.getResults("SELECT * FROM claimPartitions")
+            for (result in results) {
+                val area = Area(Position(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
+                    Position(result.getInt("upperPositionX"), result.getInt("upperPositionZ")))
+                val partition = Partition(UUID.fromString(result.getString("id")),
+                    UUID.fromString(result.getString("claimId")), area)
+                partitions.add(partition)
+
+                for (chunk in area.getChunks()) {
+                    if (chunkPartitions[chunk] == null) {
+                        chunkPartitions[chunk] = ArrayList()
+                    }
+                    chunkPartitions[chunk]!!.add(partition)
+                }
+            }
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
     }
 
     override fun getAll(): ArrayList<Partition> {
