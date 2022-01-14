@@ -108,6 +108,20 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
         return ((upperPosition.x - lowerPosition.x + 1) * (upperPosition.z - lowerPosition.z + 1)).absoluteValue
     }
 
+    fun getChunks(): ArrayList<Position> {
+        val firstChunk = ClaimContainer.getChunkLocation(lowerPosition)
+        val secondChunk = ClaimContainer.getChunkLocation(upperPosition)
+
+        val chunks: ArrayList<Position> = ArrayList()
+        for (x in firstChunk.x..secondChunk.x) {
+            for (z in firstChunk.z..secondChunk.z) {
+                chunks.add(Position(x, z))
+            }
+        }
+
+        return chunks
+    }
+
     /**
      * Gets the length of the X axis.
      */
