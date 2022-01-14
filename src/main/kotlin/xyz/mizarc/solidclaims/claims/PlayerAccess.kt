@@ -2,17 +2,11 @@ package xyz.mizarc.solidclaims.claims
 
 import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
- * Contains a list of claim permissions for a particular player.
+ * Maps claims to players to permissions. Each claim can contain multiple players which can each contain multiple
+ * permissions.
  * @property id The unique identifier for a player.
  * @property claimPermissions An array of claim permissions.
  */
-class PlayerAccess(var id: UUID, var claimPermissions: ArrayList<ClaimPermission>) {
-    /**
-     * Constructs a ClaimPlayer without a default list of permissions.
-     * @param id The unique identifier for a player.
-     */
-    constructor(id: UUID) : this(id, ArrayList())
-}
+class PlayerAccess(var claimId: UUID, var playerId: UUID, var claimPermission: ClaimPermission)
