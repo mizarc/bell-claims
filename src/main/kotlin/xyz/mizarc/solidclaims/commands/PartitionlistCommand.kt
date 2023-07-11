@@ -14,33 +14,28 @@ class PartitionlistCommand : ClaimCommand() {
     @Subcommand("partitionlist")
     @CommandPermission("solidclaims.command.partitionlist")
     fun onPartitionlist(player: Player, @Default("1") page: Int) {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
-
-        // Check if there is a claim at the player's location
-        if (claimPartition == null) {
-            player.sendMessage("§cThere is no claim partition at your current location.")
-            return
-        }
+        val partition = getPartitionAtPlayer(player) ?: return
 
         // Check if page is empty
-        val claim = claimPartition.claim
-        if (page * 10 - 9 > claim.partitions.count()) {
+        val claim = claims.getById(partition.claimId)!!
+        val claimPartitions = partitions.getByClaim(claim.id)
+        if (page * 10 - 9 > claimPartitions.count()) {
             player.sendMessage("§cThere are no claim partitions on that page.")
             return
         }
 
         // Output list of partitions
-        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
+        val name = if (claim.name.isNotEmpty()) claim.name else claim.id.toString().substring(0, 7)
         val chatInfo = ChatInfoBuilder("$name Partitions")
         for (i in 0..9 + page) {
-            if (i > claim.partitions.count() - 1) {
+            if (i > claimPartitions.count() - 1) {
                 break
             }
-
             chatInfo.addLinked((i + 1).toString(),
-                "${claim.partitions[i].area.lowerPosition} ${claim.partitions[i].area.upperPosition}")
+                "${claimPartitions[i].area.lowerPosition} ${claimPartitions[i].area.upperPosition}")
         }
+
         player.spigot().sendMessage(*chatInfo.createPaged(page,
-            ceil((claim.playerAccesses.count() / 10.0)).toInt()))
+            ceil(((playerAccessRepository.getByClaim(claim)?.count() ?: 0) / 10.0)).toInt()))
     }
 }

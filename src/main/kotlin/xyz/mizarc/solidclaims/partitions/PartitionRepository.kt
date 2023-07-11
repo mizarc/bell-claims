@@ -64,21 +64,22 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         return foundPartitions
     }
 
-    fun getByChunk(position: Position, world: World): ArrayList<Partition> {
+    fun getByChunk(position: Position): ArrayList<Partition> {
         if (chunkPartitions[position.toChunk()] == null) {
             return ArrayList()
         }
         return chunkPartitions[position.toChunk()]!!
     }
 
-    fun getByPosition(position: Position, world: World): Partition? {
-        val partitionsInChunk = getByChunk(position, world)
+    fun getByPosition(position: Position): ArrayList<Partition> {
+        val partitionsInChunk = getByChunk(position)
+        val partitionsInPosition = ArrayList<Partition>()
         for (partition in partitionsInChunk) {
             if (partition.isPositionInPartition(position)) {
-                return partition
+                partitionsInPosition.add(partition)
             }
         }
-        return null
+        return partitionsInPosition
     }
 
     override fun add(entity: Partition) {

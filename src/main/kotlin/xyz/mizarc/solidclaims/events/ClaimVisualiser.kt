@@ -3,7 +3,6 @@ package xyz.mizarc.solidclaims.events
 import com.google.common.math.IntMath.sqrt
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.Block
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -12,18 +11,18 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import xyz.mizarc.solidclaims.claims.Position
-import xyz.mizarc.solidclaims.SolidClaims
-import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.Partition
+import org.bukkit.plugin.java.JavaPlugin
+import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.partitions.Position
+import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.getClaimTool
 import java.math.RoundingMode
 import kotlin.math.abs
 
 private const val yRange = 50
 
-class ClaimVisualiser(val plugin: SolidClaims) : Listener {
-    var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
+class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: ClaimQuery) : Listener {
+    private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
 
     var oldPartitions: ArrayList<Partition> = ArrayList()
 
@@ -516,11 +515,11 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
      */
     private fun getNearbyPlayers(loc: Location, radiusModifier: Int): Array<Player> {
         val players: ArrayList<Player> = ArrayList()
-        val chunks = getSurroundingChunks(ClaimContainer.getChunkLocation(Position(loc)), plugin.server.viewDistance+(radiusModifier shr 4))
+        val chunks = getSurroundingChunks(Position(loc).toChunk(), plugin.server.viewDistance+(radiusModifier shr 4))
 
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != loc.world) continue
-            if (chunks.contains(ClaimContainer.getChunkLocation(Position(player.location)))) {
+            if (chunks.contains(Position(player.location).toChunk())) {
                 players.add(player)
             }
         }
@@ -543,10 +542,12 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         }
         playerVisualisingState[player] = holdingClaimTool
 
-        val chunks = getSurroundingChunks(
-            ClaimContainer.getChunkLocation(Position(player.location)), plugin.server.viewDistance)
-        val partitions = getClaimPartitionsInChunks(chunks)
-        if (partitions.isEmpty()) return
+        val chunks = getSurroundingChunks(Position(player.location).toChunk(), plugin.server.viewDistance)
+        val partitionsInChunks = ArrayList<Partition>()
+        for (chunk in chunks) {
+            partitionsInChunks.addAll(claimQuery.partitions.getByChunk(chunk))
+        }
+        if (partitionsInChunks.isEmpty()) return
 
         val noPermissionBorders: ArrayList<Position> = ArrayList()
         val noPermissionCorners: ArrayList<Position> = ArrayList()
@@ -554,14 +555,15 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
         val mainCorners: ArrayList<Position> = ArrayList()
         val borders: ArrayList<Position> = ArrayList()
         val corners: ArrayList<Position> = ArrayList()
-        for (partition in partitions) {
-            if (partition.claim.owner.uniqueId != player.uniqueId) {
+        for (partition in partitionsInChunks) {
+            val claim = claimQuery.claims.getById(partition.claimId) ?: continue
+            if (claim.owner.uniqueId != player.uniqueId) {
                 noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
                 noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
             }
 
-            if (partition.claim.isPartitionMain(partition)) {
+            if (claim.mainPartitionId == partition.id) {
                 mainCorners.addAll(partition.area.getCornerBlockPositions())
                 mainBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
@@ -610,23 +612,7 @@ class ClaimVisualiser(val plugin: SolidClaims) : Listener {
     }
 
     /**
-     * Determine what claim partitions are within [chunks]
-     */
-    private fun getClaimPartitionsInChunks(chunks: Array<Position>): Array<Partition> {
-        val claims: ArrayList<Partition> = ArrayList()
-
-        for (chunk in chunks) {
-            val parts = plugin.claimContainer.getClaimPartitionsAtChunk(chunk) ?: continue
-            for (part in parts) {
-                if (claims.contains(part)) continue
-                claims.add(part)
-            }
-        }
-        return claims.toTypedArray()
-    }
-
-    /**
-     * Get a square of chunks centering on [loc] with a size of [radius]
+     * Get a square of chunks centering on [position] with a size of [radius]
      */
     @Suppress("SameParameterValue")
     private fun getSurroundingChunks(position: Position, radius: Int): Array<Position> {

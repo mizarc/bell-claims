@@ -6,16 +6,28 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import xyz.mizarc.solidclaims.ClaimQuery
 import xyz.mizarc.solidclaims.SolidClaims
-import xyz.mizarc.solidclaims.claims.ClaimContainer
-import xyz.mizarc.solidclaims.claims.PlayerAccess
+import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
+import xyz.mizarc.solidclaims.claims.ClaimRepository
+import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
+import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
 /**
  * Handles the registration of defined events with their associated actions.
  * @property plugin A reference to the plugin instance
  * @property claimContainer A reference to the ClaimContainer instance
  */
-class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContainer) : Listener {
+class ClaimEventHandler(var plugin: SolidClaims,
+                        val claims: ClaimRepository,
+                        val partitions: PartitionRepository,
+                        val claimRuleRepository: ClaimRuleRepository,
+                        val claimPermissionRepository: ClaimPermissionRepository,
+                        val playerAccessRepository: PlayerAccessRepository,
+                        val playerStates: PlayerStateRepository,
+                        val claimQuery: ClaimQuery) : Listener {
     init {
         for (perm in ClaimPermission.values()) {
             for (e in perm.events) {
@@ -37,11 +49,11 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
     private fun handleClaimRule(listener: Listener, event: Event) {
         val rule = ClaimRule.getRuleForEvent(event::class.java) ?: return // Get the rule to deal with this event
         val executor = ClaimRule.getRuleExecutorForEvent(event::class.java, rule) ?: return  // Get the executor from the rule that deals with this event
-        val claims = executor.getClaims(event, plugin.claimContainer) // Get all claims that this event affects
+        val claims = executor.getClaims(event, claimQuery) // Get all claims that this event affects
         if (claims.isEmpty()) return // Check if any claims are affected by the event
         for (claim in claims) { // If they are, check if they do not allow this event
-            if (!claim.rules.contains(rule)) {
-                executor.handler.invoke(event, plugin.claimContainer) // If they do not, invoke the handler
+            if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
+                executor.handler.invoke(event, claimQuery) // If they do not, invoke the handler
                 return
             }
         }
@@ -64,10 +76,11 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         val location: Location = tempExecutor.location.invoke(event) ?: return // If no location was found, do nothing
 
         // Determine if this event happened inside a claim's boundaries
-        val claim = plugin.claimContainer.getClaimPartitionAtLocation(location)?.claim ?: return
+        val partition = claimQuery.getByLocation(location) ?: return
+        val claim = claims.getById(partition.claimId) ?: return
 
         // If player has override, do nothing.
-        val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
+        val playerState = playerStates.get(player)
         if (playerState!!.claimOverride) {
             return
         }
@@ -77,19 +90,14 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
             return
         }
 
-        var claimTrustee: PlayerAccess? = null // The relevant claim's trustee, if the player is trusted
-        for (p in claim.playerAccesses) {
-            if (p.id == player.uniqueId) {
-                claimTrustee = p
-                break
-            }
+        // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
+        var playerPermissions = playerAccessRepository.getByPlayerInClaim(claim, player)
+        if (playerPermissions.isEmpty()) {
+            playerPermissions = claimPermissionRepository.getByClaim(claim)
         }
 
-        // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
-        val claimPerms = claimTrustee?.claimPermissions ?: claim.defaultPermissions
-
         for (perm in eventPerms) {
-            if (claimPerms.contains(perm)) return
+            if (playerPermissions.contains(perm)) return
         }
 
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
@@ -98,7 +106,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         fun checkPermissionParents(p: ClaimPermission): Boolean {
             var pRef: ClaimPermission? = p
             while (pRef?.parent != null) {
-                if (claimPerms.contains(pRef.parent)) {
+                if (playerPermissions.contains(pRef.parent)) {
                     return true
                 }
                 pRef = pRef.parent
@@ -109,7 +117,7 @@ class ClaimEventHandler(var plugin: SolidClaims, var claimContainer: ClaimContai
         // Determine the highest priority permission for the event and sets the executor to the one found, if any
         for (e in eventPerms) {
             if (!checkPermissionParents(e)) { // First check if claimPerms does not contain the parent of this permission
-                if (!claimPerms.contains(e)) { // If not, check if it does not contain this permission
+                if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
                     for (ee in e.events) { // If so, determine the executor to use
                         if (ee.eventClass == event::class.java) {
                             executor = ee.handler
