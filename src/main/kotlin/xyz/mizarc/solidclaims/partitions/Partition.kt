@@ -1,7 +1,9 @@
 package xyz.mizarc.solidclaims.partitions
 
+import xyz.mizarc.solidclaims.exceptions.IncompleteBuilderException
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.absoluteValue
 
 /**
  * A partition of a claim. Claims can be made up of multiple partitions that defines the overall shape. A single
@@ -11,6 +13,8 @@ import kotlin.collections.ArrayList
  * @property area The area defining the space of this partition.
  */
 class Partition(var id: UUID, var claimId: UUID, var area: Area) {
+    constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition, builder.secondPosition))
+
     /**
      * Checks whether the specified position is within the bounds of this claim.
      * @param position The position to check for.
@@ -45,8 +49,12 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
      * @param areaQuery The area to check.
      * @return True if area is adjacent.
      */
-    fun isAreaAdjacent(areaQuery: Area): Boolean {
-        return area.isAreaAdjacent(areaQuery)
+    fun isPartitionAdjacent(partition: Partition): Boolean {
+        return area.isAreaAdjacent(partition.area)
+    }
+
+    fun isPartitionLinked(partition: Partition): Boolean {
+        return isPartitionAdjacent(partition) && partition.claimId == claimId
     }
 
     /**
@@ -65,5 +73,57 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
         }
 
         return chunks
+    }
+
+    class Builder(var firstPosition: Position) {
+        val id: UUID = UUID.randomUUID()
+        lateinit var secondPosition: Position
+        lateinit var claimId: UUID
+
+        fun build(): Partition {
+            if (!::secondPosition.isInitialized || !::claimId.isInitialized) {
+                throw IncompleteBuilderException("Builder requires a filled second position and claim id.")
+            }
+            return Partition(this)
+        }
+    }
+
+    class Resizer(val partition: Partition, val selectedCorner: Position) {
+        lateinit var newArea: Area
+
+        fun getExtraBlockCount(): Int {
+            return ((newArea.upperPosition.x - newArea.lowerPosition.x + 1) *
+                    (newArea.upperPosition.z - newArea.lowerPosition.z + 1)).absoluteValue -
+                    ((partition.area.upperPosition.x - partition.area.upperPosition.x + 1) *
+                    (partition.area.upperPosition.z - partition.area.upperPosition.z+ 1)).absoluteValue
+        }
+
+        fun setNewCorner(newPosition: Position) {
+            var firstPosition = if (selectedCorner.x == partition.area.lowerPosition.x) {
+                Position(newPosition.x, 0)
+            } else {
+                Position(partition.area.lowerPosition.x, 0)
+            }
+
+            var secondPosition = if (selectedCorner.x == partition.area.upperPosition.x) {
+                Position(newPosition.x, 0)
+            } else {
+                Position(partition.area.upperPosition.x, 0)
+            }
+
+            firstPosition = if (selectedCorner.z == partition.area.lowerPosition.z) {
+                Position(firstPosition.x, newPosition.z)
+            } else {
+                Position(firstPosition.x, partition.area.lowerPosition.z)
+            }
+
+            secondPosition = if (selectedCorner.z == partition.area.upperPosition.z) {
+                Position(secondPosition.x, newPosition.z)
+            } else {
+                Position(secondPosition.x, partition.area.upperPosition.z)
+            }
+
+            newArea = Area(firstPosition, secondPosition)
+        }
     }
 }

@@ -7,7 +7,7 @@ import kotlin.math.absoluteValue
  * @property lowerPosition The lower corner position.
  * @property upperPosition The upper corner position.
  */
-class Area(var lowerPosition: Position, var upperPosition: Position) {
+open class Area(open var lowerPosition: Position, open var upperPosition: Position) {
     init {
         sortPositionSizes()
     }
@@ -37,14 +37,10 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
      * @return True if in area.
      */
     fun isPositionInArea(position: Position): Boolean {
-        if (position.x >= lowerPosition.x
-            && position.x <= upperPosition.x
-            && position.z >= lowerPosition.z
-            && position.z <= upperPosition.z) {
-            return true
-        }
-
-        return false
+        return (position.x >= lowerPosition.x
+                && position.x <= upperPosition.x
+                && position.z >= lowerPosition.z
+                && position.z <= upperPosition.z)
     }
 
     /**
@@ -109,8 +105,8 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
     }
 
     fun getChunks(): ArrayList<Position> {
-        val firstChunk = ClaimContainer.getChunkLocation(lowerPosition)
-        val secondChunk = ClaimContainer.getChunkLocation(upperPosition)
+        val firstChunk = lowerPosition.toChunk()
+        val secondChunk = upperPosition.toChunk()
 
         val chunks: ArrayList<Position> = ArrayList()
         for (x in firstChunk.x..secondChunk.x) {
