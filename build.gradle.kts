@@ -30,9 +30,10 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    compileOnly("org.spigotmc:spigot-api:1.18-pre8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("co.aikar:acf-paper:0.5.0-SNAPSHOT")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
     implementation("com.github.MilkBowl:VaultAPI:1.7")
 }
@@ -47,6 +48,6 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
     kotlinOptions.javaParameters = true
 }
