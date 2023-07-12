@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.partitions
 
 import org.bukkit.Location
+import org.bukkit.World
 
 /**
  * Stores two integers to define a flat position in the world.
@@ -12,5 +13,9 @@ open class Position3D(open val x: Int, open val y: Int, open val z: Int) {
 
     fun toChunk(): Position {
         return Position(x shr 4, z shr 4)
+    }
+
+    fun toLocation(world: World): Location {
+        return Location(world, x.toDouble(), y.toDouble(), z.toDouble())
     }
 }
