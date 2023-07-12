@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.partitions
 
+import org.bukkit.Bukkit
 import kotlin.math.absoluteValue
 
 /**
@@ -7,7 +8,7 @@ import kotlin.math.absoluteValue
  * @property lowerPosition The lower corner position.
  * @property upperPosition The upper corner position.
  */
-open class Area(open var lowerPosition: Position, open var upperPosition: Position) {
+open class Area(var lowerPosition: Position, var upperPosition: Position) {
     init {
         sortPositionSizes()
     }
@@ -209,7 +210,7 @@ open class Area(open var lowerPosition: Position, open var upperPosition: Positi
     /**
      * Sorts the position sizes to ensure that the upper position contains values larger than the lower position.
      */
-    private fun sortPositionSizes() {
+    protected fun sortPositionSizes() {
         if (lowerPosition.x > upperPosition.x) {
             val newLowerPosition = Position(upperPosition.x, lowerPosition.z)
             val newUpperPosition = Position(lowerPosition.x, upperPosition.z)

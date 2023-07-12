@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.events
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -12,6 +13,7 @@ import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.partitions.*
+import java.util.*
 
 /**
  * Actions based on utilising the claim tool.
@@ -106,6 +108,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      */
     fun createClaim(player: Player, location: Location, partitionBuilder: Partition.Builder) {
         partitionBuilder.secondPosition = Position(location.x.toInt(), location.z.toInt())
+        partitionBuilder.claimId = UUID.randomUUID()
         val partition = partitionBuilder.build()
 
         val result = claimQuery.addPartition(player, partition, location.world!!.uid)

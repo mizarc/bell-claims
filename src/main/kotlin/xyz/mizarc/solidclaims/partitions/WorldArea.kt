@@ -2,7 +2,8 @@ package xyz.mizarc.solidclaims.partitions
 
 import java.util.*
 
-class WorldArea(override var lowerPosition: Position, override var upperPosition: Position, val worldId: UUID): Area(lowerPosition, upperPosition) {
+class WorldArea(lowerPosition: Position, upperPosition: Position, val worldId: UUID): Area(lowerPosition, upperPosition) {
+
     constructor(area: Area, worldId: UUID): this(area.lowerPosition, area.upperPosition, worldId)
 
     fun getWorldChunks(): ArrayList<WorldPosition> {
