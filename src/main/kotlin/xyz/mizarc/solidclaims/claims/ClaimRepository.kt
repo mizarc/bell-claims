@@ -49,9 +49,10 @@ class ClaimRepository(private val storage: DatabaseStorage) {
 
     fun getByPosition(position: Position3D): Claim? {
         for (claim in claims) {
-            Bukkit.getLogger().info("${claim.value.position.x}, ${claim.value.position.y} ${claim.value.position.z}")
+            if (claim.value.position == position) {
+                Bukkit.getLogger().info("Wah")
+            }
         }
-        Bukkit.getLogger().info("Wah ${position.x}, ${position.y}, ${position.z}")
 
         return claims.values.firstOrNull { it.position == position }
     }
@@ -61,8 +62,8 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         try {
             storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, creationTime, name, " +
                     "description, positionX, positionY, positionZ, icon) VALUES (?,?,?,?,?,?,?,?,?,?);",
-                claim.id, claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.position.x, claim.position.y,
-                claim.position.z, claim.icon.name)
+                claim.id, claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
+                claim.position.x, claim.position.y, claim.position.z, claim.icon.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
