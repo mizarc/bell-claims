@@ -96,7 +96,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         try {
             storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
                     "worldId TEXT NOT NULL, ownerId TEXT NOT NULL, creationTime TEXT NOT NULL, name TEXT, " +
-                    "description TEXT, positionX TEXT, positionY TEXT, positionZ TEXT, icon TEXT, NOT NULL);")
+                    "description TEXT, positionX TEXT, positionY TEXT, positionZ TEXT, icon TEXT);")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
