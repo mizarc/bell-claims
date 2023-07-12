@@ -3,6 +3,8 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
+import org.bukkit.entity.Player
+import xyz.mizarc.solidclaims.partitions.Position
 import java.time.Instant
 import java.util.*
 
@@ -18,15 +20,18 @@ import java.util.*
  * @property partitions The partitions linked to this claim.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
-            var name: String, var description: String, var mainPartitionId: UUID) {
+            var name: String, var description: String, var position: Position) {
 
     /**
      * Compiles a new claim based on the world and owning player.
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
-    constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant, mainPartitionId: UUID) : this(
-        UUID.randomUUID(), worldId, owner, creationTime, "", "", mainPartitionId)
+    constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant, position: Position) : this(
+        UUID.randomUUID(), worldId, owner, creationTime, "", "", position)
+
+    constructor(builder: Builder): this(UUID.randomUUID(), builder.world.uid, builder.player, Instant.now(),
+        builder.name, builder.description, builder.position)
 
     /**
      * Gets a reference to the world if available.
@@ -34,5 +39,10 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      */
     fun getWorld(): World? {
         return Bukkit.getWorld(worldId)
+    }
+
+    class Builder(val player: Player, val world: World, val position: Position) {
+        var name = ""
+        var description = ""
     }
 }
