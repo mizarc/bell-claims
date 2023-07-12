@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.claims
+package xyz.mizarc.solidclaims.partitions
 
 import org.bukkit.Location
 
@@ -7,6 +7,10 @@ import org.bukkit.Location
  * @property x The X-Axis position.
  * @property z The Z-Axis position.
  */
-data class Position(val x: Int, val z: Int) {
+open class Position(open val x: Int, open val z: Int) {
     constructor(location: Location): this(location.blockX, location.blockZ)
+
+    fun toChunk(): Position {
+        return Position(x shr 4, z shr 4)
+    }
 }

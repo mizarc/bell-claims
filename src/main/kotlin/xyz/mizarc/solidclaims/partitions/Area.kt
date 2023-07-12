@@ -1,5 +1,6 @@
-package xyz.mizarc.solidclaims.claims
+package xyz.mizarc.solidclaims.partitions
 
+import org.bukkit.Bukkit
 import kotlin.math.absoluteValue
 
 /**
@@ -7,7 +8,7 @@ import kotlin.math.absoluteValue
  * @property lowerPosition The lower corner position.
  * @property upperPosition The upper corner position.
  */
-class Area(var lowerPosition: Position, var upperPosition: Position) {
+open class Area(var lowerPosition: Position, var upperPosition: Position) {
     init {
         sortPositionSizes()
     }
@@ -37,14 +38,10 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
      * @return True if in area.
      */
     fun isPositionInArea(position: Position): Boolean {
-        if (position.x >= lowerPosition.x
-            && position.x <= upperPosition.x
-            && position.z >= lowerPosition.z
-            && position.z <= upperPosition.z) {
-            return true
-        }
-
-        return false
+        return (position.x >= lowerPosition.x
+                && position.x <= upperPosition.x
+                && position.z >= lowerPosition.z
+                && position.z <= upperPosition.z)
     }
 
     /**
@@ -106,6 +103,20 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
      */
     fun getBlockCount(): Int {
         return ((upperPosition.x - lowerPosition.x + 1) * (upperPosition.z - lowerPosition.z + 1)).absoluteValue
+    }
+
+    fun getChunks(): ArrayList<Position> {
+        val firstChunk = lowerPosition.toChunk()
+        val secondChunk = upperPosition.toChunk()
+
+        val chunks: ArrayList<Position> = ArrayList()
+        for (x in firstChunk.x..secondChunk.x) {
+            for (z in firstChunk.z..secondChunk.z) {
+                chunks.add(Position(x, z))
+            }
+        }
+
+        return chunks
     }
 
     /**
@@ -199,7 +210,7 @@ class Area(var lowerPosition: Position, var upperPosition: Position) {
     /**
      * Sorts the position sizes to ensure that the upper position contains values larger than the lower position.
      */
-    private fun sortPositionSizes() {
+    protected fun sortPositionSizes() {
         if (lowerPosition.x > upperPosition.x) {
             val newLowerPosition = Position(upperPosition.x, lowerPosition.z)
             val newUpperPosition = Position(lowerPosition.x, upperPosition.z)

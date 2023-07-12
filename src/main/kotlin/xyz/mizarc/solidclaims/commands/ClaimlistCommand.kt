@@ -2,31 +2,33 @@ package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
-import co.aikar.commands.bukkit.contexts.OnlinePlayer
-import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
-import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.ClaimQuery
 import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.claims.ClaimRepository
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
 class ClaimlistCommand : BaseCommand() {
     @Dependency
-    lateinit var plugin: SolidClaims
+    lateinit var claims: ClaimRepository
+    lateinit var partitions: PartitionRepository
+    lateinit var playerStates: PlayerStateRepository
+    protected lateinit var claimQuery: ClaimQuery
 
     @Default
     @CommandPermission("solidclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
-        val playerClaims: ArrayList<Claim>
-        if (otherPlayer != null) {
-            playerClaims = plugin.playerContainer.getPlayer(otherPlayer.uniqueId)?.claims!!
-        }
-        else {
-            playerClaims = plugin.playerContainer.getPlayer(player.uniqueId)?.claims!!
+        val playerClaims = if (otherPlayer != null) {
+            claims.getByPlayer(otherPlayer.uniqueId).toList()
+        } else {
+            claims.getByPlayer(player.uniqueId).toList()
         }
 
         // Check if player has claims
@@ -48,16 +50,15 @@ class ClaimlistCommand : BaseCommand() {
                 break
             }
 
-            val name: String = if (playerClaims[i].name != null) playerClaims[i].name!! else
-                playerClaims[i].id.toString().substring(0, 7)
+            val name: String = if (playerClaims[i].name.isEmpty()) playerClaims[i].id.toString().substring(0, 7)
+                else playerClaims[i].name
+            val blockCount = claimQuery.getBlockCount(playerClaims[i])
 
+            val mainPartition = partitions.getById(playerClaims[i].mainPartitionId)
             chatInfo.addLinked(name,
-                "<${(playerClaims[i].mainPartition!!.area.lowerPosition.x + 
-                        playerClaims[i].mainPartition!!.area.upperPosition.x) / 2}, " +
-                        "${(playerClaims[i].mainPartition!!.area.lowerPosition.z +
-                        playerClaims[i].mainPartition!!.area.upperPosition.z) / 2}> " +
-                        "(${playerClaims[i].getBlockCount()} Blocks)"
-                )
+                "<${(mainPartition!!.area.lowerPosition.x + mainPartition.area.upperPosition.x) / 2}, " +
+                        "${(mainPartition.area.lowerPosition.z + mainPartition.area.upperPosition.z) / 2}> " +
+                        "(${blockCount} Blocks)")
         }
         player.spigot().sendMessage(*chatInfo.createPaged(page,
             ceil((playerClaims.count() / 10.0)).toInt()))
