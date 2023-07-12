@@ -15,7 +15,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
 
 /**
- * A data structure that contains the type of an event [eventClass], the function to handle the result of the event [handler],
+ * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
  * a method to obtain the location of the event [location], and a method to obtain the player causing the event [source].
  */
 data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l: Listener, e: Event) -> Boolean, val location: (e: Event) -> Location?, val source: (e: Event) -> Player?)

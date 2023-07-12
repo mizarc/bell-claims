@@ -1,7 +1,7 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.partitions
 
-import xyz.mizarc.solidclaims.claims.Area
-import xyz.mizarc.solidclaims.claims.Position
+import xyz.mizarc.solidclaims.partitions.Area
+import xyz.mizarc.solidclaims.partitions.Position
 import java.util.*
 
 /**

@@ -17,35 +17,31 @@ class InfoCommand : ClaimCommand() {
     @Subcommand("info")
     @CommandPermission("solidclaims.command.info")
     fun onClaiminfo(player: Player) {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
+        val partition = getPartitionAtPlayer(player) ?: return
 
-        // Check if there is a claim at the player's location
-        if (claimPartition == null) {
-            player.sendMessage("§cThere is no claim partition at your current location.")
-            return
-        }
-
-        val claim = claimPartition.claim
-        val name = if (claim.name != null) claim.name else claim.id.toString().substring(0, 7)
+        val claim = claims.getById(partition.claimId)!!
+        val claimPartitions = partitions.getByClaim(claim.id)
+        val blockCount = claimQuery.getBlockCount(claim)
+        val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
 
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
             .withLocale(Locale.UK)
             .withZone(ZoneId.systemDefault())
         val chatInfo = ChatInfoBuilder("$name Summary")
-        if (claim.description != null) {
-            chatInfo.addParagraph("${claim.description}")
+        if (claim.description.isEmpty()) {
+            chatInfo.addParagraph(claim.description)
             chatInfo.addSpace()
         }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
-        chatInfo.addLinked("Partition Count", claim.partitions.count().toString())
-        chatInfo.addLinked("Block Count", claim.getBlockCount().toString())
-        chatInfo.addLinked("Trusted Users", claim.playerAccesses.count().toString())
+        chatInfo.addLinked("Partition Count", claimPartitions.count().toString())
+        chatInfo.addLinked("Block Count", blockCount.toString())
+        chatInfo.addLinked("Trusted Users", playerAccessRepository.getByClaim(claim)?.count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
-        chatInfo.addLinked("First Corner", claimPartition.area.lowerPosition.toString())
-        chatInfo.addLinked("Second Corner", claimPartition.area.upperPosition.toString())
-        chatInfo.addLinked("Block Count", claimPartition.area.getBlockCount().toString())
+        chatInfo.addLinked("First Corner", partition.area.lowerPosition.toString())
+        chatInfo.addLinked("Second Corner", partition.area.upperPosition.toString())
+        chatInfo.addLinked("Block Count", partition.area.getBlockCount().toString())
 
         player.spigot().sendMessage(*chatInfo.create())
     }

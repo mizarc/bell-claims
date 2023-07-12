@@ -7,13 +7,25 @@ import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
-import xyz.mizarc.solidclaims.SolidClaims
+import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
+import xyz.mizarc.solidclaims.claims.ClaimRepository
+import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
+import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
 import xyz.mizarc.solidclaims.getClaimTool
-
+import xyz.mizarc.solidclaims.partitions.Partition
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
 open class ClaimCommand : BaseCommand() {
     @Dependency
-    lateinit var plugin : SolidClaims
+    protected lateinit var claims : ClaimRepository
+    protected lateinit var partitions: PartitionRepository
+    protected lateinit var playerStates: PlayerStateRepository
+    protected lateinit var claimRuleRepository: ClaimRuleRepository
+    protected lateinit var claimPermissionRepository: ClaimPermissionRepository
+    protected lateinit var playerAccessRepository: PlayerAccessRepository
+    protected lateinit var claimQuery: ClaimQuery
 
     @CommandAlias("claim")
     @CommandPermission("solidclaims.command.claim")
@@ -34,12 +46,44 @@ open class ClaimCommand : BaseCommand() {
      * @return True if the item exists in the inventory
      */
     fun isItemInInventory(inventory: PlayerInventory) : Boolean {
-        for (item in inventory.contents) {
+        for (item in inventory.contents!!) {
             if (item == null) continue
             if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
                 return true
             }
         }
         return false
+    }
+
+    fun getPartitionAtPlayer(player: Player): Partition? {
+        val claimPartition = claimQuery.getByLocation(player.location)
+        if (claimPartition == null) {
+            player.sendMessage("§cThere is no claim partition at your current location.")
+            return null
+        }
+        return claimPartition
+    }
+
+    fun isPlayerHasClaimPermission(player: Player, partition: Partition): Boolean {
+        // Check if player state exists
+        val playerState = playerStates.get(player)
+        if (playerState == null) {
+            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
+            return false
+        }
+
+        // Check if player has override
+        if (playerState.claimOverride) {
+            return true
+        }
+
+        // Check if player owns claim
+        val claim = claims.getById(partition.claimId)!!
+        if (player.uniqueId != claim.owner.uniqueId) {
+            player.sendMessage("§cYou don't have permission to modify this claim.")
+            return false
+        }
+
+        return true
     }
 }

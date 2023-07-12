@@ -1,28 +1,38 @@
 package xyz.mizarc.solidclaims
 
 import co.aikar.commands.PaperCommandManager
+import net.milkbowl.vault.chat.Chat
+import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
-import xyz.mizarc.solidclaims.claims.ClaimContainer
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.commands.*
 import xyz.mizarc.solidclaims.events.*
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
+import xyz.mizarc.solidclaims.storage.DatabaseStorage
 
 class SolidClaims : JavaPlugin() {
-    internal lateinit var commandManager: PaperCommandManager
-    internal var configIO: ConfigIO = ConfigIO(this)
-    var database: DatabaseStorage = DatabaseStorage(this)
-    var claimContainer = ClaimContainer(database)
-    var playerContainer = PlayerContainer(database)
-    var claimVisualiser = ClaimVisualiser(this)
+    private lateinit var commandManager: PaperCommandManager
+    private lateinit var metadata: Chat
+    internal var config: Config = Config(this)
+    val storage = DatabaseStorage(this)
+    val claimRepository = ClaimRepository(storage)
+    val partitionRepository = PartitionRepository(storage)
+    val claimPermissionRepository = ClaimPermissionRepository(storage)
+    val claimRuleRepository = ClaimRuleRepository(storage)
+    val playerAccessRepository = PlayerAccessRepository(storage)
+    val playerStateRepository = PlayerStateRepository()
+    var claimQuery = ClaimQuery(claimRepository, partitionRepository, claimRuleRepository, playerStateRepository)
+    var claimVisualiser = ClaimVisualiser(this, claimQuery)
 
     override fun onEnable() {
-        database.openConnection()
-        loadDataFromDatabase()
-
+        logger.info(Chat::class.java.toString())
+        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)
+        metadata = serviceProvider.provider
         registerDependencies()
         registerCommands()
         registerEvents()
-
         logger.info("SolidClaims has been Enabled")
     }
 
@@ -31,8 +41,10 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun registerDependencies() {
-        commandManager.registerDependency(ClaimContainer::class.java, claimContainer)
-        commandManager.registerDependency(PlayerContainer::class.java, playerContainer)
+        commandManager.registerDependency(ClaimRepository::class.java, claimRepository)
+        commandManager.registerDependency(PartitionRepository::class.java, partitionRepository)
+        commandManager.registerDependency(PlayerStateRepository::class.java, playerStateRepository)
+        commandManager.registerDependency(ClaimVisualiser::class.java, claimVisualiser)
     }
 
     private fun registerCommands() {
@@ -53,31 +65,14 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun registerEvents() {
-        server.pluginManager.registerEvents(ClaimEventHandler(this, claimContainer), this)
-        server.pluginManager.registerEvents(ClaimToolListener(claimContainer, playerContainer, claimVisualiser), this)
-        server.pluginManager.registerEvents(ClaimVisualiser(this), this)
-        server.pluginManager.registerEvents(PlayerRegistrationListener(playerContainer), this)
+        server.pluginManager.registerEvents(ClaimEventHandler(this, claimRepository, partitionRepository,
+            claimRuleRepository, claimPermissionRepository, playerAccessRepository, playerStateRepository, claimQuery),
+            this)
+        server.pluginManager.registerEvents(ClaimToolListener(claimRepository, partitionRepository,
+            playerStateRepository, claimQuery, claimVisualiser), this)
+        server.pluginManager.registerEvents(ClaimVisualiser(this, claimQuery), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata,
+            playerStateRepository), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
-    }
-
-    private fun loadDataFromDatabase() {
-        val playerStates = database.getAllPlayerStates()
-        if (playerStates != null) {
-
-            // Add players
-            for (playerState in playerStates) {
-                playerContainer.addPlayer(playerState)
-
-                // Add claims
-                for (claim in playerState.claims) {
-                    claimContainer.addClaim(claim)
-
-                    // Add partitions
-                    for (partition in claim.partitions) {
-                        claimContainer.addClaimPartition(partition)
-                    }
-                }
-            }
-        }
     }
 }

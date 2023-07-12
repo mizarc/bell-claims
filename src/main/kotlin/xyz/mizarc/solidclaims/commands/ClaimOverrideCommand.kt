@@ -6,17 +6,17 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.PlayerContainer
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
 @CommandAlias("claimoverride")
 class ClaimOverrideCommand: BaseCommand() {
     @Dependency
-    lateinit var playerContainer: PlayerContainer
+    lateinit var players: PlayerStateRepository
 
     @Default
     @CommandPermission("solidclaims.command.claimoverride")
     fun onClaimOverride(player: Player) {
-        val playerState = playerContainer.getPlayer(player.uniqueId)
+        val playerState = players.get(player)
         if (playerState == null) {
             player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return

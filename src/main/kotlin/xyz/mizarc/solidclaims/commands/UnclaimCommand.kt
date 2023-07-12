@@ -3,44 +3,21 @@ package xyz.mizarc.solidclaims.commands
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.SolidClaims
-import xyz.mizarc.solidclaims.claims.Partition
+import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.claims.ClaimRepository
+import xyz.mizarc.solidclaims.events.ClaimVisualiser
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
 
 @CommandAlias("unclaim")
 class UnclaimCommand : BaseCommand() {
     @Dependency
-    lateinit var plugin : SolidClaims
-
-    @PreCommand
-    fun preCommand(player: Player): Boolean {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)
-
-        // Check if there is a claim at the player's location
-        if (claimPartition == null) {
-            player.sendMessage("§cThere is no claim partition at your current location.")
-            return true
-        }
-
-        // Check if player state exists
-        val playerState = plugin.playerContainer.getPlayer(player.uniqueId)
-        if (playerState == null) {
-            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
-            return true
-        }
-
-        if (playerState.claimOverride) {
-            return false
-        }
-
-        // Check if player owns claim
-        if (player.uniqueId != claimPartition.claim.owner.uniqueId) {
-            player.sendMessage("§cYou don't have permission to modify this claim.")
-            return true
-        }
-
-        return false
-    }
+    lateinit var claims : ClaimRepository
+    lateinit var partitions: PartitionRepository
+    lateinit var playerStates: PlayerStateRepository
+    lateinit var claimVisualiser: ClaimVisualiser
+    protected lateinit var claimQuery: ClaimQuery
 
     @Default
     @CommandPermission("solidclaims.command.unclaim")
@@ -51,29 +28,23 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("partition")
     @CommandPermission("solidclaims.command.unclaim.partition")
     fun onPartition(player: Player) {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
+        val partition = claimQuery.getByPlayer(player) ?: return
 
-        // Check if claim resize would result in any claim islands
-        plugin.claimContainer.removeClaimPartition(claimPartition)
-        if (claimPartition.claim.isAnyDisconnectedPartitions()) {
-            plugin.claimContainer.addClaimPartition(claimPartition)
-            return player.sendMessage(
-                "§cThat resize would result in an unconnected partition island."
-            )
+        // Remove claim and send alert if not executed
+        if (!claimQuery.removePartition(partition)) {
+            partitions.add(partition)
+            return player.sendMessage("§cThat resize would result in an unconnected partition island.")
         }
 
-        // Remove claim partition
-        plugin.claimContainer.addClaimPartition(claimPartition)
-        plugin.claimContainer.removePersistentClaimPartition(claimPartition)
-        plugin.claimVisualiser.oldPartitions.add(claimPartition)
-        plugin.claimVisualiser.unrenderOldClaims(player)
-        plugin.claimVisualiser.oldPartitions.clear()
-
+        // Update visualiser
+        claimVisualiser.oldPartitions.add(partition)
+        claimVisualiser.unrenderOldClaims(player)
+        claimVisualiser.oldPartitions.clear()
 
         // Remove claim if there are no more partitions attached to it
-        if (claimPartition.claim.partitions.isEmpty()) {
-            plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
-            plugin.claimContainer.removePersistentClaim(claimPartition.claim)
+        if (partitions.getByClaim(partition.claimId).isEmpty()) {
+            val claim = claims.getById(partition.claimId) ?: return
+            claims.remove(claim)
             player.sendMessage("§aThe claim has been removed.")
             return
         }
@@ -84,25 +55,19 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("connected")
     @CommandPermission("solidclaims.command.unclaim.connected")
     fun onConnected(player: Player) {
-        val claimPartition = plugin.claimContainer.getClaimPartitionAtLocation(player.location)!!
+        val partition = claimQuery.getByPlayer(player) ?: return
+        val claim = claims.getById(partition.claimId) ?: return
+        val claimPartitions = partitions.getByClaim(partition.claimId)
 
-        // Remove claim and all partitions
-        val claim = claimPartition.claim
-        val partitionsToRemove = ArrayList<Partition>()
-        for (partition in claim.partitions) {
-            partitionsToRemove.add(partition)
-
-        }
-        for (partition in partitionsToRemove) {
-            plugin.claimContainer.removePersistentClaimPartition(partition)
+        for (claimPartition in claimPartitions) {
+            partitions.remove(partition)
         }
 
-        plugin.playerContainer.getPlayer(player.uniqueId)?.claims?.remove(claimPartition.claim)
-        plugin.claimContainer.removePersistentClaim(claim)
-        plugin.claimVisualiser.oldPartitions.addAll(partitionsToRemove)
-        plugin.claimVisualiser.unrenderOldClaims(player)
-        plugin.claimVisualiser.oldPartitions.clear()
-        plugin.claimVisualiser.updateVisualisation(player, true)
+        claims.remove(claim)
+        claimVisualiser.oldPartitions.addAll(claimPartitions)
+        claimVisualiser.unrenderOldClaims(player)
+        claimVisualiser.oldPartitions.clear()
+        claimVisualiser.updateVisualisation(player, true)
 
         player.sendMessage("§aThe claim has been removed.")
     }
