@@ -20,7 +20,7 @@ class InfoCommand : ClaimCommand() {
         val partition = getPartitionAtPlayer(player) ?: return
 
         val claim = claims.getById(partition.claimId)!!
-        val claimPartitions = partitions.getByClaim(claim.id)
+        val claimPartitions = partitions.getByClaim(claim)
         val blockCount = claimQuery.getBlockCount(claim)
         val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
 

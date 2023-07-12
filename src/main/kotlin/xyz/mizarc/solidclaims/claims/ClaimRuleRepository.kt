@@ -17,8 +17,8 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         return rules[claim.id]?.contains(rule) ?: false
     }
 
-    fun getByClaim(claim: Claim): MutableSet<ClaimRule>? {
-        return rules[claim.id]
+    fun getByClaim(claim: Claim): MutableSet<ClaimRule> {
+        return rules[claim.id] ?: mutableSetOf()
     }
 
     fun add(claim: Claim, rule: ClaimRule) {

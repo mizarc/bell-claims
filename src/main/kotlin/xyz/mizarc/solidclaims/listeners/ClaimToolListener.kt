@@ -119,10 +119,8 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
             ClaimQuery.PartitionCreationResult.InsufficientClaims -> TODO()
             ClaimQuery.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
                 "§6${partition.area.getBlockCount() - claimQuery.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
-            ClaimQuery.PartitionCreationResult.SuccessfulExisting ->
+            ClaimQuery.PartitionCreationResult.Successful ->
                 player.sendMessage("§aNew claim partition has been added to §6${claims.getById(partition.claimId)!!.name}.")
-            ClaimQuery.PartitionCreationResult.SuccessfulNew ->
-                player.sendMessage("§aNew claim has been created.")
         }
 
         // Update builders list and visualisation

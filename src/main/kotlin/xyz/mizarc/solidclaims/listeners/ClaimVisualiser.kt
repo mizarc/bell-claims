@@ -557,13 +557,14 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
         val corners: ArrayList<Position> = ArrayList()
         for (partition in partitionsInChunks) {
             val claim = claimQuery.claims.getById(partition.claimId) ?: continue
+            val mainPartition = claimQuery.getMainPartition(claim)
             if (claim.owner.uniqueId != player.uniqueId) {
                 noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
                 noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
             }
 
-            if (claim.mainPartitionId == partition.id) {
+            if (mainPartition.id == partition.id) {
                 mainCorners.addAll(partition.area.getCornerBlockPositions())
                 mainBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
