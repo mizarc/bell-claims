@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
-import xyz.mizarc.solidclaims.events.ClaimRule
+import xyz.mizarc.solidclaims.listeners.ClaimRule
 import xyz.mizarc.solidclaims.partitions.*
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import java.time.Instant

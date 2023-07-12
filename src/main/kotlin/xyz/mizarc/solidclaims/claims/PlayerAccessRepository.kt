@@ -1,9 +1,8 @@
 package xyz.mizarc.solidclaims.claims
 
-import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 

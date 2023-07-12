@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
 import com.google.common.math.IntMath.sqrt
 import org.bukkit.Location

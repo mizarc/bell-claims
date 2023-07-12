@@ -3,13 +3,8 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
-import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.events.ClaimPermission
-import xyz.mizarc.solidclaims.events.ClaimRule
 import java.time.Instant
-import xyz.mizarc.solidclaims.partitions.Partition
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * A claim object holds the data for the world its in and the players associated with it. It relies on partitions to

@@ -1,6 +1,6 @@
 package xyz.mizarc.solidclaims.claims
 
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import java.util.*
 
 /**
