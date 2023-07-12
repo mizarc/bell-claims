@@ -4,7 +4,7 @@ import co.aikar.commands.annotation.*
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 
 @CommandAlias("claim")
 class TrustCommand : ClaimCommand() {

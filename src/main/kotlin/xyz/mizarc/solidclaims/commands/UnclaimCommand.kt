@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ClaimQuery
 import xyz.mizarc.solidclaims.claims.ClaimRepository
-import xyz.mizarc.solidclaims.events.ClaimVisualiser
+import xyz.mizarc.solidclaims.listeners.ClaimVisualiser
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 

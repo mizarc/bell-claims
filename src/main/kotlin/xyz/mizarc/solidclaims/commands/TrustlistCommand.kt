@@ -7,7 +7,6 @@ import co.aikar.commands.annotation.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
-import xyz.mizarc.solidclaims.events.ClaimPermission
 import java.util.*
 import kotlin.math.ceil
 

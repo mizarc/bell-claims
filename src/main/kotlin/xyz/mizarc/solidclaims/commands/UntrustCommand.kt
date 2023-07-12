@@ -3,7 +3,7 @@ package xyz.mizarc.solidclaims.commands
 import co.aikar.commands.annotation.*
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 
 @CommandAlias("claim")
 class UntrustCommand : ClaimCommand() {

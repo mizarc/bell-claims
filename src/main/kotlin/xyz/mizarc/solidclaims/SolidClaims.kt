@@ -6,7 +6,7 @@ import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.commands.*
-import xyz.mizarc.solidclaims.events.*
+import xyz.mizarc.solidclaims.listeners.*
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.storage.DatabaseStorage

@@ -1,6 +1,5 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
