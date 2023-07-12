@@ -62,7 +62,8 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         try {
             storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, creationTime, " +
                     "positionX, positionY, positionZ, icon) VALUES (?,?,?,?,?,?,?,?);", claim.id, claim.worldId,
-                claim.owner, claim.creationTime, claim.position.x, claim.position.y, claim.position.z, claim.icon.name)
+                claim.owner.uniqueId, claim.creationTime, claim.position.x, claim.position.y, claim.position.z,
+                claim.icon.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -73,7 +74,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         claims[claim.id] = claim
         try {
             storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, creationTime=?, " +
-                    "positionX=?, positionY=?, positionZ=? icon=? WHERE id=?;", claim.worldId, claim.owner,
+                    "positionX=?, positionY=?, positionZ=? icon=? WHERE id=?;", claim.worldId, claim.owner.uniqueId,
                 claim.creationTime, claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
