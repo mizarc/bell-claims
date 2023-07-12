@@ -46,11 +46,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
     }
 
     fun getByPlayer(player: OfflinePlayer): Set<Claim> {
-        val foundClaims: MutableSet<Claim> = mutableSetOf()
-        for (claim in claims) {
-            foundClaims.add(claim.value)
-        }
-        return foundClaims
+        return claims.values.filter { it.owner.uniqueId == player.uniqueId }.toSet()
     }
 
     fun getByPosition(position: Position3D): Claim? {
