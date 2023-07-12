@@ -58,7 +58,6 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(RenameCommand())
         commandManager.registerCommand(DescriptionCommand())
-        commandManager.registerCommand(SetmainCommand())
         commandManager.registerCommand(AddRuleCommand())
         commandManager.registerCommand(RemoveRuleCommand())
         commandManager.registerCommand(ClaimOverrideCommand())
