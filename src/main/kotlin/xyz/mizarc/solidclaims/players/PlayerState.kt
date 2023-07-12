@@ -16,11 +16,11 @@ class PlayerState(val player: OfflinePlayer, val config: Config, val metadata: C
         return Bukkit.getPlayer(player.uniqueId)
     }
 
-    fun getClaimLimit(): Int {
-        return metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_limit", -1)
-    }
+    fun getClaimLimit(): Int =
+        metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_limit", config.claimLimit)
+            .takeIf { it > -1 } ?: -1
 
-    fun getClaimBlockLimit(): Int {
-        return metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_block_limit", -1)
-    }
+    fun getClaimBlockLimit(): Int =
+        metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_block_limit", config.claimBlockLimit)
+            .takeIf { it > -1 } ?: -1
 }
