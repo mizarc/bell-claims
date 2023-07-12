@@ -3,13 +3,11 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
-import xyz.mizarc.solidclaims.partitions.Position
 import xyz.mizarc.solidclaims.partitions.Position3D
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
 import java.sql.SQLException
 import java.time.Instant
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ClaimRepository(private val storage: DatabaseStorage) {
     val claims: MutableMap<UUID, Claim> = mutableMapOf()
@@ -50,16 +48,21 @@ class ClaimRepository(private val storage: DatabaseStorage) {
     }
 
     fun getByPosition(position: Position3D): Claim? {
+        for (claim in claims) {
+            Bukkit.getLogger().info("${claim.value.position.x}, ${claim.value.position.y} ${claim.value.position.z}")
+        }
+        Bukkit.getLogger().info("Wah ${position.x}, ${position.y}, ${position.z}")
+
         return claims.values.firstOrNull { it.position == position }
     }
 
     fun add(claim: Claim) {
         claims[claim.id] = claim
         try {
-            storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, creationTime, " +
-                    "positionX, positionY, positionZ, icon) VALUES (?,?,?,?,?,?,?,?);", claim.id, claim.worldId,
-                claim.owner.uniqueId, claim.creationTime, claim.position.x, claim.position.y, claim.position.z,
-                claim.icon.name)
+            storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, creationTime, name, " +
+                    "description, positionX, positionY, positionZ, icon) VALUES (?,?,?,?,?,?,?,?,?,?);",
+                claim.id, claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.position.x, claim.position.y,
+                claim.position.z, claim.icon.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -69,9 +72,10 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         claims.remove(claim.id)
         claims[claim.id] = claim
         try {
-            storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, creationTime=?, " +
-                    "positionX=?, positionY=?, positionZ=? icon=? WHERE id=?;", claim.worldId, claim.owner.uniqueId,
-                claim.creationTime, claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
+            storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, creationTime=?, name=?, " +
+                    "description=?, positionX=?, positionY=?, positionZ=? icon=? WHERE id=?;",
+                claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
+                claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
