@@ -42,8 +42,8 @@ class UnclaimCommand : BaseCommand() {
         claimVisualiser.oldPartitions.clear()
 
         // Remove claim if there are no more partitions attached to it
-        if (partitions.getByClaim(partition.claimId).isEmpty()) {
-            val claim = claims.getById(partition.claimId) ?: return
+        val claim = claims.getById(partition.claimId) ?: return
+        if (partitions.getByClaim(claim).isEmpty()) {
             claims.remove(claim)
             player.sendMessage("§aThe claim has been removed.")
             return
@@ -57,7 +57,7 @@ class UnclaimCommand : BaseCommand() {
     fun onConnected(player: Player) {
         val partition = claimQuery.getByPlayer(player) ?: return
         val claim = claims.getById(partition.claimId) ?: return
-        val claimPartitions = partitions.getByClaim(partition.claimId)
+        val claimPartitions = partitions.getByClaim(claim)
 
         for (claimPartition in claimPartitions) {
             partitions.remove(partition)

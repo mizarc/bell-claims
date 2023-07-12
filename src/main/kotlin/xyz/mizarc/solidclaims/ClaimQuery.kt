@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
+import org.bukkit.block.data.type.Bed.Part
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimRepository
@@ -21,8 +22,8 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
         TooSmall,
         InsufficientClaims,
         InsufficientBlocks,
-        SuccessfulExisting,
-        SuccessfulNew
+        NotConnected,
+        Successful
     }
 
     enum class PartitionResizeResult {
@@ -61,7 +62,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     }
 
     fun getBlockCount(claim: Claim): Int {
-        val claimPartitions = partitions.getByClaim(claim.id)
+        val claimPartitions = partitions.getByClaim(claim)
         var count = 0
         for (partition in claimPartitions) {
             count += partition.area.getBlockCount()
@@ -112,6 +113,11 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
         return adjacentPartitions
     }
 
+    fun getMainPartition(claim: Claim): Partition {
+        val claimPartitions = partitions.getByClaim(claim)
+        return partitions.getByPosition(Position(claim.position)).intersect(claimPartitions.toSet()).first()
+    }
+
     fun getLinked(partition: Partition, testPartitions: ArrayList<Partition>): ArrayList<Partition> {
         val linkedPartitions = ArrayList<Partition>()
         for (existingPartition in testPartitions) {
@@ -124,7 +130,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     fun getUsedClaimCount(player: OfflinePlayer): Int {
         var count = 0
-        val playerClaims = claims.getByPlayer(player.uniqueId)
+        val playerClaims = claims.getByPlayer(player)
         for (claim in playerClaims) {
             count += 1
         }
@@ -133,7 +139,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     fun getUsedClaimBlockCount(player: OfflinePlayer): Int {
         var count = 0
-        val playerClaims = claims.getByPlayer(player.uniqueId)
+        val playerClaims = claims.getByPlayer(player)
         for (claim in playerClaims) {
             count += getBlockCount(claim)
         }
@@ -181,16 +187,11 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
             if (player.uniqueId == claim.owner.uniqueId) {
                 partition.claimId = claim.id
                 partitions.add(partition)
-                return PartitionCreationResult.SuccessfulExisting
+                return PartitionCreationResult.Successful
             }
         }
 
-        // Create new claim and add this partition
-        val claim = Claim(worldId, Bukkit.getOfflinePlayer(player.uniqueId), Instant.now(), partition.id)
-        claim.mainPartitionId = partition.id
-        claims.add(claim)
-        partitions.add(partition)
-        return PartitionCreationResult.SuccessfulNew
+        return PartitionCreationResult.NotConnected
     }
 
     /**
@@ -240,12 +241,14 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     private fun isResizeResultInAnyDisconnected(partition: Partition, newArea: WorldArea): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
-        val claimPartitions = partitions.getByClaim(partition.claimId)
+        val claimPartitions = partitions.getByClaim(claim)
+        val mainPartition = partitions.getByPosition(Position(claim.position))
+            .intersect(claimPartitions.toSet()).first()
         val newPartition = Partition(partition.id, partition.claimId, newArea)
         claimPartitions.remove(partition)
         claimPartitions.add(newPartition)
         for (claimPartition in claimPartitions) {
-            if (partition.id == claim.mainPartitionId) {
+            if (partition.id == mainPartition.id) {
                 continue
             }
             if (!isPartitionDisconnected(partition, claimPartitions)) {
@@ -257,10 +260,12 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     private fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
-        val claimPartitions = partitions.getByClaim(partition.claimId)
+        val claimPartitions = partitions.getByClaim(claim)
+        val mainPartition = partitions.getByPosition(Position(claim.position))
+            .intersect(claimPartitions.toSet()).first()
         claimPartitions.remove(partition)
         for (claimPartition in claimPartitions) {
-            if (partition.id == claim.mainPartitionId) {
+            if (partition.id == mainPartition.id) {
                 continue
             }
             if (!isPartitionDisconnected(partition, claimPartitions)) {
@@ -272,7 +277,9 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     private fun isPartitionDisconnected(partition: Partition, testPartitions: ArrayList<Partition>): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
-        val mainPartition = partitions.getById(claim.mainPartitionId) ?: return false
+        val claimPartitions = partitions.getByClaim(claim)
+        val mainPartition = partitions.getByPosition(Position(claim.position))
+            .intersect(claimPartitions.toSet()).first()
         val traversedPartitions = ArrayList<Partition>()
         val partitionQueries = ArrayList<Partition>()
         partitionQueries.add(partition)
@@ -293,7 +300,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
                 partitionsToRemove.add(partitionQuery)
                 traversedPartitions.add(partitionQuery)
             }
-            partitionQueries.removeAll(partitionsToRemove)
+            partitionQueries.removeAll(partitionsToRemove.toSet())
             partitionQueries.addAll(partitionsToAdd)
             partitionsToAdd.clear()
         }
