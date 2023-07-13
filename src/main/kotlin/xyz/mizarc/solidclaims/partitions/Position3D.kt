@@ -8,7 +8,7 @@ import org.bukkit.World
  * @property x The X-Axis position.
  * @property z The Z-Axis position.
  */
-open class Position3D(open val x: Int, open val y: Int, open val z: Int) {
+data class Position3D(val x: Int, val y: Int, val z: Int) {
     constructor(location: Location): this(location.blockX, location.blockY, location.blockZ)
 
     fun toChunk(): Position {
