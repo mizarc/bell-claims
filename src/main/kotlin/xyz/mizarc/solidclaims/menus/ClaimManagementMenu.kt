@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims.menus
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
+import com.github.stefvanschie.inventoryframework.gui.type.FurnaceGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -19,6 +20,7 @@ import xyz.mizarc.solidclaims.utils.enchantment
 import xyz.mizarc.solidclaims.utils.flag
 import xyz.mizarc.solidclaims.utils.lore
 import xyz.mizarc.solidclaims.utils.name
+import kotlin.concurrent.thread
 
 class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
@@ -113,14 +115,14 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val iconEditorItem = ItemStack(claim.icon)
             .name("Edit Claim Icon")
             .lore("Changes the icon that shows up on the claim list")
-        val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimIconMenu(claim) }
         pane.addItem(guiIconEditorItem, 2, 0)
 
         // Add renaming icon
         val renamingItem = ItemStack(Material.NAME_TAG)
             .name("Rename Claim")
             .lore("Renames this claim")
-        val guiRenamingItem = GuiItem(renamingItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiRenamingItem = GuiItem(renamingItem) { openClaimRenamingMenu(claim) }
         pane.addItem(guiRenamingItem, 3, 0)
 
         // Add player trusts
@@ -154,5 +156,110 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             }
         }
         player.inventory.addItem(getClaimTool())
+    }
+
+    fun openClaimIconMenu(claim: Claim) {
+        val gui = FurnaceGui("Set Warp Icon")
+        val fuelPane = StaticPane(0, 0, 1, 1)
+
+        // Add info paper menu item
+        val paperItem = ItemStack(Material.PAPER)
+            .name("Place an item in the top slot to set it as the icon")
+            .lore("Don't worry, you'll keep it")
+        val guiIconEditorItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+        fuelPane.addItem(guiIconEditorItem, 0, 0)
+        gui.fuelComponent.addPane(fuelPane)
+
+        // Allow item to be placed in slot
+        val inputPane = StaticPane(0, 0, 1, 1)
+        inputPane.setOnClick { guiEvent ->
+            guiEvent.isCancelled = true
+            val temp = guiEvent.cursor
+            val cursor = guiEvent.cursor?.type ?: Material.AIR
+
+            if (cursor == Material.AIR) {
+                inputPane.removeItem(0, 0)
+                gui.update()
+                return@setOnClick
+            }
+
+            inputPane.addItem(GuiItem(ItemStack(cursor)), 0, 0)
+            gui.update()
+            thread(start = true) {
+                Thread.sleep(1)
+                claimBuilder.player.setItemOnCursor(temp)
+            }
+        }
+        gui.ingredientComponent.addPane(inputPane)
+
+        // Add confirm menu item
+        val outputPane = StaticPane(0, 0, 1, 1)
+        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
+            guiEvent.isCancelled = true
+            val newIcon = gui.ingredientComponent.getItem(0, 0)
+
+            // Set icon if item in slot
+            if (newIcon != null) {
+                claim.icon = newIcon.type
+                claimRepository.update(claim)
+                openClaimEditMenu(claim)
+            }
+
+            // Go back to edit menu if no item in slot
+            openClaimEditMenu(claim)
+        }
+        outputPane.addItem(confirmGuiItem, 0, 0)
+        gui.outputComponent.addPane(outputPane)
+        gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+    }
+
+    fun openClaimRenamingMenu(claim: Claim, existingName: Boolean = false) {
+        // Create homes menu
+        val gui = AnvilGui("Renaming Claim")
+
+        // Add lodestone menu item
+        val firstPane = StaticPane(0, 0, 1, 1)
+        val lodestoneItem = ItemStack(Material.BELL)
+            .name(claim.name)
+            .lore("${claimBuilder.position.x}, ${claimBuilder.position.y}, ${claimBuilder.position.z}")
+        val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
+        firstPane.addItem(guiItem, 0, 0)
+        gui.firstItemComponent.addPane(firstPane)
+
+        // Add message menu item if name is already taken
+        if (existingName) {
+            val secondPane = StaticPane(0, 0, 1, 1)
+            val paperItem = ItemStack(Material.PAPER)
+                .name("That name has already been taken")
+            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+            secondPane.addItem(guiPaperItem, 0, 0)
+            gui.secondItemComponent.addPane(secondPane)
+        }
+
+        // Add confirm menu item.
+        val thirdPane = StaticPane(0, 0, 1, 1)
+        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
+            // Go back to edit menu if the name hasn't changed
+            if (gui.renameText == claim.name) {
+                openClaimEditMenu(claim)
+                return@GuiItem
+            }
+
+            // Stay on menu if the name is already taken
+            if (claimRepository.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+                openClaimRenamingMenu(claim, existingName = true)
+                return@GuiItem
+            }
+
+            claim.name = gui.renameText
+            claimRepository.update(claim)
+            openClaimEditMenu(claim)
+            guiEvent.isCancelled = true
+        }
+        thirdPane.addItem(confirmGuiItem, 0, 0)
+        gui.resultComponent.addPane(thirdPane)
+        gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
     }
 }
