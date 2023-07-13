@@ -48,12 +48,6 @@ class ClaimRepository(private val storage: DatabaseStorage) {
     }
 
     fun getByPosition(position: Position3D): Claim? {
-        for (claim in claims) {
-            if (claim.value.position == position) {
-                Bukkit.getLogger().info("Wah")
-            }
-        }
-
         return claims.values.firstOrNull { it.position == position }
     }
 
