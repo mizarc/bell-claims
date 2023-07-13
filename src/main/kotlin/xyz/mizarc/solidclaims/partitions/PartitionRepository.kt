@@ -86,8 +86,8 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
     override fun add(entity: Partition) {
         addToMemory(entity)
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPartitions (claimId, lowerPositionX, " +
-                    "lowerPositionZ, upperPositionX, upperPositionZ, main) VALUES (?,?,?,?,?,?);",
+            storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, lowerPositionX, " +
+                    "lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
                 entity.claimId, entity.area.lowerPosition.x, entity.area.lowerPosition.z, entity.area.upperPosition.x,
                 entity.area.upperPosition.z)
             return
@@ -100,9 +100,10 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         removeFromMemory(entity)
         addToMemory(entity)
         try {
-            storage.connection.executeUpdate("UPDATE claimPartitions SET lowerPositionX=?, lowerPositionZ=?, " +
-                    "upperPositionX=?, upperPositionZ=? WHERE id=?;", entity.area.lowerPosition.x,
-                entity.area.lowerPosition.z, entity.area.upperPosition.x, entity.area.upperPosition.z, entity.id)
+            storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
+                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", entity.id,
+                entity.area.lowerPosition.x,  entity.area.lowerPosition.z, entity.area.upperPosition.x,
+                entity.area.upperPosition.z, entity.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
