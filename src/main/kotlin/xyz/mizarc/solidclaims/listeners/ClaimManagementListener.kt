@@ -13,9 +13,11 @@ import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
 import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
 import xyz.mizarc.solidclaims.menus.ClaimManagementMenu
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.partitions.Position3D
 
 class ClaimManagementListener(private val claimRepository: ClaimRepository,
+                              private val partitionRepository: PartitionRepository,
                               private val claimRuleRepository: ClaimRuleRepository,
                               private val playerAccessRepository: PlayerAccessRepository): Listener {
 
@@ -27,7 +29,7 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
         if (event.player.isSneaking) {
             val claimBuilder = Claim.Builder(event.player,
                 event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
-            ClaimManagementMenu(claimRepository, playerAccessRepository, claimRuleRepository, claimBuilder)
+            ClaimManagementMenu(claimRepository, partitionRepository, playerAccessRepository, claimRuleRepository, claimBuilder)
                 .openClaimManagementMenu()
         }
     }
