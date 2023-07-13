@@ -16,6 +16,10 @@ import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
 import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
 import xyz.mizarc.solidclaims.getClaimTool
+import xyz.mizarc.solidclaims.partitions.Area
+import xyz.mizarc.solidclaims.partitions.Partition
+import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.partitions.Position
 import xyz.mizarc.solidclaims.utils.enchantment
 import xyz.mizarc.solidclaims.utils.flag
 import xyz.mizarc.solidclaims.utils.lore
@@ -23,6 +27,7 @@ import xyz.mizarc.solidclaims.utils.name
 import kotlin.concurrent.thread
 
 class ClaimManagementMenu(private val claimRepository: ClaimRepository,
+                          private val partitionRepository: PartitionRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
                           private val claimRuleRepository: ClaimRuleRepository,
                           private val claimBuilder: Claim.Builder) {
@@ -86,6 +91,10 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             val claim = claimBuilder.build()
             Bukkit.getLogger().info("$claim")
             claimRepository.add(claim)
+            val partition = Partition(claim.id, Area(
+                Position(claim.position.x - 5, claim.position.z - 5),
+                Position(claim.position.x + 5, claim.position.z + 5)))
+            partitionRepository.add(partition)
             openClaimEditMenu(claim)
             guiEvent.isCancelled = true
         }
