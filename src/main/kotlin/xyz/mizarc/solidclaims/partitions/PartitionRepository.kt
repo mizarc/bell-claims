@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims.partitions
 import co.aikar.idb.Database
 import org.bukkit.World
 import xyz.mizarc.solidclaims.Repository
+import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.storage.Storage
 import java.sql.SQLException
 import java.util.*
@@ -54,10 +55,10 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         return null
     }
 
-    fun getByClaim(claimId: UUID): ArrayList<Partition> {
+    fun getByClaim(claim: Claim): ArrayList<Partition> {
         val foundPartitions = ArrayList<Partition>()
         for (partition in partitions) {
-            if (partition.claimId == claimId) {
+            if (partition.claimId == claim.id) {
                 foundPartitions.add(partition)
             }
         }
