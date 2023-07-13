@@ -88,8 +88,8 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         try {
             storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, lowerPositionX, " +
                     "lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
-                entity.claimId, entity.area.lowerPosition.x, entity.area.lowerPosition.z, entity.area.upperPosition.x,
-                entity.area.upperPosition.z)
+                entity.id, entity.claimId, entity.area.lowerPosition.x, entity.area.lowerPosition.z,
+                entity.area.upperPosition.x, entity.area.upperPosition.z)
             return
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -101,7 +101,7 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         addToMemory(entity)
         try {
             storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
-                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", entity.id,
+                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", entity.claimId,
                 entity.area.lowerPosition.x,  entity.area.lowerPosition.z, entity.area.upperPosition.x,
                 entity.area.upperPosition.z, entity.id)
         } catch (error: SQLException) {
