@@ -13,6 +13,7 @@ import kotlin.math.absoluteValue
  * @property area The area defining the space of this partition.
  */
 class Partition(var id: UUID, var claimId: UUID, var area: Area) {
+    constructor(claimId: UUID, area: Area): this(UUID.randomUUID(), claimId, area)
     constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition, builder.secondPosition))
 
     /**
