@@ -68,7 +68,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         claims[claim.id] = claim
         try {
             storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, creationTime=?, name=?, " +
-                    "description=?, positionX=?, positionY=?, positionZ=? icon=? WHERE id=?;",
+                    "description=?, positionX=?, positionY=?, positionZ=?, icon=? WHERE id=?;",
                 claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
                 claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
         } catch (error: SQLException) {
