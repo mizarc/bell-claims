@@ -103,7 +103,10 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             .lore("Gives you a copy of the claim tool")
             .enchantment(Enchantment.LUCK)
             .flag(ItemFlag.HIDE_ENCHANTS)
-        val guiClaimToolItem = GuiItem(claimToolItem) { givePlayerTool(claimBuilder.player) }
+        val guiClaimToolItem = GuiItem(claimToolItem) { guiEvent ->
+            guiEvent.isCancelled = true
+            givePlayerTool(claimBuilder.player)
+        }
         pane.addItem(guiClaimToolItem, 0, 0)
 
         // Add icon editor button
@@ -147,9 +150,9 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         for (item in player.inventory.contents!!) {
             if (item == null) continue
             if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
-                player.inventory.addItem(getClaimTool())
                 return
             }
         }
+        player.inventory.addItem(getClaimTool())
     }
 }
