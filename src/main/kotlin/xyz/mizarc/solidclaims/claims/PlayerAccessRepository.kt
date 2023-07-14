@@ -32,7 +32,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
 
     fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
         try {
-            storage.connection.executeUpdate("INSERT INTO playerAccess (playerId, claimId, permissionId) " +
+            storage.connection.executeUpdate("INSERT INTO playerAccess (playerId, claimId, permission) " +
                     "VALUES (?,?,?)", claim.id, player.uniqueId, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -42,7 +42,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
     fun removePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
         try {
             storage.connection.executeUpdate("REMOVE FROM playerAccess WHERE claimId=? AND playerId=? " +
-                    "AND permissionId=?", claim.id, player.uniqueId, permission.name)
+                    "AND permission=?", claim.id, player.uniqueId, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
