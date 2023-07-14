@@ -43,13 +43,17 @@ class SolidClaims : JavaPlugin() {
     private fun registerDependencies() {
         commandManager.registerDependency(ClaimRepository::class.java, claimRepository)
         commandManager.registerDependency(PartitionRepository::class.java, partitionRepository)
+        commandManager.registerDependency(ClaimRuleRepository::class.java, claimRuleRepository)
+        commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepository)
+        commandManager.registerDependency(PlayerAccessRepository::class.java, playerAccessRepository)
         commandManager.registerDependency(PlayerStateRepository::class.java, playerStateRepository)
         commandManager.registerDependency(ClaimVisualiser::class.java, claimVisualiser)
+        commandManager.registerDependency(ClaimQuery::class.java, claimQuery)
     }
 
     private fun registerCommands() {
-        commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(ClaimCommand())
+        commandManager.registerCommand(ClaimlistCommand())
         commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(PartitionlistCommand())

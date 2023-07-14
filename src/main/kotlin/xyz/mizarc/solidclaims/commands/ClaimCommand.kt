@@ -18,14 +18,13 @@ import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
 open class ClaimCommand : BaseCommand() {
-    @Dependency
-    protected lateinit var claims : ClaimRepository
-    protected lateinit var partitions: PartitionRepository
-    protected lateinit var playerStates: PlayerStateRepository
-    protected lateinit var claimRuleRepository: ClaimRuleRepository
-    protected lateinit var claimPermissionRepository: ClaimPermissionRepository
-    protected lateinit var playerAccessRepository: PlayerAccessRepository
-    protected lateinit var claimQuery: ClaimQuery
+    @Dependency protected lateinit var claims : ClaimRepository
+    @Dependency protected lateinit var partitions: PartitionRepository
+    @Dependency protected lateinit var playerStates: PlayerStateRepository
+    @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository
+    @Dependency protected lateinit var claimPermissionRepository: ClaimPermissionRepository
+    @Dependency protected lateinit var playerAccessRepository: PlayerAccessRepository
+    @Dependency protected lateinit var claimQuery: ClaimQuery
 
     @CommandAlias("claim")
     @CommandPermission("solidclaims.command.claim")
