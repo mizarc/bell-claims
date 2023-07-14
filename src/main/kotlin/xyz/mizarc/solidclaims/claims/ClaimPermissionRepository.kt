@@ -22,8 +22,9 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
     }
 
     fun add(claim: Claim, permission: ClaimPermission) {
+
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permissionId) " +
+            storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
                     "VALUES (?,?)", claim.id, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -32,7 +33,7 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
 
     fun remove(claim: Claim, permission: ClaimPermission) {
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permissionId=?",
+            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permission=?",
                 claim.id, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -44,8 +45,8 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (id TEXT, " +
-                    "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT, " +
+                    "permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
