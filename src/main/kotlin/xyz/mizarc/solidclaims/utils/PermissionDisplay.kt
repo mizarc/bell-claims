@@ -22,7 +22,7 @@ fun ClaimPermission.getIcon(): ItemStack {
     }
 }
 
-fun ClaimPermission.getName(): String {
+fun ClaimPermission.getDisplayName(): String {
     return when (this) {
         ClaimPermission.All -> "All"
         ClaimPermission.AllBlocks -> "All Blocks"
