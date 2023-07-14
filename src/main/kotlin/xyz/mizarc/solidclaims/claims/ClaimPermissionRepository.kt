@@ -32,7 +32,7 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
 
     fun remove(claim: Claim, permission: ClaimPermission) {
         try {
-            storage.connection.executeUpdate("REMOVE FROM claimPermissions WHERE claimId=? AND permissionId=?",
+            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permissionId=?",
                 claim.id, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
