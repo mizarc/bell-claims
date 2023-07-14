@@ -296,7 +296,9 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
 
         // Add all players menu
         val allPlayersItem = ItemStack(Material.PLAYER_HEAD)
-        val guiAllPlayersItem = GuiItem(allPlayersItem) {  }
+            .name("All Players")
+            .lore("Find a player from a list of all online players")
+        val guiAllPlayersItem = GuiItem(allPlayersItem) { openAllPlayersMenu(claim, 0) }
         controlsPane.addItem(guiAllPlayersItem, 4, 0)
 
         // Add prev item
@@ -569,6 +571,73 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             // Increment slot
             xSlot += 1
             if (xSlot > 3) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        gui.show(claimBuilder.player)
+    }
+
+    fun openAllPlayersMenu(claim: Claim, page: Int = 0) {
+        val trustedPlayers = playerAccessRepository.getByClaim(claim)
+
+        // Create trust menu
+        val gui = ChestGui(6, "All Players")
+
+        // Add controls pane
+        val controlsPane = StaticPane(0, 0, 9, 1)
+        gui.addPane(controlsPane)
+
+        // Add go back item
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
+        controlsPane.addItem(guiExitItem, 0, 0)
+
+        // Add prev item
+        val prevItem = ItemStack(Material.ARROW)
+            .name("Prev")
+        val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPrevItem, 6, 0)
+
+        // Add page item
+        val pageItem = ItemStack(Material.PAPER)
+            .name("Page $page of ${ceil(trustedPlayers.count() / 36.0).toInt()}")
+        val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPageItem, 7, 0)
+
+        // Add next item
+        val nextItem = ItemStack(Material.ARROW)
+            .name("Next")
+        val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiNextItem, 8, 0)
+
+        // Add divider
+        val dividerPane = StaticPane(0, 1, 9, 1)
+        gui.addPane(dividerPane)
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        for (slot in 0..8) {
+            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
+            dividerPane.addItem(guiDividerItem, slot, 0)
+        }
+
+        // Add list of players
+        val warpsPane = StaticPane(0, 2, 9, 4)
+        gui.addPane(warpsPane)
+        var xSlot = 0
+        var ySlot = 0
+        for (player in Bukkit.getOnlinePlayers()) {
+            val warpItem = createHead(Bukkit.getOfflinePlayer(player.uniqueId))
+                .name("${Bukkit.getOfflinePlayer(player.uniqueId).name}")
+            val guiWarpItem = GuiItem(warpItem) {
+                openPlayerPermisionsMenu(claim, Bukkit.getOfflinePlayer(player.uniqueId))
+            }
+            warpsPane.addItem(guiWarpItem, xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 8) {
                 xSlot = 0
                 ySlot += 1
             }
