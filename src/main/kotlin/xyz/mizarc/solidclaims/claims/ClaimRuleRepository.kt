@@ -32,7 +32,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
 
     fun remove(claim: Claim, rule: ClaimRule) {
         try {
-            storage.connection.executeUpdate("REMOVE FROM claimRule WHERE claimId=? AND rule=?",
+            storage.connection.executeUpdate("DELETE FROM claimRule WHERE claimId=? AND rule=?",
                 claim.id, rule.name)
         } catch (error: SQLException) {
             error.printStackTrace()
