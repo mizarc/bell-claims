@@ -1,15 +1,20 @@
 package xyz.mizarc.solidclaims.utils
 
+import com.destroystokyo.paper.profile.PlayerProfile
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Color
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
+import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.material.MaterialData
 import java.util.*
 import java.util.function.Consumer
+
 
 fun ItemStack.amount(amount: Int): ItemStack {
     setAmount(amount)
