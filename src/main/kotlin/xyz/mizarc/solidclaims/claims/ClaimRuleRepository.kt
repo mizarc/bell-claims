@@ -39,7 +39,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         }
 
         try {
-            storage.connection.executeUpdate("DELETE FROM claimRule WHERE claimId=? AND rule=?",
+            storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=? AND rule=?",
                 claim.id, rule.name)
         } catch (error: SQLException) {
             error.printStackTrace()
