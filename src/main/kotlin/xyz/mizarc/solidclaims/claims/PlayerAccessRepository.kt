@@ -24,10 +24,6 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
     }
 
     fun getByClaim(claim: Claim): MutableMap<UUID, MutableSet<ClaimPermission>> {
-        Bukkit.getLogger().info("${claim.id}")
-        for (e in playerAccess) {
-            Bukkit.getLogger().info("${e.key}")
-        }
         return playerAccess[claim.id] ?: mutableMapOf()
     }
 
