@@ -22,7 +22,7 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
     }
 
     fun add(claim: Claim, permission: ClaimPermission) {
-
+        permissions.getOrPut(claim.id) { mutableSetOf() }.add(permission)
         try {
             storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
                     "VALUES (?,?)", claim.id, permission.name)
@@ -32,6 +32,12 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
     }
 
     fun remove(claim: Claim, permission: ClaimPermission) {
+        val claimPermissions = permissions[claim.id] ?: return
+        claimPermissions.remove(permission)
+        if (claimPermissions.isEmpty()) {
+            permissions.remove(claim.id)
+        }
+
         try {
             storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permission=?",
                 claim.id, permission.name)
