@@ -59,7 +59,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         claimPermissions.remove(player.uniqueId)
 
         try {
-            storage.connection.executeUpdate("REMOVE FROM playerAccess WHERE claimId=? AND playerId=?",
+            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=?",
                 claim.id, player.uniqueId)
         } catch (error: SQLException) {
             error.printStackTrace()
