@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.ClaimQuery
-import xyz.mizarc.solidclaims.partitions.Position
+import xyz.mizarc.solidclaims.partitions.Position2D
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.getClaimTool
 import java.math.RoundingMode
@@ -483,7 +483,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
     fun unrenderOldClaims(player: Player) {
         if (oldPartitions.isEmpty()) return
 
-        val borders: ArrayList<Position> = ArrayList()
+        val borders: ArrayList<Position2D> = ArrayList()
         for (part in oldPartitions) {
             borders.addAll(part.area.getEdgeBlockPositions())
         }
@@ -515,11 +515,11 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
      */
     private fun getNearbyPlayers(loc: Location, radiusModifier: Int): Array<Player> {
         val players: ArrayList<Player> = ArrayList()
-        val chunks = getSurroundingChunks(Position(loc).toChunk(), plugin.server.viewDistance+(radiusModifier shr 4))
+        val chunks = getSurroundingChunks(Position2D(loc).toChunk(), plugin.server.viewDistance+(radiusModifier shr 4))
 
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != loc.world) continue
-            if (chunks.contains(Position(player.location).toChunk())) {
+            if (chunks.contains(Position2D(player.location).toChunk())) {
                 players.add(player)
             }
         }
@@ -542,19 +542,19 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
         }
         playerVisualisingState[player] = holdingClaimTool
 
-        val chunks = getSurroundingChunks(Position(player.location).toChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(claimQuery.partitions.getByChunk(chunk))
         }
         if (partitionsInChunks.isEmpty()) return
 
-        val noPermissionBorders: ArrayList<Position> = ArrayList()
-        val noPermissionCorners: ArrayList<Position> = ArrayList()
-        val mainBorders: ArrayList<Position> = ArrayList()
-        val mainCorners: ArrayList<Position> = ArrayList()
-        val borders: ArrayList<Position> = ArrayList()
-        val corners: ArrayList<Position> = ArrayList()
+        val noPermissionBorders: ArrayList<Position2D> = ArrayList()
+        val noPermissionCorners: ArrayList<Position2D> = ArrayList()
+        val mainBorders: ArrayList<Position2D> = ArrayList()
+        val mainCorners: ArrayList<Position2D> = ArrayList()
+        val borders: ArrayList<Position2D> = ArrayList()
+        val corners: ArrayList<Position2D> = ArrayList()
         for (partition in partitionsInChunks) {
             val claim = claimQuery.claims.getById(partition.claimId) ?: continue
             val mainPartition = claimQuery.getMainPartition(claim)
@@ -613,24 +613,24 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
     }
 
     /**
-     * Get a square of chunks centering on [position] with a size of [radius]
+     * Get a square of chunks centering on [position2D] with a size of [radius]
      */
     @Suppress("SameParameterValue")
-    private fun getSurroundingChunks(position: Position, radius: Int): Array<Position> {
+    private fun getSurroundingChunks(position2D: Position2D, radius: Int): Array<Position2D> {
         val sideLength = (radius * 2) + 1 // Make it always odd (eg. radius of 2 results in 5x5 square)
-        val chunks = Array(sideLength * sideLength) { Position(0,0) }
+        val chunks = Array(sideLength * sideLength) { Position2D(0,0) }
 
         for (x in 0 until sideLength) {
             for (z in 0 until sideLength) {
-                chunks[(x * sideLength) + z] = Position(position.x + x - radius, position.z + z - radius)
+                chunks[(x * sideLength) + z] = Position2D(position2D.x + x - radius, position2D.z + z - radius)
             }
         }
 
         return chunks
     }
 
-    private fun setVisualisedBlocks(player: Player, positions: ArrayList<Position>, block: Material, flatBlock: Material) {
-        for (position in positions) {
+    private fun setVisualisedBlocks(player: Player, position2DS: ArrayList<Position2D>, block: Material, flatBlock: Material) {
+        for (position in position2DS) {
             for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = block.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently

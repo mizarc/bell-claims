@@ -39,8 +39,8 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Trusted Users", playerAccessRepository.getByClaim(claim)?.count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
-        chatInfo.addLinked("First Corner", partition.area.lowerPosition.toString())
-        chatInfo.addLinked("Second Corner", partition.area.upperPosition.toString())
+        chatInfo.addLinked("First Corner", partition.area.lowerPosition2D.toString())
+        chatInfo.addLinked("Second Corner", partition.area.upperPosition2D.toString())
         chatInfo.addLinked("Block Count", partition.area.getBlockCount().toString())
 
         player.spigot().sendMessage(*chatInfo.create())
