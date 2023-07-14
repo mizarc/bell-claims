@@ -23,7 +23,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
 
     fun add(claim: Claim, rule: ClaimRule) {
         try {
-            storage.connection.executeUpdate("INSERT INTO claimRules VALUES (claimId, rule)" +
+            storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule)" +
                     "VALUES (?,?)", claim.id, rule.name)
         } catch (error: SQLException) {
             error.printStackTrace()
