@@ -33,8 +33,7 @@ class TrustlistCommand : ClaimCommand() {
         }
 
         // Output list of trusted players
-        val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
-        val chatInfo = ChatInfoBuilder("$name Trusted Players")
+        val chatInfo = ChatInfoBuilder("${claim.name} Trusted Players")
 
         for ((index, entry) in trustedPlayers.entries.withIndex()) {
             if (index >= trustedPlayers.count()) {
@@ -42,7 +41,6 @@ class TrustlistCommand : ClaimCommand() {
             }
 
             if (index in 0 + page..9 + page) {
-
                 chatInfo.addLinked(Bukkit.getOfflinePlayer(entry.key).name ?: "N/A", entry.value.toString())
             }
         }
