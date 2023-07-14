@@ -8,10 +8,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimRepository
-import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
-import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.menus.ClaimManagementMenu
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.partitions.Position3D
@@ -19,6 +16,7 @@ import xyz.mizarc.solidclaims.partitions.Position3D
 class ClaimManagementListener(private val claimRepository: ClaimRepository,
                               private val partitionRepository: PartitionRepository,
                               private val claimRuleRepository: ClaimRuleRepository,
+                              private val claimPermissionRepository: ClaimPermissionRepository,
                               private val playerAccessRepository: PlayerAccessRepository): Listener {
 
     @EventHandler
@@ -29,7 +27,8 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
         if (event.player.isSneaking) {
             val claimBuilder = Claim.Builder(event.player,
                 event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
-            ClaimManagementMenu(claimRepository, partitionRepository, playerAccessRepository, claimRuleRepository, claimBuilder)
+            ClaimManagementMenu(claimRepository, partitionRepository, claimPermissionRepository,
+                playerAccessRepository, claimRuleRepository, claimBuilder)
                 .openClaimManagementMenu()
         }
     }
