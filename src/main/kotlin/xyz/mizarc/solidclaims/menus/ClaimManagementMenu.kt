@@ -351,7 +351,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
             .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
+        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add player head
