@@ -9,13 +9,11 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimRepository
-import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
-import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import xyz.mizarc.solidclaims.partitions.Area
@@ -28,6 +26,7 @@ import kotlin.math.ceil
 
 class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val partitionRepository: PartitionRepository,
+                          private val claimPermissionRepository: ClaimPermissionRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
                           private val claimRuleRepository: ClaimRuleRepository,
                           private val claimBuilder: Claim.Builder) {
@@ -288,6 +287,18 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
         controlsPane.addItem(guiExitItem, 0, 0)
 
+        // Add default permissions button
+        val defaultPermsItem = ItemStack(Material.LECTERN)
+            .name("Default Permissions")
+            .lore("Configures the permissions that untrusted players will have")
+        val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermisionsMenu(claim) }
+        controlsPane.addItem(guiDefaultPermsItem, 2, 0)
+
+        // Add all players menu
+        val allPlayersItem = ItemStack(Material.PLAYER_HEAD)
+        val guiAllPlayersItem = GuiItem(allPlayersItem) {  }
+        controlsPane.addItem(guiAllPlayersItem, 4, 0)
+
         // Add prev item
         val prevItem = ItemStack(Material.ARROW)
             .name("Prev")
@@ -324,7 +335,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key))
                 .name("${Bukkit.getOfflinePlayer(trustedPlayer.key).name}")
                 .lore("Has ${trustedPlayer.value.count()} permissions")
-            val guiWarpItem = GuiItem(warpItem) {guiEvent ->
+            val guiWarpItem = GuiItem(warpItem) {
                 openPlayerPermisionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
@@ -363,20 +374,24 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         // Add deselect all button
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
             .name("Deselect All")
-        val guiDeselectItem = GuiItem(deselectItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiDeselectItem = GuiItem(deselectItem) {
+            for (permission in ClaimPermission.values()) {
+                playerAccessRepository.removePermission(claim, player, permission)
+            }
+            openPlayerPermisionsMenu(claim, player)
+        }
         controlsPane.addItem(guiDeselectItem, 2, 0)
 
         // Add select all button
         val selectItem = ItemStack(Material.SLIME_BLOCK)
             .name("Select All")
-        val guiSelectItem = GuiItem(selectItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiSelectItem = GuiItem(selectItem) {
+            for (permission in ClaimPermission.values()) {
+                playerAccessRepository.add(claim, player, permission)
+            }
+            openPlayerPermisionsMenu(claim, player)
+        }
         controlsPane.addItem(guiSelectItem, 6, 0)
-
-        // Add delete button
-        val deleteItem = ItemStack(Material.REDSTONE)
-            .name("Delete Player")
-        val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiDeleteItem, 8, 0)
 
         // Add horizontal divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
@@ -434,6 +449,119 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             val guiPermissionItem = GuiItem(permissionItem) {
                 playerAccessRepository.removePermission(claim, player, permission)
                 openPlayerPermisionsMenu(claim, player)
+            }
+
+            enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 3) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        gui.show(claimBuilder.player)
+    }
+
+    fun openClaimPermisionsMenu(claim: Claim) {
+        // Create player permissions menu
+        val gui = ChestGui(6, "Default Claim Permissions")
+
+        // Add controls pane
+        val controlsPane = StaticPane(0, 0, 9, 1)
+        gui.addPane(controlsPane)
+
+        // Add go back item
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
+        controlsPane.addItem(guiExitItem, 0, 0)
+
+        // Add bell icon
+        val bellItem = ItemStack(Material.BELL)
+            .name("Default")
+        val guiBellItem = GuiItem(bellItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiBellItem, 4, 0)
+
+        // Add deselect all button
+        val deselectItem = ItemStack(Material.HONEY_BLOCK)
+            .name("Deselect All")
+        val guiDeselectItem = GuiItem(deselectItem) {
+            for (permission in ClaimPermission.values()) {
+                claimPermissionRepository.remove(claim, permission)
+            }
+            openClaimPermisionsMenu(claim)
+        }
+        controlsPane.addItem(guiDeselectItem, 2, 0)
+
+        // Add select all button
+        val selectItem = ItemStack(Material.SLIME_BLOCK)
+            .name("Select All")
+        val guiSelectItem = GuiItem(selectItem) {
+            for (permission in ClaimPermission.values()) {
+                claimPermissionRepository.add(claim, permission)
+            }
+            openClaimPermisionsMenu(claim)
+        }
+        controlsPane.addItem(guiSelectItem, 6, 0)
+
+        // Add horizontal divider
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
+        val horizontalDividerPane = StaticPane(0, 1, 9, 1)
+        gui.addPane(horizontalDividerPane)
+        for (slot in 0..8) {
+            horizontalDividerPane.addItem(guiDividerItem, slot, 0)
+        }
+
+        // Add vertical divider
+        val verticalDividerPane = StaticPane(4, 2, 1, 6)
+        gui.addPane(verticalDividerPane)
+        for (slot in 0..3) {
+            verticalDividerPane.addItem(guiDividerItem, 0, slot)
+        }
+
+        val enabledPermissions = claimPermissionRepository.getByClaim(claim)
+        val disabledPermissions = ClaimPermission.values().subtract(enabledPermissions)
+
+        // Add list of disabled permissions
+        val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
+        gui.addPane(disabledPermissionsPane)
+        var xSlot = 0
+        var ySlot = 0
+        for (permission in disabledPermissions) {
+            val permissionItem = permission.getIcon()
+                .name(permission.getDisplayName())
+                .lore(permission.getDescription())
+
+            val guiPermissionItem = GuiItem(permissionItem) {
+                claimPermissionRepository.add(claim, permission)
+                openClaimPermisionsMenu(claim)
+            }
+
+            disabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 3) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        val enabledPermissionsPane = StaticPane(5, 2, 4, 4)
+        gui.addPane(enabledPermissionsPane)
+        xSlot = 0
+        ySlot = 0
+        for (permission in enabledPermissions) {
+            val permissionItem = permission.getIcon()
+                .name(permission.getDisplayName())
+                .lore(permission.getDescription())
+
+            val guiPermissionItem = GuiItem(permissionItem) {
+                claimPermissionRepository.remove(claim, permission)
+                openClaimPermisionsMenu(claim)
             }
 
             enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)

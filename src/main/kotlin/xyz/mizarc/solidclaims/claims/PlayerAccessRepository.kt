@@ -45,6 +45,9 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         val claimPermissions = playerAccess[claim.id] ?: return
         val playerPermissions = claimPermissions[player.uniqueId] ?: return
         playerPermissions.remove(permission)
+        if (playerPermissions.isEmpty()) {
+            claimPermissions.remove(player.uniqueId)
+        }
 
         try {
             storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=? " +
