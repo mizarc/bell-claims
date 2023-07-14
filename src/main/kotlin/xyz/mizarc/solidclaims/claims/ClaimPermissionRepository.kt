@@ -23,7 +23,7 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
 
     fun add(claim: Claim, permission: ClaimPermission) {
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPermissions VALUES (claimId, permissionId)" +
+            storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permissionId) " +
                     "VALUES (?,?)", claim.id, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()

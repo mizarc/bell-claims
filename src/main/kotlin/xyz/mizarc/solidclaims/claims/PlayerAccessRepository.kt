@@ -32,7 +32,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
 
     fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
         try {
-            storage.connection.executeUpdate("INSERT INTO playerAccess VALUES (playerId, claimId, permissionId)" +
+            storage.connection.executeUpdate("INSERT INTO playerAccess (playerId, claimId, permissionId) " +
                     "VALUES (?,?,?)", claim.id, player.uniqueId, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
