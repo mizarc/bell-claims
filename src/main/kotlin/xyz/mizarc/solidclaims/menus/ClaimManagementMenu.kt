@@ -285,7 +285,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
             .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add prev item
