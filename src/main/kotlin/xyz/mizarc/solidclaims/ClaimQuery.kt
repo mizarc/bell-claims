@@ -80,7 +80,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
         return null
     }
 
-    fun getByChunk(worldPosition: WorldPosition): ArrayList<Partition> {
+    fun getByChunk(worldPosition: WorldPosition): Set<Partition> {
         return filterByWorld(worldPosition.worldId, partitions.getByChunk(worldPosition.toChunk()))
     }
 
@@ -306,8 +306,8 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
         return false
     }
 
-    private fun filterByWorld(worldId: UUID, inputPartitions: ArrayList<Partition>): ArrayList<Partition> {
-        val outputPartitions = arrayListOf<Partition>()
+    private fun filterByWorld(worldId: UUID, inputPartitions: Set<Partition>): Set<Partition> {
+        val outputPartitions = mutableSetOf<Partition>()
         for (partition in inputPartitions) {
             val claimPartition = claims.getById(partition.claimId) ?: continue
             if (claimPartition.worldId == worldId) {

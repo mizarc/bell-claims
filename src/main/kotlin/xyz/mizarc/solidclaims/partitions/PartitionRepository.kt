@@ -9,31 +9,26 @@ import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PartitionRepository(private val storage: Storage<Database>): Repository<Partition> {
-    var partitions: ArrayList<Partition> = ArrayList()
-    var chunkPartitions: MutableMap<Position2D, ArrayList<Partition>> = mutableMapOf()
+class PartitionRepository(private val storage: Storage<Database>) {
+    var partitions: MutableMap<UUID, Partition> = mutableMapOf()
+    var chunkPartitions: MutableMap<Position2D, ArrayList<UUID>> = mutableMapOf()
 
     init {
         createTable()
         preload()
     }
 
-    override fun getAll(): ArrayList<Partition> {
-        return partitions
+    fun getAll(): Set<Partition> {
+        return partitions.values.toSet()
     }
 
-    override fun getById(id: UUID): Partition? {
-        for (partition in partitions) {
-            if (partition.id == id) {
-                return partition
-            }
-        }
-        return null
+    fun getById(id: UUID): Partition? {
+        return partitions[id]
     }
 
     fun getByClaim(claim: Claim): ArrayList<Partition> {
         val foundPartitions = ArrayList<Partition>()
-        for (partition in partitions) {
+        for (partition in partitions.values) {
             if (partition.claimId == claim.id) {
                 foundPartitions.add(partition)
             }
@@ -41,12 +36,15 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         return foundPartitions
     }
 
-    fun getByChunk(position2D: Position2D): ArrayList<Partition> {
-        if (chunkPartitions[position2D] == null) {
-            return ArrayList()
+    fun getByChunk(position2D: Position2D): Set<Partition> {
+        val foundPartitions = mutableSetOf<Partition>()
+        val localChunkPartitions = chunkPartitions[position2D] ?: return setOf()
+
+        for (id in localChunkPartitions) {
+            foundPartitions.add(partitions[id] ?: continue)
         }
 
-        return chunkPartitions[position2D]!!
+        return foundPartitions
     }
 
     fun getByPosition(position2D: Position2D): ArrayList<Partition> {
@@ -60,7 +58,7 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         return partitionsInPosition
     }
 
-    override fun add(entity: Partition) {
+    fun add(entity: Partition) {
         addToMemory(entity)
         try {
             storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, lowerPositionX, " +
@@ -73,7 +71,7 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         }
     }
 
-    override fun update(entity: Partition) {
+    fun update(entity: Partition) {
         removeFromMemory(entity)
         addToMemory(entity)
         try {
@@ -86,7 +84,7 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
         }
     }
 
-    override fun remove(entity: Partition) {
+    fun remove(entity: Partition) {
         removeFromMemory(entity)
         try {
             storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;", entity.id)
@@ -97,21 +95,21 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
     }
 
     private fun addToMemory(entity: Partition) {
-        partitions.add(entity)
+        partitions[entity.id] = entity
         val claimChunks = entity.getChunks()
         for (chunk in claimChunks) {
             if (chunkPartitions[chunk] == null) {
                 chunkPartitions[chunk] = ArrayList()
             }
-            chunkPartitions[chunk]?.add(entity)
+            chunkPartitions[chunk]?.add(entity.id)
         }
     }
 
     private fun removeFromMemory(entity: Partition) {
-        partitions.remove(entity)
+        partitions.remove(entity.id)
         for (chunk in entity.area.getChunks()) {
             val savedChunk = chunkPartitions[chunk] ?: return
-            savedChunk.remove(entity)
+            savedChunk.remove(entity.id)
         }
     }
 
@@ -139,16 +137,13 @@ class PartitionRepository(private val storage: Storage<Database>): Repository<Pa
                 )
                 val partition = Partition(UUID.fromString(result.getString("id")),
                     UUID.fromString(result.getString("claimId")), area)
-                partitions.add(partition)
-                Bukkit.getLogger().info("Bruh")
+                partitions[partition.id] = partition
 
                 for (chunk in area.getChunks()) {
                     if (chunkPartitions[chunk] == null) {
                         chunkPartitions[chunk] = ArrayList()
                     }
-                    chunkPartitions[chunk]!!.add(partition)
-                    Bukkit.getLogger().info("${chunk.x}, ${chunk.z}")
-                    Bukkit.getLogger().info("$partition")
+                    chunkPartitions[chunk]!!.add(partition.id)
                 }
             }
         } catch (error: SQLException) {
