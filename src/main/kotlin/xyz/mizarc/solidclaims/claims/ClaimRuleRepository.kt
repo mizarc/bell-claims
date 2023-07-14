@@ -22,6 +22,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
     }
 
     fun add(claim: Claim, rule: ClaimRule) {
+        rules.getOrPut(claim.id) { mutableSetOf() }.add(rule)
         try {
             storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule)" +
                     "VALUES (?,?)", claim.id, rule.name)
@@ -31,6 +32,12 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
     }
 
     fun remove(claim: Claim, rule: ClaimRule) {
+        val claimRules = rules[claim.id] ?: return
+        claimRules.remove(rule)
+        if (claimRules.isEmpty()) {
+            rules.remove(claim.id)
+        }
+
         try {
             storage.connection.executeUpdate("DELETE FROM claimRule WHERE claimId=? AND rule=?",
                 claim.id, rule.name)
@@ -44,8 +51,8 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimRules (id TEXT, " +
-                    "claimId TEXT, rule TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimRules (claimId TEXT, rule TEXT, " +
+                    "FOREIGN KEY(claimId) REFERENCES claims(id));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
