@@ -55,10 +55,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
 
     @EventHandler
     fun onToolSwitch(event: PlayerItemHeldEvent) {
-        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) {
-            claimVisualiser.updateVisualisation(event.player, true)
-            return
-        }
+        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) return
 
         // Cancel claim building on unequip
         val partitionBuilder = partitionBuilders[event.player]
