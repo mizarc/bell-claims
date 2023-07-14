@@ -18,13 +18,13 @@ class TrustCommand : ClaimCommand() {
         }
 
         val claim = claims.getById(partition.claimId)!!
-        if (playerAccessRepository.doesPlayerHaveAccess(claim, player)) {
+        if (playerAccessRepository.doesPlayerHaveAccess(claim, otherPlayer.player)) {
             player.sendMessage(
                 "§6${Bukkit.getPlayer(player.uniqueId)?.name} §calready has permission §6${claimPermission.name}§c.")
             return
         }
 
-        playerAccessRepository.add(claim, player, claimPermission)
+        playerAccessRepository.add(claim, otherPlayer.player, claimPermission)
         player.sendMessage(
             "§6${Bukkit.getPlayer(otherPlayer.player.uniqueId)?.name} " +
             "§ahas been given the permission §6${claimPermission.name} §afor this claim.")
