@@ -7,6 +7,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.FurnaceGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
@@ -16,15 +17,14 @@ import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
 import xyz.mizarc.solidclaims.claims.PlayerAccessRepository
 import xyz.mizarc.solidclaims.getClaimTool
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import xyz.mizarc.solidclaims.partitions.Area
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.partitions.Position2D
-import xyz.mizarc.solidclaims.utils.enchantment
-import xyz.mizarc.solidclaims.utils.flag
-import xyz.mizarc.solidclaims.utils.lore
-import xyz.mizarc.solidclaims.utils.name
+import xyz.mizarc.solidclaims.utils.*
 import kotlin.concurrent.thread
+import kotlin.math.ceil
 
 class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val partitionRepository: PartitionRepository,
@@ -138,7 +138,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
             .name("Trusted Players:")
             .lore("${playerAccessRepository.getByClaim(claim).count()}")
-        val guiPlayerTrustItem = GuiItem(playerTrustItem) { guiEvent -> guiEvent.isCancelled = true }
+        val guiPlayerTrustItem = GuiItem(playerTrustItem) { openClaimTrustMenu(claim, 0) }
         pane.addItem(guiPlayerTrustItem, 5, 0)
 
         // Add claim flags
@@ -270,5 +270,143 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         thirdPane.addItem(confirmGuiItem, 0, 0)
         gui.resultComponent.addPane(thirdPane)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+    }
+
+    fun openClaimTrustMenu(claim: Claim, page: Int) {
+        val trustedPlayers = playerAccessRepository.getByClaim(claim)
+
+        // Create trust menu
+        val gui = ChestGui(6, "Trusted Players")
+
+        // Add controls pane
+        val controlsPane = StaticPane(0, 0, 9, 1)
+        gui.addPane(controlsPane)
+
+        // Add go back item
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiExitItem, 0, 0)
+
+        // Add prev item
+        val prevItem = ItemStack(Material.ARROW)
+            .name("Prev")
+        val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPrevItem, 6, 0)
+
+        // Add page item
+        val pageItem = ItemStack(Material.PAPER)
+            .name("Page $page of ${ceil(trustedPlayers.count() / 36.0).toInt()}")
+        val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPageItem, 7, 0)
+
+        // Add next item
+        val nextItem = ItemStack(Material.ARROW)
+            .name("Next")
+        val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiNextItem, 8, 0)
+
+        // Add divider
+        val dividerPane = StaticPane(0, 1, 9, 1)
+        gui.addPane(dividerPane)
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        for (slot in 0..8) {
+            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
+            dividerPane.addItem(guiDividerItem, slot, 0)
+        }
+
+        // Add list of players
+        val warpsPane = StaticPane(0, 2, 9, 4)
+        gui.addPane(warpsPane)
+        var xSlot = 0
+        var ySlot = 0
+        for (trustedPlayer in trustedPlayers) {
+            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key))
+                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key).name}")
+                .lore("Has ${trustedPlayer.value.count()} permissions")
+            val guiWarpItem = GuiItem(warpItem) {guiEvent ->
+                openPlayerPermisionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
+            }
+            warpsPane.addItem(guiWarpItem, xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 8) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        gui.show(claimBuilder.player)
+    }
+
+    fun openPlayerPermisionsMenu(claim: Claim, player: OfflinePlayer) {
+        // Create player permissions menu
+        val gui = ChestGui(4, "${player.name}'s Permissions")
+
+        // Add controls pane
+        val controlsPane = StaticPane(0, 0, 9, 1)
+        gui.addPane(controlsPane)
+
+        // Add go back item
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
+        controlsPane.addItem(guiExitItem, 0, 0)
+
+        // Add player head
+        val playerItem = createHead(player)
+            .name("${player.name}")
+        val guiPlayerItem = GuiItem(playerItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPlayerItem, 3, 0)
+
+        // Add deselect all button
+        val deselectItem = ItemStack(Material.HONEY_BLOCK)
+            .name("Deselect All")
+        val guiDeselectItem = GuiItem(deselectItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiDeselectItem, 5, 0)
+
+        // Add select all button
+        val selectItem = ItemStack(Material.SLIME_BLOCK)
+            .name("Select All")
+        val guiSelectItem = GuiItem(selectItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiSelectItem, 6, 0)
+
+        // Add delete button
+        val deleteItem = ItemStack(Material.REDSTONE)
+            .name("Delete Player")
+        val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiDeleteItem, 8, 0)
+
+        // Add divider
+        val dividerPane = StaticPane(0, 1, 9, 1)
+        gui.addPane(dividerPane)
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        for (slot in 0..8) {
+            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
+            dividerPane.addItem(guiDividerItem, slot, 0)
+        }
+
+        // Add list of permissions
+        val permissionsPane = StaticPane(0, 2, 9, 4)
+        gui.addPane(permissionsPane)
+        var xSlot = 0
+        var ySlot = 0
+        for (permission in ClaimPermission.values()) {
+            val warpItem = permission.getIcon()
+                .name(permission.getDisplayName())
+                .lore(permission.getDescription())
+            val guiPermissionItem = GuiItem(warpItem) { guiEvent -> guiEvent.isCancelled = true }
+            permissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 8) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        gui.show(claimBuilder.player)
     }
 }
