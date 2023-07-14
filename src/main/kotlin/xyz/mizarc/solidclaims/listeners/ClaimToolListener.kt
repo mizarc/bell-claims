@@ -55,7 +55,10 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
 
     @EventHandler
     fun onToolSwitch(event: PlayerItemHeldEvent) {
-        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) return
+        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) {
+            claimVisualiser.updateVisualisation(event.player, true)
+            return
+        }
 
         // Cancel claim building on unequip
         val partitionBuilder = partitionBuilders[event.player]
@@ -97,7 +100,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
                     "Try removing or resizing an existing claim.")
         }
 
-        partitionBuilders[player] = Partition.Builder(Position(location))
+        partitionBuilders[player] = Partition.Builder(Position2D(location))
         return player.sendMessage("§aNew claim building started. " +
                 "You have §6$remainingClaimBlockCount §aBlocks and §6$remainingClaimCount §aAreas remaining.")
     }
@@ -106,7 +109,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Creates a new claim using a claim builder.
      */
     fun createClaim(player: Player, location: Location, partitionBuilder: Partition.Builder) {
-        partitionBuilder.secondPosition = Position(location.x.toInt(), location.z.toInt())
+        partitionBuilder.secondPosition2D = Position2D(location.x.toInt(), location.z.toInt())
         partitionBuilder.claimId = UUID.randomUUID()
         val partition = partitionBuilder.build()
 
@@ -149,11 +152,11 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
             return false
         }
 
-        if (!partition.isPositionInCorner(Position(location))) {
+        if (!partition.isPositionInCorner(Position2D(location))) {
             return false
         }
 
-        partitionResizers[player] = Partition.Resizer(partition, Position(location))
+        partitionResizers[player] = Partition.Resizer(partition, Position2D(location))
         player.sendMessage("§aClaim corner selected. Select a different location to resize the claim.")
         return true
     }
@@ -162,7 +165,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Selects a new position to resize the claim.
      */
     fun resizePartition(player: Player, location: Location, partitionResizer: Partition.Resizer) {
-        partitionResizer.setNewCorner(Position(location.x.toInt(), location.z.toInt()))
+        partitionResizer.setNewCorner(Position2D(location.x.toInt(), location.z.toInt()))
 
         val result = claimQuery.resizePartition(player,
             partitionResizer.partition, WorldArea(partitionResizer.newArea, location.world!!.uid))

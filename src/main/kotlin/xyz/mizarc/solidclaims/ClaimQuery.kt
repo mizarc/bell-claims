@@ -3,7 +3,6 @@ package xyz.mizarc.solidclaims
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
-import org.bukkit.block.data.type.Bed.Part
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.claims.ClaimRepository
@@ -11,7 +10,6 @@ import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
 import xyz.mizarc.solidclaims.listeners.ClaimRule
 import xyz.mizarc.solidclaims.partitions.*
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
-import java.time.Instant
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -35,10 +33,11 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     }
 
     fun isLocationOverlap(location: Location): Boolean {
-        val chunk = Position(location).toChunk()
+        val chunk = Position2D(location).toChunk()
         val partitionsInChunk = filterByWorld(location.world!!.uid, partitions.getByChunk(chunk))
         for (partition in partitionsInChunk) {
-            if (partition.isPositionInPartition(Position(location))) {
+            Bukkit.getLogger().info("$partition")
+            if (partition.isPositionInPartition(Position2D(location))) {
                 return true
             }
         }
@@ -71,7 +70,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     }
 
     fun getByLocation(location: Location): Partition? {
-        val foundPartitions = partitions.getByPosition(Position(location))
+        val foundPartitions = partitions.getByPosition(Position2D(location))
         for (partition in foundPartitions) {
             val foundClaim = claims.getById(partition.claimId) ?: continue
             if (foundClaim.worldId == location.world!!.uid) {
@@ -82,7 +81,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     }
 
     fun getByChunk(worldPosition: WorldPosition): ArrayList<Partition> {
-        return filterByWorld(worldPosition.worldId, partitions.getByChunk(worldPosition))
+        return filterByWorld(worldPosition.worldId, partitions.getByChunk(worldPosition.toChunk()))
     }
 
     fun getByPlayer(player: Player): Partition? {
@@ -115,7 +114,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
 
     fun getMainPartition(claim: Claim): Partition {
         val claimPartitions = partitions.getByClaim(claim)
-        return partitions.getByPosition(Position(claim.position)).intersect(claimPartitions.toSet()).first()
+        return partitions.getByPosition(Position2D(claim.position)).intersect(claimPartitions.toSet()).first()
     }
 
     fun getLinked(partition: Partition, testPartitions: ArrayList<Partition>): ArrayList<Partition> {
@@ -242,7 +241,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     private fun isResizeResultInAnyDisconnected(partition: Partition, newArea: WorldArea): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
         val claimPartitions = partitions.getByClaim(claim)
-        val mainPartition = partitions.getByPosition(Position(claim.position))
+        val mainPartition = partitions.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
         val newPartition = Partition(partition.id, partition.claimId, newArea)
         claimPartitions.remove(partition)
@@ -261,7 +260,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     private fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
         val claimPartitions = partitions.getByClaim(claim)
-        val mainPartition = partitions.getByPosition(Position(claim.position))
+        val mainPartition = partitions.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
         claimPartitions.remove(partition)
         for (claimPartition in claimPartitions) {
@@ -278,7 +277,7 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
     private fun isPartitionDisconnected(partition: Partition, testPartitions: ArrayList<Partition>): Boolean {
         val claim = claims.getById(partition.claimId) ?: return false
         val claimPartitions = partitions.getByClaim(claim)
-        val mainPartition = partitions.getByPosition(Position(claim.position))
+        val mainPartition = partitions.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
         val traversedPartitions = ArrayList<Partition>()
         val partitionQueries = ArrayList<Partition>()

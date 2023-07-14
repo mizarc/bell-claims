@@ -5,11 +5,9 @@ import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.partitions.Position
 import xyz.mizarc.solidclaims.partitions.Position3D
 import java.time.Instant
 import java.util.*
-import javax.swing.Icon
 
 /**
  * A claim object holds the data for the world its in and the players associated with it. It relies on partitions to

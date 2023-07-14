@@ -32,7 +32,7 @@ class PartitionlistCommand : ClaimCommand() {
                 break
             }
             chatInfo.addLinked((i + 1).toString(),
-                "${claimPartitions[i].area.lowerPosition} ${claimPartitions[i].area.upperPosition}")
+                "${claimPartitions[i].area.lowerPosition2D} ${claimPartitions[i].area.upperPosition2D}")
         }
 
         player.spigot().sendMessage(*chatInfo.createPaged(page,
