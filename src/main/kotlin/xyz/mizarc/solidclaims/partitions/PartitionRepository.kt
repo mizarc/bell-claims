@@ -94,6 +94,20 @@ class PartitionRepository(private val storage: Storage<Database>) {
         return
     }
 
+    fun removeByClaim(claim: Claim) {
+        val partitions = getByClaim(claim)
+        for (partition in partitions) {
+            removeFromMemory(partition)
+        }
+        try {
+            storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE claimId=?;", claim.id)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+        return
+
+    }
+
     private fun addToMemory(entity: Partition) {
         partitions[entity.id] = entity
         val claimChunks = entity.getChunks()

@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.claims
 
+import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
 import xyz.mizarc.solidclaims.listeners.ClaimRule
 import java.sql.SQLException
@@ -41,6 +42,16 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         try {
             storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=? AND rule=?",
                 claim.id, rule.name)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaim(claim: Claim){
+        rules.remove(claim.id)
+
+        try {
+            storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=?", claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }

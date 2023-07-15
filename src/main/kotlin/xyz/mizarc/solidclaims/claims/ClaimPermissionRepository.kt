@@ -46,6 +46,16 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
         }
     }
 
+    fun removeClaim(claim: Claim) {
+        permissions.remove(claim.id)
+
+        try {
+            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claim.id)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
     /**
      * Creates a new table to store player permission data if it doesn't exist.
      */
