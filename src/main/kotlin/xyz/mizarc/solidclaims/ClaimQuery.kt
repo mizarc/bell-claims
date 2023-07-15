@@ -4,16 +4,19 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.claims.Claim
-import xyz.mizarc.solidclaims.claims.ClaimRepository
-import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
+import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.listeners.ClaimRule
 import xyz.mizarc.solidclaims.partitions.*
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepository, val claimRuleRepository: ClaimRuleRepository, val playerStates: PlayerStateRepository) {
+class ClaimQuery(val claims: ClaimRepository,
+                 val partitions: PartitionRepository,
+                 val claimRuleRepository: ClaimRuleRepository,
+                 val claimPermissionRepository: ClaimPermissionRepository,
+                 val playerAccessRepository: PlayerAccessRepository,
+                 val playerStates: PlayerStateRepository) {
 
     enum class PartitionCreationResult {
         Overlap,
@@ -230,6 +233,14 @@ class ClaimQuery(val claims: ClaimRepository, val partitions: PartitionRepositor
         }
         partitions.remove(partition)
         return true
+    }
+
+    fun removeClaim(claim: Claim) {
+        claimRuleRepository.removeClaim(claim)
+        claimPermissionRepository.removeClaim(claim)
+        playerAccessRepository.removeClaim(claim)
+        partitions.removeByClaim(claim)
+        claims.remove(claim)
     }
 
     private fun appendPartitionToClaim(player: Player, partition: Partition, claim: Claim) {
