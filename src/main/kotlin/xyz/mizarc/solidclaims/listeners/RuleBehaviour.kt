@@ -76,7 +76,7 @@ class RuleBehaviour {
         private fun blockInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
             if (event !is BlockEvent) return listOf()
             val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimQuery.claims.getById(partition.id)
+            val claim = claimQuery.claims.getById(partition.claimId)
             return listOf(claim ?: return listOf()).distinct()
         }
 
@@ -103,7 +103,7 @@ class RuleBehaviour {
             val claimList = ArrayList<Claim>()
             for (block in blocks) {
                 val partition = claimQuery.getByLocation(block.location) ?: continue
-                val claim = claimQuery.claims.getById(partition.id) ?: continue
+                val claim = claimQuery.claims.getById(partition.claimId) ?: continue
                 claimList.add(claim)
             }
             return claimList.distinct()
@@ -115,7 +115,7 @@ class RuleBehaviour {
         private fun entityGriefInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
             if (event !is EntityChangeBlockEvent) return listOf()
             val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimQuery.claims.getById(partition.id) ?: return listOf()
+            val claim = claimQuery.claims.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
         }
 
