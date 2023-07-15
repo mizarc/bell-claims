@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.listeners
 
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -26,7 +27,7 @@ class RuleBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java, ::cancelEvent, ::blockInClaim)
-        val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, ::cancelEvent, ::blockInClaim)
+        val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, ::cancelEvent, ::fireSpreadInClaim)
         val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEvent, ::entityGriefInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
@@ -78,6 +79,14 @@ class RuleBehaviour {
             val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
             val claim = claimQuery.claims.getById(partition.claimId)
             return listOf(claim ?: return listOf()).distinct()
+        }
+
+        private fun fireSpreadInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
+            if (event !is BlockSpreadEvent) return listOf()
+            if (event.source.type != Material.FIRE) return listOf()
+            val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
+            val claim = claimQuery.claims.getById(partition.claimId) ?: return listOf()
+            return listOf(claim).distinct()
         }
 
         /**
