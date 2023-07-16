@@ -7,7 +7,7 @@ import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
@@ -24,7 +24,7 @@ open class ClaimCommand : BaseCommand() {
     @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository
     @Dependency protected lateinit var claimPermissionRepository: ClaimPermissionRepository
     @Dependency protected lateinit var playerAccessRepository: PlayerAccessRepository
-    @Dependency protected lateinit var claimQuery: ClaimQuery
+    @Dependency protected lateinit var partitionService: PartitionService
 
     @CommandAlias("claim")
     @CommandPermission("solidclaims.command.claim")
@@ -55,7 +55,7 @@ open class ClaimCommand : BaseCommand() {
     }
 
     fun getPartitionAtPlayer(player: Player): Partition? {
-        val claimPartition = claimQuery.getByLocation(player.location)
+        val claimPartition = partitionService.getByLocation(player.location)
         if (claimPartition == null) {
             player.sendMessage("§cThere is no claim partition at your current location.")
             return null

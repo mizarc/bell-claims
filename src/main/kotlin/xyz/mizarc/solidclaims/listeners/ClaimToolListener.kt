@@ -7,7 +7,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.getClaimTool
@@ -19,7 +19,7 @@ import java.util.*
  * @property claimContainer A reference to the claim containers to modify.
  */
 class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRepository,
-                        val playerStates: PlayerStateRepository, val claimQuery: ClaimQuery,
+                        val playerStates: PlayerStateRepository, val partitionService: PartitionService,
                         val claimVisualiser: ClaimVisualiser) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
@@ -78,13 +78,13 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      */
     fun selectNewCorner(player: Player, location: Location) {
         // Check if the selected spot exists in an existing claim.
-        if (claimQuery.isLocationOverlap(location)) {
+        if (partitionService.isLocationOverlap(location)) {
             player.sendMessage("§cThat spot is in an existing claim.")
             return
         }
 
-        val remainingClaimBlockCount = claimQuery.getRemainingClaimBlockCount(player) ?: return
-        val remainingClaimCount = claimQuery.getRemainingClaimCount(player) ?: return
+        val remainingClaimBlockCount = partitionService.getRemainingClaimBlockCount(player) ?: return
+        val remainingClaimCount = partitionService.getRemainingClaimCount(player) ?: return
 
         // Check if the player has already hit the claim limit.
         if (remainingClaimCount < 1) {
@@ -110,16 +110,16 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
         partitionBuilder.claimId = UUID.randomUUID()
         val partition = partitionBuilder.build()
 
-        val result = claimQuery.addPartition(player, partition, location.world!!.uid)
+        val result = partitionService.addPartition(player, partition, location.world!!.uid)
         when (result) {
-            ClaimQuery.PartitionCreationResult.Overlap ->
+            PartitionService.PartitionCreationResult.Overlap ->
                 player.sendMessage("§cThat selection overlaps an existing claim.")
-            ClaimQuery.PartitionCreationResult.TooSmall ->
+            PartitionService.PartitionCreationResult.TooSmall ->
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
-            ClaimQuery.PartitionCreationResult.InsufficientClaims -> TODO()
-            ClaimQuery.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
-                "§6${partition.area.getBlockCount() - claimQuery.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
-            ClaimQuery.PartitionCreationResult.Successful ->
+            PartitionService.PartitionCreationResult.InsufficientClaims -> TODO()
+            PartitionService.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
+                "§6${partition.area.getBlockCount() - partitionService.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
+            PartitionService.PartitionCreationResult.Successful ->
                 player.sendMessage("§aNew claim partition has been added to §6${claims.getById(partition.claimId)!!.name}.")
         }
 
@@ -132,7 +132,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Selects an existing claim corner if one is selected that a player has access to.
      */
     fun selectExistingCorner(player: Player, location: Location) : Boolean {
-        val partition = claimQuery.getByLocation(location) ?: return false
+        val partition = partitionService.getByLocation(location) ?: return false
         val claim = claims.getById(partition.claimId) ?: return false
 
         // Check if player state exists
@@ -164,17 +164,17 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
     fun resizePartition(player: Player, location: Location, partitionResizer: Partition.Resizer) {
         partitionResizer.setNewCorner(Position2D(location.x.toInt(), location.z.toInt()))
 
-        val result = claimQuery.resizePartition(player,
+        val result = partitionService.resizePartition(player,
             partitionResizer.partition, WorldArea(partitionResizer.newArea, location.world!!.uid))
         when (result) {
-            ClaimQuery.PartitionResizeResult.Overlap ->
+            PartitionService.PartitionResizeResult.Overlap ->
                 player.sendMessage("§cThat selection overlaps an existing claim.")
-            ClaimQuery.PartitionResizeResult.TooSmall ->
+            PartitionService.PartitionResizeResult.TooSmall ->
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
-            ClaimQuery.PartitionResizeResult.InsufficientBlocks ->
+            PartitionService.PartitionResizeResult.InsufficientBlocks ->
                 player.sendMessage("§cThat resize would require an additional " +
-                        "§6${partitionResizer.getExtraBlockCount() - claimQuery.getRemainingClaimBlockCount(player)!!} §cblocks.")
-            ClaimQuery.PartitionResizeResult.Successful -> player.sendMessage("§aClaim partition successfully resized.")
+                        "§6${partitionResizer.getExtraBlockCount() - partitionService.getRemainingClaimBlockCount(player)!!} §cblocks.")
+            PartitionService.PartitionResizeResult.Successful -> player.sendMessage("§aClaim partition successfully resized.")
         }
 
         // Update visualiser

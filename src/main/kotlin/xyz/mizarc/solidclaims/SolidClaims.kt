@@ -16,15 +16,16 @@ class SolidClaims : JavaPlugin() {
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
     val storage = DatabaseStorage(this)
-    val claimRepository = ClaimRepository(storage)
-    val partitionRepository = PartitionRepository(storage)
-    val claimPermissionRepository = ClaimPermissionRepository(storage)
-    val claimRuleRepository = ClaimRuleRepository(storage)
-    val playerAccessRepository = PlayerAccessRepository(storage)
-    val playerStateRepository = PlayerStateRepository()
-    var claimQuery = ClaimQuery(claimRepository, partitionRepository, claimRuleRepository,
-        claimPermissionRepository, playerAccessRepository, playerStateRepository)
-    var claimVisualiser = ClaimVisualiser(this, claimQuery)
+    val claimRepo = ClaimRepository(storage)
+    val partitionRepo = PartitionRepository(storage)
+    val claimPermissionRepo = ClaimPermissionRepository(storage)
+    val claimRuleRepo = ClaimRuleRepository(storage)
+    val playerAccessRepo = PlayerAccessRepository(storage)
+    val playerStateRepo = PlayerStateRepository()
+    val claimService = ClaimService(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo,
+        playerAccessRepo, playerStateRepo)
+    val partitionService = PartitionService(claimService, partitionRepo)
+    val claimVisualiser = ClaimVisualiser(this, partitionService)
 
     override fun onEnable() {
         logger.info(Chat::class.java.toString())
@@ -42,14 +43,14 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun registerDependencies() {
-        commandManager.registerDependency(ClaimRepository::class.java, claimRepository)
-        commandManager.registerDependency(PartitionRepository::class.java, partitionRepository)
-        commandManager.registerDependency(ClaimRuleRepository::class.java, claimRuleRepository)
-        commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepository)
-        commandManager.registerDependency(PlayerAccessRepository::class.java, playerAccessRepository)
-        commandManager.registerDependency(PlayerStateRepository::class.java, playerStateRepository)
+        commandManager.registerDependency(ClaimRepository::class.java, claimRepo)
+        commandManager.registerDependency(PartitionRepository::class.java, partitionRepo)
+        commandManager.registerDependency(ClaimRuleRepository::class.java, claimRuleRepo)
+        commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepo)
+        commandManager.registerDependency(PlayerAccessRepository::class.java, playerAccessRepo)
+        commandManager.registerDependency(PlayerStateRepository::class.java, playerStateRepo)
         commandManager.registerDependency(ClaimVisualiser::class.java, claimVisualiser)
-        commandManager.registerDependency(ClaimQuery::class.java, claimQuery)
+        commandManager.registerDependency(PartitionService::class.java, partitionService)
     }
 
     private fun registerCommands() {
@@ -69,17 +70,17 @@ class SolidClaims : JavaPlugin() {
     }
 
     private fun registerEvents() {
-        server.pluginManager.registerEvents(ClaimEventHandler(this, claimRepository, partitionRepository,
-            claimRuleRepository, claimPermissionRepository, playerAccessRepository, playerStateRepository, claimQuery),
+        server.pluginManager.registerEvents(ClaimEventHandler(this, claimRepo, partitionRepo,
+            claimRuleRepo, claimPermissionRepo, playerAccessRepo, playerStateRepo, partitionService),
             this)
-        server.pluginManager.registerEvents(ClaimToolListener(claimRepository, partitionRepository,
-            playerStateRepository, claimQuery, claimVisualiser), this)
-        server.pluginManager.registerEvents(ClaimVisualiser(this, claimQuery), this)
+        server.pluginManager.registerEvents(ClaimToolListener(claimRepo, partitionRepo,
+            playerStateRepo, partitionService, claimVisualiser), this)
+        server.pluginManager.registerEvents(ClaimVisualiser(this, partitionService), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata,
-            playerStateRepository), this)
+            playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
-        server.pluginManager.registerEvents(ClaimManagementListener(claimRepository, partitionRepository,
-            claimRuleRepository, claimPermissionRepository, playerAccessRepository), this)
-        server.pluginManager.registerEvents(ClaimDestructionListener(claimQuery), this)
+        server.pluginManager.registerEvents(ClaimManagementListener(claimRepo, partitionRepo,
+            claimRuleRepo, claimPermissionRepo, playerAccessRepo), this)
+        server.pluginManager.registerEvents(ClaimDestructionListener(partitionService), this)
     }
 }

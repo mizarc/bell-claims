@@ -5,8 +5,7 @@ import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
-import xyz.mizarc.solidclaims.ClaimQuery
-import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
@@ -18,7 +17,7 @@ class ClaimlistCommand : BaseCommand() {
     lateinit var claims: ClaimRepository
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
-    protected lateinit var claimQuery: ClaimQuery
+    protected lateinit var partitionService: PartitionService
 
     @Default
     @CommandPermission("solidclaims.command.claimlist")
@@ -52,7 +51,7 @@ class ClaimlistCommand : BaseCommand() {
 
             val name: String = if (playerClaims[i].name.isEmpty()) playerClaims[i].id.toString().substring(0, 7)
                 else playerClaims[i].name
-            val blockCount = claimQuery.getBlockCount(playerClaims[i])
+            val blockCount = partitionService.getBlockCount(playerClaims[i])
             chatInfo.addLinked(name,
                 "<${playerClaims[i].position.x}, ${playerClaims[i].position.y}, ${playerClaims[i].position.z} " +
                         "(${blockCount} Blocks)")

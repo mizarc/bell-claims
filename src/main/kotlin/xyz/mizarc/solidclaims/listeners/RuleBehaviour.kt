@@ -9,15 +9,15 @@ import org.bukkit.event.Event
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.Claim
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
  * and a method to obtain all the claims that the event is affecting [getClaims].
  */
-data class RuleExecutor(val eventClass: Class<out Event>, val handler: (event: Event, claimQuery: ClaimQuery) -> Unit,
-                        val getClaims: (event: Event, claimQuery: ClaimQuery) -> List<Claim>)
+data class RuleExecutor(val eventClass: Class<out Event>, val handler: (event: Event, partitionService: PartitionService) -> Unit,
+                        val getClaims: (event: Event, partitionService: PartitionService) -> List<Claim>)
 
 /**
  * A static class object to define the behaviour of event handling for events that affect claims which do not specify
@@ -37,7 +37,7 @@ class RuleBehaviour {
         /**
          * Cancel any cancellable event.
          */
-        private fun cancelEvent(event: Event, claimQuery: ClaimQuery) {
+        private fun cancelEvent(event: Event, partitionService: PartitionService) {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
@@ -46,24 +46,24 @@ class RuleBehaviour {
         /**
          * Allow explosions to occur, but prevent them from destroying blocks in claims that do not explicitly allow it.
          */
-        private fun preventExplosionDamage(event: Event, claimQuery: ClaimQuery) {
+        private fun preventExplosionDamage(event: Event, partitionService: PartitionService) {
             if (event is EntityExplodeEvent) {
-                handleExplosionBlocks(event.blockList(), event.location.world!!, claimQuery)
+                handleExplosionBlocks(event.blockList(), event.location.world!!, partitionService)
             }
             if (event is BlockExplodeEvent) {
-                handleExplosionBlocks(event.blockList(), event.block.world, claimQuery)
+                handleExplosionBlocks(event.blockList(), event.block.world, partitionService)
             }
         }
 
         /**
          * Edit the explosion's destruction to exclude blocks inside of claims without the rule for it.
          */
-        private fun handleExplosionBlocks(blocks: MutableList<Block>, world: World, claimQuery: ClaimQuery) {
+        private fun handleExplosionBlocks(blocks: MutableList<Block>, world: World, partitionService: PartitionService) {
             val result: ArrayList<Block> = ArrayList()
             for (block in blocks) {
-                val partition = claimQuery.getByLocation(block.location) ?: continue
-                val claim = claimQuery.claims.getById(partition.claimId)
-                if (claim == null || claimQuery.getClaimRules(claim)!!.contains(ClaimRule.Explosions)) {
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = partitionService.claims.getById(partition.claimId)
+                if (claim == null || partitionService.getClaimRules(claim)!!.contains(ClaimRule.Explosions)) {
                     result.add(block)
                 }
             }
@@ -74,45 +74,45 @@ class RuleBehaviour {
         /**
          * Get claims which this block resides in.
          */
-        private fun blockInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun blockInClaim(event: Event, partitionService: PartitionService): List<Claim> {
             if (event !is BlockEvent) return listOf()
-            val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimQuery.claims.getById(partition.claimId)
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = partitionService.claims.getById(partition.claimId)
             return listOf(claim ?: return listOf()).distinct()
         }
 
-        private fun fireSpreadInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun fireSpreadInClaim(event: Event, partitionService: PartitionService): List<Claim> {
             if (event !is BlockSpreadEvent) return listOf()
             if (event.source.type != Material.FIRE) return listOf()
-            val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimQuery.claims.getById(partition.claimId) ?: return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = partitionService.claims.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
         }
 
         /**
          * Get claims which this explosion affects the blocks of.
          */
-        private fun blockExplosionInClaim(e: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun blockExplosionInClaim(e: Event, partitionService: PartitionService): List<Claim> {
             if (e !is BlockExplodeEvent) return listOf()
-            return getExplosionClaims(e.blockList(), claimQuery)
+            return getExplosionClaims(e.blockList(), partitionService)
         }
 
         /**
          * Get claims which this explosion affects the blocks of.
          */
-        private fun entityExplosionInClaim(e: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun entityExplosionInClaim(e: Event, partitionService: PartitionService): List<Claim> {
             if (e !is EntityExplodeEvent) return listOf()
-            return getExplosionClaims(e.blockList(), claimQuery)
+            return getExplosionClaims(e.blockList(), partitionService)
         }
 
         /**
          * Get claims that this explosion affects.
          */
-        private fun getExplosionClaims(blocks: List<Block>, claimQuery: ClaimQuery): List<Claim> {
+        private fun getExplosionClaims(blocks: List<Block>, partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             for (block in blocks) {
-                val partition = claimQuery.getByLocation(block.location) ?: continue
-                val claim = claimQuery.claims.getById(partition.claimId) ?: continue
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = partitionService.claims.getById(partition.claimId) ?: continue
                 claimList.add(claim)
             }
             return claimList.distinct()
@@ -121,42 +121,42 @@ class RuleBehaviour {
         /**
          * Get claims which this entity grief event resides in.
          */
-        private fun entityGriefInClaim(event: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun entityGriefInClaim(event: Event, partitionService: PartitionService): List<Claim> {
             if (event !is EntityChangeBlockEvent) return listOf()
-            val partition = claimQuery.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimQuery.claims.getById(partition.claimId) ?: return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = partitionService.claims.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
         }
 
         /**
          * Get claims for piston extends.
          */
-        private fun pistonExtendInClaim(e: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun pistonExtendInClaim(e: Event, partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonExtendEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimQuery)
+            return getPistonClaims(e.blocks, e.direction, partitionService)
         }
 
         /**
          * Get claims for piston retracts.
          */
-        private fun pistonRetractInClaim(e: Event, claimQuery: ClaimQuery): List<Claim> {
+        private fun pistonRetractInClaim(e: Event, partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonRetractEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimQuery)
+            return getPistonClaims(e.blocks, e.direction, partitionService)
         }
 
         /**
          * Get claims that this machine operates in, accounting for where the blocks will be if the piston event is
          * allowed to occur.
          */
-        private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, claimQuery: ClaimQuery): List<Claim> {
+        private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             val checks: ArrayList<Block> = ArrayList()
             for (c in blocks) {
                 checks.add(c.getRelative(direction))
             }
             for (block in checks) {
-                val partition = claimQuery.getByLocation(block.location) ?: continue
-                val claim = claimQuery.claims.getById(partition.claimId) ?: continue
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = partitionService.claims.getById(partition.claimId) ?: continue
                 claimList.add(claim)
             }
             return claimList.distinct()

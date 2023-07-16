@@ -1,7 +1,6 @@
 package xyz.mizarc.solidclaims.listeners
 
 import com.google.common.math.IntMath.sqrt
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -13,7 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.partitions.Position2D
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.getClaimTool
@@ -22,7 +21,7 @@ import kotlin.math.abs
 
 private const val yRange = 50
 
-class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: ClaimQuery) : Listener {
+class ClaimVisualiser(private val plugin: JavaPlugin, private val partitionService: PartitionService) : Listener {
     private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
 
     var oldPartitions: ArrayList<Partition> = ArrayList()
@@ -546,7 +545,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
-            partitionsInChunks.addAll(claimQuery.partitions.getByChunk(chunk))
+            partitionsInChunks.addAll(partitionService.partitions.getByChunk(chunk))
         }
         if (partitionsInChunks.isEmpty()) return
 
@@ -557,8 +556,8 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimQuery: Cl
         val borders: ArrayList<Position2D> = ArrayList()
         val corners: ArrayList<Position2D> = ArrayList()
         for (partition in partitionsInChunks) {
-            val claim = claimQuery.claims.getById(partition.claimId) ?: continue
-            val mainPartition = claimQuery.getMainPartition(claim)
+            val claim = partitionService.claims.getById(partition.claimId) ?: continue
+            val mainPartition = partitionService.getMainPartition(claim)
             if (claim.owner.uniqueId != player.uniqueId) {
                 noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
                 noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())

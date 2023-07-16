@@ -3,7 +3,7 @@ package xyz.mizarc.solidclaims.commands
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.listeners.ClaimVisualiser
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
@@ -17,7 +17,7 @@ class UnclaimCommand : BaseCommand() {
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
     lateinit var claimVisualiser: ClaimVisualiser
-    protected lateinit var claimQuery: ClaimQuery
+    protected lateinit var partitionService: PartitionService
 
     @Default
     @CommandPermission("solidclaims.command.unclaim")
@@ -28,10 +28,10 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("partition")
     @CommandPermission("solidclaims.command.unclaim.partition")
     fun onPartition(player: Player) {
-        val partition = claimQuery.getByPlayer(player) ?: return
+        val partition = partitionService.getByPlayer(player) ?: return
 
         // Remove claim and send alert if not executed
-        if (!claimQuery.removePartition(partition)) {
+        if (!partitionService.removePartition(partition)) {
             partitions.add(partition)
             return player.sendMessage("§cThat resize would result in an unconnected partition island.")
         }
@@ -55,7 +55,7 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("connected")
     @CommandPermission("solidclaims.command.unclaim.connected")
     fun onConnected(player: Player) {
-        val partition = claimQuery.getByPlayer(player) ?: return
+        val partition = partitionService.getByPlayer(player) ?: return
         val claim = claims.getById(partition.claimId) ?: return
         val claimPartitions = partitions.getByClaim(claim)
 
