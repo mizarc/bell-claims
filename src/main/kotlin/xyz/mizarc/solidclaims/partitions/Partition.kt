@@ -46,14 +46,17 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
     }
 
     /**
-     * Checks if an area is directly adjacent to this one.
-     * @param areaQuery The area to check.
+     * Checks if a partition is directly adjacent to this one.
+     * @param partition The area to check.
      * @return True if area is adjacent.
      */
     fun isPartitionAdjacent(partition: Partition): Boolean {
         return area.isAreaAdjacent(partition.area)
     }
 
+    /**
+     * Checks if partition is connected to another partition
+     */
     fun isPartitionLinked(partition: Partition): Boolean {
         return isPartitionAdjacent(partition) && partition.claimId == claimId
     }
