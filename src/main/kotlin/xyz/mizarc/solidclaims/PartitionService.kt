@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims
 
 import org.bukkit.Bukkit
+import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
@@ -63,7 +64,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
         val chunks = worldArea.getWorldChunks()
         val existingPartitions: MutableSet<Partition> = mutableSetOf()
         for (chunk in chunks) {
-            existingPartitions.addAll(filterByWorld(worldArea.worldId, getByChunk(chunk)))
+            existingPartitions.addAll(filterByWorld(worldArea.worldId, getByChunk(worldArea.worldId, chunk)))
         }
 
         for (partition in existingPartitions) {
@@ -96,8 +97,12 @@ class PartitionService(private val claimService: ClaimService, private val parti
      * @param worldPosition The target chunk position.
      * @return A set of partitions that exist within the target chunk.
      */
-    fun getByChunk(worldPosition: WorldPosition): Set<Partition> {
-        return filterByWorld(worldPosition.worldId, partitionRepo.getByChunk(worldPosition.toChunk()))
+    fun getByChunk(chunk: Chunk): Set<Partition> {
+        return filterByWorld(chunk.world.uid, partitionRepo.getByChunk(Position2D(chunk.x, chunk.z)))
+    }
+
+    fun getByChunk(worldId: UUID, position: Position2D): Set<Partition> {
+        return filterByWorld(worldId, partitionRepo.getByChunk(position))
     }
 
     /**
@@ -123,7 +128,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
         val chunkPartitions = ArrayList<Partition>()
         val chunks = partition.getChunks()
         for (chunk in chunks) {
-            chunkPartitions.addAll(getByChunk(WorldPosition(chunk, claim.worldId)))
+            chunkPartitions.addAll(getByChunk(claim.worldId, chunk))
         }
 
         // Find which of the partitions in the chunks are adjacent
