@@ -1,8 +1,10 @@
 package xyz.mizarc.solidclaims
 
+import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
+import xyz.mizarc.solidclaims.partitions.Position3D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import java.util.UUID
 
@@ -19,6 +21,10 @@ class ClaimService(private val claimRepo: ClaimRepository,
 
     fun getByPlayer(player: OfflinePlayer): Set<Claim> {
         return claimRepo.getByPlayer(player)
+    }
+
+    fun getByLocation(location: Location): Claim? {
+        return claimRepo.getByPosition(Position3D(location))
     }
 
     fun getBlockCount(claim: Claim): Int {
