@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.menus.ClaimManagementMenu
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
@@ -17,7 +18,8 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
                               private val partitionRepository: PartitionRepository,
                               private val claimRuleRepository: ClaimRuleRepository,
                               private val claimPermissionRepository: ClaimPermissionRepository,
-                              private val playerAccessRepository: PlayerAccessRepository): Listener {
+                              private val playerAccessRepository: PlayerAccessRepository,
+                              private val claimService: ClaimService): Listener {
 
     @EventHandler
     fun onPlayerClaimObjectInteract(event: PlayerInteractEvent) {
@@ -28,7 +30,7 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
             val claimBuilder = Claim.Builder(event.player,
                 event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
             ClaimManagementMenu(claimRepository, partitionRepository, claimPermissionRepository,
-                playerAccessRepository, claimRuleRepository, claimBuilder)
+                playerAccessRepository, claimRuleRepository, claimService, claimBuilder)
                 .openClaimManagementMenu()
         }
     }

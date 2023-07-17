@@ -13,6 +13,7 @@ import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.listeners.ClaimPermission
@@ -30,6 +31,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val claimPermissionRepository: ClaimPermissionRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
                           private val claimRuleRepository: ClaimRuleRepository,
+                          private val claimService: ClaimService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimRepository.getByPosition(claimBuilder.position)
@@ -50,7 +52,8 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         // Add warp creation icon
         val iconEditorItem = ItemStack(Material.BELL)
             .name("Create Claim")
-            .lore("The area around this bell will be protected from griefing")
+            .lore("The area around this bell will be protected from griefing.")
+            .lore("You have ${claimService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
