@@ -81,7 +81,7 @@ class SolidClaims : JavaPlugin() {
             playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimManagementListener(claimRepo, partitionRepo,
-            claimRuleRepo, claimPermissionRepo, playerAccessRepo), this)
+            claimRuleRepo, claimPermissionRepo, playerAccessRepo, claimService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService), this)
     }
 }
