@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims.commands
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.listeners.ClaimVisualiser
@@ -17,6 +18,7 @@ class UnclaimCommand : BaseCommand() {
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
     lateinit var claimVisualiser: ClaimVisualiser
+    protected lateinit var claimService: ClaimService
     protected lateinit var partitionService: PartitionService
 
     @Default
@@ -28,7 +30,7 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("partition")
     @CommandPermission("solidclaims.command.unclaim.partition")
     fun onPartition(player: Player) {
-        val partition = partitionService.getByPlayer(player) ?: return
+        val partition = partitionService.getByPlayerPosition(player) ?: return
 
         // Remove claim and send alert if not executed
         if (!partitionService.removePartition(partition)) {
@@ -55,7 +57,7 @@ class UnclaimCommand : BaseCommand() {
     @Subcommand("connected")
     @CommandPermission("solidclaims.command.unclaim.connected")
     fun onConnected(player: Player) {
-        val partition = partitionService.getByPlayer(player) ?: return
+        val partition = partitionService.getByPlayerPosition(player) ?: return
         val claim = claims.getById(partition.claimId) ?: return
         val claimPartitions = partitions.getByClaim(claim)
 

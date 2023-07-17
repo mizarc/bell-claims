@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
@@ -24,6 +25,7 @@ open class ClaimCommand : BaseCommand() {
     @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository
     @Dependency protected lateinit var claimPermissionRepository: ClaimPermissionRepository
     @Dependency protected lateinit var playerAccessRepository: PlayerAccessRepository
+    @Dependency protected lateinit var claimService: ClaimService
     @Dependency protected lateinit var partitionService: PartitionService
 
     @CommandAlias("claim")
