@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
 import org.bukkit.Material
 import org.bukkit.entity.ItemFrame

@@ -1,7 +1,8 @@
 package xyz.mizarc.solidclaims.claims
 
+import org.bukkit.Bukkit
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
-import xyz.mizarc.solidclaims.events.ClaimRule
+import xyz.mizarc.solidclaims.listeners.ClaimRule
 import java.sql.SQLException
 import java.util.*
 
@@ -17,13 +18,14 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         return rules[claim.id]?.contains(rule) ?: false
     }
 
-    fun getByClaim(claim: Claim): MutableSet<ClaimRule>? {
-        return rules[claim.id]
+    fun getByClaim(claim: Claim): MutableSet<ClaimRule> {
+        return rules[claim.id] ?: mutableSetOf()
     }
 
     fun add(claim: Claim, rule: ClaimRule) {
+        rules.getOrPut(claim.id) { mutableSetOf() }.add(rule)
         try {
-            storage.connection.executeUpdate("INSERT INTO claimRules VALUES (claimId, rule)" +
+            storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule)" +
                     "VALUES (?,?)", claim.id, rule.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -31,9 +33,25 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
     }
 
     fun remove(claim: Claim, rule: ClaimRule) {
+        val claimRules = rules[claim.id] ?: return
+        claimRules.remove(rule)
+        if (claimRules.isEmpty()) {
+            rules.remove(claim.id)
+        }
+
         try {
-            storage.connection.executeUpdate("REMOVE FROM claimRule WHERE claimId=? AND rule=?",
+            storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=? AND rule=?",
                 claim.id, rule.name)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaim(claim: Claim){
+        rules.remove(claim.id)
+
+        try {
+            storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=?", claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -44,8 +62,8 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimRules (id TEXT, " +
-                    "claimId TEXT, rule TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimRules (claimId TEXT, rule TEXT, " +
+                    "FOREIGN KEY(claimId) REFERENCES claims(id));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }

@@ -20,8 +20,8 @@ class InfoCommand : ClaimCommand() {
         val partition = getPartitionAtPlayer(player) ?: return
 
         val claim = claims.getById(partition.claimId)!!
-        val claimPartitions = partitions.getByClaim(claim.id)
-        val blockCount = claimQuery.getBlockCount(claim)
+        val claimPartitions = partitions.getByClaim(claim)
+        val blockCount = claimService.getBlockCount(claim)
         val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
 
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
@@ -39,8 +39,8 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Trusted Users", playerAccessRepository.getByClaim(claim)?.count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
-        chatInfo.addLinked("First Corner", partition.area.lowerPosition.toString())
-        chatInfo.addLinked("Second Corner", partition.area.upperPosition.toString())
+        chatInfo.addLinked("First Corner", partition.area.lowerPosition2D.toString())
+        chatInfo.addLinked("Second Corner", partition.area.upperPosition2D.toString())
         chatInfo.addLinked("Block Count", partition.area.getBlockCount().toString())
 
         player.spigot().sendMessage(*chatInfo.create())

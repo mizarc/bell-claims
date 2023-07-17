@@ -1,31 +1,30 @@
 package xyz.mizarc.solidclaims.partitions
 
-import org.bukkit.Bukkit
 import kotlin.math.absoluteValue
 
 /**
  * Stores two positions that define the corners of an area.
- * @property lowerPosition The lower corner position.
- * @property upperPosition The upper corner position.
+ * @property lowerPosition2D The lower corner position.
+ * @property upperPosition2D The upper corner position.
  */
-open class Area(var lowerPosition: Position, var upperPosition: Position) {
+open class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D) {
     init {
         sortPositionSizes()
     }
 
     /**
      * Checks if the position is on one of the four corners of the claim
-     * @param The position to check
+     * @param position2D The position to check
      * @return True if in corner.
      */
-    fun isPositionInCorner(position: Position): Boolean {
-        if (position == lowerPosition || position == upperPosition) {
+    fun isPositionInCorner(position2D: Position2D): Boolean {
+        if (position2D == lowerPosition2D || position2D == upperPosition2D) {
             return true
         }
-        if (position == Position(lowerPosition.x, upperPosition.z)) {
+        if (position2D == Position2D(lowerPosition2D.x, upperPosition2D.z)) {
             return true
         }
-        if (position == Position(upperPosition.x, lowerPosition.z)) {
+        if (position2D == Position2D(upperPosition2D.x, lowerPosition2D.z)) {
             return true
         }
 
@@ -34,14 +33,14 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
 
     /**
      * Checks if the specified position exists within the bounds of this area.
-     * @param position The position to check
+     * @param position2D The position to check
      * @return True if in area.
      */
-    fun isPositionInArea(position: Position): Boolean {
-        return (position.x >= lowerPosition.x
-                && position.x <= upperPosition.x
-                && position.z >= lowerPosition.z
-                && position.z <= upperPosition.z)
+    fun isPositionInArea(position2D: Position2D): Boolean {
+        return (position2D.x >= lowerPosition2D.x
+                && position2D.x <= upperPosition2D.x
+                && position2D.z >= lowerPosition2D.z
+                && position2D.z <= upperPosition2D.z)
     }
 
     /**
@@ -50,10 +49,10 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * @return True if area overlaps.
      */
     fun isAreaOverlap(area: Area): Boolean {
-        return lowerPosition.x <= area.upperPosition.x
-                && upperPosition.x >= area.lowerPosition.x
-                && lowerPosition.z <= area.upperPosition.z
-                && upperPosition.z >= area.lowerPosition.z
+        return lowerPosition2D.x <= area.upperPosition2D.x
+                && upperPosition2D.x >= area.lowerPosition2D.x
+                && lowerPosition2D.z <= area.upperPosition2D.z
+                && upperPosition2D.z >= area.lowerPosition2D.z
     }
 
     /**
@@ -63,33 +62,33 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      */
     fun isAreaAdjacent(area: Area): Boolean {
         // Top
-        if (area.upperPosition.z < lowerPosition.z) {
+        if (area.upperPosition2D.z < lowerPosition2D.z) {
             for (block in area.getTopEdgeBlockPositions()) {
-                if (isPositionInArea(Position(block.x, block.z + 1))) {
+                if (isPositionInArea(Position2D(block.x, block.z + 1))) {
                     return true
                 }
             }
         }
         // Bottom
-        if (area.lowerPosition.z > upperPosition.z) {
+        if (area.lowerPosition2D.z > upperPosition2D.z) {
             for (block in area.getBottomEdgeBlockPositions()) {
-                if (isPositionInArea(Position(block.x, block.z - 1))) {
+                if (isPositionInArea(Position2D(block.x, block.z - 1))) {
                     return true
                 }
             }
         }
         // Left
-        if (area.lowerPosition.x > upperPosition.x) {
+        if (area.lowerPosition2D.x > upperPosition2D.x) {
             for (block in area.getLeftEdgeBlockPositions()) {
-                if (isPositionInArea(Position(block.x - 1, block.z))) {
+                if (isPositionInArea(Position2D(block.x - 1, block.z))) {
                     return true
                 }
             }
         }
         // Right
-        if (area.upperPosition.x < lowerPosition.x) {
+        if (area.upperPosition2D.x < lowerPosition2D.x) {
             for (block in area.getRightEdgeBlockPositions()) {
-                if (isPositionInArea(Position(block.x + 1, block.z))) {
+                if (isPositionInArea(Position2D(block.x + 1, block.z))) {
                     return true
                 }
             }
@@ -102,17 +101,17 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the total block count of the area.
      */
     fun getBlockCount(): Int {
-        return ((upperPosition.x - lowerPosition.x + 1) * (upperPosition.z - lowerPosition.z + 1)).absoluteValue
+        return ((upperPosition2D.x - lowerPosition2D.x + 1) * (upperPosition2D.z - lowerPosition2D.z + 1)).absoluteValue
     }
 
-    fun getChunks(): ArrayList<Position> {
-        val firstChunk = lowerPosition.toChunk()
-        val secondChunk = upperPosition.toChunk()
+    fun getChunks(): ArrayList<Position2D> {
+        val firstChunk = lowerPosition2D.toChunk()
+        val secondChunk = upperPosition2D.toChunk()
 
-        val chunks: ArrayList<Position> = ArrayList()
+        val chunks: ArrayList<Position2D> = ArrayList()
         for (x in firstChunk.x..secondChunk.x) {
             for (z in firstChunk.z..secondChunk.z) {
-                chunks.add(Position(x, z))
+                chunks.add(Position2D(x, z))
             }
         }
 
@@ -123,38 +122,38 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the length of the X axis.
      */
     fun getXLength(): Int {
-        return (lowerPosition.x - upperPosition.x + 1).absoluteValue
+        return (lowerPosition2D.x - upperPosition2D.x + 1).absoluteValue
     }
 
     /**
      * Gets the length of the Z axis
      */
     fun getZLength(): Int {
-        return (lowerPosition.z - upperPosition.z + 1).absoluteValue
+        return (lowerPosition2D.z - upperPosition2D.z + 1).absoluteValue
     }
 
-    fun getCornerBlockPositions(): ArrayList<Position> {
-        val positions = ArrayList<Position>()
-        positions.add(lowerPosition)
-        positions.add(upperPosition)
-        positions.add(Position(lowerPosition.x, upperPosition.z))
-        positions.add(Position(upperPosition.x, lowerPosition.z))
-        return positions
+    fun getCornerBlockPositions(): ArrayList<Position2D> {
+        val position2DS = ArrayList<Position2D>()
+        position2DS.add(lowerPosition2D)
+        position2DS.add(upperPosition2D)
+        position2DS.add(Position2D(lowerPosition2D.x, upperPosition2D.z))
+        position2DS.add(Position2D(upperPosition2D.x, lowerPosition2D.z))
+        return position2DS
     }
 
     /**
      * Gets the list of X and Z block positions that define the edges of an area.
      * @return An array of position objects
      */
-    fun getEdgeBlockPositions(): ArrayList<Position> {
-        val blocks : ArrayList<Position> = ArrayList()
-        for (block in lowerPosition.x..upperPosition.x) {
-            blocks.add(Position(block, lowerPosition.z))
-            blocks.add(Position(block, upperPosition.z))
+    fun getEdgeBlockPositions(): ArrayList<Position2D> {
+        val blocks : ArrayList<Position2D> = ArrayList()
+        for (block in lowerPosition2D.x..upperPosition2D.x) {
+            blocks.add(Position2D(block, lowerPosition2D.z))
+            blocks.add(Position2D(block, upperPosition2D.z))
         }
-        for (block in lowerPosition.z..upperPosition.z) {
-            blocks.add(Position(lowerPosition.x, block))
-            blocks.add(Position(upperPosition.x, block))
+        for (block in lowerPosition2D.z..upperPosition2D.z) {
+            blocks.add(Position2D(lowerPosition2D.x, block))
+            blocks.add(Position2D(upperPosition2D.x, block))
         }
         return blocks
     }
@@ -163,10 +162,10 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the positions of blocks that define the top edge of the area.
      * @return An array of position objects
      */
-    fun getTopEdgeBlockPositions(): Array<Position> {
-        val blocks : ArrayList<Position> = ArrayList()
-        for (block in lowerPosition.x..upperPosition.x) {
-            blocks.add(Position(block, upperPosition.z))
+    fun getTopEdgeBlockPositions(): Array<Position2D> {
+        val blocks : ArrayList<Position2D> = ArrayList()
+        for (block in lowerPosition2D.x..upperPosition2D.x) {
+            blocks.add(Position2D(block, upperPosition2D.z))
         }
         return blocks.toTypedArray()
     }
@@ -175,10 +174,10 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the positions of blocks that define the bottom edge of the area.
      * @return An array of position objects
      */
-    fun getBottomEdgeBlockPositions(): ArrayList<Position> {
-        val blocks : ArrayList<Position> = ArrayList()
-        for (block in lowerPosition.x..upperPosition.x) {
-            blocks.add(Position(block, lowerPosition.z))
+    fun getBottomEdgeBlockPositions(): ArrayList<Position2D> {
+        val blocks : ArrayList<Position2D> = ArrayList()
+        for (block in lowerPosition2D.x..upperPosition2D.x) {
+            blocks.add(Position2D(block, lowerPosition2D.z))
         }
         return blocks
     }
@@ -187,10 +186,10 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the positions of blocks that define the bottom edge of the area.
      * @return An array of position objects
      */
-    fun getLeftEdgeBlockPositions(): ArrayList<Position> {
-        val blocks : ArrayList<Position> = ArrayList()
-        for (block in lowerPosition.z..upperPosition.z) {
-            blocks.add(Position(lowerPosition.x, block))
+    fun getLeftEdgeBlockPositions(): ArrayList<Position2D> {
+        val blocks : ArrayList<Position2D> = ArrayList()
+        for (block in lowerPosition2D.z..upperPosition2D.z) {
+            blocks.add(Position2D(lowerPosition2D.x, block))
         }
         return blocks
     }
@@ -199,10 +198,10 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Gets the positions of blocks that define the bottom edge of the area.
      * @return An array of position objects
      */
-    fun getRightEdgeBlockPositions(): ArrayList<Position> {
-        val blocks : ArrayList<Position> = ArrayList()
-        for (block in lowerPosition.z..upperPosition.z) {
-            blocks.add(Position(upperPosition.x, block))
+    fun getRightEdgeBlockPositions(): ArrayList<Position2D> {
+        val blocks : ArrayList<Position2D> = ArrayList()
+        for (block in lowerPosition2D.z..upperPosition2D.z) {
+            blocks.add(Position2D(upperPosition2D.x, block))
         }
         return blocks
     }
@@ -211,18 +210,29 @@ open class Area(var lowerPosition: Position, var upperPosition: Position) {
      * Sorts the position sizes to ensure that the upper position contains values larger than the lower position.
      */
     protected fun sortPositionSizes() {
-        if (lowerPosition.x > upperPosition.x) {
-            val newLowerPosition = Position(upperPosition.x, lowerPosition.z)
-            val newUpperPosition = Position(lowerPosition.x, upperPosition.z)
-            lowerPosition = newLowerPosition
-            upperPosition = newUpperPosition
+        if (lowerPosition2D.x > upperPosition2D.x) {
+            val newLowerPosition2D = Position2D(upperPosition2D.x, lowerPosition2D.z)
+            val newUpperPosition2D = Position2D(lowerPosition2D.x, upperPosition2D.z)
+            lowerPosition2D = newLowerPosition2D
+            upperPosition2D = newUpperPosition2D
         }
 
-        if (lowerPosition.z > upperPosition.z) {
-            val newLowerPosition = Position(lowerPosition.x, upperPosition.z)
-            val newUpperPosition = Position(upperPosition.x, lowerPosition.z)
-            lowerPosition = newLowerPosition
-            upperPosition = newUpperPosition
+        if (lowerPosition2D.z > upperPosition2D.z) {
+            val newLowerPosition2D = Position2D(lowerPosition2D.x, upperPosition2D.z)
+            val newUpperPosition2D = Position2D(upperPosition2D.x, lowerPosition2D.z)
+            lowerPosition2D = newLowerPosition2D
+            upperPosition2D = newUpperPosition2D
+        }
+    }
+
+    class Builder(val firstPosition: Position2D) {
+        var secondPosition: Position2D? = null
+
+        fun build(): Area? {
+            if (secondPosition == null) {
+                return null
+            }
+            return Area(firstPosition, secondPosition!!)
         }
     }
 }

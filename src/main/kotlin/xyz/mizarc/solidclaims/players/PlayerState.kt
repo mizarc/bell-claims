@@ -5,9 +5,6 @@ import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.Config
-import xyz.mizarc.solidclaims.claims.PlayerAccess
-import java.util.*
-import kotlin.collections.ArrayList
 
 class PlayerState(val player: OfflinePlayer, val config: Config, val metadata: Chat) {
     var claimOverride = false

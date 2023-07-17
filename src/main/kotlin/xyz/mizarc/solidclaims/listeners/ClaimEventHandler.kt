@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.Location
@@ -6,7 +6,8 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.ClaimService
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
@@ -27,7 +28,8 @@ class ClaimEventHandler(var plugin: SolidClaims,
                         val claimPermissionRepository: ClaimPermissionRepository,
                         val playerAccessRepository: PlayerAccessRepository,
                         val playerStates: PlayerStateRepository,
-                        val claimQuery: ClaimQuery) : Listener {
+                        val claimService: ClaimService,
+                        val partitionService: PartitionService) : Listener {
     init {
         for (perm in ClaimPermission.values()) {
             for (e in perm.events) {
@@ -49,11 +51,11 @@ class ClaimEventHandler(var plugin: SolidClaims,
     private fun handleClaimRule(listener: Listener, event: Event) {
         val rule = ClaimRule.getRuleForEvent(event::class.java) ?: return // Get the rule to deal with this event
         val executor = ClaimRule.getRuleExecutorForEvent(event::class.java, rule) ?: return  // Get the executor from the rule that deals with this event
-        val claims = executor.getClaims(event, claimQuery) // Get all claims that this event affects
+        val claims = executor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
         if (claims.isEmpty()) return // Check if any claims are affected by the event
         for (claim in claims) { // If they are, check if they do not allow this event
             if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
-                executor.handler.invoke(event, claimQuery) // If they do not, invoke the handler
+                executor.handler.invoke(event, claimService, partitionService) // If they do not, invoke the handler
                 return
             }
         }
@@ -76,7 +78,7 @@ class ClaimEventHandler(var plugin: SolidClaims,
         val location: Location = tempExecutor.location.invoke(event) ?: return // If no location was found, do nothing
 
         // Determine if this event happened inside a claim's boundaries
-        val partition = claimQuery.getByLocation(location) ?: return
+        val partition = partitionService.getByLocation(location) ?: return
         val claim = claims.getById(partition.claimId) ?: return
 
         // If player has override, do nothing.

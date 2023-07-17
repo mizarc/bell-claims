@@ -1,4 +1,4 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.event.EventHandler

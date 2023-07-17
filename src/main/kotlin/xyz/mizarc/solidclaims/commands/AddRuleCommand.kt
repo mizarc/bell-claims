@@ -2,11 +2,9 @@ package xyz.mizarc.solidclaims.commands
 
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
-import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
-import xyz.mizarc.solidclaims.claims.ClaimRuleRepository
-import xyz.mizarc.solidclaims.events.ClaimRule
+import xyz.mizarc.solidclaims.listeners.ClaimRule
 
 @CommandAlias("claim")
 class AddRuleCommand : ClaimCommand() {

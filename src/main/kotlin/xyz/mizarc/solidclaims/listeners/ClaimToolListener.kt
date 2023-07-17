@@ -1,6 +1,5 @@
-package xyz.mizarc.solidclaims.events
+package xyz.mizarc.solidclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -8,7 +7,8 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import xyz.mizarc.solidclaims.ClaimQuery
+import xyz.mizarc.solidclaims.ClaimService
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.getClaimTool
@@ -19,8 +19,8 @@ import java.util.*
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
  */
-class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRepository,
-                        val playerStates: PlayerStateRepository, val claimQuery: ClaimQuery,
+class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerStateRepository,
+                        val claimService: ClaimService, val partitionService: PartitionService,
                         val claimVisualiser: ClaimVisualiser) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
@@ -79,13 +79,13 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      */
     fun selectNewCorner(player: Player, location: Location) {
         // Check if the selected spot exists in an existing claim.
-        if (claimQuery.isLocationOverlap(location)) {
+        if (partitionService.isLocationOverlap(location)) {
             player.sendMessage("§cThat spot is in an existing claim.")
             return
         }
 
-        val remainingClaimBlockCount = claimQuery.getRemainingClaimBlockCount(player) ?: return
-        val remainingClaimCount = claimQuery.getRemainingClaimCount(player) ?: return
+        val remainingClaimBlockCount = claimService.getRemainingClaimBlockCount(player) ?: return
+        val remainingClaimCount = claimService.getRemainingClaimCount(player) ?: return
 
         // Check if the player has already hit the claim limit.
         if (remainingClaimCount < 1) {
@@ -98,7 +98,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
                     "Try removing or resizing an existing claim.")
         }
 
-        partitionBuilders[player] = Partition.Builder(Position(location))
+        partitionBuilders[player] = Partition.Builder(Position2D(location))
         return player.sendMessage("§aNew claim building started. " +
                 "You have §6$remainingClaimBlockCount §aBlocks and §6$remainingClaimCount §aAreas remaining.")
     }
@@ -107,23 +107,21 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Creates a new claim using a claim builder.
      */
     fun createClaim(player: Player, location: Location, partitionBuilder: Partition.Builder) {
-        partitionBuilder.secondPosition = Position(location.x.toInt(), location.z.toInt())
+        partitionBuilder.secondPosition2D = Position2D(location.x.toInt(), location.z.toInt())
         partitionBuilder.claimId = UUID.randomUUID()
         val partition = partitionBuilder.build()
 
-        val result = claimQuery.addPartition(player, partition, location.world!!.uid)
+        val result = partitionService.addPartition(player, partition, location.world!!.uid)
         when (result) {
-            ClaimQuery.PartitionCreationResult.Overlap ->
+            PartitionService.PartitionCreationResult.Overlap ->
                 player.sendMessage("§cThat selection overlaps an existing claim.")
-            ClaimQuery.PartitionCreationResult.TooSmall ->
+            PartitionService.PartitionCreationResult.TooSmall ->
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
-            ClaimQuery.PartitionCreationResult.InsufficientClaims -> TODO()
-            ClaimQuery.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
-                "§6${partition.area.getBlockCount() - claimQuery.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
-            ClaimQuery.PartitionCreationResult.SuccessfulExisting ->
+            PartitionService.PartitionCreationResult.InsufficientClaims -> TODO()
+            PartitionService.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
+                "§6${partition.area.getBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
+            PartitionService.PartitionCreationResult.Successful ->
                 player.sendMessage("§aNew claim partition has been added to §6${claims.getById(partition.claimId)!!.name}.")
-            ClaimQuery.PartitionCreationResult.SuccessfulNew ->
-                player.sendMessage("§aNew claim has been created.")
         }
 
         // Update builders list and visualisation
@@ -135,7 +133,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Selects an existing claim corner if one is selected that a player has access to.
      */
     fun selectExistingCorner(player: Player, location: Location) : Boolean {
-        val partition = claimQuery.getByLocation(location) ?: return false
+        val partition = partitionService.getByLocation(location) ?: return false
         val claim = claims.getById(partition.claimId) ?: return false
 
         // Check if player state exists
@@ -152,11 +150,11 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
             return false
         }
 
-        if (!partition.isPositionInCorner(Position(location))) {
+        if (!partition.isPositionInCorner(Position2D(location))) {
             return false
         }
 
-        partitionResizers[player] = Partition.Resizer(partition, Position(location))
+        partitionResizers[player] = Partition.Resizer(partition, Position2D(location))
         player.sendMessage("§aClaim corner selected. Select a different location to resize the claim.")
         return true
     }
@@ -165,19 +163,19 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
      * Selects a new position to resize the claim.
      */
     fun resizePartition(player: Player, location: Location, partitionResizer: Partition.Resizer) {
-        partitionResizer.setNewCorner(Position(location.x.toInt(), location.z.toInt()))
+        partitionResizer.setNewCorner(Position2D(location.x.toInt(), location.z.toInt()))
 
-        val result = claimQuery.resizePartition(player,
+        val result = partitionService.resizePartition(player,
             partitionResizer.partition, WorldArea(partitionResizer.newArea, location.world!!.uid))
         when (result) {
-            ClaimQuery.PartitionResizeResult.Overlap ->
+            PartitionService.PartitionResizeResult.Overlap ->
                 player.sendMessage("§cThat selection overlaps an existing claim.")
-            ClaimQuery.PartitionResizeResult.TooSmall ->
+            PartitionService.PartitionResizeResult.TooSmall ->
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
-            ClaimQuery.PartitionResizeResult.InsufficientBlocks ->
+            PartitionService.PartitionResizeResult.InsufficientBlocks ->
                 player.sendMessage("§cThat resize would require an additional " +
-                        "§6${partitionResizer.getExtraBlockCount() - claimQuery.getRemainingClaimBlockCount(player)!!} §cblocks.")
-            ClaimQuery.PartitionResizeResult.Successful -> player.sendMessage("§aClaim partition successfully resized.")
+                        "§6${partitionResizer.getExtraBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} §cblocks.")
+            PartitionService.PartitionResizeResult.Successful -> player.sendMessage("§aClaim partition successfully resized.")
         }
 
         // Update visualiser

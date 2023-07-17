@@ -5,8 +5,8 @@ import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.ChatInfoBuilder
-import xyz.mizarc.solidclaims.ClaimQuery
-import xyz.mizarc.solidclaims.claims.Claim
+import xyz.mizarc.solidclaims.ClaimService
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
@@ -18,7 +18,7 @@ class ClaimlistCommand : BaseCommand() {
     lateinit var claims: ClaimRepository
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
-    protected lateinit var claimQuery: ClaimQuery
+    protected lateinit var claimService: ClaimService
 
     @Default
     @CommandPermission("solidclaims.command.claimlist")
@@ -26,9 +26,9 @@ class ClaimlistCommand : BaseCommand() {
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
         val playerClaims = if (otherPlayer != null) {
-            claims.getByPlayer(otherPlayer.uniqueId).toList()
+            claims.getByPlayer(otherPlayer).toList()
         } else {
-            claims.getByPlayer(player.uniqueId).toList()
+            claims.getByPlayer(player).toList()
         }
 
         // Check if player has claims
@@ -52,12 +52,9 @@ class ClaimlistCommand : BaseCommand() {
 
             val name: String = if (playerClaims[i].name.isEmpty()) playerClaims[i].id.toString().substring(0, 7)
                 else playerClaims[i].name
-            val blockCount = claimQuery.getBlockCount(playerClaims[i])
-
-            val mainPartition = partitions.getById(playerClaims[i].mainPartitionId)
+            val blockCount = claimService.getBlockCount(playerClaims[i])
             chatInfo.addLinked(name,
-                "<${(mainPartition!!.area.lowerPosition.x + mainPartition.area.upperPosition.x) / 2}, " +
-                        "${(mainPartition.area.lowerPosition.z + mainPartition.area.upperPosition.z) / 2}> " +
+                "<${playerClaims[i].position.x}, ${playerClaims[i].position.y}, ${playerClaims[i].position.z} " +
                         "(${blockCount} Blocks)")
         }
         player.spigot().sendMessage(*chatInfo.createPaged(page,
