@@ -1,17 +1,14 @@
 package xyz.mizarc.solidclaims.utils
 
 import com.destroystokyo.paper.profile.PlayerProfile
-import org.bukkit.Bukkit
-import org.bukkit.ChatColor
-import org.bukkit.Color
-import org.bukkit.Material
-import org.bukkit.OfflinePlayer
+import org.bukkit.*
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.material.MaterialData
+import org.bukkit.persistence.PersistentDataType
 import java.util.*
 import java.util.function.Consumer
 
@@ -105,6 +102,20 @@ fun ItemStack.color(color: Color): ItemStack {
 fun ItemStack.flag(vararg flag: ItemFlag): ItemStack {
     val meta = itemMeta
     meta!!.addItemFlags(*flag)
+    itemMeta = meta
+    return this
+}
+
+fun ItemStack.getStringMeta(key: String): String? {
+    val meta = itemMeta ?: return null
+    return meta.persistentDataContainer.get(
+        NamespacedKey("solidclaims",key), PersistentDataType.STRING)
+}
+
+fun ItemStack.setStringMeta(key: String, value: String): ItemStack {
+    val meta = itemMeta
+    meta.persistentDataContainer.set(
+        NamespacedKey("solidclaims",key), PersistentDataType.STRING, value)
     itemMeta = meta
     return this
 }
