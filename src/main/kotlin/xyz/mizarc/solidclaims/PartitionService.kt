@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims
 
+import net.kyori.adventure.text.BlockNBTComponent.Pos
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
@@ -56,19 +57,21 @@ class PartitionService(private val claimService: ClaimService, private val parti
     }
 
     /**
-     * Checks if the target area overlaps an existing partition.
-     * @param worldArea The target area.
-     * @return True if the area intersects a partition, false otherwise.
+     * Checks if a partition being put into the world would overlap any existing partition.
+     * @param partition The new partition.
+     * @param worldId The world to put the partition in.
+     * @return True if the partition area would result in an overlap.
      */
-    fun isAreaOverlap(worldArea: WorldArea): Boolean {
-        val chunks = worldArea.getWorldChunks()
+    fun isPartitionOverlap(partition: Partition, worldId: UUID): Boolean {
+        val chunks = partition.area.getChunks()
         val existingPartitions: MutableSet<Partition> = mutableSetOf()
         for (chunk in chunks) {
-            existingPartitions.addAll(filterByWorld(worldArea.worldId, getByChunk(worldArea.worldId, chunk)))
+            existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
         }
 
-        for (partition in existingPartitions) {
-            if (partition.isAreaOverlap(worldArea)) {
+        existingPartitions.removeAll { it.id == partition.id }
+        for (existingPartition in existingPartitions) {
+            if (partition.isAreaOverlap(existingPartition.area)) {
                 return true
             }
         }
@@ -94,13 +97,19 @@ class PartitionService(private val claimService: ClaimService, private val parti
 
     /**
      * Gets all partitions in the target chunk.
-     * @param worldPosition The target chunk position.
+     * @param chunk The target chunk.
      * @return A set of partitions that exist within the target chunk.
      */
     fun getByChunk(chunk: Chunk): Set<Partition> {
         return filterByWorld(chunk.world.uid, partitionRepo.getByChunk(Position2D(chunk.x, chunk.z)))
     }
 
+    /**
+     * Gets all partitions in the target chunk.
+     * @param worldId The world the chunk is in.
+     * @param position The coordinates of the chunk.
+     * @return A set of partitions that exist within the target chunk.
+     */
     fun getByChunk(worldId: UUID, position: Position2D): Set<Partition> {
         return filterByWorld(worldId, partitionRepo.getByChunk(position))
     }
@@ -142,6 +151,21 @@ class PartitionService(private val claimService: ClaimService, private val parti
     }
 
     /**
+     * Gets the partitions that are adjacent to the target location.
+     *
+     */
+    fun getAdjacent(location: Location): Set<Partition> {
+        val positions = getSurroundingPositions(Position2D(location), 1)
+
+        val partitions: MutableSet<Partition> = mutableSetOf()
+        for (position in positions) {
+            val partition = filterByWorld(location.world.uid, partitionRepo.getByPosition(position).toSet()).first()
+            partitions.add(partition)
+        }
+        return partitions
+    }
+
+    /**
      * Gets the partition that the claim bell is located in.
      * @param claim The target claim.
      * @return The partition that the target claim's claim bell is physically located in.
@@ -172,7 +196,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
      */
     fun addPartition(player: OfflinePlayer, partition: Partition, worldId: UUID): PartitionCreationResult {
         // Set second location & Check if it overlaps an existing claim
-        if (isAreaOverlap(WorldArea(partition.area, worldId))) {
+        if (isPartitionOverlap(partition, worldId)) {
             return PartitionCreationResult.Overlap
         }
 
@@ -209,30 +233,31 @@ class PartitionService(private val claimService: ClaimService, private val parti
      * @return The result of the action depending on whether the resizing was successful or what reason made it
      * unsuccessful
      */
-    fun resizePartition(player: OfflinePlayer, partition: Partition, newArea: WorldArea): PartitionResizeResult {
+    fun resizePartition(player: OfflinePlayer, partition: Partition): PartitionResizeResult {
         // Check if selection overlaps an existing claim
-        if (isAreaOverlap(newArea)) {
+        val claim = claimService.getById(partition.claimId) ?: return PartitionResizeResult.Overlap
+        if (isPartitionOverlap(partition, claim.worldId)) {
             return PartitionResizeResult.Overlap
         }
 
         // Check if claim meets minimum size
-        if (newArea.getXLength() < 5 || newArea.getZLength() < 5) {
+        if (partition.area.getXLength() < 5 || partition.area.getZLength() < 5) {
             return PartitionResizeResult.TooSmall
         }
 
         // Check if claim takes too much space
         val remainingClaimBlockCount = claimService.getRemainingClaimBlockCount(player)!!
-        if (claimService.getUsedClaimBlockCount(player) + (newArea.getBlockCount() - partition.area.getBlockCount())
+        if (claimService.getUsedClaimBlockCount(player) + (partition.area.getBlockCount() - partition.area.getBlockCount())
                 > remainingClaimBlockCount) {
             return PartitionResizeResult.InsufficientBlocks
         }
 
         // Check if claim resize would result a partition being disconnected from the main
-        if (isResizeResultInAnyDisconnected(partition, newArea)) {
+        if (isResizeResultInAnyDisconnected(partition)) {
             return PartitionResizeResult.DisconnectedPartition
         }
 
-        partitionRepo.update(Partition(partition.id, partition.claimId, newArea))
+        partitionRepo.update(partition)
         return PartitionResizeResult.Successful
     }
 
@@ -251,14 +276,13 @@ class PartitionService(private val claimService: ClaimService, private val parti
         player.sendMessage("§aNew claim partition has been added to §6$name.")
     }
 
-    private fun isResizeResultInAnyDisconnected(partition: Partition, newArea: WorldArea): Boolean {
+    private fun isResizeResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claimService.getById(partition.claimId) ?: return false
         val claimPartitions = partitionRepo.getByClaim(claim)
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
-        val newPartition = Partition(partition.id, partition.claimId, newArea)
-        claimPartitions.remove(partition)
-        claimPartitions.add(newPartition)
+        claimPartitions.removeAll { it.id == partition.id }
+        claimPartitions.add(partition)
         for (claimPartition in claimPartitions) {
             if (partition.id == mainPartition.id) {
                 continue
@@ -328,5 +352,16 @@ class PartitionService(private val claimService: ClaimService, private val parti
             }
         }
         return outputPartitions
+    }
+
+    fun getSurroundingPositions(position: Position2D, radius: Int): List<Position2D> {
+        val chunks = mutableListOf<Position2D>()
+
+        for (i in -1 * radius..1 * radius) {
+            for (j in -1 * radius..1 * radius) {
+                Position2D(position.x + i, position.z + j)
+            }
+        }
+        return chunks
     }
 }
