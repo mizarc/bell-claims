@@ -22,16 +22,23 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
                               private val claimService: ClaimService): Listener {
 
     @EventHandler
-    fun onPlayerClaimObjectInteract(event: PlayerInteractEvent) {
+    fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
-        if ((event.clickedBlock?.type ?: return) != Material.BELL) return
+        if (!event.player.isSneaking) return
+        val clickedBlock = event.clickedBlock ?: return
+        if ((clickedBlock.type) != Material.BELL) return
 
-        if (event.player.isSneaking) {
-            val claimBuilder = Claim.Builder(event.player,
-                event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
-            ClaimManagementMenu(claimRepository, partitionRepository, claimPermissionRepository,
-                playerAccessRepository, claimRuleRepository, claimService, claimBuilder)
-                .openClaimManagementMenu()
+        val claim = claimService.getByLocation(clickedBlock.location)
+        if (claim != null && claim.owner.uniqueId != event.player.uniqueId) {
+            event.player.sendActionBar(Component.text("This claim bell is owned by ${claim.owner.name}")
+                .color(TextColor.color(255, 85, 85)))
+            return
         }
+
+        val claimBuilder = Claim.Builder(event.player,
+            event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
+        ClaimManagementMenu(claimRepository, partitionRepository, claimPermissionRepository,
+            playerAccessRepository, claimRuleRepository, claimService, claimBuilder)
+            .openClaimManagementMenu()
     }
 }
