@@ -9,13 +9,13 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.enchantments.Enchantment
-import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.getClaimTool
+import xyz.mizarc.solidclaims.getClaimMoveTool
 import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import xyz.mizarc.solidclaims.listeners.ClaimRule
 import xyz.mizarc.solidclaims.partitions.Area
@@ -164,9 +164,13 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         pane.addItem(guiClaimFlagsItem, 6, 0)
 
         // Add warp delete icon
-        val deleteItem = ItemStack(Material.REDSTONE)
-            .name("Delete Claim")
-        val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
+        val deleteItem = ItemStack(Material.PISTON)
+            .name("Move Claim")
+            .lore("Place the provided item where you want to move the claim bell")
+        val guiDeleteItem = GuiItem(deleteItem) { guiEvent ->
+            guiEvent.isCancelled = true
+            givePlayerMoveTool(claimBuilder.player, claim)
+        }
         pane.addItem(guiDeleteItem, 8, 0)
 
         gui.show(claimBuilder.player)
@@ -180,6 +184,16 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             }
         }
         player.inventory.addItem(getClaimTool())
+    }
+
+    private fun givePlayerMoveTool(player: Player, claim: Claim) {
+        for (item in player.inventory.contents!!) {
+            if (item == null) continue
+            if (item.itemMeta != null && item.itemMeta == getClaimMoveTool(claim).itemMeta) {
+                return
+            }
+        }
+        player.inventory.addItem(getClaimMoveTool(claim))
     }
 
     fun openClaimIconMenu(claim: Claim) {
