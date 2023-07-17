@@ -16,12 +16,21 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
         if (event.block.blockData !is Bell) return
 
         val claim = claimService.getByLocation(event.block.location) ?: return
+
+        if (event.player.uniqueId != claim.owner.uniqueId) {
+            event.player.sendActionBar(
+                Component.text("This claim belongs to ${claim.owner.name}")
+                    .color(TextColor.color(255, 85, 85)))
+            event.isCancelled = true
+            return
+        }
+
         claim.resetBreakCount()
 
         if (claim.breakCount > 1) {
             claim.breakCount -= 1
             event.player.sendActionBar(
-                Component.text("Break ${claim.breakCount} more times in 10 seconds to destroy this claim.")
+                Component.text("Break ${claim.breakCount} more times in 10 seconds to destroy this claim")
                 .color(TextColor.color(255, 201, 14)))
             event.isCancelled = true
             return
@@ -29,7 +38,7 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
 
         claimService.removeClaim(claim)
         event.player.sendActionBar(
-            Component.text("Claim '${claim.name}' has been destroyed.")
+            Component.text("Claim '${claim.name}' has been destroyed")
             .color(TextColor.color(85, 255, 85)))
     }
 }
