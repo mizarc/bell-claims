@@ -42,6 +42,6 @@ class ClaimMoveListener(private val claimRepo: ClaimRepository, private val part
         event.isCancelled = false
         event.player.sendActionBar(
             Component.text("Claim position has been moved")
-                .color(TextColor.color(255, 85, 85)))
+                .color(TextColor.color(85, 255, 85)))
     }
 }

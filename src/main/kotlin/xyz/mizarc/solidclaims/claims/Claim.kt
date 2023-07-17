@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import xyz.mizarc.solidclaims.partitions.Position3D
 import java.time.Instant
 import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * A claim object holds the data for the world its in and the players associated with it. It relies on partitions to
@@ -22,6 +23,9 @@ import java.util.*
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
             var name: String, var description: String, var position: Position3D, var icon: Material) {
+    val defaultBreakCount = 3
+    var breakCount = 3
+    var breakPeriod = false
 
     /**
      * Compiles a new claim based on the world and owning player.
@@ -40,6 +44,17 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      */
     fun getWorld(): World? {
         return Bukkit.getWorld(worldId)
+    }
+
+    fun resetBreakCount() {
+        if (!breakPeriod) {
+            thread(start = true) {
+                breakPeriod = true
+                Thread.sleep(10000)
+                breakCount = defaultBreakCount
+                breakPeriod = false
+            }
+        }
     }
 
     class Builder(val player: Player, val world: World, val position: Position3D) {
