@@ -14,7 +14,7 @@ open class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Checks if the position is on one of the four corners of the claim
-     * @param The position to check
+     * @param position2D The position to check
      * @return True if in corner.
      */
     fun isPositionInCorner(position2D: Position2D): Boolean {
@@ -222,6 +222,17 @@ open class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
             val newUpperPosition2D = Position2D(upperPosition2D.x, lowerPosition2D.z)
             lowerPosition2D = newLowerPosition2D
             upperPosition2D = newUpperPosition2D
+        }
+    }
+
+    class Builder(val firstPosition: Position2D) {
+        var secondPosition: Position2D? = null
+
+        fun build(): Area? {
+            if (secondPosition == null) {
+                return null
+            }
+            return Area(firstPosition, secondPosition!!)
         }
     }
 }

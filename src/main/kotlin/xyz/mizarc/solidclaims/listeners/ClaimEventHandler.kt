@@ -6,6 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.SolidClaims
 import xyz.mizarc.solidclaims.claims.ClaimPermissionRepository
@@ -27,6 +28,7 @@ class ClaimEventHandler(var plugin: SolidClaims,
                         val claimPermissionRepository: ClaimPermissionRepository,
                         val playerAccessRepository: PlayerAccessRepository,
                         val playerStates: PlayerStateRepository,
+                        val claimService: ClaimService,
                         val partitionService: PartitionService) : Listener {
     init {
         for (perm in ClaimPermission.values()) {
@@ -49,11 +51,11 @@ class ClaimEventHandler(var plugin: SolidClaims,
     private fun handleClaimRule(listener: Listener, event: Event) {
         val rule = ClaimRule.getRuleForEvent(event::class.java) ?: return // Get the rule to deal with this event
         val executor = ClaimRule.getRuleExecutorForEvent(event::class.java, rule) ?: return  // Get the executor from the rule that deals with this event
-        val claims = executor.getClaims(event, partitionService) // Get all claims that this event affects
+        val claims = executor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
         if (claims.isEmpty()) return // Check if any claims are affected by the event
         for (claim in claims) { // If they are, check if they do not allow this event
             if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
-                executor.handler.invoke(event, partitionService) // If they do not, invoke the handler
+                executor.handler.invoke(event, claimService, partitionService) // If they do not, invoke the handler
                 return
             }
         }

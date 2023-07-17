@@ -21,7 +21,7 @@ class InfoCommand : ClaimCommand() {
 
         val claim = claims.getById(partition.claimId)!!
         val claimPartitions = partitions.getByClaim(claim)
-        val blockCount = partitionService.getBlockCount(claim)
+        val blockCount = claimService.getBlockCount(claim)
         val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
 
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)

@@ -7,6 +7,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
@@ -18,8 +19,8 @@ import java.util.*
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
  */
-class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRepository,
-                        val playerStates: PlayerStateRepository, val partitionService: PartitionService,
+class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerStateRepository,
+                        val claimService: ClaimService, val partitionService: PartitionService,
                         val claimVisualiser: ClaimVisualiser) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
@@ -83,8 +84,8 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
             return
         }
 
-        val remainingClaimBlockCount = partitionService.getRemainingClaimBlockCount(player) ?: return
-        val remainingClaimCount = partitionService.getRemainingClaimCount(player) ?: return
+        val remainingClaimBlockCount = claimService.getRemainingClaimBlockCount(player) ?: return
+        val remainingClaimCount = claimService.getRemainingClaimCount(player) ?: return
 
         // Check if the player has already hit the claim limit.
         if (remainingClaimCount < 1) {
@@ -118,7 +119,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
             PartitionService.PartitionCreationResult.InsufficientClaims -> TODO()
             PartitionService.PartitionCreationResult.InsufficientBlocks -> player.sendMessage("§cThat selection would require an additional " +
-                "§6${partition.area.getBlockCount() - partitionService.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
+                "§6${partition.area.getBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
             PartitionService.PartitionCreationResult.Successful ->
                 player.sendMessage("§aNew claim partition has been added to §6${claims.getById(partition.claimId)!!.name}.")
         }
@@ -173,7 +174,7 @@ class ClaimToolListener(val claims: ClaimRepository, val partitions: PartitionRe
                 player.sendMessage("§cThe claim must be at least 5x5 blocks.")
             PartitionService.PartitionResizeResult.InsufficientBlocks ->
                 player.sendMessage("§cThat resize would require an additional " +
-                        "§6${partitionResizer.getExtraBlockCount() - partitionService.getRemainingClaimBlockCount(player)!!} §cblocks.")
+                        "§6${partitionResizer.getExtraBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} §cblocks.")
             PartitionService.PartitionResizeResult.Successful -> player.sendMessage("§aClaim partition successfully resized.")
         }
 

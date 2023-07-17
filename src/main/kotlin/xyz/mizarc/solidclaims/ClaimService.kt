@@ -3,6 +3,7 @@ package xyz.mizarc.solidclaims
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import xyz.mizarc.solidclaims.claims.*
+import xyz.mizarc.solidclaims.listeners.ClaimRule
 import xyz.mizarc.solidclaims.partitions.PartitionRepository
 import xyz.mizarc.solidclaims.partitions.Position3D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
@@ -62,6 +63,10 @@ class ClaimService(private val claimRepo: ClaimRepository,
             count += getBlockCount(claim)
         }
         return count
+    }
+
+    fun getClaimRules(claim: Claim): Set<ClaimRule> {
+        return claimRuleRepo.getByClaim(claim)
     }
 
     fun removeClaim(claim: Claim) {
