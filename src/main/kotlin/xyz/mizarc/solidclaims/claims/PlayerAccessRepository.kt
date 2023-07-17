@@ -3,7 +3,7 @@ package xyz.mizarc.solidclaims.claims
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
@@ -32,8 +32,9 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
     }
 
     fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
+        playerAccess.getOrPut(claim.id) { mutableMapOf() }.getOrPut(player.uniqueId) { mutableSetOf() }.add(permission)
         try {
-            storage.connection.executeUpdate("INSERT INTO playerAccess VALUES (playerId, claimId, permissionId)" +
+            storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, permission) " +
                     "VALUES (?,?,?)", claim.id, player.uniqueId, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -41,18 +42,38 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
     }
 
     fun removePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
+        val claimPermissions = playerAccess[claim.id] ?: return
+        val playerPermissions = claimPermissions[player.uniqueId] ?: return
+        playerPermissions.remove(permission)
+        if (playerPermissions.isEmpty()) {
+            claimPermissions.remove(player.uniqueId)
+        }
+
         try {
-            storage.connection.executeUpdate("REMOVE FROM playerAccess WHERE claimId=? AND playerId=? " +
-                    "AND permissionId=?", claim.id, player.uniqueId, permission.name)
+            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=? " +
+                    "AND permission=?", claim.id, player.uniqueId, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
     }
 
     fun removePlayer(claim: Claim, player: OfflinePlayer) {
+        val claimPermissions = playerAccess[claim.id] ?: return
+        claimPermissions.remove(player.uniqueId)
+
         try {
-            storage.connection.executeUpdate("REMOVE FROM playerAccess WHERE claimId=? AND playerId=?",
+            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=?",
                 claim.id, player.uniqueId)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaim(claim: Claim) {
+        playerAccess.remove(claim.id)
+
+        try {
+            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=?", claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -63,8 +84,8 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS playerAccess (playerId TEXT, " +
-                    "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS playerAccess (claimId TEXT, " +
+                    "playerId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -76,12 +97,12 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
     private fun preload() {
         val results = storage.connection.getResults("SELECT * FROM playerAccess")
         for (result in results) {
+            val playerId = UUID.fromString(result.getString("playerId"))
+            val claimId = UUID.fromString(result.getString("claimId"))
             val permission = ClaimPermission.valueOf(result.getString("permission"))
             val claimPlayers = playerAccess
-                .getOrPut(UUID.fromString(result.getString("claimId"))) { mutableMapOf() }
-            claimPlayers.getOrPut(UUID.fromString(result.getString("playerId"))) { mutableSetOf() }
-                .add(permission)
+                .getOrPut(claimId) { mutableMapOf(playerId to mutableSetOf()) }
+            claimPlayers.getOrPut(playerId) { mutableSetOf() }.add(permission)
         }
     }
-
 }

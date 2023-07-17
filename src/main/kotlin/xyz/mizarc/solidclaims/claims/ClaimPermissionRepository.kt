@@ -1,7 +1,7 @@
 package xyz.mizarc.solidclaims.claims
 
 import xyz.mizarc.solidclaims.storage.DatabaseStorage
-import xyz.mizarc.solidclaims.events.ClaimPermission
+import xyz.mizarc.solidclaims.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
@@ -22,8 +22,9 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
     }
 
     fun add(claim: Claim, permission: ClaimPermission) {
+        permissions.getOrPut(claim.id) { mutableSetOf() }.add(permission)
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPermissions VALUES (claimId, permissionId)" +
+            storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
                     "VALUES (?,?)", claim.id, permission.name)
         } catch (error: SQLException) {
             error.printStackTrace()
@@ -31,9 +32,25 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
     }
 
     fun remove(claim: Claim, permission: ClaimPermission) {
+        val claimPermissions = permissions[claim.id] ?: return
+        claimPermissions.remove(permission)
+        if (claimPermissions.isEmpty()) {
+            permissions.remove(claim.id)
+        }
+
         try {
-            storage.connection.executeUpdate("REMOVE FROM claimPermissions WHERE claimId=? AND permissionId=?",
+            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permission=?",
                 claim.id, permission.name)
+        } catch (error: SQLException) {
+            error.printStackTrace()
+        }
+    }
+
+    fun removeClaim(claim: Claim) {
+        permissions.remove(claim.id)
+
+        try {
+            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -44,8 +61,8 @@ class ClaimPermissionRepository(private val storage: DatabaseStorage) {
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (id TEXT, " +
-                    "claimId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT, " +
+                    "permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }

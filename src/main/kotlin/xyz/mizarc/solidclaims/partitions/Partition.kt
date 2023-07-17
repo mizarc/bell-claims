@@ -13,25 +13,26 @@ import kotlin.math.absoluteValue
  * @property area The area defining the space of this partition.
  */
 class Partition(var id: UUID, var claimId: UUID, var area: Area) {
-    constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition, builder.secondPosition))
+    constructor(claimId: UUID, area: Area): this(UUID.randomUUID(), claimId, area)
+    constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition2D, builder.secondPosition2D))
 
     /**
      * Checks whether the specified position is within the bounds of this claim.
-     * @param position The position to check for.
+     * @param position2D The position to check for.
      * @param world The world of the position.
      * @return True if the position is within the partition.
      */
-    fun isPositionInPartition(position: Position): Boolean {
-        return (area.isPositionInArea(position))
+    fun isPositionInPartition(position2D: Position2D): Boolean {
+        return (area.isPositionInArea(position2D))
     }
 
     /**
      * Checks whether the specified position is in one of the corners of this claim.
-     * @param position The position to check for.
+     * @param position2D The position to check for.
      * @return True if the position is in a corner.
      */
-    fun isPositionInCorner(position: Position): Boolean {
-        return (area.isPositionInCorner(position))
+    fun isPositionInCorner(position2D: Position2D): Boolean {
+        return (area.isPositionInCorner(position2D))
     }
 
     /**
@@ -45,14 +46,17 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
     }
 
     /**
-     * Checks if an area is directly adjacent to this one.
-     * @param areaQuery The area to check.
+     * Checks if a partition is directly adjacent to this one.
+     * @param partition The area to check.
      * @return True if area is adjacent.
      */
     fun isPartitionAdjacent(partition: Partition): Boolean {
         return area.isAreaAdjacent(partition.area)
     }
 
+    /**
+     * Checks if partition is connected to another partition
+     */
     fun isPartitionLinked(partition: Partition): Boolean {
         return isPartitionAdjacent(partition) && partition.claimId == claimId
     }
@@ -61,69 +65,69 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
      * Gets a list of the chunks that this claim takes up.
      * @return List of chunk positions.
      */
-    fun getChunks(): ArrayList<Position> {
-        val firstChunk = area.lowerPosition.toChunk()
-        val secondChunk = area.upperPosition.toChunk()
+    fun getChunks(): ArrayList<Position2D> {
+        val firstChunk = area.lowerPosition2D.toChunk()
+        val secondChunk = area.upperPosition2D.toChunk()
 
-        val chunks: ArrayList<Position> = ArrayList()
+        val chunks: ArrayList<Position2D> = ArrayList()
         for (x in firstChunk.x..secondChunk.x) {
             for (z in firstChunk.z..secondChunk.z) {
-                chunks.add(Position(x, z))
+                chunks.add(Position2D(x, z))
             }
         }
 
         return chunks
     }
 
-    class Builder(var firstPosition: Position) {
+    class Builder(var firstPosition2D: Position2D) {
         val id: UUID = UUID.randomUUID()
-        lateinit var secondPosition: Position
+        lateinit var secondPosition2D: Position2D
         lateinit var claimId: UUID
 
         fun build(): Partition {
-            if (!::secondPosition.isInitialized || !::claimId.isInitialized) {
+            if (!::secondPosition2D.isInitialized || !::claimId.isInitialized) {
                 throw IncompleteBuilderException("Builder requires a filled second position and claim id.")
             }
             return Partition(this)
         }
     }
 
-    class Resizer(val partition: Partition, val selectedCorner: Position) {
+    class Resizer(val partition: Partition, val selectedCorner: Position2D) {
         lateinit var newArea: Area
 
         fun getExtraBlockCount(): Int {
-            return ((newArea.upperPosition.x - newArea.lowerPosition.x + 1) *
-                    (newArea.upperPosition.z - newArea.lowerPosition.z + 1)).absoluteValue -
-                    ((partition.area.upperPosition.x - partition.area.upperPosition.x + 1) *
-                    (partition.area.upperPosition.z - partition.area.upperPosition.z+ 1)).absoluteValue
+            return ((newArea.upperPosition2D.x - newArea.lowerPosition2D.x + 1) *
+                    (newArea.upperPosition2D.z - newArea.lowerPosition2D.z + 1)).absoluteValue -
+                    ((partition.area.upperPosition2D.x - partition.area.upperPosition2D.x + 1) *
+                    (partition.area.upperPosition2D.z - partition.area.upperPosition2D.z+ 1)).absoluteValue
         }
 
-        fun setNewCorner(newPosition: Position) {
-            var firstPosition = if (selectedCorner.x == partition.area.lowerPosition.x) {
-                Position(newPosition.x, 0)
+        fun setNewCorner(newPosition2D: Position2D) {
+            var firstPosition2D = if (selectedCorner.x == partition.area.lowerPosition2D.x) {
+                Position2D(newPosition2D.x, 0)
             } else {
-                Position(partition.area.lowerPosition.x, 0)
+                Position2D(partition.area.lowerPosition2D.x, 0)
             }
 
-            var secondPosition = if (selectedCorner.x == partition.area.upperPosition.x) {
-                Position(newPosition.x, 0)
+            var secondPosition2D = if (selectedCorner.x == partition.area.upperPosition2D.x) {
+                Position2D(newPosition2D.x, 0)
             } else {
-                Position(partition.area.upperPosition.x, 0)
+                Position2D(partition.area.upperPosition2D.x, 0)
             }
 
-            firstPosition = if (selectedCorner.z == partition.area.lowerPosition.z) {
-                Position(firstPosition.x, newPosition.z)
+            firstPosition2D = if (selectedCorner.z == partition.area.lowerPosition2D.z) {
+                Position2D(firstPosition2D.x, newPosition2D.z)
             } else {
-                Position(firstPosition.x, partition.area.lowerPosition.z)
+                Position2D(firstPosition2D.x, partition.area.lowerPosition2D.z)
             }
 
-            secondPosition = if (selectedCorner.z == partition.area.upperPosition.z) {
-                Position(secondPosition.x, newPosition.z)
+            secondPosition2D = if (selectedCorner.z == partition.area.upperPosition2D.z) {
+                Position2D(secondPosition2D.x, newPosition2D.z)
             } else {
-                Position(secondPosition.x, partition.area.upperPosition.z)
+                Position2D(secondPosition2D.x, partition.area.upperPosition2D.z)
             }
 
-            newArea = Area(firstPosition, secondPosition)
+            newArea = Area(firstPosition2D, secondPosition2D)
         }
     }
 }
