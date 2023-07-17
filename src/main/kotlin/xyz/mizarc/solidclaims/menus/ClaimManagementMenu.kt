@@ -50,6 +50,18 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         gui.addPane(pane)
 
         // Add warp creation icon
+        val remainingClaims = claimService.getRemainingClaimCount(claimBuilder.player) ?: return
+        if (remainingClaims < 1) {
+            val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
+                .name("Cannot Create Claim")
+                .lore("You have run out of claims. ")
+                .lore("If you want to create a new claim, delete an existing one first.")
+            val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
+            pane.addItem(guiIconEditorItem, 4, 0)
+            gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+            return
+        }
+
         val iconEditorItem = ItemStack(Material.BELL)
             .name("Create Claim")
             .lore("The area around this bell will be protected from griefing.")
