@@ -206,6 +206,10 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
             PartitionService.PartitionResizeResult.Overlap ->
                 player.sendActionBar(Component.text("That selection overlaps an existing claim")
                         .color(TextColor.color(255, 85, 85)))
+            PartitionService.PartitionResizeResult.ExposedClaimHub ->
+                player.sendActionBar(Component.text("That selection would result in the claim bell " +
+                        "being outside the claim area")
+                    .color(TextColor.color(255, 85, 85)))
             PartitionService.PartitionResizeResult.TooSmall ->
                 player.sendActionBar(Component.text("The claim must be at least 5x5 blocks")
                     .color(TextColor.color(255, 85, 85)))

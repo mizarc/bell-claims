@@ -22,7 +22,6 @@ class PartitionService(private val claimService: ClaimService, private val parti
     enum class PartitionCreationResult {
         Overlap,
         TooSmall,
-        InsufficientClaims,
         InsufficientBlocks,
         NotConnected,
         Successful
@@ -36,6 +35,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
         TooSmall,
         InsufficientBlocks,
         DisconnectedPartition,
+        ExposedClaimHub,
         Successful
     }
 
@@ -238,6 +238,10 @@ class PartitionService(private val claimService: ClaimService, private val parti
         val claim = claimService.getById(partition.claimId) ?: return PartitionResizeResult.Overlap
         if (isPartitionOverlap(partition, claim.worldId)) {
             return PartitionResizeResult.Overlap
+        }
+
+        if (partition.id == getPrimaryPartition(claim).id && !partition.area.isPositionInArea(claim.position)) {
+            return PartitionResizeResult.ExposedClaimHub
         }
 
         // Check if claim meets minimum size
