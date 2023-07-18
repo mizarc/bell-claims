@@ -178,19 +178,6 @@ class PartitionService(private val claimService: ClaimService, private val parti
     }
 
     /**
-     * Gets all partitions
-     */
-    fun getLinked(partition: Partition, testPartitions: ArrayList<Partition>): ArrayList<Partition> {
-        val linkedPartitions = ArrayList<Partition>()
-        for (existingPartition in testPartitions) {
-            if (existingPartition.isPartitionLinked(partition) && existingPartition.claimId == partition.claimId) {
-                linkedPartitions.add(existingPartition)
-            }
-        }
-        return linkedPartitions
-    }
-
-    /**
      * Adds a new partition to the world. If adjacent to an existing partition that the player owns, will link to it.
      * @param player The player that is performing the action, this is used to check for claim limits.
      * @param partition The partition to add.
@@ -290,10 +277,10 @@ class PartitionService(private val claimService: ClaimService, private val parti
         claimPartitions.removeAll { it.id == partition.id }
         claimPartitions.add(partition)
         for (claimPartition in claimPartitions) {
-            if (partition.id == mainPartition.id) {
+            if (claimPartition.id == mainPartition.id) {
                 continue
             }
-            if (!isPartitionDisconnected(partition, claimPartitions)) {
+            if (isPartitionDisconnected(claimPartition, claimPartitions)) {
                 return true
             }
         }
@@ -307,10 +294,10 @@ class PartitionService(private val claimService: ClaimService, private val parti
             .intersect(claimPartitions.toSet()).first()
         claimPartitions.remove(partition)
         for (claimPartition in claimPartitions) {
-            if (partition.id == mainPartition.id) {
+            if (claimPartition.id == mainPartition.id) {
                 continue
             }
-            if (!isPartitionDisconnected(partition, claimPartitions)) {
+            if (!isPartitionDisconnected(claimPartition, claimPartitions)) {
                 return true
             }
         }
@@ -322,17 +309,18 @@ class PartitionService(private val claimService: ClaimService, private val parti
         val claimPartitions = partitionRepo.getByClaim(claim)
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
+
         val traversedPartitions = ArrayList<Partition>()
         val partitionQueries = ArrayList<Partition>()
         partitionQueries.add(partition)
         while(partitionQueries.isNotEmpty()) {
-            val partitionsToAdd = ArrayList<Partition>()
-            val partitionsToRemove = ArrayList<Partition>()
+            val partitionsToAdd = ArrayList<Partition>() // Partitions yet to query
+            val partitionsToRemove = ArrayList<Partition>() // Partitions already queried
             for (partitionQuery in partitionQueries) {
-                val adjacentPartitions = getLinked(partition, testPartitions)
+                val adjacentPartitions = getLinked(partitionQuery, testPartitions)
                 for (adjacentPartition in adjacentPartitions) {
                     if (adjacentPartition.id == mainPartition.id) {
-                        return true
+                        return false
                     }
                     if (adjacentPartition in traversedPartitions) {
                         continue
@@ -346,7 +334,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
             partitionQueries.addAll(partitionsToAdd)
             partitionsToAdd.clear()
         }
-        return false
+        return true
     }
 
     private fun filterByWorld(worldId: UUID, inputPartitions: Set<Partition>): Set<Partition> {
@@ -369,5 +357,10 @@ class PartitionService(private val claimService: ClaimService, private val parti
             }
         }
         return positions
+    }
+
+    private fun getLinked(partition: Partition, testPartitions: ArrayList<Partition>): ArrayList<Partition> {
+        return testPartitions.filter { it.isPartitionLinked(partition) && it.claimId == partition.claimId }
+                as ArrayList<Partition>
     }
 }
