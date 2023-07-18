@@ -79,14 +79,13 @@ data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
         return chunks
     }
 
-    class Builder(var firstPosition2D: Position2D) {
+    class Builder(val claimId: UUID, var firstPosition2D: Position2D) {
         val id: UUID = UUID.randomUUID()
         lateinit var secondPosition2D: Position2D
-        lateinit var claimId: UUID
 
         fun build(): Partition {
-            if (!::secondPosition2D.isInitialized || !::claimId.isInitialized) {
-                throw IncompleteBuilderException("Builder requires a filled second position and claim id.")
+            if (!::secondPosition2D.isInitialized) {
+                throw IncompleteBuilderException("Builder requires a filled second position.")
             }
             return Partition(this)
         }
