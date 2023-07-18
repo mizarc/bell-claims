@@ -48,7 +48,6 @@ class PartitionService(private val claimService: ClaimService, private val parti
         val chunk = Position2D(location).toChunk()
         val partitionsInChunk = filterByWorld(location.world!!.uid, partitionRepo.getByChunk(chunk))
         for (partition in partitionsInChunk) {
-            Bukkit.getLogger().info("$partition")
             if (partition.isPositionInPartition(Position2D(location))) {
                 return true
             }
@@ -159,8 +158,11 @@ class PartitionService(private val claimService: ClaimService, private val parti
 
         val partitions: MutableSet<Partition> = mutableSetOf()
         for (position in positions) {
-            val partition = filterByWorld(location.world.uid, partitionRepo.getByPosition(position).toSet()).first()
-            partitions.add(partition)
+            val foundPartitions = partitionRepo.getByPosition(position)
+            if (foundPartitions.isNotEmpty()) {
+                val partition = filterByWorld(location.world.uid, foundPartitions.toSet()).first()
+                partitions.add(partition)
+            }
         }
         return partitions
     }
@@ -359,13 +361,13 @@ class PartitionService(private val claimService: ClaimService, private val parti
     }
 
     fun getSurroundingPositions(position: Position2D, radius: Int): List<Position2D> {
-        val chunks = mutableListOf<Position2D>()
+        val positions = mutableListOf<Position2D>()
 
         for (i in -1 * radius..1 * radius) {
             for (j in -1 * radius..1 * radius) {
-                Position2D(position.x + i, position.z + j)
+                positions.add(Position2D(position.x + i, position.z + j))
             }
         }
-        return chunks
+        return positions
     }
 }

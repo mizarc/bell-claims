@@ -100,6 +100,7 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
             val claim = claimService.getById(partition.claimId) ?: continue
             if (claim.owner.uniqueId == player.uniqueId) {
                 selectedClaim = claim
+                break
             }
         }
 
@@ -120,7 +121,7 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         }
 
         // Start partition building
-        partitionBuilders[player] = Partition.Builder(Position2D(location))
+        partitionBuilders[player] = Partition.Builder(selectedClaim.id, Position2D(location))
         return player.sendActionBar(
             Component.text("New claim extension started. " +
                     "You have $remainingClaimBlockCount blocks remaining")
@@ -132,7 +133,6 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
      */
     fun createPartition(player: Player, location: Location, partitionBuilder: Partition.Builder) {
         partitionBuilder.secondPosition2D = Position2D(location.x.toInt(), location.z.toInt())
-        partitionBuilder.claimId = UUID.randomUUID()
         val partition = partitionBuilder.build()
 
         val result = partitionService.addPartition(player, partition, location.world!!.uid)
@@ -149,8 +149,10 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         }
 
         // Update builders list and visualisation
-        partitionBuilders.remove(player)
-        claimVisualiser.updateVisualisation(player, true)
+        if (result == PartitionService.PartitionCreationResult.Successful) {
+            partitionBuilders.remove(player)
+            claimVisualiser.updateVisualisation(player, true)
+        }
     }
 
     /**
