@@ -13,6 +13,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import xyz.mizarc.solidclaims.ClaimService
+import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.*
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.getClaimMoveTool
@@ -32,6 +33,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
                           private val claimRuleRepository: ClaimRuleRepository,
                           private val claimService: ClaimService,
+                          private val partitionService: PartitionService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimRepository.getByPosition(claimBuilder.position)
@@ -49,7 +51,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
 
-        // Add warp creation icon
+        // Check if player doesn't have enough claims
         val remainingClaims = claimService.getRemainingClaimCount(claimBuilder.player) ?: return
         if (remainingClaims < 1) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
@@ -62,6 +64,21 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             return
         }
 
+        // Check if created claim area would overlap
+        val area = Area(Position2D(claimBuilder.position.x - 5, claimBuilder.position.z - 5),
+            Position2D(claimBuilder.position.x + 5, claimBuilder.position.z + 5))
+        if (partitionService.isAreaOverlap(area, claimBuilder.world.uid)) {
+            val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
+                .name("Cannot Create Claim")
+                .lore("The created claim would overlap another claim.")
+                .lore("Place the bell somewhere else.")
+            val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
+            pane.addItem(guiIconEditorItem, 4, 0)
+            gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+            return
+        }
+
+        // Add warp creation icon
         val iconEditorItem = ItemStack(Material.BELL)
             .name("Create Claim")
             .lore("The area around this bell will be protected from griefing.")
