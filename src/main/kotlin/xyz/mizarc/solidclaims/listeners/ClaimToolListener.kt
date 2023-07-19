@@ -41,7 +41,8 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         if (event.hand == EquipmentSlot.OFF_HAND) {
             val location = event.clickedBlock?.location ?: return
             val partition: Partition? = partitionService.getByLocation(location)
-            EditToolMenu(event.player, claimService, partitionService, playerStates, partition).openEditToolMenu()
+            EditToolMenu(event.player, claimService, partitionService, playerStates, claimVisualiser,
+                partition).openEditToolMenu()
             return
         }
 

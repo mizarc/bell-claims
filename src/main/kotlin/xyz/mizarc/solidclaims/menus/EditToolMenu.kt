@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
+import xyz.mizarc.solidclaims.listeners.ClaimVisualiser
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.utils.lore
@@ -17,7 +18,7 @@ import xyz.mizarc.solidclaims.utils.name
 
 class EditToolMenu(private val player: Player, private val claimService: ClaimService,
                    private val partitionService: PartitionService, private val playerStateRepo: PlayerStateRepository,
-                   private val partition: Partition? = null) {
+                   private val claimVisualiser: ClaimVisualiser, private val partition: Partition? = null) {
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
         val pane = StaticPane(0, 0, 9, 1)
@@ -113,6 +114,9 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
             partitionService.removePartition(partition)
+            claimVisualiser.oldPartitions.add(partition)
+            claimVisualiser.unrenderOldClaims(player)
+            player.closeInventory()
         }
         pane.addItem(guiYesItem, 2, 0)
 
