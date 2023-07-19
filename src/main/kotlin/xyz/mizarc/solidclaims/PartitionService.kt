@@ -14,7 +14,8 @@ import kotlin.collections.ArrayList
 /**
  * A service class that allows for the querying and modification of partitions in the world.
  */
-class PartitionService(private val claimService: ClaimService, private val partitionRepo: PartitionRepository) {
+class PartitionService(private val config: Config, private val claimService: ClaimService,
+                       private val partitionRepo: PartitionRepository) {
 
     /**
      * An enum representing the result of a partition creation operation.
@@ -68,6 +69,14 @@ class PartitionService(private val claimService: ClaimService, private val parti
             existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
         }
 
+        var newArea = area
+        if (config.distanceBetweenClaims > 0) {
+            newArea = Area(Position2D(area.lowerPosition2D.x - config.distanceBetweenClaims,
+                area.lowerPosition2D.z - config.distanceBetweenClaims),
+                Position2D(area.upperPosition2D.x + config.distanceBetweenClaims,
+                    area.upperPosition2D.z + config.distanceBetweenClaims))
+        }
+
         for (existingPartition in existingPartitions) {
             if (existingPartition.isAreaOverlap(area)) {
                 return true
@@ -90,9 +99,20 @@ class PartitionService(private val claimService: ClaimService, private val parti
             existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
         }
 
+        var newArea = partition.area
+        if (config.distanceBetweenClaims > 0) {
+            newArea = Area(Position2D( partition.area.lowerPosition2D.x - config.distanceBetweenClaims,
+                partition.area.lowerPosition2D.z - config.distanceBetweenClaims),
+                Position2D( partition.area.upperPosition2D.x + config.distanceBetweenClaims,
+                    partition.area.upperPosition2D.z + config.distanceBetweenClaims))
+        }
+
         existingPartitions.removeAll { it.id == partition.id }
         for (existingPartition in existingPartitions) {
-            if (partition.isAreaOverlap(existingPartition.area)) {
+            if (existingPartition.claimId != partition.claimId && existingPartition.isAreaOverlap(newArea)) {
+                return true
+            }
+            else if (existingPartition.isAreaOverlap(partition.area)) {
                 return true
             }
         }
