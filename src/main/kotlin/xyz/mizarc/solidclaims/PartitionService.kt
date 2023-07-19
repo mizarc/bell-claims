@@ -22,6 +22,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
      */
     enum class PartitionCreationResult {
         Overlap,
+        TooClose,
         TooSmall,
         InsufficientBlocks,
         NotConnected,
@@ -33,6 +34,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
      */
     enum class PartitionResizeResult {
         Overlap,
+        TooClose,
         TooSmall,
         InsufficientBlocks,
         DisconnectedPartition,
@@ -99,6 +101,35 @@ class PartitionService(private val config: Config, private val claimService: Cla
             existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
         }
 
+        existingPartitions.removeAll { it.id == partition.id }
+        for (existingPartition in existingPartitions) {
+            if (existingPartition.isAreaOverlap(partition.area)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * Checks if a partition being put into the world would overlap any existing partition.
+     * @param partition The new partition.
+     * @param worldId The world to put the partition in.
+     * @return True if the partition area would result in an overlap.
+     */
+    fun isPartitionTooClose(partition: Partition, worldId: UUID): Boolean {
+        // Get chunks all that partitions occupy and the adjacent ones as well
+        val chunks = partition.area.getChunks()
+        val allChunks: MutableSet<Position2D> = mutableSetOf()
+        for (chunk in chunks) {
+            allChunks.addAll(getSurroundingPositions(chunk, 1))
+        }
+
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
+        for (chunk in allChunks) {
+            existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
+        }
+
         var newArea = partition.area
         if (config.distanceBetweenClaims > 0) {
             newArea = Area(Position2D( partition.area.lowerPosition2D.x - config.distanceBetweenClaims,
@@ -110,9 +141,6 @@ class PartitionService(private val config: Config, private val claimService: Cla
         existingPartitions.removeAll { it.id == partition.id }
         for (existingPartition in existingPartitions) {
             if (existingPartition.claimId != partition.claimId && existingPartition.isAreaOverlap(newArea)) {
-                return true
-            }
-            else if (existingPartition.isAreaOverlap(partition.area)) {
                 return true
             }
         }
@@ -235,6 +263,10 @@ class PartitionService(private val config: Config, private val claimService: Cla
             return PartitionCreationResult.Overlap
         }
 
+        if (isPartitionTooClose(partition, worldId)) {
+            return PartitionCreationResult.TooClose
+        }
+
         // Check if claim meets minimum size
         if (partition.area.getXLength() < 5 || partition.area.getZLength() < 5) {
             return PartitionCreationResult.TooSmall
@@ -273,6 +305,10 @@ class PartitionService(private val config: Config, private val claimService: Cla
         val claim = claimService.getById(partition.claimId) ?: return PartitionResizeResult.Overlap
         if (isPartitionOverlap(partition, claim.worldId)) {
             return PartitionResizeResult.Overlap
+        }
+
+        if (isPartitionTooClose(partition, claim.worldId)) {
+            return PartitionResizeResult.TooClose
         }
 
         if (partition.id == getPrimaryPartition(claim).id && !partition.area.isPositionInArea(claim.position)) {

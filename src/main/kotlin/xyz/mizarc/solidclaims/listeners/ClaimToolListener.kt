@@ -150,14 +150,26 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         val result = partitionService.addPartition(player, partition, location.world!!.uid)
         when (result) {
             PartitionService.PartitionCreationResult.Overlap ->
-                player.sendMessage("§cThat selection overlaps an existing claim.")
+                player.sendActionBar(Component.text("That selection overlaps an existing partition")
+                    .color(TextColor.color(255, 85, 85)))
+            PartitionService.PartitionCreationResult.TooClose ->
+                player.sendActionBar(Component.text("That selection is too close to another claim")
+                    .color(TextColor.color(255, 85, 85)))
             PartitionService.PartitionCreationResult.TooSmall ->
-                player.sendMessage("§cThe claim must be at least 5x5 blocks.")
+                player.sendActionBar(Component.text("The claim must be at least 5x5 blocks")
+                    .color(TextColor.color(255, 85, 85)))
             PartitionService.PartitionCreationResult.InsufficientBlocks ->
-                player.sendMessage("§cThat selection would require an additional " +
-                "§6${partition.area.getBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} §cclaim blocks.")
+                player.sendActionBar(Component.text("That selection would require an additional " +
+                        "${partition.area.getBlockCount() - claimService.getRemainingClaimBlockCount(player)!!} " +
+                        "claim blocks.")
+                    .color(TextColor.color(255, 85, 85)))
             PartitionService.PartitionCreationResult.Successful ->
-                player.sendMessage("§aNew claim partition has been added to §6${claims.getById(partition.claimId)!!.name}.")
+                player.sendActionBar(Component.text("New partition has been added to " +
+                        claims.getById(partition.claimId)!!.name)
+                    .color(TextColor.color(255, 85, 85)))
+
+
+            PartitionService.PartitionCreationResult.NotConnected -> TODO()
         }
 
         // Update builders list and visualisation
@@ -220,6 +232,9 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
             PartitionService.PartitionResizeResult.Overlap ->
                 player.sendActionBar(Component.text("That selection overlaps an existing claim")
                         .color(TextColor.color(255, 85, 85)))
+            PartitionService.PartitionResizeResult.TooClose ->
+                player.sendActionBar(Component.text("That selection is too close to another claim")
+                    .color(TextColor.color(255, 85, 85)))
             PartitionService.PartitionResizeResult.ExposedClaimHub ->
                 player.sendActionBar(Component.text("That selection would result in the claim bell " +
                         "being outside the claim area")
