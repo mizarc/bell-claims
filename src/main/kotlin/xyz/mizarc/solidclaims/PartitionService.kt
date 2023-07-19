@@ -78,6 +78,10 @@ class PartitionService(private val claimService: ClaimService, private val parti
         return false
     }
 
+    fun getByClaim(claim: Claim): Set<Partition> {
+        return partitionRepo.getByClaim(claim).toSet()
+    }
+
     /**
      * Gets the partition at the current location.
      * @param location The target location.
@@ -287,7 +291,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
         return false
     }
 
-    private fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {
+    fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claimService.getById(partition.claimId) ?: return false
         val claimPartitions = partitionRepo.getByClaim(claim)
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
@@ -297,7 +301,7 @@ class PartitionService(private val claimService: ClaimService, private val parti
             if (claimPartition.id == mainPartition.id) {
                 continue
             }
-            if (!isPartitionDisconnected(claimPartition, claimPartitions)) {
+            if (isPartitionDisconnected(claimPartition, claimPartitions)) {
                 return true
             }
         }

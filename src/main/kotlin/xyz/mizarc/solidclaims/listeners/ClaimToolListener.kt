@@ -2,6 +2,7 @@ package xyz.mizarc.solidclaims.listeners
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -9,12 +10,14 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.inventory.EquipmentSlot
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import xyz.mizarc.solidclaims.claims.ClaimRepository
 import xyz.mizarc.solidclaims.getClaimTool
+import xyz.mizarc.solidclaims.menus.EditToolMenu
 import xyz.mizarc.solidclaims.partitions.*
 import java.util.*
 
@@ -33,6 +36,14 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
         if (event.item == null) return
         if (event.item!!.itemMeta != getClaimTool().itemMeta) return
+
+        // Open menu if in offhand
+        if (event.hand == EquipmentSlot.OFF_HAND) {
+            val location = event.clickedBlock?.location ?: return
+            val partition: Partition? = partitionService.getByLocation(location)
+            EditToolMenu(event.player, claimService, partitionService, playerStates, partition).openEditToolMenu()
+            return
+        }
 
         // Resizes an existing partition
         val partitionResizer = partitionResizers[event.player]
