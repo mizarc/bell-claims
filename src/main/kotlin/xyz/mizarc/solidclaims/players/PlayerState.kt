@@ -8,6 +8,7 @@ import xyz.mizarc.solidclaims.Config
 
 class PlayerState(val player: OfflinePlayer, val config: Config, val metadata: Chat) {
     var claimOverride = false
+    var claimToolMode = 0
 
     fun getOnlinePlayer(): Player? {
         return Bukkit.getPlayer(player.uniqueId)
