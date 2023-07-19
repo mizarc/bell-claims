@@ -24,7 +24,7 @@ class SolidClaims : JavaPlugin() {
     val playerStateRepo = PlayerStateRepository()
     val claimService = ClaimService(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo,
         playerAccessRepo, playerStateRepo)
-    val partitionService = PartitionService(claimService, partitionRepo)
+    val partitionService = PartitionService(config, claimService, partitionRepo)
     val claimVisualiser = ClaimVisualiser(this, claimService, partitionService)
 
     override fun onEnable() {
