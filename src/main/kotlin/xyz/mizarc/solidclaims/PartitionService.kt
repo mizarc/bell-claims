@@ -56,6 +56,28 @@ class PartitionService(private val claimService: ClaimService, private val parti
     }
 
     /**
+     * Checks if an area would overlap any existing partition.
+     * @param partition The new partition.
+     * @param worldId The world to put the partition in.
+     * @return True if the partition area would result in an overlap.
+     */
+    fun isAreaOverlap(area: Area, worldId: UUID): Boolean {
+        val chunks = area.getChunks()
+        val existingPartitions: MutableSet<Partition> = mutableSetOf()
+        for (chunk in chunks) {
+            existingPartitions.addAll(filterByWorld(worldId, getByChunk(worldId, chunk)))
+        }
+
+        for (existingPartition in existingPartitions) {
+            if (existingPartition.isAreaOverlap(area)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /**
      * Checks if a partition being put into the world would overlap any existing partition.
      * @param partition The new partition.
      * @param worldId The world to put the partition in.
