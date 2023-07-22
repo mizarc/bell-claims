@@ -1,8 +1,6 @@
 package xyz.mizarc.solidclaims.partitions
 
 import co.aikar.idb.Database
-import org.bukkit.Bukkit
-import xyz.mizarc.solidclaims.Repository
 import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.storage.Storage
 import java.sql.SQLException
@@ -143,7 +141,6 @@ class PartitionRepository(private val storage: Storage<Database>) {
     fun preload() {
         try {
             val results = storage.connection.getResults("SELECT * FROM claimPartitions")
-            Bukkit.getLogger().info("Ah")
             for (result in results) {
                 val area = Area(
                     Position2D(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
