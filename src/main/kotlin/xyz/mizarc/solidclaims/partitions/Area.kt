@@ -36,11 +36,11 @@ open class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
      * @param position2D The position to check
      * @return True if in area.
      */
-    fun isPositionInArea(position2D: Position2D): Boolean {
-        return (position2D.x >= lowerPosition2D.x
-                && position2D.x <= upperPosition2D.x
-                && position2D.z >= lowerPosition2D.z
-                && position2D.z <= upperPosition2D.z)
+    fun isPositionInArea(position: Position): Boolean {
+        return (position.x >= lowerPosition2D.x
+                && position.x <= upperPosition2D.x
+                && position.z >= lowerPosition2D.z
+                && position.z <= upperPosition2D.z)
     }
 
     /**

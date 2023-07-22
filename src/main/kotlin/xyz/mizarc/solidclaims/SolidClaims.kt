@@ -24,7 +24,7 @@ class SolidClaims : JavaPlugin() {
     val playerStateRepo = PlayerStateRepository()
     val claimService = ClaimService(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo,
         playerAccessRepo, playerStateRepo)
-    val partitionService = PartitionService(claimService, partitionRepo)
+    val partitionService = PartitionService(config, claimService, partitionRepo)
     val claimVisualiser = ClaimVisualiser(this, claimService, partitionService)
 
     override fun onEnable() {
@@ -81,7 +81,7 @@ class SolidClaims : JavaPlugin() {
             playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimManagementListener(claimRepo, partitionRepo,
-            claimRuleRepo, claimPermissionRepo, playerAccessRepo, claimService), this)
+            claimRuleRepo, claimPermissionRepo, playerAccessRepo, partitionService, claimService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService), this)
         server.pluginManager.registerEvents(ClaimMoveListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(ClaimMoveToolRemovalListener(), this)
