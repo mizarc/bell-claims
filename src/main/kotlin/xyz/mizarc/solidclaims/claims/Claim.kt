@@ -32,7 +32,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
-    constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant, position: Position3D, icon:Material) : this(
+    constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant, position: Position3D, icon: Material) : this(
         UUID.randomUUID(), worldId, owner, creationTime, "", "", position, icon)
 
     constructor(builder: Builder): this(UUID.randomUUID(), builder.world.uid, builder.player, Instant.now(),
