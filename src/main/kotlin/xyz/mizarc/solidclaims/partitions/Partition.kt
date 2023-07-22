@@ -12,7 +12,7 @@ import kotlin.math.absoluteValue
  * @property claim The claim linked to this partition.
  * @property area The area defining the space of this partition.
  */
-class Partition(var id: UUID, var claimId: UUID, var area: Area) {
+data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
     constructor(claimId: UUID, area: Area): this(UUID.randomUUID(), claimId, area)
     constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition2D, builder.secondPosition2D))
 
@@ -47,15 +47,17 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
 
     /**
      * Checks if a partition is directly adjacent to this one.
-     * @param partition The area to check.
-     * @return True if area is adjacent.
+     * @param partition The partition to check.
+     * @return True if partition is adjacent.
      */
     fun isPartitionAdjacent(partition: Partition): Boolean {
         return area.isAreaAdjacent(partition.area)
     }
 
     /**
-     * Checks if partition is connected to another partition
+     * Checks if partition is adjacent and part of the same claim as this one.
+     * @param partition The partition to check.
+     * @return True if partition is linked.
      */
     fun isPartitionLinked(partition: Partition): Boolean {
         return isPartitionAdjacent(partition) && partition.claimId == claimId
@@ -79,14 +81,13 @@ class Partition(var id: UUID, var claimId: UUID, var area: Area) {
         return chunks
     }
 
-    class Builder(var firstPosition2D: Position2D) {
+    class Builder(val claimId: UUID, var firstPosition2D: Position2D) {
         val id: UUID = UUID.randomUUID()
         lateinit var secondPosition2D: Position2D
-        lateinit var claimId: UUID
 
         fun build(): Partition {
-            if (!::secondPosition2D.isInitialized || !::claimId.isInitialized) {
-                throw IncompleteBuilderException("Builder requires a filled second position and claim id.")
+            if (!::secondPosition2D.isInitialized) {
+                throw IncompleteBuilderException("Builder requires a filled second position.")
             }
             return Partition(this)
         }
