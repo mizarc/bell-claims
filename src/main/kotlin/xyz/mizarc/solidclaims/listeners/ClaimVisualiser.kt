@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.listeners
 
 import com.google.common.math.IntMath.sqrt
+import net.kyori.adventure.text.BlockNBTComponent.Pos
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -21,6 +22,7 @@ import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.Position2D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import java.math.RoundingMode
+import javax.swing.border.Border
 import kotlin.math.abs
 
 private const val yRange = 50
@@ -645,63 +647,77 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
         if (partitionsInChunks.isEmpty()) return
 
-        val borders: ArrayList<Position2D> = ArrayList()
+        // Get all claims that exist in selected chunks
+        val foundClaims : MutableSet<Claim> = mutableSetOf()
         for (partition in partitionsInChunks) {
             val claim = claimService.getById(partition.claimId) ?: continue
-            if (claim.owner.uniqueId != player.uniqueId) {
-                continue
-            }
-
-            borders.addAll(partition.area.getEdgeBlockPositions())
+            if (claim.owner.uniqueId != player.uniqueId) continue
+            if (claim in foundClaims) continue
+            foundClaims.add(claim)
         }
 
-        // Get starting position by finding the position with the largest x coordinate.
-        // Could be the largest or smallest any coordinate, this is personal choice.
-        var startingPosition = borders[0]
-        for (border in borders) {
-            if (border.x > startingPosition.x) {
-                startingPosition = border
+        // Get borders for each claim
+        val finalBorders: ArrayList<Position2D> = arrayListOf()
+        for (claim in foundClaims) {
+            // Add edge blocks for each partition in claim
+            val partitions = partitionService.getByClaim(claim)
+            val borders: MutableList<Position2D> = mutableListOf()
+            for (partition in partitions) {
+                borders.addAll(partition.area.getEdgeBlockPositions())
             }
+
+            // Get starting position by finding the position with the largest x coordinate.
+            // Could be the largest or smallest any coordinate, this is personal choice.
+            var startingPosition = borders[0]
+            for (border in borders) {
+                if (border.x > startingPosition.x) {
+                    startingPosition = border
+                }
+            }
+
+            // Get second position by getting block either in front or to the right in a clockwise direction
+            var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x }
+                ?: borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+            // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+            // until back to the starting position.
+            val resultingBorder: ArrayList<Position2D> = arrayListOf()
+            var previousPosition: Position2D = startingPosition
+            do {
+                val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                    Direction.North -> {
+                        borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                    }
+
+                    Direction.East -> {
+                        borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                    }
+
+                    Direction.South -> {
+                        borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                    }
+
+                    else -> {
+                        borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                    }
+                }
+                resultingBorder.add(nextPosition)
+                previousPosition = currentPosition
+                currentPosition = nextPosition
+            } while (currentPosition != startingPosition)
+            finalBorders.addAll(resultingBorder)
         }
-
-        // Get second position by getting block either in front or to the right in a clockwise direction
-        var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x } ?:
-        borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
-
-        // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
-        // until back to the starting position.
-        val resultingBorder: ArrayList<Position2D> = arrayListOf()
-        var previousPosition: Position2D = startingPosition
-        do {
-            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
-                Direction.North -> {
-                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
-                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
-                    borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
-                }
-                Direction.East -> {
-                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
-                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
-                    borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
-                }
-                Direction.South -> {
-                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
-                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
-                    borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
-                }
-                else -> {
-                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
-                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
-                    borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
-                }
-            }
-            resultingBorder.add(nextPosition)
-            previousPosition = currentPosition
-            currentPosition = nextPosition
-        } while (currentPosition != startingPosition)
 
         // Visualise created border
-        setVisualisedBlocks(player, resultingBorder, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        setVisualisedBlocks(player, finalBorders, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
     private fun showOthersVisualisation(player: Player) {
@@ -712,61 +728,77 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
         if (partitionsInChunks.isEmpty()) return
 
-        val borders: ArrayList<Position2D> = ArrayList()
+        // Get all claims that exist in selected chunks
+        val foundClaims : MutableSet<Claim> = mutableSetOf()
         for (partition in partitionsInChunks) {
             val claim = claimService.getById(partition.claimId) ?: continue
-            if (claim.owner.uniqueId != player.uniqueId) {
+            if (claim.owner.uniqueId == player.uniqueId) continue
+            if (claim in foundClaims) continue
+            foundClaims.add(claim)
+        }
+
+        // Get borders for each claim
+        val finalBorders: ArrayList<Position2D> = arrayListOf()
+        for (claim in foundClaims) {
+            // Add edge blocks for each partition in claim
+            val partitions = partitionService.getByClaim(claim)
+            val borders: MutableList<Position2D> = mutableListOf()
+            for (partition in partitions) {
                 borders.addAll(partition.area.getEdgeBlockPositions())
             }
-        }
 
-        // Get starting position by finding the position with the largest x coordinate.
-        // Could be the largest or smallest any coordinate, this is personal choice.
-        var startingPosition = borders[0]
-        for (border in borders) {
-            if (border.x > startingPosition.x) {
-                startingPosition = border
-            }
-        }
-
-        // Get second position by getting block either in front or to the right in a clockwise direction
-        var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x } ?:
-        borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
-
-        // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
-        // until back to the starting position.
-        val resultingBorder: ArrayList<Position2D> = arrayListOf()
-        var previousPosition: Position2D = startingPosition
-        do {
-            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
-                Direction.North -> {
-                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
-                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
-                    borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
-                }
-                Direction.East -> {
-                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
-                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
-                    borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
-                }
-                Direction.South -> {
-                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
-                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
-                    borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
-                }
-                else -> {
-                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
-                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
-                    borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+            // Get starting position by finding the position with the largest x coordinate.
+            // Could be the largest or smallest any coordinate, this is personal choice.
+            var startingPosition = borders[0]
+            for (border in borders) {
+                if (border.x > startingPosition.x) {
+                    startingPosition = border
                 }
             }
-            resultingBorder.add(nextPosition)
-            previousPosition = currentPosition
-            currentPosition = nextPosition
-        } while (currentPosition != startingPosition)
+
+            // Get second position by getting block either in front or to the right in a clockwise direction
+            var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x }
+                ?: borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+            // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+            // until back to the starting position.
+            val resultingBorder: ArrayList<Position2D> = arrayListOf()
+            var previousPosition: Position2D = startingPosition
+            do {
+                val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                    Direction.North -> {
+                        borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                    }
+
+                    Direction.East -> {
+                        borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                    }
+
+                    Direction.South -> {
+                        borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                    }
+
+                    else -> {
+                        borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                    }
+                }
+                resultingBorder.add(nextPosition)
+                previousPosition = currentPosition
+                currentPosition = nextPosition
+            } while (currentPosition != startingPosition)
+            finalBorders.addAll(resultingBorder)
+        }
 
         // Visualise created border
-        setVisualisedBlocks(player, resultingBorder, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        setVisualisedBlocks(player, finalBorders, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
 
