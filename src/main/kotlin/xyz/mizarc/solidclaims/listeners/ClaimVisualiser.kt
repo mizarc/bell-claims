@@ -1,7 +1,7 @@
 package xyz.mizarc.solidclaims.listeners
 
 import com.google.common.math.IntMath.sqrt
-import org.bukkit.Chunk
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -15,9 +15,9 @@ import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
-import xyz.mizarc.solidclaims.partitions.Position2D
-import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.getClaimTool
+import xyz.mizarc.solidclaims.partitions.Partition
+import xyz.mizarc.solidclaims.partitions.Position2D
 import java.math.RoundingMode
 import kotlin.math.abs
 
@@ -28,6 +28,13 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
 
     var oldPartitions: ArrayList<Partition> = ArrayList()
+
+    enum class Direction {
+        North,
+        South,
+        East,
+        West
+    }
 
     companion object {
         private val transparentMaterials = arrayOf(
@@ -533,7 +540,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    fun updateVisualisation(player: Player, force: Boolean) {
+    fun updateVisualisation(player: Player, force: Boolean, viewMode: Boolean = false) {
         val mainItemMeta = player.inventory.itemInMainHand.itemMeta
         val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
 
@@ -545,6 +552,14 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         }
         playerVisualisingState[player] = holdingClaimTool
 
+        if (viewMode) {
+            showPartitionVisualisation(player)
+            return
+        }
+        showClaimVisualisation(player)
+    }
+
+    fun showPartitionVisualisation(player: Player) {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
@@ -582,6 +597,86 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
         setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
         setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
+    }
+
+    fun showClaimVisualisation(player: Player) {
+        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val partitionsInChunks = ArrayList<Partition>()
+        for (chunk in chunks) {
+            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+        }
+        if (partitionsInChunks.isEmpty()) return
+
+        val noPermissionBorders: ArrayList<Position2D> = ArrayList()
+        val borders: ArrayList<Position2D> = ArrayList()
+        for (partition in partitionsInChunks) {
+            val claim = claimService.getById(partition.claimId) ?: continue
+            if (claim.owner.uniqueId != player.uniqueId) {
+                noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
+                continue
+            }
+
+            borders.addAll(partition.area.getEdgeBlockPositions())
+        }
+
+        // Get starting position by finding the position with the largest x coordinate.
+        // Could be the largest or smallest any coordinate, this is personal choice.
+        var startingPosition = borders[0]
+        for (border in borders) {
+            if (border.x > startingPosition.x) {
+                startingPosition = border
+            }
+        }
+
+        // Get second position by getting block either in front or to the right in a clockwise direction
+        var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x } ?:
+        borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+        // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+        // until back to the starting position.
+        val resultingBorder: ArrayList<Position2D> = arrayListOf()
+        var previousPosition: Position2D = startingPosition
+        do {
+            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                Direction.North -> {
+                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
+                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
+                    borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                }
+                Direction.East -> {
+                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
+                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
+                    borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                }
+                Direction.South -> {
+                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
+                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
+                    borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                }
+                else -> {
+                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
+                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
+                    borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                }
+            }
+            resultingBorder.add(nextPosition)
+            previousPosition = currentPosition
+            currentPosition = nextPosition
+        } while (currentPosition != startingPosition)
+
+        // Visualise created border
+        setVisualisedBlocks(player, noPermissionBorders, Material.RED_GLAZED_TERRACOTTA, Material.RED_CARPET)
+        setVisualisedBlocks(player, resultingBorder, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+    }
+
+
+    private fun getTravelDirection(first: Position2D, second: Position2D): Direction {
+        return when {
+            second.z > first.z -> Direction.South
+            second.z < first.z -> Direction.North
+            second.x > first.x -> Direction.East
+            else -> Direction.West
+        }
     }
 
     /**
@@ -632,7 +727,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         return chunks
     }
 
-    private fun setVisualisedBlocks(player: Player, position2DS: ArrayList<Position2D>, block: Material, flatBlock: Material) {
+    private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material) {
         for (position in position2DS) {
             for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = block.createBlockData() // Set the visualisation block
@@ -645,5 +740,17 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
             }
         }
 
+    }
+
+    private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
+        for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            var blockData = block.createBlockData() // Set the visualisation block
+            val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
+            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+            if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+            if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+            if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+            player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+        }
     }
 }
