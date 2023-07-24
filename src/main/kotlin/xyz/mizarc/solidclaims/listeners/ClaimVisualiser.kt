@@ -587,7 +587,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         playerState.isVisualisingClaims = true
         if (viewMode) {
             showPartitionVisualisation(player)
-            return
         }
         else {
             showClaimVisualisation(player)
