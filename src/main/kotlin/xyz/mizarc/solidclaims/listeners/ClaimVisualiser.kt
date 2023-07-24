@@ -630,6 +630,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             corners.addAll(partition.area.getCornerBlockPositions())
             borders.addAll(partition.area.getEdgeBlockPositions())
         }
+        borders.removeAll(corners.toSet())
 
         setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
         setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
