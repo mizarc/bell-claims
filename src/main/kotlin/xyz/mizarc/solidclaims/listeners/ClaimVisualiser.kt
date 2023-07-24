@@ -584,17 +584,23 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
 
         // Change visualiser depending on view mode
+        playerState.isVisualisingClaims = true
         if (viewMode) {
             showPartitionVisualisation(player)
             return
         }
-        showClaimVisualisation(player)
+        else {
+            showClaimVisualisation(player)
+        }
+
+        showOthersVisualisation(player)
     }
 
     fun hideVisualisation(player: Player) {
         val playerState = playerStateRepo.get(player) ?: return
         playerState.isVisualisingClaims = false
         showPartitionVisualisation(player)
+        showOthersVisualisation(player)
     }
 
     fun showPartitionVisualisation(player: Player) {
@@ -605,8 +611,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
         if (partitionsInChunks.isEmpty()) return
 
-        val noPermissionBorders: ArrayList<Position2D> = ArrayList()
-        val noPermissionCorners: ArrayList<Position2D> = ArrayList()
         val mainBorders: ArrayList<Position2D> = ArrayList()
         val mainCorners: ArrayList<Position2D> = ArrayList()
         val borders: ArrayList<Position2D> = ArrayList()
@@ -615,8 +619,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             val claim = claimService.getById(partition.claimId) ?: continue
             val mainPartition = partitionService.getPrimaryPartition(claim)
             if (claim.owner.uniqueId != player.uniqueId) {
-                noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
-                noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
             }
 
@@ -629,8 +631,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             borders.addAll(partition.area.getEdgeBlockPositions())
         }
 
-        setVisualisedBlocks(player, noPermissionBorders, Material.RED_GLAZED_TERRACOTTA, Material.RED_CARPET)
-        setVisualisedBlocks(player, noPermissionCorners, Material.BLACK_GLAZED_TERRACOTTA, Material.BLACK_CARPET)
         setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
         setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
         setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
@@ -645,12 +645,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
         if (partitionsInChunks.isEmpty()) return
 
-        val noPermissionBorders: ArrayList<Position2D> = ArrayList()
         val borders: ArrayList<Position2D> = ArrayList()
         for (partition in partitionsInChunks) {
             val claim = claimService.getById(partition.claimId) ?: continue
             if (claim.owner.uniqueId != player.uniqueId) {
-                noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
             }
 
@@ -703,8 +701,72 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         } while (currentPosition != startingPosition)
 
         // Visualise created border
-        setVisualisedBlocks(player, noPermissionBorders, Material.RED_GLAZED_TERRACOTTA, Material.RED_CARPET)
         setVisualisedBlocks(player, resultingBorder, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+    }
+
+    private fun showOthersVisualisation(player: Player) {
+        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val partitionsInChunks = ArrayList<Partition>()
+        for (chunk in chunks) {
+            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+        }
+        if (partitionsInChunks.isEmpty()) return
+
+        val borders: ArrayList<Position2D> = ArrayList()
+        for (partition in partitionsInChunks) {
+            val claim = claimService.getById(partition.claimId) ?: continue
+            if (claim.owner.uniqueId != player.uniqueId) {
+                borders.addAll(partition.area.getEdgeBlockPositions())
+            }
+        }
+
+        // Get starting position by finding the position with the largest x coordinate.
+        // Could be the largest or smallest any coordinate, this is personal choice.
+        var startingPosition = borders[0]
+        for (border in borders) {
+            if (border.x > startingPosition.x) {
+                startingPosition = border
+            }
+        }
+
+        // Get second position by getting block either in front or to the right in a clockwise direction
+        var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x } ?:
+        borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+        // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+        // until back to the starting position.
+        val resultingBorder: ArrayList<Position2D> = arrayListOf()
+        var previousPosition: Position2D = startingPosition
+        do {
+            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                Direction.North -> {
+                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
+                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
+                    borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                }
+                Direction.East -> {
+                    borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x } ?:
+                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
+                    borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                }
+                Direction.South -> {
+                    borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z } ?:
+                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
+                    borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                }
+                else -> {
+                    borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x } ?:
+                    borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z } ?:
+                    borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                }
+            }
+            resultingBorder.add(nextPosition)
+            previousPosition = currentPosition
+            currentPosition = nextPosition
+        } while (currentPosition != startingPosition)
+
+        // Visualise created border
+        setVisualisedBlocks(player, resultingBorder, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
 
