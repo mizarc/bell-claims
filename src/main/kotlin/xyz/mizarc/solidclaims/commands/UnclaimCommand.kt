@@ -39,9 +39,7 @@ class UnclaimCommand : BaseCommand() {
         }
 
         // Update visualiser
-        claimVisualiser.oldPartitions.add(partition)
-        claimVisualiser.unrenderOldClaims(player)
-        claimVisualiser.oldPartitions.clear()
+        claimVisualiser.updateVisualisation(partition)
 
         // Remove claim if there are no more partitions attached to it
         val claim = claims.getById(partition.claimId) ?: return
@@ -66,10 +64,7 @@ class UnclaimCommand : BaseCommand() {
         }
 
         claims.remove(claim)
-        claimVisualiser.oldPartitions.addAll(claimPartitions)
-        claimVisualiser.unrenderOldClaims(player)
-        claimVisualiser.oldPartitions.clear()
-        claimVisualiser.updateVisualisation(player, true)
+        claimVisualiser.updateVisualisation(partition)
 
         player.sendMessage("§aThe claim has been removed.")
     }
