@@ -1,8 +1,5 @@
 package xyz.mizarc.solidclaims.listeners
 
-import com.google.common.math.IntMath.sqrt
-import net.kyori.adventure.text.BlockNBTComponent.Pos
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -21,9 +18,6 @@ import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.Position2D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
-import java.math.RoundingMode
-import javax.swing.border.Border
-import kotlin.math.abs
 
 private const val yRange = 50
 
@@ -582,29 +576,29 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         playerState.isVisualisingClaims = !refresh
 
         if (refresh) {
-            showPartitionVisualisation(player)
+            updatePartitionVisualisation(player)
         }
 
         // Change visualiser depending on view mode
         playerState.isVisualisingClaims = true
         if (viewMode) {
-            showPartitionVisualisation(player)
+            updatePartitionVisualisation(player)
         }
         else {
-            showClaimVisualisation(player)
+            updateClaimVisualisation(player)
         }
 
-        showOthersVisualisation(player)
+        updateOthersVisualisation(player)
     }
 
     fun hideVisualisation(player: Player) {
         val playerState = playerStateRepo.get(player) ?: return
         playerState.isVisualisingClaims = false
-        showPartitionVisualisation(player)
-        showOthersVisualisation(player)
+        updatePartitionVisualisation(player)
+        updateOthersVisualisation(player)
     }
 
-    fun showPartitionVisualisation(player: Player) {
+    fun updatePartitionVisualisation(player: Player) {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
@@ -639,7 +633,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
     }
 
-    fun showClaimVisualisation(player: Player) {
+    fun updateClaimVisualisation(player: Player) {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
@@ -720,7 +714,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         setVisualisedBlocks(player, finalBorders, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
-    private fun showOthersVisualisation(player: Player) {
+    private fun updateOthersVisualisation(player: Player) {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
