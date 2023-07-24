@@ -68,6 +68,7 @@ class SolidClaims : JavaPlugin() {
         commandManager.registerCommand(AddRuleCommand())
         commandManager.registerCommand(RemoveRuleCommand())
         commandManager.registerCommand(ClaimOverrideCommand())
+        commandManager.registerCommand(ClaimMenuCommand())
     }
 
     private fun registerEvents() {
