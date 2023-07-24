@@ -21,6 +21,8 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
                    private val claimVisualiser: ClaimVisualiser, private val partition: Partition? = null) {
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
 
@@ -29,15 +31,26 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             .name("Change Mode")
 
         val playerState = playerStateRepo.get(player) ?: return
+        val guiModeSwitchItem: GuiItem
         if (playerState.claimToolMode == 0) {
             modeSwitchItem.lore("> View Mode")
             modeSwitchItem.lore("Edit Mode")
+            guiModeSwitchItem = GuiItem(modeSwitchItem) {
+                playerState.claimToolMode = 1
+                claimVisualiser.showVisualisation(player, true, true)
+                openEditToolMenu()
+            }
         }
         else {
             modeSwitchItem.lore("View Mode")
             modeSwitchItem.lore("> Edit Mode")
+            guiModeSwitchItem = GuiItem(modeSwitchItem) {
+                playerState.claimToolMode = 0
+                claimVisualiser.showVisualisation(player, false, true)
+                openEditToolMenu()
+            }
         }
-        val guiModeSwitchItem = GuiItem(modeSwitchItem) { guiEvent -> guiEvent.isCancelled = true }
+
         pane.addItem(guiModeSwitchItem, 0, 0)
 
         // Add divider
@@ -114,8 +127,7 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
             partitionService.removePartition(partition)
-            claimVisualiser.oldPartitions.add(partition)
-            claimVisualiser.unrenderOldClaims(player)
+            claimVisualiser.updateVisualisation(partition)
             player.closeInventory()
         }
         pane.addItem(guiYesItem, 2, 0)

@@ -15,19 +15,20 @@ import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
+import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.Position2D
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
 import java.math.RoundingMode
 import kotlin.math.abs
 
 private const val yRange = 50
 
-class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: ClaimService,
-                      private val partitionService: PartitionService) : Listener {
-    private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
-
-    var oldPartitions: ArrayList<Partition> = ArrayList()
+class ClaimVisualiser(private val plugin: JavaPlugin,
+                      private val claimService: ClaimService,
+                      private val partitionService: PartitionService,
+                      private val playerStateRepo: PlayerStateRepository) : Listener {
 
     enum class Direction {
         North,
@@ -488,34 +489,39 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     }
 
     /**
-     * Unrender old claims for [player] and all surrounding players within a radius.
+     * Unrender old partition for players who are currently visualising it
      */
-    fun unrenderOldClaims(player: Player) {
-        if (oldPartitions.isEmpty()) return
+    fun updateVisualisation(partition: Partition) {
+        // Get the claim of the partition
+        val claim = claimService.getById(partition.claimId) ?: return
+        val claimWorld = claim.getWorld() ?: return
 
+        // Get all players who are visualising and in range
+        val players = getNearbyPlayers(claim, 1)
+
+        // Get claim borders
         val borders: ArrayList<Position2D> = ArrayList()
-        for (part in oldPartitions) {
-            borders.addAll(part.area.getEdgeBlockPositions())
+        borders.addAll(partition.area.getEdgeBlockPositions())
+        for (claimPartition in partitionService.getByClaim(claim)) {
+            borders.addAll(claimPartition.area.getEdgeBlockPositions())
         }
 
-        // Get the furthest block of the claim from the player location
-        var furthestBlock = 0
-        for (block in borders) {
-            val xDiff = abs(player.location.blockX - block.x)
-            val zDiff = abs(player.location.blockZ - block.z)
-            val length = sqrt((xDiff*xDiff) + (zDiff*zDiff), RoundingMode.CEILING)
-            if (length > furthestBlock) furthestBlock = length
-        }
+        // Get all players
+        for (player in players) {
+            for (block in borders) {
+                for (y in -64..320) {
+                    val blockLocation = Location(claimWorld, block.x.toDouble(), y.toDouble(), block.z.toDouble())
+                    val blockData = claimWorld.getBlockAt(blockLocation).blockData
 
-        val players = getNearbyPlayers(player.location, furthestBlock)
-
-        for (block in borders) {
-            for (y in -64..320) {
-                val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble())
-                val blockData = player.world.getBlockAt(blockLocation).blockData
-                for (p in players) {
-                    p.sendBlockChange(blockLocation, blockData)
+                    player.sendBlockChange(blockLocation, blockData)
                 }
+            }
+            val playerState = playerStateRepo.get(player) ?: continue
+            if (playerState.claimToolMode == 0) {
+                showVisualisation(player, true, false)
+            }
+            else {
+                showVisualisation(player, true, true)
             }
         }
     }
@@ -529,7 +535,8 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
 
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != loc.world) continue
-            if (chunks.contains(Position2D(player.location).toChunk())) {
+            val playerState = playerStateRepo.get(player) ?: continue
+            if (chunks.contains(Position2D(player.location).toChunk()) && playerState.isVisualisingClaims) {
                 players.add(player)
             }
         }
@@ -537,26 +544,57 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         return players.toTypedArray()
     }
 
+    private fun getNearbyPlayers(claim: Claim, radiusModifier: Int): Array<Player> {
+        val players: ArrayList<Player> = ArrayList()
+
+        // Get list of chunks that the claim occupies
+        val startingChunks: MutableSet<Position2D> = mutableSetOf()
+        val partitions = partitionService.getByClaim(claim)
+        for (partition in partitions) {
+            startingChunks.addAll(partition.getChunks())
+        }
+
+        // Get surrounding chunks
+        val finalChunks: MutableSet<Position2D> = mutableSetOf()
+        for (chunk in startingChunks) {
+            finalChunks.addAll(getSurroundingChunks(chunk, 1))
+        }
+
+        // Get players in chunks
+        val world = claim.getWorld()
+        for (player in plugin.server.onlinePlayers) {
+            if (player.location.world != world) continue
+            val playerState = playerStateRepo.get(player) ?: continue
+            if (finalChunks.contains(Position2D(player.location).toChunk()) && playerState.isVisualisingClaims) {
+                players.add(player)
+            }
+        }
+        return players.toTypedArray()
+    }
+
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    fun updateVisualisation(player: Player, force: Boolean, viewMode: Boolean = false) {
-        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
-        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
+    fun showVisualisation(player: Player, viewMode: Boolean = false, refresh: Boolean = false) {
+        val playerState = playerStateRepo.get(player) ?: return
+        playerState.isVisualisingClaims = !refresh
 
-        val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
-                (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
-        if (!force) { // Do not skip update if forced
-            val state = playerVisualisingState[player] ?: !holdingClaimTool
-            if (state == holdingClaimTool) return
+        if (refresh) {
+            showPartitionVisualisation(player)
         }
-        playerVisualisingState[player] = holdingClaimTool
 
+        // Change visualiser depending on view mode
         if (viewMode) {
             showPartitionVisualisation(player)
             return
         }
         showClaimVisualisation(player)
+    }
+
+    fun hideVisualisation(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+        playerState.isVisualisingClaims = false
+        showPartitionVisualisation(player)
     }
 
     fun showPartitionVisualisation(player: Player) {
@@ -690,24 +728,51 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
 
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onPickupClaimTool(event: EntityPickupItemEvent) {
         if (event.entityType != EntityType.PLAYER) return
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.entity as Player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.entity as Player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onDropClaimTool(event: PlayerDropItemEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
         val player = event.whoClicked as Player
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(player) }) // Run task after this tick
+    }
+
+    private fun autoClaimToolVisualisation(player: Player) {
+        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
+        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
+        val playerState = playerStateRepo.get(player) ?: return
+
+        val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
+                (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
+
+        if (holdingClaimTool) {
+            if (playerState.claimToolMode == 0) {
+                showVisualisation(player, false)
+            }
+            else {
+                showVisualisation(player, true)
+            }
+        }
+        else {
+            if (playerState.claimToolMode == 0) {
+                hideVisualisation(player)
+            }
+            else {
+                hideVisualisation(player)
+            }
+        }
+
     }
 
     /**
@@ -728,6 +793,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     }
 
     private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material) {
+        val playerState = playerStateRepo.get(player) ?: return
         for (position in position2DS) {
             for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = block.createBlockData() // Set the visualisation block
@@ -735,7 +801,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-                if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+                if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
             }
         }
@@ -743,13 +809,14 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     }
 
     private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
+        val playerState = playerStateRepo.get(player) ?: return
         for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
             var blockData = block.createBlockData() // Set the visualisation block
             val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
             if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
             if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
             if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-            if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+            if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
             player.sendBlockChange(blockLocation, blockData) // Send the player block updates
         }
     }
