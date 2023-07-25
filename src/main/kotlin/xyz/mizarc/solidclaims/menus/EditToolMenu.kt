@@ -99,7 +99,8 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiPartitionItem, 5, 0)
 
-        if (partitionService.isRemoveResultInAnyDisconnected(partition)) {
+        if (partitionService.isRemoveResultInAnyDisconnected(partition) ||
+                partition.id == partitionService.getPrimaryPartition(claim).id) {
             val deleteItem = ItemStack(Material.GUNPOWDER)
                 .name("Can't Delete Partition")
                 .lore("Deleting this would result in your claim being fragmented.")
