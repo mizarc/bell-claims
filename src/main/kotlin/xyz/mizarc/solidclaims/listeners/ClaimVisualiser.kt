@@ -579,11 +579,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         playerState.isVisualisingClaims = !refresh
 
         if (refresh) {
-            updatePartitionVisualisation(player)
+            hideVisualisation(player)
         }
 
         // Change visualiser depending on view mode
-        playerState.isVisualisingClaims = true
         if (viewMode) {
             updatePartitionVisualisation(player)
         }
@@ -592,6 +591,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
 
         updateOthersVisualisation(player)
+        playerState.isVisualisingClaims = true
     }
 
     fun hideVisualisation(player: Player) {
@@ -817,7 +817,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
 
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
+       plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
     }
 
     @EventHandler
@@ -845,6 +845,12 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
                 (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
 
+
+        if (holdingClaimTool && playerState.isHoldingClaimTool) {
+            return
+        }
+
+        hideVisualisation(player)
         if (holdingClaimTool) {
             if (playerState.claimToolMode == 0) {
                 showVisualisation(player, false)
@@ -853,15 +859,8 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 showVisualisation(player, true)
             }
         }
-        else {
-            if (playerState.claimToolMode == 0) {
-                hideVisualisation(player)
-            }
-            else {
-                hideVisualisation(player)
-            }
-        }
 
+        playerState.isHoldingClaimTool = holdingClaimTool
     }
 
     /**
@@ -891,7 +890,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-                if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
                 visualisedBlocks.add(Position3D(blockLocation))
                 break
@@ -918,7 +916,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
             if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
             if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-            if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
             player.sendBlockChange(blockLocation, blockData) // Send the player block updates
             visualisedBlocks.add(Position3D(blockLocation))
         }
