@@ -1,6 +1,7 @@
 package xyz.mizarc.solidclaims.partitions
 
 import org.bukkit.Location
+import org.bukkit.World
 
 /**
  * Stores two integers to define a flat position in the world.

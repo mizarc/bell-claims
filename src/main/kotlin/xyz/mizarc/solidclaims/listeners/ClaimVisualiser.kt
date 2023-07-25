@@ -17,9 +17,12 @@ import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.getClaimTool
 import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.Position2D
+import xyz.mizarc.solidclaims.partitions.Position3D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
 
-private const val yRange = 50
+
+private const val upperRange = 5
+private const val lowerRange = 20
 
 class ClaimVisualiser(private val plugin: JavaPlugin,
                       private val claimService: ClaimService,
@@ -594,8 +597,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     fun hideVisualisation(player: Player) {
         val playerState = playerStateRepo.get(player) ?: return
         playerState.isVisualisingClaims = false
-        updatePartitionVisualisation(player)
-        updateOthersVisualisation(player)
+        revertVisualisedBlocks(player)
     }
 
     fun updatePartitionVisualisation(player: Player) {
@@ -795,7 +797,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         setVisualisedBlocks(player, finalBorders, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
-
     private fun getTravelDirection(first: Position2D, second: Position2D): Direction {
         return when {
             second.z > first.z -> Direction.South
@@ -881,9 +882,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     }
 
     private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material) {
+        val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
         val playerState = playerStateRepo.get(player) ?: return
         for (position in position2DS) {
-            for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            for (y in player.location.blockY - lowerRange..player.location.blockY + upperRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = block.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
@@ -891,14 +893,25 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
                 if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+                visualisedBlocks.add(Position3D(blockLocation))
             }
+            playerState.visualisedBlockPositions.addAll(visualisedBlocks)
         }
+    }
 
+    private fun revertVisualisedBlocks(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+        for (position in playerState.visualisedBlockPositions) {
+            val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
+            player.sendBlockChange(position.toLocation(player.world), blockData)
+        }
+        playerState.visualisedBlockPositions.clear()
     }
 
     private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
+        val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
         val playerState = playerStateRepo.get(player) ?: return
-        for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+        for (y in player.location.blockY - lowerRange..player.location.blockY+ + upperRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
             var blockData = block.createBlockData() // Set the visualisation block
             val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
             if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
@@ -906,6 +919,8 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
             if (!playerState.isVisualisingClaims) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
             player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+            visualisedBlocks.add(Position3D(blockLocation))
         }
+        playerState.visualisedBlockPositions.addAll(visualisedBlocks)
     }
 }
