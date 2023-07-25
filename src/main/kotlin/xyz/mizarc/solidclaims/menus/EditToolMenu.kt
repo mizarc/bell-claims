@@ -69,7 +69,18 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             return
         }
 
+        // Add message if player doesn't own claim
         val claim = claimService.getById(partition.claimId) ?: return
+        if (claim.owner.uniqueId != player.uniqueId) {
+            val messageItem = ItemStack(Material.COAL)
+                .name("Not Your Claim")
+                .lore("Select an area in your claim to see more options.")
+            val guiMessageItem = GuiItem(messageItem) { guiEvent -> guiEvent.isCancelled = true }
+            pane.addItem(guiMessageItem, 5, 0)
+            gui.show(player)
+            return
+        }
+
         val partitions = partitionService.getByClaim(claim)
         val claimItem = ItemStack(Material.BELL)
             .name("Claim")
