@@ -884,7 +884,17 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
         val playerState = playerStateRepo.get(player) ?: return
         for (position in position2DS) {
-            for (y in player.location.blockY + upperRange downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            for (y in player.location.blockY + 1 .. player.location.blockY + 1 + upperRange) {
+                var blockData = block.createBlockData() // Set the visualisation block
+                val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently
+                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+                if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+                if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+                visualisedBlocks.add(Position3D(blockLocation))
+                break
+            }
+            for (y in player.location.blockY downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
                 var blockData = block.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
@@ -910,7 +920,16 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
         val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
         val playerState = playerStateRepo.get(player) ?: return
-        for (y in player.location.blockY - lowerRange..player.location.blockY+ + upperRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+        for (y in player.location.blockY + 1 .. player.location.blockY + 1 + upperRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            var blockData = block.createBlockData() // Set the visualisation block
+            val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
+            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+            if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+            if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+            player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+            visualisedBlocks.add(Position3D(blockLocation))
+        }
+        for (y in player.location.blockY downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
             var blockData = block.createBlockData() // Set the visualisation block
             val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
             if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
