@@ -10,6 +10,7 @@ import xyz.mizarc.solidclaims.partitions.Position3D
 class PlayerState(val player: OfflinePlayer, val config: Config, val metadata: Chat) {
     var claimOverride = false
     var claimToolMode = 0
+    var isHoldingClaimTool = false
     var isVisualisingClaims = false
     var visualisedBlockPositions: MutableSet<Position3D> = mutableSetOf()
 
