@@ -46,13 +46,7 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
             return
         }
 
-        var playerState = playerStates.get(event.player) ?: return
-        if (playerState.claimToolMode == 1) {
-            claimVisualiser.showVisualisation(event.player, true, true)
-        }
-        else {
-            claimVisualiser.showVisualisation(event.player, false, true)
-        }
+        claimVisualiser.refreshVisualisation(event.player)
 
         // Resizes an existing partition
         val partitionResizer = partitionResizers[event.player]

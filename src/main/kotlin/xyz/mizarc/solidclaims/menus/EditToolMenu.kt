@@ -37,7 +37,7 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             modeSwitchItem.lore("Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 1
-                claimVisualiser.showVisualisation(player, true, true)
+                claimVisualiser.showVisualisation(player)
                 openEditToolMenu()
             }
         }
@@ -46,7 +46,7 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             modeSwitchItem.lore("> Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 0
-                claimVisualiser.showVisualisation(player, false, true)
+                claimVisualiser.showVisualisation(player)
                 openEditToolMenu()
             }
         }

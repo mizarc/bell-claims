@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.listeners
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -517,10 +518,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             }
             val playerState = playerStateRepo.get(player) ?: continue
             if (playerState.claimToolMode == 0) {
-                showVisualisation(player, true, false)
+                showVisualisation(player)
             }
             else {
-                showVisualisation(player, true, true)
+                showVisualisation(player)
             }
         }
     }
@@ -574,24 +575,21 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    fun showVisualisation(player: Player, viewMode: Boolean = false, refresh: Boolean = false) {
-        val playerState = playerStateRepo.get(player) ?: return
-        playerState.isVisualisingClaims = !refresh
-
-        if (refresh) {
-            hideVisualisation(player)
-        }
+    fun showVisualisation(player: Player): MutableSet<Position3D> {
+        val playerState = playerStateRepo.get(player) ?: return mutableSetOf()
 
         // Change visualiser depending on view mode
-        if (viewMode) {
-            updatePartitionVisualisation(player)
+        val borders: MutableSet<Position3D> = mutableSetOf()
+        if (playerState.claimToolMode == 1) {
+            borders.addAll(updatePartitionVisualisation(player))
         }
         else {
-            updateClaimVisualisation(player)
+            borders.addAll(updateClaimVisualisation(player))
         }
 
-        updateOthersVisualisation(player)
+        borders.addAll(updateOthersVisualisation(player))
         playerState.isVisualisingClaims = true
+        return borders
     }
 
     fun hideVisualisation(player: Player) {
@@ -600,13 +598,24 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         revertVisualisedBlocks(player)
     }
 
-    fun updatePartitionVisualisation(player: Player) {
+    fun refreshVisualisation(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+        playerState.isVisualisingClaims = false
+
+        val currentVisualised = HashSet(playerState.visualisedBlockPositions)
+        val borders = showVisualisation(player)
+        currentVisualised.removeAll(borders)
+
+        revertVisualisedBlocksSelectively(player, currentVisualised)
+    }
+
+    fun updatePartitionVisualisation(player: Player): MutableSet<Position3D> {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
         }
-        if (partitionsInChunks.isEmpty()) return
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
 
         val mainBorders: ArrayList<Position2D> = ArrayList()
         val mainCorners: ArrayList<Position2D> = ArrayList()
@@ -629,19 +638,20 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
         borders.removeAll(corners.toSet())
 
-        setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
-        setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
-        setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
-        setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
+        val a = setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
+        val b = setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
+        val c = setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        val d = setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
+        return (a + b + c + d).toMutableSet()
     }
 
-    fun updateClaimVisualisation(player: Player) {
+    fun updateClaimVisualisation(player: Player): MutableSet<Position3D> {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
         }
-        if (partitionsInChunks.isEmpty()) return
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
 
         // Get all claims that exist in selected chunks
         val foundClaims : MutableSet<Claim> = mutableSetOf()
@@ -713,16 +723,16 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
 
         // Visualise created border
-        setVisualisedBlocks(player, finalBorders, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        return setVisualisedBlocks(player, finalBorders, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
-    private fun updateOthersVisualisation(player: Player) {
+    private fun updateOthersVisualisation(player: Player): MutableSet<Position3D> {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
         }
-        if (partitionsInChunks.isEmpty()) return
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
 
         // Get all claims that exist in selected chunks
         val foundClaims : MutableSet<Claim> = mutableSetOf()
@@ -794,7 +804,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         }
 
         // Visualise created border
-        setVisualisedBlocks(player, finalBorders, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        return setVisualisedBlocks(player, finalBorders, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
     }
 
     private fun getTravelDirection(first: Position2D, second: Position2D): Direction {
@@ -853,10 +863,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         hideVisualisation(player)
         if (holdingClaimTool) {
             if (playerState.claimToolMode == 0) {
-                showVisualisation(player, false)
+                showVisualisation(player)
             }
             else {
-                showVisualisation(player, true)
+                showVisualisation(player)
             }
         }
 
@@ -880,9 +890,9 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         return chunks
     }
 
-    private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material) {
+    private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material): MutableSet<Position3D> {
         val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateRepo.get(player) ?: return mutableSetOf()
         for (position in position2DS) {
             for (y in player.location.blockY + 1 .. player.location.blockY + 1 + upperRange) {
                 var blockData = block.createBlockData() // Set the visualisation block
@@ -890,8 +900,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
                 visualisedBlocks.add(Position3D(blockLocation))
+                if (playerState.visualisedBlockPositions.contains(Position3D(blockLocation))) break
+
+                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
                 break
             }
             for (y in player.location.blockY downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
@@ -900,12 +912,15 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
                 visualisedBlocks.add(Position3D(blockLocation))
+                if (playerState.visualisedBlockPositions.contains(Position3D(blockLocation))) break
+
+                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
                 break
             }
         }
         playerState.visualisedBlockPositions.addAll(visualisedBlocks)
+        return visualisedBlocks
     }
 
     private fun revertVisualisedBlocks(player: Player) {
@@ -915,6 +930,17 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             player.sendBlockChange(position.toLocation(player.world), blockData)
         }
         playerState.visualisedBlockPositions.clear()
+    }
+
+    private fun revertVisualisedBlocksSelectively(player: Player, position3DS: Set<Position3D>) {
+        val playerState = playerStateRepo.get(player) ?: return
+        val removed = mutableSetOf<Position3D>()
+        for (position in position3DS) {
+            val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
+            player.sendBlockChange(position.toLocation(player.world), blockData)
+            removed.add(position)
+        }
+        playerState.visualisedBlockPositions.removeAll(removed)
     }
 
     private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
