@@ -518,13 +518,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                     player.sendBlockChange(blockLocation, blockData)
                 }
             }
-            val playerState = playerStateRepo.get(player) ?: continue
-            if (playerState.claimToolMode == 0) {
-                showVisualisation(player)
-            }
-            else {
-                showVisualisation(player)
-            }
+            fullRefreshVisualisation(player)
         }
     }
 
@@ -602,13 +596,17 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
 
     fun refreshVisualisation(player: Player) {
         val playerState = playerStateRepo.get(player) ?: return
-        playerState.isVisualisingClaims = false
 
         val currentVisualised = HashSet(playerState.visualisedBlockPositions)
         val borders = showVisualisation(player)
         currentVisualised.removeAll(borders)
 
-        revertVisualisedBlocksSelectively(player, currentVisualised)
+       revertVisualisedBlocksSelectively(player, currentVisualised)
+    }
+
+    fun fullRefreshVisualisation(player: Player) {
+        revertVisualisedBlocks(player)
+        showVisualisation(player)
     }
 
     fun updatePartitionVisualisation(player: Player): MutableSet<Position3D> {

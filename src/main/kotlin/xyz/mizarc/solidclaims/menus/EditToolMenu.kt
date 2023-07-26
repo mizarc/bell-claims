@@ -140,6 +140,7 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             guiEvent.isCancelled = true
             partitionService.removePartition(partition)
             claimVisualiser.updateVisualisation(partition)
+            claimVisualiser.fullRefreshVisualisation(player)
             player.closeInventory()
         }
         pane.addItem(guiYesItem, 2, 0)
