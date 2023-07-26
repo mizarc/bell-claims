@@ -1,5 +1,6 @@
 package xyz.mizarc.solidclaims.listeners
 
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
@@ -51,29 +52,31 @@ class RuleBehaviour {
          */
         private fun preventExplosionDamage(event: Event, claimService: ClaimService,
                                            partitionService: PartitionService) {
+            val blocks: List<Block>
             if (event is EntityExplodeEvent) {
-                handleExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
+                 blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
+                event.blockList().removeAll(blocks)
             }
-            if (event is BlockExplodeEvent) {
-                handleExplosionBlocks(event.blockList(), event.block.world, claimService, partitionService)
+            else if (event is BlockExplodeEvent) {
+                blocks = getExplosionBlocks(event.blockList(), event.block.world, claimService, partitionService)
+                event.blockList().removeAll(blocks)
             }
         }
 
         /**
          * Edit the explosion's destruction to exclude blocks inside of claims without the rule for it.
          */
-        private fun handleExplosionBlocks(blocks: MutableList<Block>, world: World, claimService: ClaimService,
-                                          partitionService: PartitionService) {
-            val result: ArrayList<Block> = ArrayList()
+        private fun getExplosionBlocks(blocks: MutableList<Block>, world: World, claimService: ClaimService,
+                                          partitionService: PartitionService): List<Block> {
+            val cancelledBlocks: MutableList<Block> = mutableListOf()
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
-                val claim = claimService.getById(partition.claimId)
-                if (claim == null || claimService.getClaimRules(claim).contains(ClaimRule.Explosions)) {
-                    result.add(block)
+                val claim = claimService.getById(partition.claimId) ?: continue
+                if (!claimService.getClaimRules(claim).contains(ClaimRule.Explosions)) {
+                    cancelledBlocks.add(block)
                 }
             }
-            blocks.clear()
-            blocks.addAll(result)
+            return cancelledBlocks
         }
 
         /**

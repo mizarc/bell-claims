@@ -21,6 +21,8 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
                    private val claimVisualiser: ClaimVisualiser, private val partition: Partition? = null) {
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
 
@@ -29,15 +31,26 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             .name("Change Mode")
 
         val playerState = playerStateRepo.get(player) ?: return
+        val guiModeSwitchItem: GuiItem
         if (playerState.claimToolMode == 0) {
             modeSwitchItem.lore("> View Mode")
             modeSwitchItem.lore("Edit Mode")
+            guiModeSwitchItem = GuiItem(modeSwitchItem) {
+                playerState.claimToolMode = 1
+                claimVisualiser.showVisualisation(player)
+                openEditToolMenu()
+            }
         }
         else {
             modeSwitchItem.lore("View Mode")
             modeSwitchItem.lore("> Edit Mode")
+            guiModeSwitchItem = GuiItem(modeSwitchItem) {
+                playerState.claimToolMode = 0
+                claimVisualiser.showVisualisation(player)
+                openEditToolMenu()
+            }
         }
-        val guiModeSwitchItem = GuiItem(modeSwitchItem) { guiEvent -> guiEvent.isCancelled = true }
+
         pane.addItem(guiModeSwitchItem, 0, 0)
 
         // Add divider
@@ -56,7 +69,18 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             return
         }
 
+        // Add message if player doesn't own claim
         val claim = claimService.getById(partition.claimId) ?: return
+        if (claim.owner.uniqueId != player.uniqueId) {
+            val messageItem = ItemStack(Material.COAL)
+                .name("Not Your Claim")
+                .lore("Select an area in your claim to see more options.")
+            val guiMessageItem = GuiItem(messageItem) { guiEvent -> guiEvent.isCancelled = true }
+            pane.addItem(guiMessageItem, 5, 0)
+            gui.show(player)
+            return
+        }
+
         val partitions = partitionService.getByClaim(claim)
         val claimItem = ItemStack(Material.BELL)
             .name("Claim")
@@ -75,7 +99,8 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiPartitionItem, 5, 0)
 
-        if (partitionService.isRemoveResultInAnyDisconnected(partition)) {
+        if (partitionService.isRemoveResultInAnyDisconnected(partition) ||
+                partition.id == partitionService.getPrimaryPartition(claim).id) {
             val deleteItem = ItemStack(Material.GUNPOWDER)
                 .name("Can't Delete Partition")
                 .lore("Deleting this would result in your claim being fragmented.")
@@ -114,8 +139,8 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
             partitionService.removePartition(partition)
-            claimVisualiser.oldPartitions.add(partition)
-            claimVisualiser.unrenderOldClaims(player)
+            claimVisualiser.updateVisualisation(partition)
+            claimVisualiser.fullRefreshVisualisation(player)
             player.closeInventory()
         }
         pane.addItem(guiYesItem, 2, 0)
