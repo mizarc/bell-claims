@@ -17,6 +17,7 @@ import org.bukkit.block.BlockFace
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
 import org.bukkit.event.block.BlockPistonRetractEvent
+import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 
 class ClaimDestructionListener(val claimService: ClaimService): Listener {
@@ -89,6 +90,13 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
             if (claimService.getByLocation(block.location) != null) {
                 event.isCancelled = true
             }
+        }
+    }
+
+    @EventHandler
+    fun onTNTPrime(event: TNTPrimeEvent) {
+        if (wouldBlockBreakBell(event.block)) {
+            event.isCancelled = true
         }
     }
 
