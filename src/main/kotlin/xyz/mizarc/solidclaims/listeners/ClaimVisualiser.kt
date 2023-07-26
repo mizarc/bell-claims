@@ -720,7 +720,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 resultingBorder.add(nextPosition)
                 previousPosition = currentPosition
                 currentPosition = nextPosition
-            } while (currentPosition != startingPosition)
+            } while (previousPosition != startingPosition)
             finalBorders.addAll(resultingBorder)
         }
 
@@ -801,7 +801,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
                 resultingBorder.add(nextPosition)
                 previousPosition = currentPosition
                 currentPosition = nextPosition
-            } while (currentPosition != startingPosition)
+            } while (previousPosition != startingPosition)
             finalBorders.addAll(resultingBorder)
         }
 
