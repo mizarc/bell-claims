@@ -10,6 +10,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.ClaimService
@@ -20,6 +21,7 @@ import xyz.mizarc.solidclaims.partitions.Partition
 import xyz.mizarc.solidclaims.partitions.Position2D
 import xyz.mizarc.solidclaims.partitions.Position3D
 import xyz.mizarc.solidclaims.players.PlayerStateRepository
+import kotlin.concurrent.thread
 
 
 private const val upperRange = 5
@@ -845,6 +847,19 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
         val player = event.whoClicked as Player
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(player) }) // Run task after this tick
+    }
+
+    @EventHandler
+    fun onBorderClick(event: PlayerInteractEvent) {
+        val playerState = playerStateRepo.get(event.player) ?: return
+        val clickedBlock = event.clickedBlock ?: return
+        if (playerState.visualisedBlockPositions.contains(Position3D(clickedBlock.location))) {
+            thread(start = true) {
+                Thread.sleep(1)
+                playerState.visualisedBlockPositions.remove(Position3D(clickedBlock.location))
+                refreshVisualisation(event.player)
+            }
+        }
     }
 
     private fun autoClaimToolVisualisation(player: Player) {
