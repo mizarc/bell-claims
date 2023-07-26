@@ -17,6 +17,7 @@ import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Bisected
 import org.bukkit.block.data.type.Door
 import org.bukkit.event.block.BlockExplodeEvent
+import org.bukkit.event.block.BlockFadeEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
 import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.block.TNTPrimeEvent
@@ -124,6 +125,13 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
             if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
                 event.isCancelled = true
             }
+        }
+    }
+
+    @EventHandler
+    fun onBlockFade(event: BlockFadeEvent) {
+        if (wouldBlockBreakBell(event.newState.block)) {
+            event.isCancelled = true
         }
     }
 
