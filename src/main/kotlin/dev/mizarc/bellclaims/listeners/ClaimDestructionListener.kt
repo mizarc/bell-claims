@@ -14,6 +14,8 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import org.bukkit.event.block.BlockExplodeEvent
+import org.bukkit.event.entity.EntityExplodeEvent
 
 class ClaimDestructionListener(val claimService: ClaimService): Listener {
     @EventHandler
@@ -68,6 +70,33 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
                 return
             }
         }
+    }
+
+    @EventHandler
+    fun onBlockExplode(event: BlockExplodeEvent) {
+        val blocks = explosionHandler(event.blockList())
+        event.blockList().removeAll(blocks)
+    }
+
+    @EventHandler
+    fun onEntityExplode(event: EntityExplodeEvent) {
+        val blocks = explosionHandler(event.blockList())
+        event.blockList().removeAll(blocks)
+    }
+
+    fun explosionHandler(blocks: MutableList<Block>): List<Block> {
+        val cancelledBlocks = mutableListOf<Block>()
+        for (block in blocks) {
+            val claim = claimService.getByLocation(block.location) ?: continue
+            cancelledBlocks.add(block)
+
+            val world = claim.getWorld() ?: continue
+            val surrounding = getSurroundingPositions(Position3D(block.location))
+            for (position in surrounding) {
+                cancelledBlocks.add(world.getBlockAt(position.toLocation(world)))
+            }
+        }
+        return cancelledBlocks
     }
 
     fun getSurroundingPositions(position: Position3D): List<Position3D> {
