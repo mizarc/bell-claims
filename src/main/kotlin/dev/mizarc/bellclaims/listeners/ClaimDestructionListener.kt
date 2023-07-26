@@ -14,11 +14,14 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import org.bukkit.block.data.Bisected
+import org.bukkit.block.data.type.Door
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
 import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.event.player.PlayerInteractEvent
 
 class ClaimDestructionListener(val claimService: ClaimService): Listener {
     @EventHandler
@@ -100,6 +103,30 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
         }
     }
 
+    @EventHandler
+    fun onBlockInteract(event: PlayerInteractEvent) {
+        val block = event.clickedBlock ?: return
+        if (wouldBlockBreakBell(block)) {
+            event.isCancelled = true
+        }
+
+        val door = block.blockData as? Bisected ?: return
+        if (door.half == Bisected.Half.BOTTOM) {
+            val otherLocation = block.location
+            otherLocation.y = otherLocation.y + 1
+            if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
+                event.isCancelled = true
+            }
+        }
+        else {
+            val otherLocation = block.location
+            otherLocation.y = otherLocation.y - 1
+            if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
+                event.isCancelled = true
+            }
+        }
+    }
+
     fun explosionHandler(blocks: MutableList<Block>): List<Block> {
         val cancelledBlocks = mutableListOf<Block>()
         for (block in blocks) {
@@ -131,7 +158,7 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
         for (position in getSurroundingPositions(Position3D(block.location))) {
             claimService.getByLocation(position.toLocation(block.world)) ?: continue
             val blockAt = block.world.getBlockAt(position.toLocation(block.world))
-            val bell = blockAt.blockData as Bell
+            val bell = blockAt.blockData as? Bell ?: continue
 
             if (bell.attachment == Bell.Attachment.CEILING && blockAt.getRelative(BlockFace.UP) == block ||
                 bell.attachment == Bell.Attachment.FLOOR && blockAt.getRelative(BlockFace.DOWN) == block ||
