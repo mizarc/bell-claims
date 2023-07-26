@@ -11,7 +11,7 @@ import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import dev.mizarc.bellclaims.storage.DatabaseStorage
 
-class SolidClaims : JavaPlugin() {
+class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
