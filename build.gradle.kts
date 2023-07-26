@@ -40,8 +40,8 @@ dependencies {
 }
 
 tasks.shadowJar {
-    relocate("co.aikar.commands", "xyz.mizarc.solidclaims.acf")
-    relocate("co.aikar.locales", "xyz.mizarc.solidclaims.locales")
+    relocate("co.aikar.commands", "dev.mizarc.bellclaims.acf")
+    relocate("co.aikar.locales", "dev.mizarc.bellclaims.locales")
 }
 
 tasks.test {
