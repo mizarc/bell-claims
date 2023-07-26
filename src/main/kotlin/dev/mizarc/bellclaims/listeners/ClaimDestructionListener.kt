@@ -15,6 +15,8 @@ import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.event.block.BlockExplodeEvent
+import org.bukkit.event.block.BlockPistonExtendEvent
+import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 
 class ClaimDestructionListener(val claimService: ClaimService): Listener {
@@ -70,6 +72,24 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     fun onEntityExplode(event: EntityExplodeEvent) {
         val blocks = explosionHandler(event.blockList())
         event.blockList().removeAll(blocks)
+    }
+
+    @EventHandler
+    fun onPistolPush(event: BlockPistonExtendEvent) {
+        for (block in event.blocks) {
+            if (claimService.getByLocation(block.location) != null) {
+                event.isCancelled = true
+            }
+        }
+    }
+
+    @EventHandler
+    fun onPistolPull(event: BlockPistonRetractEvent) {
+        for (block in event.blocks) {
+            if (claimService.getByLocation(block.location) != null) {
+                event.isCancelled = true
+            }
+        }
     }
 
     fun explosionHandler(blocks: MutableList<Block>): List<Block> {
