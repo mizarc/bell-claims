@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.listeners
 
+import com.destroystokyo.paper.event.block.BlockDestroyEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.block.data.type.Bell
@@ -10,12 +11,14 @@ import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.partitions.Position2D
 import dev.mizarc.bellclaims.partitions.Position3D
+import io.papermc.paper.event.block.BlockBreakBlockEvent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Bisected
 import org.bukkit.block.data.type.Door
+import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockFadeEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
@@ -60,7 +63,7 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     fun onClaimHubAttachedDestroy(event: BlockBreakEvent) {
         if (wouldBlockBreakBell(event.block)) {
             event.player.sendActionBar(
-                Component.text("Can't destroy block claim bell is attached to.")
+                Component.text("That block is attached to the claim bell")
                     .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
             return
@@ -101,6 +104,11 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     fun onTNTPrime(event: TNTPrimeEvent) {
         if (wouldBlockBreakBell(event.block)) {
             event.isCancelled = true
+
+            val player = event.primingEntity as? Player ?: return
+            player.sendActionBar(
+                Component.text("That block is attached to the claim bell")
+                    .color(TextColor.color(255, 85, 85)))
         }
     }
 
@@ -108,6 +116,9 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     fun onBlockInteract(event: PlayerInteractEvent) {
         val block = event.clickedBlock ?: return
         if (wouldBlockBreakBell(block)) {
+            event.player.sendActionBar(
+                Component.text("That block is attached to the claim bell")
+                    .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
         }
 
@@ -116,6 +127,9 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
             val otherLocation = block.location
             otherLocation.y = otherLocation.y + 1
             if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
+                event.player.sendActionBar(
+                    Component.text("That block is attached to the claim bell")
+                        .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
             }
         }
@@ -123,6 +137,9 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
             val otherLocation = block.location
             otherLocation.y = otherLocation.y - 1
             if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
+                event.player.sendActionBar(
+                    Component.text("That block is attached to the claim bell")
+                        .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
             }
         }
@@ -131,6 +148,13 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     @EventHandler
     fun onBlockFade(event: BlockFadeEvent) {
         if (wouldBlockBreakBell(event.newState.block)) {
+            event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    fun onBlockDestroy(event: BlockDestroyEvent) {
+        if (claimService.getByLocation(event.block.location) != null) {
             event.isCancelled = true
         }
     }
