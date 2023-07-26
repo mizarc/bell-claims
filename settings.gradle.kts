@@ -1,3 +1,3 @@
 
-rootProject.name = "SolidClaims"
+rootProject.name = "BellClaims"
 
