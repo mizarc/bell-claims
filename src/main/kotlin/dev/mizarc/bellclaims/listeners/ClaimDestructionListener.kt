@@ -51,24 +51,12 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
 
     @EventHandler
     fun onClaimHubAttachedDestroy(event: BlockBreakEvent) {
-        for (position in getSurroundingPositions(Position3D(event.block.location))) {
-            claimService.getByLocation(position.toLocation(event.block.world)) ?: continue
-            val blockAt = event.block.world.getBlockAt(position.toLocation(event.block.world))
-            val bell = blockAt.blockData as Bell
-
-            if (bell.attachment == Bell.Attachment.CEILING && blockAt.getRelative(BlockFace.UP) == event.block ||
-                    bell.attachment == Bell.Attachment.FLOOR && blockAt.getRelative(BlockFace.DOWN) == event.block ||
-                    bell.attachment == Bell.Attachment.SINGLE_WALL &&
-                    (bell.facing == BlockFace.EAST && blockAt.getRelative(BlockFace.EAST) == event.block ||
-                    bell.facing == BlockFace.WEST && blockAt.getRelative(BlockFace.WEST) == event.block) ||
-                    bell.facing == BlockFace.NORTH && blockAt.getRelative(BlockFace.NORTH) == event.block ||
-                    bell.facing == BlockFace.SOUTH && blockAt.getRelative(BlockFace.SOUTH) == event.block) {
-                event.player.sendActionBar(
-                    Component.text("Can't destroy block claim bell is attached to.")
-                        .color(TextColor.color(255, 85, 85)))
-                event.isCancelled = true
-                return
-            }
+        if (wouldBlockBreakBell(event.block)) {
+            event.player.sendActionBar(
+                Component.text("Can't destroy block claim bell is attached to.")
+                    .color(TextColor.color(255, 85, 85)))
+            event.isCancelled = true
+            return
         }
     }
 
@@ -87,13 +75,12 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
     fun explosionHandler(blocks: MutableList<Block>): List<Block> {
         val cancelledBlocks = mutableListOf<Block>()
         for (block in blocks) {
-            val claim = claimService.getByLocation(block.location) ?: continue
-            cancelledBlocks.add(block)
+            if (claimService.getByLocation(block.location) != null) {
+                cancelledBlocks.add(block)
+            }
 
-            val world = claim.getWorld() ?: continue
-            val surrounding = getSurroundingPositions(Position3D(block.location))
-            for (position in surrounding) {
-                cancelledBlocks.add(world.getBlockAt(position.toLocation(world)))
+            if (wouldBlockBreakBell(block)) {
+                cancelledBlocks.add(block)
             }
         }
         return cancelledBlocks
@@ -110,5 +97,24 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
             }
         }
         return positions
+    }
+
+    fun wouldBlockBreakBell(block: Block): Boolean {
+        for (position in getSurroundingPositions(Position3D(block.location))) {
+            claimService.getByLocation(position.toLocation(block.world)) ?: continue
+            val blockAt = block.world.getBlockAt(position.toLocation(block.world))
+            val bell = blockAt.blockData as Bell
+
+            if (bell.attachment == Bell.Attachment.CEILING && blockAt.getRelative(BlockFace.UP) == block ||
+                bell.attachment == Bell.Attachment.FLOOR && blockAt.getRelative(BlockFace.DOWN) == block ||
+                bell.attachment == Bell.Attachment.SINGLE_WALL &&
+                (bell.facing == BlockFace.EAST && blockAt.getRelative(BlockFace.EAST) == block ||
+                        bell.facing == BlockFace.WEST && blockAt.getRelative(BlockFace.WEST) == block) ||
+                bell.facing == BlockFace.NORTH && blockAt.getRelative(BlockFace.NORTH) == block ||
+                bell.facing == BlockFace.SOUTH && blockAt.getRelative(BlockFace.SOUTH) == block) {
+                return true
+            }
+        }
+        return false
     }
 }
