@@ -46,6 +46,8 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
             return
         }
 
+        claimVisualiser.refreshVisualisation(event.player)
+
         // Resizes an existing partition
         val partitionResizer = partitionResizers[event.player]
         if (partitionResizer != null) {
@@ -175,7 +177,7 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
         // Update builders list and visualisation
         if (result == PartitionService.PartitionCreationResult.Successful) {
             partitionBuilders.remove(player)
-            claimVisualiser.updateVisualisation(player, true)
+            claimVisualiser.updateVisualisation(partition)
         }
     }
 
@@ -258,10 +260,7 @@ class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerSta
 
         // Update visualiser
         if (result == PartitionService.PartitionResizeResult.Successful) {
-            claimVisualiser.oldPartitions.add(partitionResizer.partition)
-            claimVisualiser.unrenderOldClaims(player)
-            claimVisualiser.oldPartitions.clear()
-            claimVisualiser.updateVisualisation(player, true)
+            claimVisualiser.updateVisualisation(partitionResizer.partition)
             partitionResizers.remove(player)
         }
     }

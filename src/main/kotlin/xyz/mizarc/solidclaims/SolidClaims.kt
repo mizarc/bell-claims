@@ -25,7 +25,7 @@ class SolidClaims : JavaPlugin() {
     val claimService = ClaimService(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo,
         playerAccessRepo, playerStateRepo)
     val partitionService = PartitionService(config, claimService, partitionRepo)
-    val claimVisualiser = ClaimVisualiser(this, claimService, partitionService)
+    val claimVisualiser = ClaimVisualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
         logger.info(Chat::class.java.toString())
@@ -77,7 +77,7 @@ class SolidClaims : JavaPlugin() {
             this)
         server.pluginManager.registerEvents(ClaimToolListener(claimRepo, playerStateRepo, claimService,
             partitionService, claimVisualiser), this)
-        server.pluginManager.registerEvents(ClaimVisualiser(this, claimService, partitionService), this)
+        server.pluginManager.registerEvents(ClaimVisualiser(this, claimService, partitionService, playerStateRepo), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata,
             playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)

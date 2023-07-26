@@ -1,7 +1,6 @@
 package xyz.mizarc.solidclaims.listeners
 
-import com.google.common.math.IntMath.sqrt
-import org.bukkit.Chunk
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -11,23 +10,34 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.mizarc.solidclaims.ClaimService
 import xyz.mizarc.solidclaims.PartitionService
-import xyz.mizarc.solidclaims.partitions.Position2D
-import xyz.mizarc.solidclaims.partitions.Partition
+import xyz.mizarc.solidclaims.claims.Claim
 import xyz.mizarc.solidclaims.getClaimTool
-import java.math.RoundingMode
-import kotlin.math.abs
+import xyz.mizarc.solidclaims.partitions.Partition
+import xyz.mizarc.solidclaims.partitions.Position2D
+import xyz.mizarc.solidclaims.partitions.Position3D
+import xyz.mizarc.solidclaims.players.PlayerStateRepository
+import kotlin.concurrent.thread
 
-private const val yRange = 50
 
-class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: ClaimService,
-                      private val partitionService: PartitionService) : Listener {
-    private var playerVisualisingState: MutableMap<Player, Boolean> = HashMap()
+private const val upperRange = 5
+private const val lowerRange = 20
 
-    var oldPartitions: ArrayList<Partition> = ArrayList()
+class ClaimVisualiser(private val plugin: JavaPlugin,
+                      private val claimService: ClaimService,
+                      private val partitionService: PartitionService,
+                      private val playerStateRepo: PlayerStateRepository) : Listener {
+
+    enum class Direction {
+        North,
+        South,
+        East,
+        West
+    }
 
     companion object {
         private val transparentMaterials = arrayOf(
@@ -481,35 +491,34 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
     }
 
     /**
-     * Unrender old claims for [player] and all surrounding players within a radius.
+     * Unrender old partition for players who are currently visualising it
      */
-    fun unrenderOldClaims(player: Player) {
-        if (oldPartitions.isEmpty()) return
+    fun updateVisualisation(partition: Partition) {
+        // Get the claim of the partition
+        val claim = claimService.getById(partition.claimId) ?: return
+        val claimWorld = claim.getWorld() ?: return
 
+        // Get all players who are visualising and in range
+        val players = getNearbyPlayers(claim, 1)
+
+        // Get claim borders
         val borders: ArrayList<Position2D> = ArrayList()
-        for (part in oldPartitions) {
-            borders.addAll(part.area.getEdgeBlockPositions())
+        borders.addAll(partition.area.getEdgeBlockPositions())
+        for (claimPartition in partitionService.getByClaim(claim)) {
+            borders.addAll(claimPartition.area.getEdgeBlockPositions())
         }
 
-        // Get the furthest block of the claim from the player location
-        var furthestBlock = 0
-        for (block in borders) {
-            val xDiff = abs(player.location.blockX - block.x)
-            val zDiff = abs(player.location.blockZ - block.z)
-            val length = sqrt((xDiff*xDiff) + (zDiff*zDiff), RoundingMode.CEILING)
-            if (length > furthestBlock) furthestBlock = length
-        }
+        // Get all players
+        for (player in players) {
+            for (block in borders) {
+                for (y in -64..320) {
+                    val blockLocation = Location(claimWorld, block.x.toDouble(), y.toDouble(), block.z.toDouble())
+                    val blockData = claimWorld.getBlockAt(blockLocation).blockData
 
-        val players = getNearbyPlayers(player.location, furthestBlock)
-
-        for (block in borders) {
-            for (y in -64..320) {
-                val blockLocation = Location(player.location.world, block.x.toDouble(), y.toDouble(), block.z.toDouble())
-                val blockData = player.world.getBlockAt(blockLocation).blockData
-                for (p in players) {
-                    p.sendBlockChange(blockLocation, blockData)
+                    player.sendBlockChange(blockLocation, blockData)
                 }
             }
+            fullRefreshVisualisation(player)
         }
     }
 
@@ -522,7 +531,8 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
 
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != loc.world) continue
-            if (chunks.contains(Position2D(player.location).toChunk())) {
+            val playerState = playerStateRepo.get(player) ?: continue
+            if (chunks.contains(Position2D(player.location).toChunk()) && playerState.isVisualisingClaims) {
                 players.add(player)
             }
         }
@@ -530,30 +540,83 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         return players.toTypedArray()
     }
 
+    private fun getNearbyPlayers(claim: Claim, radiusModifier: Int): Array<Player> {
+        val players: ArrayList<Player> = ArrayList()
+
+        // Get list of chunks that the claim occupies
+        val startingChunks: MutableSet<Position2D> = mutableSetOf()
+        val partitions = partitionService.getByClaim(claim)
+        for (partition in partitions) {
+            startingChunks.addAll(partition.getChunks())
+        }
+
+        // Get surrounding chunks
+        val finalChunks: MutableSet<Position2D> = mutableSetOf()
+        for (chunk in startingChunks) {
+            finalChunks.addAll(getSurroundingChunks(chunk, 1))
+        }
+
+        // Get players in chunks
+        val world = claim.getWorld()
+        for (player in plugin.server.onlinePlayers) {
+            if (player.location.world != world) continue
+            val playerState = playerStateRepo.get(player) ?: continue
+            if (finalChunks.contains(Position2D(player.location).toChunk()) && playerState.isVisualisingClaims) {
+                players.add(player)
+            }
+        }
+        return players.toTypedArray()
+    }
+
     /**
      * Determine if [player] should be seeing the borders of nearby claims, and if so, send fake block data representing those bounds.
      */
-    fun updateVisualisation(player: Player, force: Boolean) {
-        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
-        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
+    fun showVisualisation(player: Player): MutableSet<Position3D> {
+        val playerState = playerStateRepo.get(player) ?: return mutableSetOf()
 
-        val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
-                (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
-        if (!force) { // Do not skip update if forced
-            val state = playerVisualisingState[player] ?: !holdingClaimTool
-            if (state == holdingClaimTool) return
+        // Change visualiser depending on view mode
+        val borders: MutableSet<Position3D> = mutableSetOf()
+        if (playerState.claimToolMode == 1) {
+            borders.addAll(updatePartitionVisualisation(player))
         }
-        playerVisualisingState[player] = holdingClaimTool
+        else {
+            borders.addAll(updateClaimVisualisation(player))
+        }
 
+        borders.addAll(updateOthersVisualisation(player))
+        playerState.isVisualisingClaims = true
+        return borders
+    }
+
+    fun hideVisualisation(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+        playerState.isVisualisingClaims = false
+        revertVisualisedBlocks(player)
+    }
+
+    fun refreshVisualisation(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+
+        val currentVisualised = HashSet(playerState.visualisedBlockPositions)
+        val borders = showVisualisation(player)
+        currentVisualised.removeAll(borders)
+
+       revertVisualisedBlocksSelectively(player, currentVisualised)
+    }
+
+    fun fullRefreshVisualisation(player: Player) {
+        revertVisualisedBlocks(player)
+        showVisualisation(player)
+    }
+
+    fun updatePartitionVisualisation(player: Player): MutableSet<Position3D> {
         val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
         }
-        if (partitionsInChunks.isEmpty()) return
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
 
-        val noPermissionBorders: ArrayList<Position2D> = ArrayList()
-        val noPermissionCorners: ArrayList<Position2D> = ArrayList()
         val mainBorders: ArrayList<Position2D> = ArrayList()
         val mainCorners: ArrayList<Position2D> = ArrayList()
         val borders: ArrayList<Position2D> = ArrayList()
@@ -562,8 +625,6 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
             val claim = claimService.getById(partition.claimId) ?: continue
             val mainPartition = partitionService.getPrimaryPartition(claim)
             if (claim.owner.uniqueId != player.uniqueId) {
-                noPermissionCorners.addAll(partition.area.getCornerBlockPositions())
-                noPermissionBorders.addAll(partition.area.getEdgeBlockPositions())
                 continue
             }
 
@@ -575,13 +636,184 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
             corners.addAll(partition.area.getCornerBlockPositions())
             borders.addAll(partition.area.getEdgeBlockPositions())
         }
+        borders.removeAll(corners.toSet())
 
-        setVisualisedBlocks(player, noPermissionBorders, Material.RED_GLAZED_TERRACOTTA, Material.RED_CARPET)
-        setVisualisedBlocks(player, noPermissionCorners, Material.BLACK_GLAZED_TERRACOTTA, Material.BLACK_CARPET)
-        setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
-        setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
-        setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
-        setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
+        val a = setVisualisedBlocks(player, mainBorders, Material.CYAN_GLAZED_TERRACOTTA, Material.CYAN_CARPET)
+        val b = setVisualisedBlocks(player, mainCorners, Material.BLUE_GLAZED_TERRACOTTA, Material.BLUE_CARPET)
+        val c = setVisualisedBlocks(player, borders, Material.LIGHT_GRAY_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+        val d = setVisualisedBlocks(player, corners, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_BLUE_CARPET)
+        return (a + b + c + d).toMutableSet()
+    }
+
+    fun updateClaimVisualisation(player: Player): MutableSet<Position3D> {
+        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val partitionsInChunks = ArrayList<Partition>()
+        for (chunk in chunks) {
+            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+        }
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
+
+        // Get all claims that exist in selected chunks
+        val foundClaims : MutableSet<Claim> = mutableSetOf()
+        for (partition in partitionsInChunks) {
+            val claim = claimService.getById(partition.claimId) ?: continue
+            if (claim.owner.uniqueId != player.uniqueId) continue
+            if (claim in foundClaims) continue
+            foundClaims.add(claim)
+        }
+
+        // Get borders for each claim
+        val finalBorders: ArrayList<Position2D> = arrayListOf()
+        for (claim in foundClaims) {
+            // Add edge blocks for each partition in claim
+            val partitions = partitionService.getByClaim(claim)
+            val borders: MutableList<Position2D> = mutableListOf()
+            for (partition in partitions) {
+                borders.addAll(partition.area.getEdgeBlockPositions())
+            }
+
+            // Get starting position by finding the position with the largest x coordinate.
+            // Could be the largest or smallest any coordinate, this is personal choice.
+            var startingPosition = borders[0]
+            for (border in borders) {
+                if (border.x > startingPosition.x) {
+                    startingPosition = border
+                }
+            }
+
+            // Get second position by getting block either in front or to the right in a clockwise direction
+            var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x }
+                ?: borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+            // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+            // until back to the starting position.
+            val resultingBorder: ArrayList<Position2D> = arrayListOf()
+            var previousPosition: Position2D = startingPosition
+            do {
+                val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                    Direction.North -> {
+                        borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                    }
+
+                    Direction.East -> {
+                        borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                    }
+
+                    Direction.South -> {
+                        borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                    }
+
+                    else -> {
+                        borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                    }
+                }
+                resultingBorder.add(nextPosition)
+                previousPosition = currentPosition
+                currentPosition = nextPosition
+            } while (previousPosition != startingPosition)
+            finalBorders.addAll(resultingBorder)
+        }
+
+        // Visualise created border
+        return setVisualisedBlocks(player, finalBorders, Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+    }
+
+    private fun updateOthersVisualisation(player: Player): MutableSet<Position3D> {
+        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val partitionsInChunks = ArrayList<Partition>()
+        for (chunk in chunks) {
+            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+        }
+        if (partitionsInChunks.isEmpty()) return mutableSetOf()
+
+        // Get all claims that exist in selected chunks
+        val foundClaims : MutableSet<Claim> = mutableSetOf()
+        for (partition in partitionsInChunks) {
+            val claim = claimService.getById(partition.claimId) ?: continue
+            if (claim.owner.uniqueId == player.uniqueId) continue
+            if (claim in foundClaims) continue
+            foundClaims.add(claim)
+        }
+
+        // Get borders for each claim
+        val finalBorders: ArrayList<Position2D> = arrayListOf()
+        for (claim in foundClaims) {
+            // Add edge blocks for each partition in claim
+            val partitions = partitionService.getByClaim(claim)
+            val borders: MutableList<Position2D> = mutableListOf()
+            for (partition in partitions) {
+                borders.addAll(partition.area.getEdgeBlockPositions())
+            }
+
+            // Get starting position by finding the position with the largest x coordinate.
+            // Could be the largest or smallest any coordinate, this is personal choice.
+            var startingPosition = borders[0]
+            for (border in borders) {
+                if (border.x > startingPosition.x) {
+                    startingPosition = border
+                }
+            }
+
+            // Get second position by getting block either in front or to the right in a clockwise direction
+            var currentPosition = borders.firstOrNull { it.z == startingPosition.z + 1 && it.x == startingPosition.x }
+                ?: borders.first { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+
+            // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
+            // until back to the starting position.
+            val resultingBorder: ArrayList<Position2D> = arrayListOf()
+            var previousPosition: Position2D = startingPosition
+            do {
+                val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                    Direction.North -> {
+                        borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                    }
+
+                    Direction.East -> {
+                        borders.firstOrNull { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                    }
+
+                    Direction.South -> {
+                        borders.firstOrNull { it.x == currentPosition.x + 1 && it.z == currentPosition.z }
+                            ?: borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.first { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                    }
+
+                    else -> {
+                        borders.firstOrNull { it.z == currentPosition.z + 1 && it.x == currentPosition.x }
+                            ?: borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
+                            ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
+                    }
+                }
+                resultingBorder.add(nextPosition)
+                previousPosition = currentPosition
+                currentPosition = nextPosition
+            } while (previousPosition != startingPosition)
+            finalBorders.addAll(resultingBorder)
+        }
+
+        // Visualise created border
+        return setVisualisedBlocks(player, finalBorders, Material.RED_GLAZED_TERRACOTTA, Material.LIGHT_GRAY_CARPET)
+    }
+
+    private fun getTravelDirection(first: Position2D, second: Position2D): Direction {
+        return when {
+            second.z > first.z -> Direction.South
+            second.z < first.z -> Direction.North
+            second.x > first.x -> Direction.East
+            else -> Direction.West
+        }
     }
 
     /**
@@ -595,24 +827,63 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
 
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
+       plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onPickupClaimTool(event: EntityPickupItemEvent) {
         if (event.entityType != EntityType.PLAYER) return
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.entity as Player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.entity as Player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onDropClaimTool(event: PlayerDropItemEvent) {
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(event.player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) }) // Run task after this tick
     }
 
     @EventHandler
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
         val player = event.whoClicked as Player
-        plugin.server.scheduler.runTask(plugin, Runnable { updateVisualisation(player, false) }) // Run task after this tick
+        plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(player) }) // Run task after this tick
+    }
+
+    @EventHandler
+    fun onBorderClick(event: PlayerInteractEvent) {
+        val playerState = playerStateRepo.get(event.player) ?: return
+        val clickedBlock = event.clickedBlock ?: return
+        if (playerState.visualisedBlockPositions.contains(Position3D(clickedBlock.location))) {
+            thread(start = true) {
+                Thread.sleep(1)
+                playerState.visualisedBlockPositions.remove(Position3D(clickedBlock.location))
+                refreshVisualisation(event.player)
+            }
+        }
+    }
+
+    private fun autoClaimToolVisualisation(player: Player) {
+        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
+        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
+        val playerState = playerStateRepo.get(player) ?: return
+
+        val holdingClaimTool = (mainItemMeta != null && mainItemMeta == getClaimTool().itemMeta) ||
+                (offhandItemMeta != null && offhandItemMeta == getClaimTool().itemMeta)
+
+
+        if (holdingClaimTool && playerState.isHoldingClaimTool) {
+            return
+        }
+
+        hideVisualisation(player)
+        if (holdingClaimTool) {
+            if (playerState.claimToolMode == 0) {
+                showVisualisation(player)
+            }
+            else {
+                showVisualisation(player)
+            }
+        }
+
+        playerState.isHoldingClaimTool = holdingClaimTool
     }
 
     /**
@@ -632,18 +903,80 @@ class ClaimVisualiser(private val plugin: JavaPlugin, private val claimService: 
         return chunks
     }
 
-    private fun setVisualisedBlocks(player: Player, position2DS: ArrayList<Position2D>, block: Material, flatBlock: Material) {
+    private fun setVisualisedBlocks(player: Player, position2DS: List<Position2D>, block: Material, flatBlock: Material): MutableSet<Position3D> {
+        val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
+        val playerState = playerStateRepo.get(player) ?: return mutableSetOf()
         for (position in position2DS) {
-            for (y in player.location.blockY-yRange..player.location.blockY+yRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            for (y in player.location.blockY + 1 .. player.location.blockY + 1 + upperRange) {
                 var blockData = block.createBlockData() // Set the visualisation block
                 val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently
                 if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
                 if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
                 if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
-                if (!playerVisualisingState[player]!!) blockData = player.world.getBlockAt(blockLocation).blockData // If visualisation is being disabled, get the real block data
+                visualisedBlocks.add(Position3D(blockLocation))
+                if (playerState.visualisedBlockPositions.contains(Position3D(blockLocation))) break
+
                 player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+                break
+            }
+            for (y in player.location.blockY downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+                var blockData = block.createBlockData() // Set the visualisation block
+                val blockLocation = Location(player.location.world, position.x.toDouble(), y.toDouble(), position.z.toDouble()) // Get the location of the block being considered currently
+                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+                if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+                if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+                visualisedBlocks.add(Position3D(blockLocation))
+                if (playerState.visualisedBlockPositions.contains(Position3D(blockLocation))) break
+
+                player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+                break
             }
         }
+        playerState.visualisedBlockPositions.addAll(visualisedBlocks)
+        return visualisedBlocks
+    }
 
+    private fun revertVisualisedBlocks(player: Player) {
+        val playerState = playerStateRepo.get(player) ?: return
+        for (position in playerState.visualisedBlockPositions) {
+            val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
+            player.sendBlockChange(position.toLocation(player.world), blockData)
+        }
+        playerState.visualisedBlockPositions.clear()
+    }
+
+    private fun revertVisualisedBlocksSelectively(player: Player, position3DS: Set<Position3D>) {
+        val playerState = playerStateRepo.get(player) ?: return
+        val removed = mutableSetOf<Position3D>()
+        for (position in position3DS) {
+            val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
+            player.sendBlockChange(position.toLocation(player.world), blockData)
+            removed.add(position)
+        }
+        playerState.visualisedBlockPositions.removeAll(removed)
+    }
+
+    private fun setVisualisedBlock(player: Player, position2D: Position2D, block: Material, flatBlock: Material) {
+        val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
+        val playerState = playerStateRepo.get(player) ?: return
+        for (y in player.location.blockY + 1 .. player.location.blockY + 1 + upperRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            var blockData = block.createBlockData() // Set the visualisation block
+            val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
+            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+            if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+            if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+            player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+            visualisedBlocks.add(Position3D(blockLocation))
+        }
+        for (y in player.location.blockY downTo player.location.blockY - lowerRange) { // Get all blocks on claim borders within 25 blocks up and down from the player's current position
+            var blockData = block.createBlockData() // Set the visualisation block
+            val blockLocation = Location(player.location.world, position2D.x.toDouble(), y.toDouble(), position2D.z.toDouble()) // Get the location of the block being considered currently
+            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue // If the block is transparent, skip it
+            if (!isBlockVisible(blockLocation)) continue // If the block isn't considered to be visible, skip it
+            if (carpetBlocks.contains(blockLocation.block.blockData.material)) blockData = flatBlock.createBlockData()
+            player.sendBlockChange(blockLocation, blockData) // Send the player block updates
+            visualisedBlocks.add(Position3D(blockLocation))
+        }
+        playerState.visualisedBlockPositions.addAll(visualisedBlocks)
     }
 }
