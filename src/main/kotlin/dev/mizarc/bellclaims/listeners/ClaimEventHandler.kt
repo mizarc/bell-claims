@@ -8,7 +8,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.SolidClaims
+import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.claims.ClaimPermissionRepository
 import dev.mizarc.bellclaims.claims.ClaimRepository
 import dev.mizarc.bellclaims.claims.ClaimRuleRepository
@@ -21,7 +21,7 @@ import dev.mizarc.bellclaims.players.PlayerStateRepository
  * @property plugin A reference to the plugin instance
  * @property claimContainer A reference to the ClaimContainer instance
  */
-class ClaimEventHandler(var plugin: SolidClaims,
+class ClaimEventHandler(var plugin: BellClaims,
                         val claims: ClaimRepository,
                         val partitions: PartitionRepository,
                         val claimRuleRepository: ClaimRuleRepository,
