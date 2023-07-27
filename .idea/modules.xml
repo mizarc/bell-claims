@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SolidClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SolidClaims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SolidClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/SolidClaims.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/BellClaims.main.iml" />
     </modules>
   </component>
 </project>
