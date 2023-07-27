@@ -21,6 +21,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.world.StructureGrowEvent
 
 class ClaimDestructionListener(val claimService: ClaimService, val claimVisualiser: ClaimVisualiser): Listener {
     @EventHandler
@@ -153,6 +154,15 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
     fun onBlockDestroy(event: BlockDestroyEvent) {
         if (claimService.getByLocation(event.block.location) != null) {
             event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    fun onTreeGrowth(event: StructureGrowEvent) {
+        for (block in event.blocks) {
+            if (claimService.getByLocation(block.location) != null) {
+                event.isCancelled = true
+            }
         }
     }
 
