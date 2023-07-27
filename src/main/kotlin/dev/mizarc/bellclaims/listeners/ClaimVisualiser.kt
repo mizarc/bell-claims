@@ -500,15 +500,22 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         // Get all players who are visualising and in range
         val players = getNearbyPlayers(claim)
 
-        // Get claim borders
-        val borders: ArrayList<Position2D> = ArrayList()
-        for (claimPartition in partitionService.getByClaim(claim)) {
-            borders.addAll(claimPartition.area.getEdgeBlockPositions())
-        }
-
         // Get all players
         for (player in players) {
             val playerState = playerStateRepo.get(player) ?: continue
+            val visualisedClaim = playerState.visualisedBlockPositions[claim] ?: continue
+
+            // Clear and redo visualisation for selected claim
+            revertVisualisedBlocks(player, visualisedClaim.toList())
+            visualisedClaim.clear()
+            showVisualisation(player, claim)
+        }
+    }
+
+    fun registerClaimRemoval(claim: Claim) {
+        // Get all players
+        for (playerState in playerStateRepo.getAll()) {
+            val player = playerState.getOnlinePlayer() ?: continue
             val visualisedClaim = playerState.visualisedBlockPositions[claim] ?: continue
 
             // Clear and redo visualisation for selected claim
