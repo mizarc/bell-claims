@@ -8,16 +8,11 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.partitions.Position2D
 import dev.mizarc.bellclaims.partitions.Position3D
-import io.papermc.paper.event.block.BlockBreakBlockEvent
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Bisected
-import org.bukkit.block.data.type.Door
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockFadeEvent
@@ -27,7 +22,7 @@ import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
-class ClaimDestructionListener(val claimService: ClaimService): Listener {
+class ClaimDestructionListener(val claimService: ClaimService, val claimVisualiser: ClaimVisualiser): Listener {
     @EventHandler
     fun onClaimHubDestroy(event: BlockBreakEvent) {
         if (event.block.blockData !is Bell) return
@@ -54,6 +49,8 @@ class ClaimDestructionListener(val claimService: ClaimService): Listener {
         }
 
         claimService.removeClaim(claim)
+        claimVisualiser.registerClaimRemoval(claim)
+        Bukkit.getLogger().info("should break")
         event.player.sendActionBar(
             Component.text("Claim '${claim.name}' has been destroyed")
             .color(TextColor.color(85, 255, 85)))
