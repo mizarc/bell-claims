@@ -19,6 +19,11 @@ class PlayerStateRepository {
      * @param player The player to fetch.
      * @return A PlayerState object of the player. May return null.
      */
+    fun getAll() : Set<PlayerState> {
+        return playerStates.values.toSet()
+    }
+
+
     fun get(player: OfflinePlayer) : PlayerState? {
         return playerStates[player.uniqueId]
     }
