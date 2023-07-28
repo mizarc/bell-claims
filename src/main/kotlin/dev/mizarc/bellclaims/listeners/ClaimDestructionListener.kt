@@ -51,7 +51,6 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
 
         claimService.removeClaim(claim)
         claimVisualiser.registerClaimRemoval(claim)
-        Bukkit.getLogger().info("should break")
         event.player.sendActionBar(
             Component.text("Claim '${claim.name}' has been destroyed")
             .color(TextColor.color(85, 255, 85)))
