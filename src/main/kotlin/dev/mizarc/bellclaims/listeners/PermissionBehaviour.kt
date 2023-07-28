@@ -15,6 +15,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -35,6 +36,7 @@ class PermissionBehaviour {
     companion object {
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
@@ -56,6 +58,22 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getEntityPlaceLocation(event: Event): Location? {
+            if (event !is EntityPlaceEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getEntityPlacePlayer(event: Event): Player? {
+            if (event !is EntityPlaceEvent) return null
+            return event.player
         }
 
         private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
