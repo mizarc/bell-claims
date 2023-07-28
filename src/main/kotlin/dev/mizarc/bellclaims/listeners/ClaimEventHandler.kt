@@ -118,7 +118,6 @@ class ClaimEventHandler(var plugin: BellClaims,
         }
 
         // Determine the highest priority permission for the event and sets the executor to the one found, if any
-        Bukkit.getLogger().info(event.eventName)
         for (e in eventPerms) {
             if (!checkPermissionParents(e)) { // First check if claimPerms does not contain the parent of this permission
                 if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
