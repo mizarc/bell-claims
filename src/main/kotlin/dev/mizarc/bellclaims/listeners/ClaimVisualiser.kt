@@ -28,7 +28,7 @@ import kotlin.concurrent.thread
 
 
 private const val upperRange = 5
-private const val lowerRange = 20
+private const val lowerRange = 50
 
 class ClaimVisualiser(private val plugin: JavaPlugin,
                       private val claimService: ClaimService,
