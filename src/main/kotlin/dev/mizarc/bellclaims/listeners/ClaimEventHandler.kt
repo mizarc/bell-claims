@@ -15,6 +15,7 @@ import dev.mizarc.bellclaims.claims.ClaimRuleRepository
 import dev.mizarc.bellclaims.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
+import org.bukkit.Bukkit
 
 /**
  * Handles the registration of defined events with their associated actions.
@@ -105,18 +106,19 @@ class ClaimEventHandler(var plugin: BellClaims,
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
         // Determine if the claim permissions contains any of the parent permissions to this one
-        fun checkPermissionParents(p: ClaimPermission): Boolean {
-            var pRef: ClaimPermission? = p
-            while (pRef?.parent != null) {
-                if (playerPermissions.contains(pRef.parent)) {
+        fun checkPermissionParents(permission: ClaimPermission): Boolean {
+            var permissionRef: ClaimPermission? = permission
+            while (permissionRef?.parent != null) {
+                if (playerPermissions.contains(permissionRef.parent)) {
                     return true
                 }
-                pRef = pRef.parent
+                permissionRef = permissionRef.parent
             }
             return false
         }
 
         // Determine the highest priority permission for the event and sets the executor to the one found, if any
+        Bukkit.getLogger().info(event.eventName)
         for (e in eventPerms) {
             if (!checkPermissionParents(e)) { // First check if claimPerms does not contain the parent of this permission
                 if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
@@ -131,6 +133,7 @@ class ClaimEventHandler(var plugin: BellClaims,
         }
 
         // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
+        Bukkit.getLogger().info("$executor")
         if (executor?.invoke(listener, event) == true) {
             player.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
         }
