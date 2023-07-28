@@ -45,6 +45,7 @@ class PermissionBehaviour {
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
         val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getDoorLocation, ::getDoorPlayer)
         val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getRedstoneLocation, ::getRedstonePlayer)
+        val fishingRod = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
 
         /**
          * Cancel any cancellable event.
@@ -55,6 +56,25 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFishEvent) return false
+            val caught = event.caught ?: return false
+            if (caught !is Monster && caught !is Player) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getFishingLocation(event: Event): Location? {
+            if (event !is PlayerFishEvent) return null
+            val caught = event.caught ?: return null
+            return caught.location
+        }
+
+        private fun getFishingPlayer(event: Event): Player? {
+            if (event !is PlayerFishEvent) return null
+            return event.player
         }
 
         /**
