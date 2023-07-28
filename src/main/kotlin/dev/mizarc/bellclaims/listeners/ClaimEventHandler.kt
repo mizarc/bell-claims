@@ -125,17 +125,15 @@ class ClaimEventHandler(var plugin: BellClaims,
                     for (ee in e.events) { // If so, determine the executor to use
                         if (ee.eventClass == event::class.java) {
                             executor = ee.handler
-                            break
+                            // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
+                            if (executor.invoke(listener, event)) {
+                                player.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
+                                break
+                            }
                         }
                     }
                 }
             }
-        }
-
-        // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
-        Bukkit.getLogger().info("$executor")
-        if (executor?.invoke(listener, event) == true) {
-            player.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
         }
     }
 
