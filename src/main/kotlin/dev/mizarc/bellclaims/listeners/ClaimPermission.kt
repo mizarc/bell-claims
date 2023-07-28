@@ -7,100 +7,57 @@ import org.bukkit.event.Event
  */
 enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<PermissionExecutor>) {
     /**
-     * Every event. This has the least priority, and any explicit changes to other permissions will override the
-     * actions of this one.
-     */
-    All(null, arrayOf(
-        PermissionBehaviour.blockBreak,
-        PermissionBehaviour.blockPlace,
-        PermissionBehaviour.openChest,
-        PermissionBehaviour.openFurnace,
-        PermissionBehaviour.villagerTrade,
-        PermissionBehaviour.playerDamageEntity,
-        PermissionBehaviour.leashEntity,
-        PermissionBehaviour.shearEntity,
-        PermissionBehaviour.blockDamage,
-        PermissionBehaviour.armorStandManipulate,
-        PermissionBehaviour.takeLecternBook,
-        PermissionBehaviour.fertilize)),
-
-    /**
-     * All block-related events. This includes breaking, placing, and interacting with any blocks.
-     */
-    AllBlocks(All, arrayOf(
-        PermissionBehaviour.blockBreak,
-        PermissionBehaviour.blockPlace,
-        PermissionBehaviour.blockDamage,
-        PermissionBehaviour.armorStandManipulate,
-        PermissionBehaviour.takeLecternBook,
-        PermissionBehaviour.fertilize)),
-
-    /**
      * When a block is broken/placed by a player.
      */
-    Build(AllBlocks, arrayOf(PermissionBehaviour.blockBreak, PermissionBehaviour.blockPlace)),
+    Build(null, arrayOf(
+        PermissionBehaviour.blockBreak,
+        PermissionBehaviour.blockPlace,
+        PermissionBehaviour.fertilize)),
+
+    /**
+     * When a door is opened by a player.
+     */
+    DoorOpen(null, arrayOf(
+        PermissionBehaviour.openDoor)),
+
+    /**
+     * When a device used to activate redstone is interacted with by a player.
+     */
+    RedstoneUse(null, arrayOf(
+        PermissionBehaviour.redstoneInteract)),
 
     /**
      * When a block is interacted with by a player.
      */
-    BlockInteract(AllBlocks, arrayOf(
-        PermissionBehaviour.blockDamage,
+    DisplayTake(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
-        PermissionBehaviour.takeLecternBook,
-        PermissionBehaviour.fertilize)),
+        PermissionBehaviour.takeLecternBook)),
 
     /**
-     * All inventory-related events. This is triggered every time a player opens anything with a stateful inventory.
+     * When a block is interacted with by a player.
      */
-    AllInventories(All, arrayOf(
-        PermissionBehaviour.openChest,
-        PermissionBehaviour.openFurnace,
-        PermissionBehaviour.openAnvil,
-        PermissionBehaviour.villagerTrade)),
-
-    /**
-     * When a chest is opened by a player.
-     */
-    OpenChest(AllInventories, arrayOf(PermissionBehaviour.openChest)),
-
-    /**
-     * When a furnace is opened by a player.
-     */
-    OpenFurnace(AllInventories, arrayOf(PermissionBehaviour.openFurnace)),
-
-    /**
-     * When an anvil is opened by a player.
-     */
-    OpenAnvil(AllInventories, arrayOf(PermissionBehaviour.openAnvil)),
+    Inventory(null, arrayOf(
+        PermissionBehaviour.openInventory)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
      */
-    VillagerTrade(AllInventories, arrayOf(PermissionBehaviour.villagerTrade)),
-
-    /**
-     * All entity interaction-related events. This includes hurting, trading, leashing, and any other kind of
-     * interaction with any entity.
-     */
-    AllEntities(All, arrayOf(
-        PermissionBehaviour.playerDamageEntity,
-        PermissionBehaviour.leashEntity,
-        PermissionBehaviour.shearEntity)),
+    VillagerTrade(null, arrayOf(PermissionBehaviour.villagerTrade)),
 
     /**
      * When an entity is hurt by a player.
      */
-    EntityHurt(AllEntities, arrayOf(PermissionBehaviour.playerDamageEntity)),
+    EntityHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
 
     /**
      * When an entity is leashed by a player.
      */
-    EntityLeash(AllEntities, arrayOf(PermissionBehaviour.leashEntity)),
+    EntityLeash(null, arrayOf(PermissionBehaviour.leashEntity)),
 
     /**
      * When an entity is sheared by a player.
      */
-    EntityShear(AllEntities, arrayOf(PermissionBehaviour.shearEntity));
+    EntityShear(null, arrayOf(PermissionBehaviour.shearEntity));
 
     companion object {
         /**

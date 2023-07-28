@@ -1,6 +1,12 @@
 package dev.mizarc.bellclaims.listeners
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.block.data.AnaloguePowerable
+import org.bukkit.block.data.Openable
+import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Player
@@ -29,17 +35,16 @@ class PermissionBehaviour {
     companion object {
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
-        val openChest = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenChest, ::getInventoryLocation, ::getInventoryInteractPlayer)
-        val openFurnace = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenFurnace, ::getInventoryLocation, ::getInventoryInteractPlayer)
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
+        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
         val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
-        val blockDamage = PermissionExecutor(BlockDamageEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockDamager)
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
-        val openAnvil = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelEvent, ::getInventoryLocation, ::getInventoryInteractPlayer)
+        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getDoorLocation, ::getDoorPlayer)
+        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getRedstoneLocation, ::getRedstonePlayer)
 
         /**
          * Cancel any cancellable event.
@@ -63,26 +68,34 @@ class PermissionBehaviour {
             return true
         }
 
-        /**
-         * Cancel inventory open events if the inventory is a chest.
-         */
-        private fun cancelOpenChest(listener: Listener, event: Event): Boolean {
-            if (event !is InventoryOpenEvent) return false
-            val t = event.inventory.type
-            if (t != InventoryType.CHEST &&
-                t != InventoryType.SHULKER_BOX &&
-                t != InventoryType.BARREL) return false
+        private fun cancelDoorOpen(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.state.blockData !is Openable) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.state.blockData !is Switch ||
+                block.state.blockData !is Powerable ||
+                block.state.blockData !is AnaloguePowerable) return false
             event.isCancelled = true
             return true
         }
 
         /**
-         * Cancel inventory open events if the inventory is a furnace.
+         * Cancel inventory open events if the inventory is a chest.
          */
-        private fun cancelOpenFurnace(listener: Listener, event: Event): Boolean {
+        private fun cancelOpenInventory(listener: Listener, event: Event): Boolean {
             if (event !is InventoryOpenEvent) return false
             val t = event.inventory.type
-            if (t != InventoryType.FURNACE &&
+            if (t != InventoryType.CHEST &&
+                t != InventoryType.SHULKER_BOX &&
+                t != InventoryType.BARREL &&
+                t != InventoryType.FURNACE &&
                 t != InventoryType.BLAST_FURNACE &&
                 t != InventoryType.SMOKER) return false
             event.isCancelled = true
@@ -129,6 +142,40 @@ class PermissionBehaviour {
          */
         private fun getLecternPlayer(e: Event): Player? {
             if (e !is PlayerTakeLecternBookEvent) return null
+            return e.player
+        }
+
+        /**
+         * Get the location of a door being opened.
+         */
+        private fun getDoorLocation(e: Event): Location? {
+            if (e !is PlayerInteractEvent) return null
+            val block = e.clickedBlock ?: return null
+            return block.location
+        }
+
+        /**
+         * Get the player opening a door.
+         */
+        private fun getDoorPlayer(e: Event): Player? {
+            if (e !is PlayerInteractEvent) return null
+            return e.player
+        }
+
+        /**
+         * Get the location of a door being opened.
+         */
+        private fun getRedstoneLocation(e: Event): Location? {
+            if (e !is PlayerInteractEvent) return null
+            val block = e.clickedBlock ?: return null
+            return block.location
+        }
+
+        /**
+         * Get the player opening a door.
+         */
+        private fun getRedstonePlayer(e: Event): Player? {
+            if (e !is PlayerInteractEvent) return null
             return e.player
         }
 
