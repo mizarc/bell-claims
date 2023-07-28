@@ -79,8 +79,8 @@ class PermissionBehaviour {
         private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             val block = event.clickedBlock ?: return false
-            if (block.state.blockData !is Switch ||
-                block.state.blockData !is Powerable ||
+            if (block.state.blockData !is Switch &&
+                block.state.blockData !is Powerable &&
                 block.state.blockData !is AnaloguePowerable) return false
             event.isCancelled = true
             return true
