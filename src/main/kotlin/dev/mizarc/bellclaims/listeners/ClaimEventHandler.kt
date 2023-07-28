@@ -15,6 +15,8 @@ import dev.mizarc.bellclaims.claims.ClaimRuleRepository
 import dev.mizarc.bellclaims.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 
 /**
@@ -126,7 +128,9 @@ class ClaimEventHandler(var plugin: BellClaims,
                             executor = ee.handler
                             // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
                             if (executor.invoke(listener, event)) {
-                                player.sendMessage("${ChatColor.RED}You are not allowed to do that here! This claim belongs to §6${claim.owner.name}§c.")
+                                player.sendActionBar(
+                                    Component.text("You can't do that in ${claim.owner.name}'s claim!")
+                                        .color(TextColor.color(255, 85, 85)))
                                 break
                             }
                         }
