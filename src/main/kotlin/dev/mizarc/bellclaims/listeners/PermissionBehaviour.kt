@@ -9,10 +9,7 @@ import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
 import org.bukkit.block.data.type.Switch
-import org.bukkit.entity.ArmorStand
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Monster
-import org.bukkit.entity.Player
+import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
@@ -142,7 +139,9 @@ class PermissionBehaviour {
          */
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            return event.entity is ArmorStand
+            if (event.entity is ArmorStand) return false
+            event.isCancelled = true
+            return true
         }
 
         /**
@@ -203,7 +202,7 @@ class PermissionBehaviour {
         private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Player) return false
-            if (event.entity is Monster) return false
+            if (event.entity !is Player || event.entity !is Animals || event.entity !is AbstractVillager) return false
             event.isCancelled = true
             return true
         }
@@ -219,11 +218,15 @@ class PermissionBehaviour {
         private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             val block = event.clickedBlock ?: return false
-            if (block.state.blockData !is Switch &&
-                block.state.blockData !is Powerable &&
-                block.state.blockData !is AnaloguePowerable) return false
-            event.isCancelled = true
-            return true
+
+            // Block is of type switch, analogue powerable, or a powerable that isn't a door
+            if (block.state.blockData is Switch ||
+                (block.state.blockData is Powerable && block.state.blockData !is Openable) ||
+                block.state.blockData is AnaloguePowerable) {
+                event.isCancelled = true
+                return true
+            }
+            return false
         }
 
         /**
