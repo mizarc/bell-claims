@@ -42,7 +42,7 @@ class PermissionBehaviour {
         // Any entity placing
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
-        // Used for damaging armor stands and item frames
+        // Used for damaging static entities such as armor stands and item frames
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
 
         // Used for placing fluids such as water and lava
@@ -78,8 +78,11 @@ class PermissionBehaviour {
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
         val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
 
-        /// Used for putting items into entity based holders such as item frames
+        // Used for putting items into entity based holders such as item frames
         val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelMiscEntityDisplayInteractions, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+
+        // Used for taking items out of entities by damaging them such as with item frames
+        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelStaticEntityDamage, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
 
         // Used for taking the book out of lecterns
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
@@ -185,16 +188,12 @@ class PermissionBehaviour {
 
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.entity !is ArmorStand && event.entity !is ItemFrame) return false
-            if (event.entity is ItemFrame) {
-                val itemFrame = event.entity as ItemFrame
-                Bukkit.getLogger().info("${itemFrame.item.type}")
-                if (itemFrame.item.type != Material.AIR) {
-                    return false
-                }
+            if (event.entity is ArmorStand) {
+                event.isCancelled = true
+                return true
             }
-            event.isCancelled = true
-            return true
+
+            return false
         }
 
         /**
@@ -256,6 +255,14 @@ class PermissionBehaviour {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Player) return false
             if (event.entity !is Player || event.entity !is Animals || event.entity !is AbstractVillager) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelStaticEntityDamage(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Player) return false
+            if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return false
             event.isCancelled = true
             return true
         }
