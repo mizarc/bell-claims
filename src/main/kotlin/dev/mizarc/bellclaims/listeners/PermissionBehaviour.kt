@@ -1,7 +1,5 @@
 package dev.mizarc.bellclaims.listeners
 
-import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
-import io.papermc.paper.event.player.PlayerItemFrameChangeEvent.ItemFrameChangeAction
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -17,6 +15,7 @@ import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
+import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
@@ -37,9 +36,14 @@ class PermissionBehaviour {
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+
+        // Used for armor stands and item frames
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for item frames and paintings
+        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, ::cancelEvent, ::getHangingBreakByEntityEventLocation, ::getHangingBreakByEntityEventPlayer)
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
@@ -63,6 +67,16 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.remover as? Player ?: return null
+        }
+
+        private fun getHangingBreakByEntityEventLocation(event: Event): Location? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.entity.location
         }
 
         private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
@@ -134,12 +148,16 @@ class PermissionBehaviour {
             return event.player
         }
 
-        /**
-         * Get the location of an entity being placed.
-         */
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.entity is ArmorStand) return false
+            if (event.entity !is ArmorStand && event.entity !is ItemFrame) return false
+            if (event.entity is ItemFrame) {
+                val itemFrame = event.entity as ItemFrame
+                Bukkit.getLogger().info("${itemFrame.item.type}")
+                if (itemFrame.item.type != Material.AIR) {
+                    return false
+                }
+            }
             event.isCancelled = true
             return true
         }
