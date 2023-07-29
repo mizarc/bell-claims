@@ -1,5 +1,8 @@
 package dev.mizarc.bellclaims.listeners
 
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent.ItemFrameChangeAction
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
@@ -38,7 +41,8 @@ class PermissionBehaviour {
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
-        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getFluidPlaceLocation, ::getFluidPlacePlayer)
+        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
@@ -46,9 +50,11 @@ class PermissionBehaviour {
         val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
+        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelMiscEntityDisplayInteractions, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
-        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getDoorLocation, ::getDoorPlayer)
-        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getRedstoneLocation, ::getRedstonePlayer)
+        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getInteractEventLocation, ::getInteractEventPlayer)
         val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
 
         /**
@@ -60,6 +66,36 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked.type != EntityType.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getPlayerInteractEntityPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerInteractEntityLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun cancelMiscDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.ITEM_FRAME &&
+                block.type != Material.FLOWER_POT &&
+                block.type != Material.CHISELED_BOOKSHELF) return false
+            event.isCancelled = true
+            return true
         }
 
         /**
@@ -75,10 +111,19 @@ class PermissionBehaviour {
             return true
         }
 
+        private fun cancelItemFramePlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
         /**
          * Get the location of an entity being placed.
          */
-        private fun getFluidPlaceLocation(event: Event): Location? {
+        private fun getInteractEventLocation(event: Event): Location? {
             if (event !is PlayerInteractEvent) return null
             val block = event.clickedBlock ?: return null
             return block.location
@@ -87,7 +132,7 @@ class PermissionBehaviour {
         /**
          * Get the player that placed the entity.
          */
-        private fun getFluidPlacePlayer(event: Event): Player? {
+        private fun getInteractEventPlayer(event: Event): Player? {
             if (event !is PlayerInteractEvent) return null
             return event.player
         }
@@ -238,40 +283,6 @@ class PermissionBehaviour {
          */
         private fun getLecternPlayer(e: Event): Player? {
             if (e !is PlayerTakeLecternBookEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of a door being opened.
-         */
-        private fun getDoorLocation(e: Event): Location? {
-            if (e !is PlayerInteractEvent) return null
-            val block = e.clickedBlock ?: return null
-            return block.location
-        }
-
-        /**
-         * Get the player opening a door.
-         */
-        private fun getDoorPlayer(e: Event): Player? {
-            if (e !is PlayerInteractEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of a door being opened.
-         */
-        private fun getRedstoneLocation(e: Event): Location? {
-            if (e !is PlayerInteractEvent) return null
-            val block = e.clickedBlock ?: return null
-            return block.location
-        }
-
-        /**
-         * Get the player opening a door.
-         */
-        private fun getRedstonePlayer(e: Event): Player? {
-            if (e !is PlayerInteractEvent) return null
             return e.player
         }
 
