@@ -1,12 +1,11 @@
 package dev.mizarc.bellclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
 import org.bukkit.block.data.type.Switch
+import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Player
@@ -37,6 +36,7 @@ class PermissionBehaviour {
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
@@ -58,6 +58,31 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            return event.entity is ArmorStand
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
+            if (event !is EntityDamageByEntityEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            if (event.damager !is Player) return null
+            return event.damager as Player
         }
 
         /**

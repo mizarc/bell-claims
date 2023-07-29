@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.event.Event
 
 /**
@@ -14,6 +13,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.blockBreak,
         PermissionBehaviour.blockPlace,
         PermissionBehaviour.entityPlace,
+        PermissionBehaviour.specialEntityDamage,
         PermissionBehaviour.fertilize)),
 
     /**
