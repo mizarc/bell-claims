@@ -38,7 +38,8 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.armorStandManipulate,
         PermissionBehaviour.takeLecternBook,
         PermissionBehaviour.miscDisplayInteractions,
-        PermissionBehaviour.miscEntityDisplayInteractions)),
+        PermissionBehaviour.miscEntityDisplayInteractions,
+        PermissionBehaviour.miscEntityDisplayDamage)),
 
     /**
      * When a block is interacted with by a player.
