@@ -70,8 +70,7 @@ class ClaimEventHandler(var plugin: BellClaims,
      * executor has the highest priority, then invoke that executor.
      */
     private fun handleClaimPermission(listener: Listener, event: Event) {
-        Bukkit.getLogger().info("$event")
-        val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java) // Get all ClaimPermissions that deal with this event
+        val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java).toMutableList() // Get all ClaimPermissions that deal with this event
 
         // Get the top PermissionExecutor that deals with this event.
         // NOTE: This assumes that any PermissionExecutor that deals with this event will always return the same values
@@ -102,9 +101,7 @@ class ClaimEventHandler(var plugin: BellClaims,
             playerPermissions = claimPermissionRepository.getByClaim(claim)
         }
 
-        for (perm in eventPerms) {
-            if (playerPermissions.contains(perm)) return
-        }
+        eventPerms.removeAll(playerPermissions)
 
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
@@ -127,7 +124,6 @@ class ClaimEventHandler(var plugin: BellClaims,
                     for (ee in e.events) { // If so, determine the executor to use
                         if (ee.eventClass == event::class.java) {
                             executor = ee.handler
-                            //Bukkit.getLogger().info("$executor")
                             // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
                             if (executor.invoke(listener, event)) {
                                 player.sendActionBar(
