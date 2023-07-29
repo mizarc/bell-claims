@@ -254,7 +254,7 @@ class PermissionBehaviour {
         private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Player) return false
-            if (event.entity !is Player || event.entity !is Animals || event.entity !is AbstractVillager) return false
+            if (event.entity !is Player && event.entity !is Animals && event.entity !is AbstractVillager) return false
             event.isCancelled = true
             return true
         }
