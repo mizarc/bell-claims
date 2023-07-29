@@ -33,29 +33,64 @@ data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l:
 class PermissionBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
+        // Any block breaking
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
+
+        // Any block placing
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+
+        // Any entity placing
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
-        // Used for armor stands and item frames
+        // Used for damaging armor stands and item frames
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
+
+        // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
 
-        // Used for item frames and paintings
+        // Used for breaking item frames and paintings
         val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, ::cancelEvent, ::getHangingBreakByEntityEventLocation, ::getHangingBreakByEntityEventPlayer)
+
+        // Used for plant fertilisation with bonemeal
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
+
+        // Used for inventories that either store something or will have an effect in the world from being used
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
+
+        // Used for villager trades
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
+
+        // Used for damaging passive mobs
         val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
+
+        // Used for leashing passive mobs with lead
         val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
+
+        // Used for shearing mobs with a shear
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
+
+        // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
+
+        // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
         val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        /// Used for putting items into entity based holders such as item frames
         val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelMiscEntityDisplayInteractions, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+
+        // Used for taking the book out of lecterns
         val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
+
+        // Used for opening doors and other openable blocks
         val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for blocks that can activate redstone such as buttons and levers
         val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for grabbing mobs with a fishing rod
         val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
 
         /**
