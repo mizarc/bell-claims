@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims.listeners
 
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
@@ -37,6 +38,7 @@ class PermissionBehaviour {
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
+        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getFluidPlaceLocation, ::getFluidPlacePlayer)
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
         val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
         val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
@@ -58,6 +60,36 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.WATER_BUCKET &&
+                item.type != Material.LAVA_BUCKET) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getFluidPlaceLocation(event: Event): Location? {
+            if (event !is PlayerInteractEvent) return null
+            val block = event.clickedBlock ?: return null
+            return block.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getFluidPlacePlayer(event: Event): Player? {
+            if (event !is PlayerInteractEvent) return null
+            return event.player
         }
 
         /**
