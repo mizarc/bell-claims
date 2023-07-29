@@ -26,9 +26,9 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.Inventory -> "Inventories"
         ClaimPermission.RedstoneUse -> "Redstone Interact"
         ClaimPermission.VillagerTrade -> "Villager Trade"
-        ClaimPermission.EntityHurt -> "Entity Hurt"
-        ClaimPermission.EntityLeash -> "Entity Leash"
-        ClaimPermission.EntityShear -> "Entity Shear"
+        ClaimPermission.EntityHurt -> "Mob Hurt"
+        ClaimPermission.EntityLeash -> "Mob Leash"
+        ClaimPermission.EntityShear -> "Mob Shear"
     }
 }
 
@@ -38,10 +38,10 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
         ClaimPermission.DisplayTake -> "Grants permission to put and take items from display blocks (Item Frames, Armour Stands)"
         ClaimPermission.Inventory -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
-        ClaimPermission.RedstoneUse -> "Grants permission to interact with redstone blocks (Buttons, Levels, Pressure Plates)"
+        ClaimPermission.RedstoneUse -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
-        ClaimPermission.EntityHurt -> "Grants permission to damage entities"
-        ClaimPermission.EntityLeash -> "Grants permission to use leads on entities"
-        ClaimPermission.EntityShear -> "Grants permission to use shears on entities"
+        ClaimPermission.EntityHurt -> "Grants permission to damage passive mobs"
+        ClaimPermission.EntityLeash -> "Grants permission to use leads on passive mobs"
+        ClaimPermission.EntityShear -> "Grants permission to use shears on passive mobs"
     }
 }
