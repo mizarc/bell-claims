@@ -15,6 +15,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.entityPlace,
         PermissionBehaviour.specialEntityDamage,
         PermissionBehaviour.fluidPlace,
+        PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.fertilize)),
 
     /**
@@ -34,7 +35,9 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
      */
     DisplayTake(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
-        PermissionBehaviour.takeLecternBook)),
+        PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.miscDisplayInteractions,
+        PermissionBehaviour.miscEntityDisplayInteractions)),
 
     /**
      * When a block is interacted with by a player.
