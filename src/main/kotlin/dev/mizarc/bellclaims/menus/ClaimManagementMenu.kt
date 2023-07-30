@@ -37,7 +37,6 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimRepository.getByPosition(claimBuilder.position)
-        Bukkit.getLogger().info("$existingClaim")
         if (existingClaim == null) {
             openClaimCreationMenu()
             return
@@ -121,7 +120,6 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                 return@GuiItem
             }
             val claim = claimBuilder.build()
-            Bukkit.getLogger().info("$claim")
             claimRepository.add(claim)
             val partition = Partition(claim.id, Area(
                 Position2D(claim.position.x - 5, claim.position.z - 5),
@@ -782,6 +780,10 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         var xSlot = 0
         var ySlot = 0
         for (player in Bukkit.getOnlinePlayers()) {
+            if (player == claimBuilder.player) {
+                continue
+            }
+
             val warpItem = createHead(Bukkit.getOfflinePlayer(player.uniqueId))
                 .name("${Bukkit.getOfflinePlayer(player.uniqueId).name}")
             val guiWarpItem = GuiItem(warpItem) {
