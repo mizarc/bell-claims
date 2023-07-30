@@ -9,7 +9,7 @@ import dev.mizarc.bellclaims.listeners.ClaimPermission
 class UntrustCommand : ClaimCommand() {
 
     @Subcommand("untrust")
-    @CommandPermission("solidclaims.command.untrust")
+    @CommandPermission("bellclaims.command.claim.untrust")
     fun onUntrust(player: Player, otherPlayer: OnlinePlayer, claimPermission: ClaimPermission) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 class RenameCommand : ClaimCommand() {
 
     @Subcommand("rename")
-    @CommandPermission("solidclaims.command.rename")
+    @CommandPermission("bellclaims.command.claim.rename")
     fun onRename(player: Player, name: String) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {

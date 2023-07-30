@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 class DescriptionCommand : ClaimCommand() {
 
     @Subcommand("description")
-    @CommandPermission("solidclaims.command.description")
+    @CommandPermission("bellclaims.command.claim.description")
     fun onDescription(player: Player, description: String) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {

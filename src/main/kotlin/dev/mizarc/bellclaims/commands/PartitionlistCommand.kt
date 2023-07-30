@@ -12,7 +12,7 @@ import kotlin.math.ceil
 class PartitionlistCommand : ClaimCommand() {
 
     @Subcommand("partitionlist")
-    @CommandPermission("solidclaims.command.partitionlist")
+    @CommandPermission("bellclaims.command.claim.partitionlist")
     fun onPartitionlist(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
 

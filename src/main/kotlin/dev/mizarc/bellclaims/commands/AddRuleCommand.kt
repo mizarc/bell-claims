@@ -10,7 +10,7 @@ import dev.mizarc.bellclaims.listeners.ClaimRule
 class AddRuleCommand : ClaimCommand() {
 
     @Subcommand("addrule")
-    @CommandPermission("solidclaims.command.addrule")
+    @CommandPermission("bellclaims.command.claim.addrule")
     fun onRule(player: Player, rule: ClaimRule) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {

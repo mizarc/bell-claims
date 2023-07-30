@@ -21,7 +21,7 @@ class ClaimlistCommand : BaseCommand() {
     protected lateinit var claimService: ClaimService
 
     @Default
-    @CommandPermission("solidclaims.command.claimlist")
+    @CommandPermission("bellclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {

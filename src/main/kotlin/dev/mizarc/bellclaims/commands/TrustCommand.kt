@@ -10,7 +10,7 @@ import dev.mizarc.bellclaims.listeners.ClaimPermission
 class TrustCommand : ClaimCommand() {
 
     @Subcommand("trust")
-    @CommandPermission("solidclaims.command.trust")
+    @CommandPermission("bellclaims.command.claim.trust")
     fun onTrust(player: Player, otherPlayer: OnlinePlayer, claimPermission: ClaimPermission) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {
