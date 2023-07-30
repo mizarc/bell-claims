@@ -15,7 +15,7 @@ fun getClaimMoveTool(claim: Claim) : ItemStack {
     val itemMeta = tool.itemMeta
     itemMeta?.setCustomModelData(1)
     itemMeta.persistentDataContainer.set(
-        NamespacedKey("solidclaims","claim"), PersistentDataType.STRING, claim.id.toString())
+        NamespacedKey("bellclaims","claim"), PersistentDataType.STRING, claim.id.toString())
     tool.itemMeta = itemMeta
     return tool
 }

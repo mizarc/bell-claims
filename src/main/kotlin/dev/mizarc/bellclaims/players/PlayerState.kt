@@ -22,10 +22,10 @@ class PlayerState(val player: OfflinePlayer, val config: Config, val metadata: C
     }
 
     fun getClaimLimit(): Int =
-        metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_limit", config.claimLimit)
+        metadata.getPlayerInfoInteger(getOnlinePlayer(), "bellclaims.claim_limit", config.claimLimit)
             .takeIf { it > -1 } ?: -1
 
     fun getClaimBlockLimit(): Int =
-        metadata.getPlayerInfoInteger(getOnlinePlayer(), "solidclaims.claim_block_limit", config.claimBlockLimit)
+        metadata.getPlayerInfoInteger(getOnlinePlayer(), "bellclaims.claim_block_limit", config.claimBlockLimit)
             .takeIf { it > -1 } ?: -1
 }

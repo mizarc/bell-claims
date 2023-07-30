@@ -35,11 +35,11 @@ class BellClaims : JavaPlugin() {
         registerDependencies()
         registerCommands()
         registerEvents()
-        logger.info("SolidClaims has been Enabled")
+        logger.info("Bell Claims has been Enabled")
     }
 
     override fun onDisable() {
-        logger.info("SolidClaims has been Disabled")
+        logger.info("Bell Claims has been Disabled")
     }
 
     private fun registerDependencies() {
