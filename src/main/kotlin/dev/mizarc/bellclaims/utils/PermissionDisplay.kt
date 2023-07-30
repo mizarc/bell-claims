@@ -6,16 +6,12 @@ import dev.mizarc.bellclaims.listeners.ClaimPermission
 
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {
-        ClaimPermission.All -> ItemStack(Material.BEACON)
-        ClaimPermission.AllBlocks -> ItemStack(Material.GRASS_BLOCK)
         ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
-        ClaimPermission.BlockInteract -> ItemStack(Material.LECTERN)
-        ClaimPermission.AllInventories -> ItemStack(Material.SHULKER_BOX)
-        ClaimPermission.OpenChest -> ItemStack(Material.CHEST)
-        ClaimPermission.OpenFurnace -> ItemStack(Material.FURNACE)
-        ClaimPermission.OpenAnvil -> ItemStack(Material.ANVIL)
+        ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
+        ClaimPermission.DisplayTake -> ItemStack(Material.ARMOR_STAND)
+        ClaimPermission.Inventory -> ItemStack(Material.CHEST)
+        ClaimPermission.RedstoneUse -> ItemStack(Material.LEVER)
         ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
-        ClaimPermission.AllEntities -> ItemStack(Material.ZOMBIE_SPAWN_EGG)
         ClaimPermission.EntityHurt -> ItemStack(Material.IRON_SWORD)
         ClaimPermission.EntityLeash -> ItemStack(Material.LEAD)
         ClaimPermission.EntityShear -> ItemStack(Material.SHEARS)
@@ -24,36 +20,28 @@ fun ClaimPermission.getIcon(): ItemStack {
 
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
-        ClaimPermission.All -> "All"
-        ClaimPermission.AllBlocks -> "All Blocks"
         ClaimPermission.Build -> "Build"
-        ClaimPermission.BlockInteract -> "Block Interact"
-        ClaimPermission.AllInventories -> "All Inventories"
-        ClaimPermission.OpenChest -> "Open Chests"
-        ClaimPermission.OpenFurnace -> "Open Furnace"
-        ClaimPermission.OpenAnvil -> "Open Anvil"
+        ClaimPermission.DoorOpen -> "Open Doors"
+        ClaimPermission.DisplayTake -> "Display Use"
+        ClaimPermission.Inventory -> "Inventories"
+        ClaimPermission.RedstoneUse -> "Redstone Interact"
         ClaimPermission.VillagerTrade -> "Villager Trade"
-        ClaimPermission.AllEntities -> "All Entities"
-        ClaimPermission.EntityHurt -> "Entity Hurt"
-        ClaimPermission.EntityLeash -> "Entity Leash"
-        ClaimPermission.EntityShear -> "Entity Shear"
+        ClaimPermission.EntityHurt -> "Mob Hurt"
+        ClaimPermission.EntityLeash -> "Mob Leash"
+        ClaimPermission.EntityShear -> "Mob Shear"
     }
 }
 
 fun ClaimPermission.getDescription(): String {
     return when (this) {
-        ClaimPermission.All -> "Grants all permissions"
-        ClaimPermission.AllBlocks -> "Grants permission to do anything with blocks (Build, Interact)"
         ClaimPermission.Build -> "Grants permission to build"
-        ClaimPermission.BlockInteract -> "Grants permission to interact with blocks"
-        ClaimPermission.AllInventories -> "Grants permission to open any inventory (Chest, Furnace, Anvil, Villager)"
-        ClaimPermission.OpenChest -> "Grants permission to open chests"
-        ClaimPermission.OpenFurnace -> "Grants permission to open furnaces"
-        ClaimPermission.OpenAnvil -> "Grants permission to open anvils"
+        ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
+        ClaimPermission.DisplayTake -> "Grants permission to put and take items from display blocks (Item Frames, Armour Stands)"
+        ClaimPermission.Inventory -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
+        ClaimPermission.RedstoneUse -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
-        ClaimPermission.AllEntities -> "Grants permission to interact with entities (Hurt, Leash, Shear)"
-        ClaimPermission.EntityHurt -> "Grants permission to damage entities"
-        ClaimPermission.EntityLeash -> "Grants permission to use leads on entities"
-        ClaimPermission.EntityShear -> "Grants permission to use shears on entities"
+        ClaimPermission.EntityHurt -> "Grants permission to damage passive mobs"
+        ClaimPermission.EntityLeash -> "Grants permission to use leads on passive mobs"
+        ClaimPermission.EntityShear -> "Grants permission to use shears on passive mobs"
     }
 }

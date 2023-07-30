@@ -1,15 +1,21 @@
 package dev.mizarc.bellclaims.listeners
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Monster
-import org.bukkit.entity.Player
+import org.bukkit.Material
+import org.bukkit.block.data.AnaloguePowerable
+import org.bukkit.block.data.Openable
+import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Switch
+import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
+import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
@@ -27,19 +33,68 @@ data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l:
 class PermissionBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
+        // Any block breaking
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
+
+        // Any block placing
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
-        val openChest = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenChest, ::getInventoryLocation, ::getInventoryInteractPlayer)
-        val openFurnace = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenFurnace, ::getInventoryLocation, ::getInventoryInteractPlayer)
-        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
-        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
-        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
-        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
-        val blockDamage = PermissionExecutor(BlockDamageEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockDamager)
-        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
-        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
+
+        // Any entity placing
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+
+        // Used for damaging static entities such as armor stands and item frames
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
+
+        // Used for placing fluids such as water and lava
+        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for placing item frames
+        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for breaking item frames and paintings
+        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, ::cancelEvent, ::getHangingBreakByEntityEventLocation, ::getHangingBreakByEntityEventPlayer)
+
+        // Used for plant fertilisation with bonemeal
         val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
-        val openAnvil = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelEvent, ::getInventoryLocation, ::getInventoryInteractPlayer)
+
+        // Used for inventories that either store something or will have an effect in the world from being used
+        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
+
+        // Used for villager trades
+        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
+
+        // Used for damaging passive mobs
+        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
+
+        // Used for leashing passive mobs with lead
+        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
+
+        // Used for shearing mobs with a shear
+        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
+
+        // Used for taking and placing armour from armour stand
+        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
+
+        // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
+        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for putting items into entity based holders such as item frames
+        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelMiscEntityDisplayInteractions, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+
+        // Used for taking items out of entities by damaging them such as with item frames
+        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelStaticEntityDamage, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
+
+        // Used for taking the book out of lecterns
+        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
+
+        // Used for opening doors and other openable blocks
+        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for blocks that can activate redstone such as buttons and levers
+        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for grabbing mobs with a fishing rod
+        val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
 
         /**
          * Cancel any cancellable event.
@@ -52,39 +107,201 @@ class PermissionBehaviour {
             return false
         }
 
+        private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.remover as? Player ?: return null
+        }
+
+        private fun getHangingBreakByEntityEventLocation(event: Event): Location? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.entity.location
+        }
+
+        private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked.type != EntityType.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getPlayerInteractEntityPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerInteractEntityLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun cancelMiscDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.ITEM_FRAME &&
+                block.type != Material.FLOWER_POT &&
+                block.type != Material.CHISELED_BOOKSHELF) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.WATER_BUCKET &&
+                item.type != Material.LAVA_BUCKET) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelItemFramePlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getInteractEventLocation(event: Event): Location? {
+            if (event !is PlayerInteractEvent) return null
+            val block = event.clickedBlock ?: return null
+            return block.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getInteractEventPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEvent) return null
+            return event.player
+        }
+
+        private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.entity is ArmorStand) {
+                event.isCancelled = true
+                return true
+            }
+
+            return false
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
+            if (event !is EntityDamageByEntityEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            if (event.damager !is Player) return null
+            return event.damager as Player
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getEntityPlaceLocation(event: Event): Location? {
+            if (event !is EntityPlaceEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getEntityPlacePlayer(event: Event): Player? {
+            if (event !is EntityPlaceEvent) return null
+            return event.player
+        }
+
+        private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFishEvent) return false
+            val caught = event.caught ?: return false
+            if (caught is Monster && caught is Player) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getFishingLocation(event: Event): Location? {
+            if (event !is PlayerFishEvent) return null
+            val caught = event.caught ?: return null
+            return caught.location
+        }
+
+        private fun getFishingPlayer(event: Event): Player? {
+            if (event !is PlayerFishEvent) return null
+            return event.player
+        }
+
         /**
          * Cancel entity damage if caused by a player entity. Does not cancel if entity is considered a monster.
          */
         private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Player) return false
-            if (event.entity is Monster) return false
+            if (event.entity !is Player && event.entity !is Animals && event.entity !is AbstractVillager) return false
             event.isCancelled = true
             return true
+        }
+
+        private fun cancelStaticEntityDamage(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Player) return false
+            if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelDoorOpen(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.state.blockData !is Openable) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+
+            // Block is of type switch, analogue powerable, or a powerable that isn't a door
+            if (block.state.blockData is Switch ||
+                (block.state.blockData is Powerable && block.state.blockData !is Openable) ||
+                block.state.blockData is AnaloguePowerable) {
+                event.isCancelled = true
+                return true
+            }
+            return false
         }
 
         /**
          * Cancel inventory open events if the inventory is a chest.
          */
-        private fun cancelOpenChest(listener: Listener, event: Event): Boolean {
+        private fun cancelOpenInventory(listener: Listener, event: Event): Boolean {
             if (event !is InventoryOpenEvent) return false
             val t = event.inventory.type
             if (t != InventoryType.CHEST &&
                 t != InventoryType.SHULKER_BOX &&
-                t != InventoryType.BARREL) return false
-            event.isCancelled = true
-            return true
-        }
-
-        /**
-         * Cancel inventory open events if the inventory is a furnace.
-         */
-        private fun cancelOpenFurnace(listener: Listener, event: Event): Boolean {
-            if (event !is InventoryOpenEvent) return false
-            val t = event.inventory.type
-            if (t != InventoryType.FURNACE &&
+                t != InventoryType.BARREL &&
+                t != InventoryType.FURNACE &&
                 t != InventoryType.BLAST_FURNACE &&
-                t != InventoryType.SMOKER) return false
+                t != InventoryType.SMOKER &&
+                t != InventoryType.ANVIL) return false
             event.isCancelled = true
             return true
         }
