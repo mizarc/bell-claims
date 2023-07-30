@@ -15,7 +15,7 @@ import java.util.*
 class InfoCommand : ClaimCommand() {
 
     @Subcommand("info")
-    @CommandPermission("solidclaims.command.info")
+    @CommandPermission("bellclaims.command.claim.info")
     fun onClaiminfo(player: Player) {
         val partition = getPartitionAtPlayer(player) ?: return
 

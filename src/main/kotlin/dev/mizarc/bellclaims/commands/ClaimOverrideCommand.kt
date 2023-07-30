@@ -14,7 +14,7 @@ class ClaimOverrideCommand: BaseCommand() {
     lateinit var players: PlayerStateRepository
 
     @Default
-    @CommandPermission("solidclaims.command.claimoverride")
+    @CommandPermission("bellclaims.command.claimoverride")
     fun onClaimOverride(player: Player) {
         val playerState = players.get(player)
         if (playerState == null) {

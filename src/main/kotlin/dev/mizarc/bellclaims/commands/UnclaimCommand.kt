@@ -22,13 +22,13 @@ class UnclaimCommand : BaseCommand() {
     protected lateinit var partitionService: PartitionService
 
     @Default
-    @CommandPermission("solidclaims.command.unclaim")
+    @CommandPermission("bellclaims.command.unclaim")
     fun onUnclaim(player: Player) {
         onPartition(player)
     }
 
     @Subcommand("partition")
-    @CommandPermission("solidclaims.command.unclaim.partition")
+    @CommandPermission("bellclaims.command.claim.partition")
     fun onPartition(player: Player) {
         val partition = partitionService.getByPlayerPosition(player) ?: return
 
@@ -50,22 +50,5 @@ class UnclaimCommand : BaseCommand() {
         }
 
         player.sendMessage("§aThis claim partition has been removed")
-    }
-
-    @Subcommand("connected")
-    @CommandPermission("solidclaims.command.unclaim.connected")
-    fun onConnected(player: Player) {
-        val partition = partitionService.getByPlayerPosition(player) ?: return
-        val claim = claims.getById(partition.claimId) ?: return
-        val claimPartitions = partitions.getByClaim(claim)
-
-        for (claimPartition in claimPartitions) {
-            partitions.remove(partition)
-        }
-
-        claims.remove(claim)
-        claimVisualiser.registerClaimUpdate(claim)
-
-        player.sendMessage("§aThe claim has been removed.")
     }
 }

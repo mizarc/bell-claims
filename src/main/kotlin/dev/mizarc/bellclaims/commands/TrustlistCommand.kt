@@ -14,7 +14,7 @@ import kotlin.math.ceil
 class TrustlistCommand : ClaimCommand() {
 
     @Subcommand("trustlist")
-    @CommandPermission("solidclaims.command.trustlist")
+    @CommandPermission("bellclaims.command.claim.trustlist")
     fun onTrustlist(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
         val claim = claims.getById(partition.claimId)!!
