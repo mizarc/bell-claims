@@ -21,7 +21,7 @@ class ClaimMoveListener(private val claimRepo: ClaimRepository, private val part
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
         val claimId = event.itemInHand.itemMeta.persistentDataContainer.get(
-            NamespacedKey("solidclaims","claim"), PersistentDataType.STRING) ?: return
+            NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: return
         val claim = claimRepo.getById(UUID.fromString(claimId)) ?: return
 
         val partition = partitionService.getByLocation(event.blockPlaced.location)

@@ -29,7 +29,7 @@ open class ClaimCommand : BaseCommand() {
     @Dependency protected lateinit var partitionService: PartitionService
 
     @CommandAlias("claim")
-    @CommandPermission("solidclaims.command.claim")
+    @CommandPermission("bellclaims.command.claim")
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {

@@ -10,7 +10,7 @@ import dev.mizarc.bellclaims.listeners.ClaimRule
 class RemoveRuleCommand : ClaimCommand() {
 
     @Subcommand("removerule")
-    @CommandPermission("solidclaims.command.removerule")
+    @CommandPermission("bellclaims.command.claim.removerule")
     fun onRemoveClaim(player: Player, rule: ClaimRule) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {
