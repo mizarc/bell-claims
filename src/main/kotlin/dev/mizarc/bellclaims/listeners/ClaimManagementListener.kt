@@ -29,6 +29,7 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
         if (!event.player.isSneaking) return
         val clickedBlock = event.clickedBlock ?: return
         if ((clickedBlock.type) != Material.BELL) return
+        if (!event.player.hasPermission("bellclaims.action.bell")) return
 
         val claim = claimService.getByLocation(clickedBlock.location)
         if (claim != null && claim.owner.uniqueId != event.player.uniqueId) {

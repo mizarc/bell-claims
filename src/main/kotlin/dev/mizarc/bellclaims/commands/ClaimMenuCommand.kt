@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
 import org.bukkit.entity.Player
@@ -14,6 +15,7 @@ class ClaimMenuCommand: BaseCommand() {
     lateinit var claimRepo: ClaimRepository
 
     @Default
+    @CommandPermission("bellclaims.command.claimmenu")
     fun onWarp(player: Player, backCommand: String? = null) {
         ClaimMenu(claimRepo, player).openClaimMenu(backCommand)
     }
