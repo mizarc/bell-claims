@@ -1,8 +1,8 @@
-# SolidClaims
+# Bell Claims
 A Minecraft Spigot plugin
 ___
 ## Description
-SolidClaims is a comprehensive land-claiming Spigot plugin for Minecraft multiplayer servers. It allows players to claim
+Bell Claims is a comprehensive land-claiming Spigot plugin for Minecraft multiplayer servers. It allows players to claim
 an area for their bases and control who is allowed to interact with them, and prevent griefing.
 
 ## Installation

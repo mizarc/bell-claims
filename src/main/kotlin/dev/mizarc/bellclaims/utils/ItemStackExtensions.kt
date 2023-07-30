@@ -109,13 +109,13 @@ fun ItemStack.flag(vararg flag: ItemFlag): ItemStack {
 fun ItemStack.getBooleanMeta(key: String): String? {
     val meta = itemMeta ?: return null
     return meta.persistentDataContainer.get(
-        NamespacedKey("solidclaims",key), PersistentDataType.STRING)
+        NamespacedKey("bellclaims",key), PersistentDataType.STRING)
 }
 
 fun ItemStack.setBooleanMeta(key: String, value: Boolean): ItemStack {
     val meta = itemMeta
     meta.persistentDataContainer.set(
-        NamespacedKey("solidclaims",key), PersistentDataType.BOOLEAN, value)
+        NamespacedKey("bellclaims",key), PersistentDataType.BOOLEAN, value)
     itemMeta = meta
     return this
 }
@@ -123,13 +123,13 @@ fun ItemStack.setBooleanMeta(key: String, value: Boolean): ItemStack {
 fun ItemStack.getStringMeta(key: String): String? {
     val meta = itemMeta ?: return null
     return meta.persistentDataContainer.get(
-        NamespacedKey("solidclaims",key), PersistentDataType.STRING)
+        NamespacedKey("bellclaims",key), PersistentDataType.STRING)
 }
 
 fun ItemStack.setStringMeta(key: String, value: String): ItemStack {
     val meta = itemMeta
     meta.persistentDataContainer.set(
-        NamespacedKey("solidclaims",key), PersistentDataType.STRING, value)
+        NamespacedKey("bellclaims",key), PersistentDataType.STRING, value)
     itemMeta = meta
     return this
 }
