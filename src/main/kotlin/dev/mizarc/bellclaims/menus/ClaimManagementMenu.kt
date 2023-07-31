@@ -747,6 +747,13 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
         controlsPane.addItem(guiExitItem, 0, 0)
 
+        // Add player search item
+        val playerSearchItem = ItemStack(Material.NAME_TAG)
+            .name("Search")
+            .lore("Find player by name, even if they aren't online")
+        val guiPlayerSearchItem = GuiItem(playerSearchItem) { openPlayerSearchMenu(claim, false) }
+        controlsPane.addItem(guiPlayerSearchItem, 3, 0)
+
         // Add prev item
         val prevItem = ItemStack(Material.ARROW)
             .name("Prev")
@@ -799,6 +806,45 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             }
         }
 
+        gui.show(claimBuilder.player)
+    }
+
+    fun openPlayerSearchMenu(claim: Claim, playerDoesNotExist: Boolean = false) {
+        // Create homes menu
+        val gui = AnvilGui("Search for Player")
+
+        // Add lodestone menu item
+        val firstPane = StaticPane(0, 0, 1, 1)
+        val headItem = ItemStack(Material.PLAYER_HEAD)
+            .name("Player")
+        val guiHeadItem = GuiItem(headItem) { guiEvent -> guiEvent.isCancelled = true }
+        firstPane.addItem(guiHeadItem, 0, 0)
+        gui.firstItemComponent.addPane(firstPane)
+
+        // Add message menu item if name is already taken
+        if (playerDoesNotExist) {
+            val secondPane = StaticPane(0, 0, 1, 1)
+            val paperItem = ItemStack(Material.PAPER)
+                .name("That player does not exist")
+                .lore("Only players who have logged in to the server at least once will appear.")
+            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+            secondPane.addItem(guiPaperItem, 0, 0)
+            gui.secondItemComponent.addPane(secondPane)
+        }
+
+        // Add confirm menu item.
+        val thirdPane = StaticPane(0, 0, 1, 1)
+        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmGuiItem = GuiItem(confirmItem) { _ ->
+            val player = Bukkit.getOfflinePlayer(gui.renameText)
+            if (!player.hasPlayedBefore()) {
+                openPlayerSearchMenu(claim, true)
+                return@GuiItem
+            }
+            openPlayerPermisionsMenu(claim, player)
+        }
+        thirdPane.addItem(confirmGuiItem, 0, 0)
+        gui.resultComponent.addPane(thirdPane)
         gui.show(claimBuilder.player)
     }
 }
