@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.claims.Claim
+import org.bukkit.entity.Creeper
 import org.bukkit.entity.Player
 
 /**
@@ -34,6 +35,7 @@ class RuleBehaviour {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java, ::cancelEvent, ::blockInClaim)
         val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, ::cancelEvent, ::fireSpreadInClaim)
         val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEntityBlockChange, ::entityGriefInClaim)
+        val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java, ::cancelCreeperExplode, :: entityExplosionInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
         val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, ::preventExplosionDamage, ::entityExplosionInClaim)
@@ -46,6 +48,14 @@ class RuleBehaviour {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
+        }
+
+        private fun cancelCreeperExplode(event: Event, claimService: ClaimService,
+                                            partitionService: PartitionService): Boolean {
+            if (event !is EntityExplodeEvent) return false
+            if (event.entity !is Creeper) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun cancelEntityBlockChange(event: Event, claimService: ClaimService,
@@ -63,7 +73,8 @@ class RuleBehaviour {
                                            partitionService: PartitionService) {
             val blocks: List<Block>
             if (event is EntityExplodeEvent) {
-                 blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
+                if (event.entity is Creeper) return
+                blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
                 event.blockList().removeAll(blocks)
             }
             else if (event is BlockExplodeEvent) {
