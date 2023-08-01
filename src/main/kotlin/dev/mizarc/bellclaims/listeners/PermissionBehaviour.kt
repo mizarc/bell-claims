@@ -311,7 +311,8 @@ class PermissionBehaviour {
                 t != InventoryType.FURNACE &&
                 t != InventoryType.BLAST_FURNACE &&
                 t != InventoryType.SMOKER &&
-                t != InventoryType.ANVIL) return false
+                t != InventoryType.ANVIL &&
+                t != InventoryType.BEACON) return false
             event.isCancelled = true
             return true
         }
