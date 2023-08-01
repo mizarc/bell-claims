@@ -11,22 +11,36 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     /**
      * When a block is lit on fire.
      */
-    FireSpread(arrayOf(RuleBehaviour.fireSpread, RuleBehaviour.fireBurn)),
+    FireSpread(arrayOf(
+        RuleBehaviour.fireSpread,
+        RuleBehaviour.fireBurn)),
 
     /**
      * When a mob destroys or otherwise changes blocks.
      */
-    MobGriefing(arrayOf(RuleBehaviour.mobGriefing, RuleBehaviour.creeperExplode)),
+    MobGriefing(arrayOf(
+        RuleBehaviour.mobGriefing,
+        RuleBehaviour.creeperExplode,
+        RuleBehaviour.creeperDamageStaticEntity,
+        RuleBehaviour.creeperDamageHangingEntity)),
 
     /**
      * When TNT or other entities explode.
      */
-    Explosions(arrayOf(RuleBehaviour.entityExplode, RuleBehaviour.blockExplode)),
+    Explosions(arrayOf(
+        RuleBehaviour.entityExplode,
+        RuleBehaviour.blockExplode,
+        RuleBehaviour.entityExplodeDamage,
+        RuleBehaviour.blockExplodeDamage,
+        RuleBehaviour.entityExplodeHangingDamage,
+        RuleBehaviour.blockExplodeHangingDamage)),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.
      */
-    Pistons(arrayOf(RuleBehaviour.pistonExtend, RuleBehaviour.pistonRetract));
+    Pistons(arrayOf(
+        RuleBehaviour.pistonExtend,
+        RuleBehaviour.pistonRetract));
 
     companion object {
         /**
