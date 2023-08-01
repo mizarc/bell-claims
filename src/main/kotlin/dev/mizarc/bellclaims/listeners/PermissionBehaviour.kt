@@ -96,6 +96,9 @@ class PermissionBehaviour {
         // Used for grabbing mobs with a fishing rod
         val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
 
+        // Used for taking the lead off fences
+        val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelLeadRemoval, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+
         /**
          * Cancel any cancellable event.
          */
@@ -105,6 +108,13 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelLeadRemoval(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is LeashHitch) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
