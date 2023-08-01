@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.claims.Claim
+import org.bukkit.entity.Player
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
@@ -32,7 +33,7 @@ class RuleBehaviour {
     companion object {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java, ::cancelEvent, ::blockInClaim)
         val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, ::cancelEvent, ::fireSpreadInClaim)
-        val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEvent, ::entityGriefInClaim)
+        val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, ::cancelEntityBlockChange, ::entityGriefInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, ::cancelEvent, ::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, ::cancelEvent, ::pistonRetractInClaim)
         val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, ::preventExplosionDamage, ::entityExplosionInClaim)
@@ -45,6 +46,14 @@ class RuleBehaviour {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
+        }
+
+        private fun cancelEntityBlockChange(event: Event, claimService: ClaimService,
+                                            partitionService: PartitionService): Boolean {
+            if (event !is EntityChangeBlockEvent) return false
+            if (event.entity is Player) return false
+            event.isCancelled = true
+            return true
         }
 
         /**
