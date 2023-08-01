@@ -60,7 +60,10 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an entity is leashed by a player.
      */
-    EntityLeash(null, arrayOf(PermissionBehaviour.leashEntity, PermissionBehaviour.fishingRod)),
+    EntityLeash(null, arrayOf(
+        PermissionBehaviour.leashEntity,
+        PermissionBehaviour.fishingRod,
+        PermissionBehaviour.takeLeadFromFence)),
 
     /**
      * When an entity is sheared by a player.
