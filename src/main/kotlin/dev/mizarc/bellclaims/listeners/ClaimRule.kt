@@ -11,31 +11,47 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     /**
      * When a block is lit on fire.
      */
-    FireSpread(arrayOf(RuleBehaviour.fireSpread, RuleBehaviour.fireBurn)),
+    FireSpread(arrayOf(
+        RuleBehaviour.fireSpread,
+        RuleBehaviour.fireBurn)),
 
     /**
      * When a mob destroys or otherwise changes blocks.
      */
-    MobGriefing(arrayOf(RuleBehaviour.mobGriefing)),
+    MobGriefing(arrayOf(
+        RuleBehaviour.mobGriefing,
+        RuleBehaviour.creeperExplode,
+        RuleBehaviour.creeperDamageStaticEntity,
+        RuleBehaviour.creeperDamageHangingEntity)),
 
     /**
      * When TNT or other entities explode.
      */
-    Explosions(arrayOf(RuleBehaviour.entityExplode, RuleBehaviour.blockExplode)),
+    Explosions(arrayOf(
+        RuleBehaviour.entityExplode,
+        RuleBehaviour.blockExplode,
+        RuleBehaviour.entityExplodeDamage,
+        RuleBehaviour.blockExplodeDamage,
+        RuleBehaviour.entityExplodeHangingDamage,
+        RuleBehaviour.blockExplodeHangingDamage)),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.
      */
-    Pistons(arrayOf(RuleBehaviour.pistonExtend, RuleBehaviour.pistonRetract));
+    Pistons(arrayOf(
+        RuleBehaviour.pistonExtend,
+        RuleBehaviour.pistonRetract));
 
     companion object {
         /**
-         * Get the relevant [RuleExecutor] that handles [event] from [rule].
+         * Get the relevant [RuleExecutor] that handles [event].
          */
-        fun getRuleExecutorForEvent(event: Class<out Event>, rule: ClaimRule): RuleExecutor? {
-            for (re in rule.rules) {
-                if (re.eventClass == event) {
-                    return re
+        fun getRuleExecutorForEvent(event: Class<out Event>): RuleExecutor? {
+            for (rule in values()) {
+                for (ruleExecutor in rule.rules) {
+                    if (ruleExecutor.eventClass == event) {
+                        return ruleExecutor
+                    }
                 }
             }
             return null
@@ -44,15 +60,16 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
         /**
          * Get the [ClaimRule] that handles [event].
          */
-        fun getRuleForEvent(event: Class<out Event>): ClaimRule? {
-            for (v in values()) {
-                for (re in v.rules) {
-                    if (re.eventClass == event) {
-                        return v
+        fun getRulesForEvent(event: Class<out Event>): Array<ClaimRule> {
+            val rules: ArrayList<ClaimRule> = ArrayList()
+            for (rule in values()) {
+                for (ruleEvent in rule.rules) {
+                    if (ruleEvent.eventClass == event) {
+                        rules.add(rule)
                     }
                 }
             }
-            return null
+            return rules.toTypedArray()
         }
     }
 }
