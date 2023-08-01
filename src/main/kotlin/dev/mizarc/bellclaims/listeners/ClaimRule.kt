@@ -16,7 +16,7 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
     /**
      * When a mob destroys or otherwise changes blocks.
      */
-    MobGriefing(arrayOf(RuleBehaviour.mobGriefing)),
+    MobGriefing(arrayOf(RuleBehaviour.mobGriefing, RuleBehaviour.creeperExplode)),
 
     /**
      * When TNT or other entities explode.
