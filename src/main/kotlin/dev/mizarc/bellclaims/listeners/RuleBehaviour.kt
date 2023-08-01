@@ -69,6 +69,7 @@ class RuleBehaviour {
         private fun cancelEntityExplosionHangingDamage(event: Event, claimService: ClaimService,
                                                  partitionService: PartitionService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
+            if (event.cause != HangingBreakEvent.RemoveCause.EXPLOSION) return false
             if (event.remover is Creeper) return false
             event.isCancelled = true
             return true
@@ -88,18 +89,6 @@ class RuleBehaviour {
             if (event.remover !is Creeper) return false
             event.isCancelled = true
             return true
-        }
-
-        private fun hangingEntityBreakInClaim(event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService): List<Claim> {
-            if (event !is HangingBreakByEntityEvent) return listOf()
-            val claimList = ArrayList<Claim>()
-            val partition = partitionService.getByLocation(event.entity.location)
-            if (partition != null) {
-                val claim = claimService.getById(partition.claimId) ?: return listOf()
-                claimList.add(claim)
-            }
-            return claimList.distinct()
         }
 
         private fun hangingBreakByBlockInClaim(event: Event, claimService: ClaimService,
