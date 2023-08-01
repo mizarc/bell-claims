@@ -52,14 +52,25 @@ class ClaimEventHandler(var plugin: BellClaims,
      * pass.
      */
     private fun handleClaimRule(listener: Listener, event: Event) {
-        val rule = ClaimRule.getRuleForEvent(event::class.java) ?: return // Get the rule to deal with this event
-        val executor = ClaimRule.getRuleExecutorForEvent(event::class.java, rule) ?: return  // Get the executor from the rule that deals with this event
-        val claims = executor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
+        val rules = ClaimRule.getRulesForEvent(event::class.java).toMutableList() // Get the rules to deal with this event
+        val tempExecutor = ClaimRule.getRuleExecutorForEvent(event::class.java) ?: return  // Get the executor that deals with this event
+        val claims = tempExecutor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
         if (claims.isEmpty()) return // Check if any claims are affected by the event
+
+        var executor: ((e: Event, es: ClaimService, ps: PartitionService) -> Boolean)?
         for (claim in claims) { // If they are, check if they do not allow this event
-            if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
-                executor.handler.invoke(event, claimService, partitionService) // If they do not, invoke the handler
-                return
+            for (rule in rules) {
+                if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
+                    for (ruleExecutor in rule.rules) {
+                        if (ruleExecutor.eventClass == event::class.java) {
+                            // If they do not, invoke the handler
+                            executor = ruleExecutor.handler
+                            if (executor.invoke(event, claimService, partitionService)) {
+                                break
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
@@ -13,6 +12,7 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.claims.Claim
+import org.bukkit.Bukkit
 import org.bukkit.entity.Creeper
 import org.bukkit.entity.Player
 
@@ -21,7 +21,7 @@ import org.bukkit.entity.Player
  * and a method to obtain all the claims that the event is affecting [getClaims].
  */
 data class RuleExecutor(val eventClass: Class<out Event>, val handler: (event: Event, claimService: ClaimService,
-                                                                        partitionService: PartitionService) -> Unit,
+                                                                        partitionService: PartitionService) -> Boolean,
                         val getClaims: (event: Event, claimService: ClaimService,
                                         partitionService: PartitionService) -> List<Claim>)
 
@@ -44,10 +44,12 @@ class RuleBehaviour {
         /**
          * Cancel any cancellable event.
          */
-        private fun cancelEvent(event: Event, claimService: ClaimService, partitionService: PartitionService) {
+        private fun cancelEvent(event: Event, claimService: ClaimService, partitionService: PartitionService): Boolean {
             if (event is Cancellable) {
                 event.isCancelled = true
+                return true
             }
+            return false
         }
 
         private fun cancelCreeperExplode(event: Event, claimService: ClaimService,
@@ -70,17 +72,20 @@ class RuleBehaviour {
          * Allow explosions to occur, but prevent them from destroying blocks in claims that do not explicitly allow it.
          */
         private fun preventExplosionDamage(event: Event, claimService: ClaimService,
-                                           partitionService: PartitionService) {
+                                           partitionService: PartitionService): Boolean {
             val blocks: List<Block>
             if (event is EntityExplodeEvent) {
-                if (event.entity is Creeper) return
+                if (event.entity is Creeper) return false
                 blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
                 event.blockList().removeAll(blocks)
+                return true
             }
             else if (event is BlockExplodeEvent) {
                 blocks = getExplosionBlocks(event.blockList(), event.block.world, claimService, partitionService)
                 event.blockList().removeAll(blocks)
+                return true
             }
+            return false
         }
 
         /**
