@@ -56,7 +56,8 @@ class RuleBehaviour {
                                             partitionService: PartitionService): Boolean {
             if (event !is EntityExplodeEvent) return false
             if (event.entity !is Creeper) return false
-            event.isCancelled = true
+            val blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
+            event.blockList().removeAll(blocks)
             return true
         }
 
