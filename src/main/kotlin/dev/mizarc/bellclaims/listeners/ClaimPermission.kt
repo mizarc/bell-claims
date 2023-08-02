@@ -17,7 +17,8 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.fluidPlace,
         PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.hangingEntityBreak,
-        PermissionBehaviour.fertilize)),
+        PermissionBehaviour.fertilize,
+        PermissionBehaviour.farmlandStep)),
 
     /**
      * When a door is opened by a player.
