@@ -36,7 +36,7 @@ fun ClaimPermission.getDescription(): String {
     return when (this) {
         ClaimPermission.Build -> "Grants permission to build"
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
-        ClaimPermission.DisplayTake -> "Grants permission to put and take items from display blocks (Item Frames, Armour Stands)"
+        ClaimPermission.DisplayTake -> "Grants permission to interact with display items (Item Frames, Armour Stands, Signs)"
         ClaimPermission.Inventory -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
         ClaimPermission.RedstoneUse -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"

@@ -6,6 +6,7 @@ import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
@@ -151,8 +152,10 @@ class PermissionBehaviour {
             if (event !is PlayerInteractEvent) return false
             val block = event.clickedBlock ?: return false
             if (block.type != Material.ITEM_FRAME &&
+                block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.FLOWER_POT &&
-                block.type != Material.CHISELED_BOOKSHELF) return false
+                block.type != Material.CHISELED_BOOKSHELF &&
+                block.blockData !is Sign) return false
             event.isCancelled = true
             return true
         }
