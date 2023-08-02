@@ -6,6 +6,7 @@ import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Farmland
 import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
@@ -48,6 +49,9 @@ class PermissionBehaviour {
 
         // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for placing fluids such as water and lava
+        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFarmlandStep, ::getInteractEventLocation, ::getInteractEventPlayer)
 
         // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
@@ -109,6 +113,15 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.PHYSICAL) return false
+            val block = event.clickedBlock ?: return false
+            if (block.blockData !is Farmland) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun cancelLeadRemoval(listener: Listener, event: Event): Boolean {
