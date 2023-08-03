@@ -52,7 +52,6 @@ class ClaimEventHandler(var plugin: BellClaims,
      * pass.
      */
     private fun handleClaimRule(listener: Listener, event: Event) {
-        Bukkit.getLogger().info(event.eventName)
         val rules = ClaimRule.getRulesForEvent(event::class.java).toMutableList() // Get the rules to deal with this event
         val tempExecutor = ClaimRule.getRuleExecutorForEvent(event::class.java) ?: return  // Get the executor that deals with this event
         val claims = tempExecutor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
