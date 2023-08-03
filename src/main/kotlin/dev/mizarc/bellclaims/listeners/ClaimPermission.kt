@@ -12,6 +12,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     Build(null, arrayOf(
         PermissionBehaviour.blockBreak,
         PermissionBehaviour.blockPlace,
+        PermissionBehaviour.blockMultiPlace,
         PermissionBehaviour.entityPlace,
         PermissionBehaviour.specialEntityDamage,
         PermissionBehaviour.fluidPlace,

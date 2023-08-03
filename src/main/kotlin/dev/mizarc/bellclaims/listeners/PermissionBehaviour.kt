@@ -41,6 +41,9 @@ class PermissionBehaviour {
         // Any block placing
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
 
+        // Multi block placing (Beds are the only thing known to go under this)
+        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+
         // Any entity placing
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
