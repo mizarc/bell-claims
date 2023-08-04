@@ -171,6 +171,7 @@ class PermissionBehaviour {
                 block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.FLOWER_POT &&
                 block.type != Material.CHISELED_BOOKSHELF &&
+                block.type != Material.JUKEBOX &&
                 block.blockData !is Sign) return false
             event.isCancelled = true
             return true
