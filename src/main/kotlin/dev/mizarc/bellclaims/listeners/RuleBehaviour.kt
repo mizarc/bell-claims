@@ -119,6 +119,7 @@ class RuleBehaviour {
                                                 partitionService: PartitionService): Boolean {
             if (event !is EntityDamageByBlockEvent) return false
             if (event.damager is Creeper) return false
+            if (event.cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) return false
             if (event.entity !is ArmorStand) return false
             event.isCancelled = true
             return true
@@ -128,6 +129,7 @@ class RuleBehaviour {
                                         partitionService: PartitionService): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager is Creeper) return false
+            if (event.cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) return false
             if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is Painting) return false
             event.isCancelled = true
             return true

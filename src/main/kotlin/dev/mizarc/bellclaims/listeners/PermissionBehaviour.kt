@@ -1,11 +1,15 @@
 package dev.mizarc.bellclaims.listeners
 
+import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
+import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Farmland
+import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
@@ -39,6 +43,9 @@ class PermissionBehaviour {
         // Any block placing
         val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
 
+        // Multi block placing (Beds are the only thing known to go under this)
+        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+
         // Any entity placing
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
@@ -47,6 +54,9 @@ class PermissionBehaviour {
 
         // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+
+        // Used for placing fluids such as water and lava
+        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFarmlandStep, ::getInteractEventLocation, ::getInteractEventPlayer)
 
         // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
@@ -72,8 +82,12 @@ class PermissionBehaviour {
         // Used for shearing mobs with a shear
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
 
+        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, ::cancelEvent, ::getPlayerOpenSignLocation, ::getPlayerOpenSignPlayer)
+
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
+
+        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, ::cancelFlowerPotInteract, ::getPlayerFlowerPotManipulateLocation, ::getPlayerFlowerPotManipulatePlayer)
 
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
         val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
@@ -110,6 +124,25 @@ class PermissionBehaviour {
             return false
         }
 
+        private fun getPlayerOpenSignPlayer(event: Event): Player? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerOpenSignLocation(event: Event): Location? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.sign.location
+        }
+
+        private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.PHYSICAL) return false
+            val block = event.clickedBlock ?: return false
+            if (block.blockData !is Farmland) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun cancelLeadRemoval(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEntityEvent) return false
             if (event.rightClicked !is LeashHitch) return false
@@ -144,6 +177,22 @@ class PermissionBehaviour {
             return event.rightClicked.location
         }
 
+        private fun cancelFlowerPotInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFlowerPotManipulateEvent) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.flowerpot.location
+        }
+
         /**
          * Get the location of an entity being placed.
          */
@@ -151,8 +200,9 @@ class PermissionBehaviour {
             if (event !is PlayerInteractEvent) return false
             val block = event.clickedBlock ?: return false
             if (block.type != Material.ITEM_FRAME &&
-                block.type != Material.FLOWER_POT &&
-                block.type != Material.CHISELED_BOOKSHELF) return false
+                block.type != Material.GLOW_ITEM_FRAME &&
+                block.type != Material.CHISELED_BOOKSHELF &&
+                block.type != Material.JUKEBOX) return false
             event.isCancelled = true
             return true
         }
@@ -312,7 +362,11 @@ class PermissionBehaviour {
                 t != InventoryType.BLAST_FURNACE &&
                 t != InventoryType.SMOKER &&
                 t != InventoryType.ANVIL &&
-                t != InventoryType.BEACON) return false
+                t != InventoryType.BEACON &&
+                t != InventoryType.HOPPER &&
+                t != InventoryType.BREWING &&
+                t != InventoryType.DISPENSER &&
+                t != InventoryType.DROPPER) return false
             event.isCancelled = true
             return true
         }
