@@ -22,19 +22,13 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.farmlandStep)),
 
     /**
-     * When a door is opened by a player.
-     */
-    DoorOpen(null, arrayOf(
-        PermissionBehaviour.openDoor)),
-
-    /**
-     * When a device used to activate redstone is interacted with by a player.
-     */
-    RedstoneUse(null, arrayOf(
-        PermissionBehaviour.redstoneInteract)),
-
-    /**
      * When a block is interacted with by a player.
+     */
+    Inventory(null, arrayOf(
+        PermissionBehaviour.openInventory)),
+
+    /**
+     * When an item is taken or put in display blocks
      */
     DisplayTake(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
@@ -44,11 +38,20 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.miscEntityDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayDamage)),
 
+    SignEdit(null, arrayOf(
+        PermissionBehaviour.signEditing)),
+
     /**
-     * When a block is interacted with by a player.
+     * When a device used to activate redstone is interacted with by a player.
      */
-    Inventory(null, arrayOf(
-        PermissionBehaviour.openInventory)),
+    RedstoneUse(null, arrayOf(
+        PermissionBehaviour.redstoneInteract)),
+
+    /**
+     * When a door is opened by a player.
+     */
+    DoorOpen(null, arrayOf(
+        PermissionBehaviour.openDoor)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
