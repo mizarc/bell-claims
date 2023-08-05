@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.listeners
 
+import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -83,6 +84,8 @@ class PermissionBehaviour {
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
 
+        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, ::cancelFlowerPotInteract, ::getPlayerFlowerPotManipulateLocation, ::getPlayerFlowerPotManipulatePlayer)
+
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
         val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
 
@@ -161,6 +164,22 @@ class PermissionBehaviour {
             return event.rightClicked.location
         }
 
+        private fun cancelFlowerPotInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFlowerPotManipulateEvent) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.flowerpot.location
+        }
+
         /**
          * Get the location of an entity being placed.
          */
@@ -169,7 +188,6 @@ class PermissionBehaviour {
             val block = event.clickedBlock ?: return false
             if (block.type != Material.ITEM_FRAME &&
                 block.type != Material.GLOW_ITEM_FRAME &&
-                block.type != Material.FLOWER_POT &&
                 block.type != Material.CHISELED_BOOKSHELF &&
                 block.type != Material.JUKEBOX &&
                 block.blockData !is Sign) return false
