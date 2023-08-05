@@ -12,18 +12,34 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     Build(null, arrayOf(
         PermissionBehaviour.blockBreak,
         PermissionBehaviour.blockPlace,
+        PermissionBehaviour.blockMultiPlace,
         PermissionBehaviour.entityPlace,
         PermissionBehaviour.specialEntityDamage,
         PermissionBehaviour.fluidPlace,
         PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.hangingEntityBreak,
-        PermissionBehaviour.fertilize)),
+        PermissionBehaviour.fertilize,
+        PermissionBehaviour.farmlandStep)),
 
     /**
-     * When a door is opened by a player.
+     * When a block is interacted with by a player.
      */
-    DoorOpen(null, arrayOf(
-        PermissionBehaviour.openDoor)),
+    Inventory(null, arrayOf(
+        PermissionBehaviour.openInventory)),
+
+    /**
+     * When an item is taken or put in display blocks
+     */
+    DisplayTake(null, arrayOf(
+        PermissionBehaviour.armorStandManipulate,
+        PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.flowerPotManipulate,
+        PermissionBehaviour.miscDisplayInteractions,
+        PermissionBehaviour.miscEntityDisplayInteractions,
+        PermissionBehaviour.miscEntityDisplayDamage)),
+
+    SignEdit(null, arrayOf(
+        PermissionBehaviour.signEditing)),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
@@ -32,20 +48,10 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.redstoneInteract)),
 
     /**
-     * When a block is interacted with by a player.
+     * When a door is opened by a player.
      */
-    DisplayTake(null, arrayOf(
-        PermissionBehaviour.armorStandManipulate,
-        PermissionBehaviour.takeLecternBook,
-        PermissionBehaviour.miscDisplayInteractions,
-        PermissionBehaviour.miscEntityDisplayInteractions,
-        PermissionBehaviour.miscEntityDisplayDamage)),
-
-    /**
-     * When a block is interacted with by a player.
-     */
-    Inventory(null, arrayOf(
-        PermissionBehaviour.openInventory)),
+    DoorOpen(null, arrayOf(
+        PermissionBehaviour.openDoor)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
