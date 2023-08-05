@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims.listeners
 
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
+import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -81,6 +82,8 @@ class PermissionBehaviour {
         // Used for shearing mobs with a shear
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
 
+        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, ::cancelEvent, ::getPlayerOpenSignLocation, ::getPlayerOpenSignPlayer)
+
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
 
@@ -119,6 +122,16 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun getPlayerOpenSignPlayer(event: Event): Player? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerOpenSignLocation(event: Event): Location? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.sign.location
         }
 
         private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
@@ -189,8 +202,7 @@ class PermissionBehaviour {
             if (block.type != Material.ITEM_FRAME &&
                 block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.CHISELED_BOOKSHELF &&
-                block.type != Material.JUKEBOX &&
-                block.blockData !is Sign) return false
+                block.type != Material.JUKEBOX) return false
             event.isCancelled = true
             return true
         }
