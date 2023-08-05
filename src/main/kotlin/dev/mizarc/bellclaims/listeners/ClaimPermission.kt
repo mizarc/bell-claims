@@ -39,6 +39,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     DisplayTake(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
         PermissionBehaviour.takeLecternBook,
+        PermissionBehaviour.flowerPotManipulate,
         PermissionBehaviour.miscDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayDamage)),
