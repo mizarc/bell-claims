@@ -9,7 +9,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
         ClaimPermission.Inventory -> ItemStack(Material.CHEST)
         ClaimPermission.DisplayTake -> ItemStack(Material.ARMOR_STAND)
-        ClaimPermission.VehicleManipulate -> ItemStack(Material.MINECART)
+        ClaimPermission.VehicleDeploy -> ItemStack(Material.MINECART)
         ClaimPermission.SignEdit -> ItemStack(Material.OAK_SIGN)
         ClaimPermission.RedstoneUse -> ItemStack(Material.LEVER)
         ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
@@ -25,7 +25,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.Build -> "Build"
         ClaimPermission.Inventory -> "Inventories"
         ClaimPermission.DisplayTake -> "Display Manipulate"
-        ClaimPermission.VehicleManipulate -> "Vehicle Manipulate"
+        ClaimPermission.VehicleDeploy -> "Vehicle Manipulate"
         ClaimPermission.SignEdit -> "Sign Edit"
         ClaimPermission.RedstoneUse -> "Redstone Interact"
         ClaimPermission.DoorOpen -> "Open Doors"
@@ -41,7 +41,7 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.Build -> "Grants permission to build"
         ClaimPermission.Inventory -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
         ClaimPermission.DisplayTake -> "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
-        ClaimPermission.VehicleManipulate -> "Grants permission to break and place vehicles (Boats, Minecarts)"
+        ClaimPermission.VehicleDeploy -> "Grants permission to break and place vehicles (Boats, Minecarts)"
         ClaimPermission.SignEdit -> "Grants permission to edit signs"
         ClaimPermission.RedstoneUse -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
