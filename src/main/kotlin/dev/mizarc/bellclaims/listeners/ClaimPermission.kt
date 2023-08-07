@@ -41,7 +41,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a vehicle is placed or destroyed.
      */
-    VehicleManipulate(null, arrayOf(
+    VehicleDeploy(null, arrayOf(
         PermissionBehaviour.vehiclePlace,
         PermissionBehaviour.vehicleDestroy)),
 
