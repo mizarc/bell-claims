@@ -28,7 +28,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.openInventory)),
 
     /**
-     * When an item is taken or put in display blocks
+     * When an item is taken or put in display blocks.
      */
     DisplayTake(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
@@ -38,6 +38,15 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.miscEntityDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayDamage)),
 
+    /**
+     * When a vehicle is placed or destroyed.
+     */
+    VehicleManipulate(null, arrayOf(
+        PermissionBehaviour.vehicleDestroy)),
+
+    /**
+     * When the sign edit menu is opened.
+     */
     SignEdit(null, arrayOf(
         PermissionBehaviour.signEditing)),
 
