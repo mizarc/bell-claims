@@ -48,7 +48,7 @@ class PermissionBehaviour {
         val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
 
         // Any entity placing
-        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEntityPlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
@@ -116,7 +116,10 @@ class PermissionBehaviour {
         val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelLeadRemoval, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
 
         // Used for breaking vehicles
-        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent:: class.java, ::cancelEvent, ::getVehicleDestroyLocation, ::getVehicleDestroyPlayer)
+        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, ::cancelEvent, ::getVehicleDestroyLocation, ::getVehicleDestroyPlayer)
+
+        // Used for placing vehicles
+        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelVehiclePlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
         /**
          * Cancel any cancellable event.
@@ -127,6 +130,20 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelVehiclePlace(listener: Listener, event: Event): Boolean {
+            if (event !is EntityPlaceEvent) return false
+            if (event.entity !is Vehicle) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelEntityPlace(listener: Listener, event: Event): Boolean {
+            if (event !is EntityPlaceEvent) return false
+            if (event.entity is Vehicle) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun getVehicleDestroyPlayer(event: Event): Player? {
