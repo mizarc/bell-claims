@@ -11,7 +11,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.DisplayManipulate -> ItemStack(Material.ARMOR_STAND)
         ClaimPermission.VehicleDeploy -> ItemStack(Material.MINECART)
         ClaimPermission.SignEdit -> ItemStack(Material.OAK_SIGN)
-        ClaimPermission.RedstoneUse -> ItemStack(Material.LEVER)
+        ClaimPermission.RedstoneInteract -> ItemStack(Material.LEVER)
         ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
         ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
         ClaimPermission.MobHurt -> ItemStack(Material.IRON_SWORD)
@@ -27,7 +27,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.DisplayManipulate -> "Display Manipulate"
         ClaimPermission.VehicleDeploy -> "Vehicle Deploy"
         ClaimPermission.SignEdit -> "Sign Edit"
-        ClaimPermission.RedstoneUse -> "Redstone Interact"
+        ClaimPermission.RedstoneInteract -> "Redstone Interact"
         ClaimPermission.DoorOpen -> "Door Open"
         ClaimPermission.VillagerTrade -> "Villager Trade"
         ClaimPermission.MobHurt -> "Mob Hurt"
@@ -43,7 +43,7 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.DisplayManipulate -> "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
         ClaimPermission.VehicleDeploy -> "Grants permission to break and place vehicles (Boats, Minecarts)"
         ClaimPermission.SignEdit -> "Grants permission to edit signs"
-        ClaimPermission.RedstoneUse -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
+        ClaimPermission.RedstoneInteract -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
         ClaimPermission.MobHurt -> "Grants permission to damage passive mobs"

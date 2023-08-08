@@ -54,7 +54,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a device used to activate redstone is interacted with by a player.
      */
-    RedstoneUse(null, arrayOf(
+    RedstoneInteract(null, arrayOf(
         PermissionBehaviour.redstoneInteract)),
 
     /**
