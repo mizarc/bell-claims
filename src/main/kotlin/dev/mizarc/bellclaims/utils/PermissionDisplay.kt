@@ -7,7 +7,7 @@ import dev.mizarc.bellclaims.listeners.ClaimPermission
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {
         ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
-        ClaimPermission.Inventory -> ItemStack(Material.CHEST)
+        ClaimPermission.ContainerInspect -> ItemStack(Material.CHEST)
         ClaimPermission.DisplayTake -> ItemStack(Material.ARMOR_STAND)
         ClaimPermission.VehicleDeploy -> ItemStack(Material.MINECART)
         ClaimPermission.SignEdit -> ItemStack(Material.OAK_SIGN)
@@ -23,12 +23,12 @@ fun ClaimPermission.getIcon(): ItemStack {
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
         ClaimPermission.Build -> "Build"
-        ClaimPermission.Inventory -> "Inventories"
+        ClaimPermission.ContainerInspect -> "Container Inspect"
         ClaimPermission.DisplayTake -> "Display Manipulate"
-        ClaimPermission.VehicleDeploy -> "Vehicle Manipulate"
+        ClaimPermission.VehicleDeploy -> "Vehicle Deploy"
         ClaimPermission.SignEdit -> "Sign Edit"
         ClaimPermission.RedstoneUse -> "Redstone Interact"
-        ClaimPermission.DoorOpen -> "Open Doors"
+        ClaimPermission.DoorOpen -> "Door Open"
         ClaimPermission.VillagerTrade -> "Villager Trade"
         ClaimPermission.EntityHurt -> "Mob Hurt"
         ClaimPermission.EntityLeash -> "Mob Leash"
@@ -39,7 +39,7 @@ fun ClaimPermission.getDisplayName(): String {
 fun ClaimPermission.getDescription(): String {
     return when (this) {
         ClaimPermission.Build -> "Grants permission to build"
-        ClaimPermission.Inventory -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
+        ClaimPermission.ContainerInspect -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
         ClaimPermission.DisplayTake -> "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
         ClaimPermission.VehicleDeploy -> "Grants permission to break and place vehicles (Boats, Minecarts)"
         ClaimPermission.SignEdit -> "Grants permission to edit signs"
