@@ -71,12 +71,12 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an entity is hurt by a player.
      */
-    EntityHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
+    MobHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
 
     /**
      * When an entity is leashed by a player.
      */
-    EntityLeash(null, arrayOf(
+    MobLeash(null, arrayOf(
         PermissionBehaviour.leashEntity,
         PermissionBehaviour.fishingRod,
         PermissionBehaviour.takeLeadFromFence)),
@@ -84,7 +84,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an entity is sheared by a player.
      */
-    EntityShear(null, arrayOf(PermissionBehaviour.shearEntity));
+    MobShear(null, arrayOf(PermissionBehaviour.shearEntity));
 
     companion object {
         /**
