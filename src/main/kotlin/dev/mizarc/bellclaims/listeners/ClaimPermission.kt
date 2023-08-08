@@ -30,7 +30,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an item is taken or put in display blocks.
      */
-    DisplayTake(null, arrayOf(
+    DisplayManipulate(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
         PermissionBehaviour.takeLecternBook,
         PermissionBehaviour.flowerPotManipulate,
