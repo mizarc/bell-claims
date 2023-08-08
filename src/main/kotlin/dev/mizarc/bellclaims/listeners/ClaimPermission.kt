@@ -24,13 +24,13 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a block is interacted with by a player.
      */
-    Inventory(null, arrayOf(
+    ContainerInspect(null, arrayOf(
         PermissionBehaviour.openInventory)),
 
     /**
-     * When an item is taken or put in display blocks
+     * When an item is taken or put in display blocks.
      */
-    DisplayTake(null, arrayOf(
+    DisplayManipulate(null, arrayOf(
         PermissionBehaviour.armorStandManipulate,
         PermissionBehaviour.takeLecternBook,
         PermissionBehaviour.flowerPotManipulate,
@@ -38,6 +38,16 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.miscEntityDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayDamage)),
 
+    /**
+     * When a vehicle is placed or destroyed.
+     */
+    VehicleDeploy(null, arrayOf(
+        PermissionBehaviour.vehiclePlace,
+        PermissionBehaviour.vehicleDestroy)),
+
+    /**
+     * When the sign edit menu is opened.
+     */
     SignEdit(null, arrayOf(
         PermissionBehaviour.signEditing)),
 
@@ -61,12 +71,12 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an entity is hurt by a player.
      */
-    EntityHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
+    MobHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
 
     /**
      * When an entity is leashed by a player.
      */
-    EntityLeash(null, arrayOf(
+    MobLeash(null, arrayOf(
         PermissionBehaviour.leashEntity,
         PermissionBehaviour.fishingRod,
         PermissionBehaviour.takeLeadFromFence)),
@@ -74,7 +84,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an entity is sheared by a player.
      */
-    EntityShear(null, arrayOf(PermissionBehaviour.shearEntity));
+    MobShear(null, arrayOf(PermissionBehaviour.shearEntity));
 
     companion object {
         /**

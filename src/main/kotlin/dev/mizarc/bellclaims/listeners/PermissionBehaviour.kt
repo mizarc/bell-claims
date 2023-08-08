@@ -23,6 +23,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
+import org.bukkit.event.vehicle.VehicleDestroyEvent
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
@@ -47,7 +48,7 @@ class PermissionBehaviour {
         val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
 
         // Any entity placing
-        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEvent, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEntityPlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
@@ -82,6 +83,7 @@ class PermissionBehaviour {
         // Used for shearing mobs with a shear
         val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
 
+        // Used for editing sign text
         val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, ::cancelEvent, ::getPlayerOpenSignLocation, ::getPlayerOpenSignPlayer)
 
         // Used for taking and placing armour from armour stand
@@ -113,6 +115,12 @@ class PermissionBehaviour {
         // Used for taking the lead off fences
         val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelLeadRemoval, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
 
+        // Used for breaking vehicles
+        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, ::cancelEvent, ::getVehicleDestroyLocation, ::getVehicleDestroyPlayer)
+
+        // Used for placing vehicles
+        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelVehiclePlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+
         /**
          * Cancel any cancellable event.
          */
@@ -122,6 +130,31 @@ class PermissionBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelVehiclePlace(listener: Listener, event: Event): Boolean {
+            if (event !is EntityPlaceEvent) return false
+            if (event.entity !is Vehicle) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelEntityPlace(listener: Listener, event: Event): Boolean {
+            if (event !is EntityPlaceEvent) return false
+            if (event.entity is Vehicle) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun getVehicleDestroyPlayer(event: Event): Player? {
+            if (event !is VehicleDestroyEvent) return null
+            if (event.attacker !is Player) return null
+            return event.attacker as Player
+        }
+
+        private fun getVehicleDestroyLocation(event: Event): Location? {
+            if (event !is VehicleDestroyEvent) return null
+            return event.vehicle.location
         }
 
         private fun getPlayerOpenSignPlayer(event: Event): Player? {
