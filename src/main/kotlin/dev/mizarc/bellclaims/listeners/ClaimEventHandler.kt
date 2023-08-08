@@ -81,7 +81,6 @@ class ClaimEventHandler(var plugin: BellClaims,
      * executor has the highest priority, then invoke that executor.
      */
     private fun handleClaimPermission(listener: Listener, event: Event) {
-        Bukkit.getLogger().info(event.eventName)
         val eventPerms = ClaimPermission.getPermissionsForEvent(event::class.java).toMutableList() // Get all ClaimPermissions that deal with this event
 
         // Get the top PermissionExecutor that deals with this event.
