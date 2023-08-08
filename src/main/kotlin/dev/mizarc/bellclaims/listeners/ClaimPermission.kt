@@ -24,7 +24,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a block is interacted with by a player.
      */
-    Inventory(null, arrayOf(
+    ContainerInspect(null, arrayOf(
         PermissionBehaviour.openInventory)),
 
     /**
