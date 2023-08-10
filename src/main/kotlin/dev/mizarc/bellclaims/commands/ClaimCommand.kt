@@ -10,7 +10,7 @@ import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.claims.ClaimRuleRepository
 import dev.mizarc.bellclaims.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.getClaimTool
@@ -19,7 +19,7 @@ import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 
 open class ClaimCommand : BaseCommand() {
-    @Dependency protected lateinit var claims : ClaimRepository
+    @Dependency protected lateinit var claims : ClaimRepositoryDatabase
     @Dependency protected lateinit var partitions: PartitionRepository
     @Dependency protected lateinit var playerStates: PlayerStateRepository
     @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository

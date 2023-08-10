@@ -2,7 +2,6 @@ package dev.mizarc.bellclaims.listeners
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -12,7 +11,8 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.partitions.Position3D
 import java.util.*
 
