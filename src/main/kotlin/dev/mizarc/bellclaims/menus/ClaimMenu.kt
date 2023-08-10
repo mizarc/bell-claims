@@ -6,12 +6,12 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import kotlin.math.ceil
 
-class ClaimMenu(private val claimRepo: ClaimRepository, private val player: Player) {
+class ClaimMenu(private val claimRepo: ClaimRepositoryDatabase, private val player: Player) {
     var page = 1
 
     fun openClaimMenu(backCommand: String? = null) {

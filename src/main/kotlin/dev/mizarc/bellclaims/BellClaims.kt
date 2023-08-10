@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
@@ -16,7 +17,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
     val storage = DatabaseStorage(this)
-    val claimRepo = ClaimRepository(storage)
+    private lateinit var claimRepo: ClaimRepository
     val partitionRepo = PartitionRepository(storage)
     val claimPermissionRepo = ClaimPermissionRepository(storage)
     val claimRuleRepo = ClaimRuleRepository(storage)
@@ -28,6 +29,7 @@ class BellClaims : JavaPlugin() {
     val claimVisualiser = ClaimVisualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
+        claimRepo = ClaimRepositoryDatabase(storage)
         logger.info(Chat::class.java.toString())
         val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)
@@ -43,7 +45,7 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerDependencies() {
-        commandManager.registerDependency(ClaimRepository::class.java, claimRepo)
+        commandManager.registerDependency(ClaimRepositoryDatabase::class.java, claimRepo)
         commandManager.registerDependency(PartitionRepository::class.java, partitionRepo)
         commandManager.registerDependency(ClaimRuleRepository::class.java, claimRuleRepo)
         commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepo)

@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.getClaimTool
 import dev.mizarc.bellclaims.getClaimMoveTool
@@ -27,7 +28,7 @@ import dev.mizarc.bellclaims.utils.*
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
-class ClaimManagementMenu(private val claimRepository: ClaimRepository,
+class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                           private val partitionRepository: PartitionRepository,
                           private val claimPermissionRepository: ClaimPermissionRepository,
                           private val playerAccessRepository: PlayerAccessRepository,
@@ -36,7 +37,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
                           private val partitionService: PartitionService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
-        val existingClaim = claimRepository.getByPosition(claimBuilder.position)
+        val existingClaim = claimRepo.getByPosition(claimBuilder.position)
         if (existingClaim == null) {
             openClaimCreationMenu()
             return
@@ -115,12 +116,12 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
         val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             claimBuilder.name = gui.renameText
-            if (claimRepository.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+            if (claimRepo.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
                 openClaimNamingMenu(existingName = true)
                 return@GuiItem
             }
             val claim = claimBuilder.build()
-            claimRepository.add(claim)
+            claimRepo.add(claim)
             val partition = Partition(claim.id, Area(
                 Position2D(claim.position.x - 5, claim.position.z - 5),
                 Position2D(claim.position.x + 5, claim.position.z + 5)))
@@ -255,7 +256,7 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             // Set icon if item in slot
             if (newIcon != null) {
                 claim.icon = newIcon.type
-                claimRepository.update(claim)
+                claimRepo.update(claim)
                 openClaimEditMenu(claim)
             }
 
@@ -301,13 +302,13 @@ class ClaimManagementMenu(private val claimRepository: ClaimRepository,
             }
 
             // Stay on menu if the name is already taken
-            if (claimRepository.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+            if (claimRepo.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
                 openClaimRenamingMenu(claim, existingName = true)
                 return@GuiItem
             }
 
             claim.name = gui.renameText
-            claimRepository.update(claim)
+            claimRepo.update(claim)
             openClaimEditMenu(claim)
             guiEvent.isCancelled = true
         }

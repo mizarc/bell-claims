@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims
 
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.claims.*

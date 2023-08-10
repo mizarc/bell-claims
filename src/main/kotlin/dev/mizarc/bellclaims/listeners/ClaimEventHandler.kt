@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.listeners
 
-import net.md_5.bungee.api.ChatColor
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -9,15 +8,15 @@ import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.BellClaims
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.claims.ClaimRuleRepository
 import dev.mizarc.bellclaims.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.Bukkit
 
 /**
  * Handles the registration of defined events with their associated actions.

@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.claims
 
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -9,7 +10,7 @@ import java.sql.SQLException
 import java.time.Instant
 import java.util.*
 
-class ClaimRepository(private val storage: DatabaseStorage) {
+class ClaimRepositoryDatabase(private val storage: DatabaseStorage): ClaimRepository {
     val claims: MutableMap<UUID, Claim> = mutableMapOf()
 
     init {
@@ -35,23 +36,23 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun getAll(): Set<Claim> {
+    override fun getAll(): Set<Claim> {
         return claims.values.toSet()
     }
 
-    fun getById(id: UUID): Claim? {
+    override fun getById(id: UUID): Claim? {
         return claims[id]
     }
 
-    fun getByPlayer(player: OfflinePlayer): Set<Claim> {
+    override fun getByPlayer(player: OfflinePlayer): Set<Claim> {
         return claims.values.filter { it.owner.uniqueId == player.uniqueId }.toSet()
     }
 
-    fun getByPosition(position: Position3D): Claim? {
+    override fun getByPosition(position: Position3D): Claim? {
         return claims.values.firstOrNull { it.position == position }
     }
 
-    fun add(claim: Claim) {
+    override fun add(claim: Claim) {
         claims[claim.id] = claim
         try {
             storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, creationTime, name, " +
@@ -63,7 +64,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun update(claim: Claim) {
+    override fun update(claim: Claim) {
         claims.remove(claim.id)
         claims[claim.id] = claim
         try {
@@ -76,7 +77,7 @@ class ClaimRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun remove(claim: Claim) {
+    override fun remove(claim: Claim) {
         claims.remove(claim.id)
         try {
             storage.connection.executeUpdate("DELETE FROM claims WHERE id=?;", claim.id)

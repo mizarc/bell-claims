@@ -4,10 +4,8 @@ import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.ChatInfoBuilder
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import kotlin.math.ceil
@@ -15,7 +13,7 @@ import kotlin.math.ceil
 @CommandAlias("claimlist")
 class ClaimlistCommand : BaseCommand() {
     @Dependency
-    lateinit var claims: ClaimRepository
+    lateinit var claims: ClaimRepositoryDatabase
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
     protected lateinit var claimService: ClaimService

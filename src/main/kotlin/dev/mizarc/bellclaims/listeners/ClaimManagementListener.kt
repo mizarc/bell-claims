@@ -2,7 +2,6 @@ package dev.mizarc.bellclaims.listeners
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -10,6 +9,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.menus.ClaimManagementMenu
 import dev.mizarc.bellclaims.partitions.PartitionRepository

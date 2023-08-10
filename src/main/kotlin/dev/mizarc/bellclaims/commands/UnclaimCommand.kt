@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.claims.ClaimRepository
+import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.listeners.ClaimVisualiser
 import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
@@ -14,7 +14,7 @@ import dev.mizarc.bellclaims.players.PlayerStateRepository
 @CommandAlias("unclaim")
 class UnclaimCommand : BaseCommand() {
     @Dependency
-    lateinit var claims : ClaimRepository
+    lateinit var claims : ClaimRepositoryDatabase
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
     lateinit var claimVisualiser: ClaimVisualiser
