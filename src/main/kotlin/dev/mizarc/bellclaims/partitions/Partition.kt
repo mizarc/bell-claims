@@ -22,8 +22,8 @@ data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
      * @param world The world of the position.
      * @return True if the position is within the partition.
      */
-    fun isPositionInPartition(position2D: Position2D): Boolean {
-        return (area.isPositionInArea(position2D))
+    fun isPositionInPartition(position: Position): Boolean {
+        return (area.isPositionInArea(position))
     }
 
     /**
@@ -68,8 +68,8 @@ data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
      * @return List of chunk positions.
      */
     fun getChunks(): ArrayList<Position2D> {
-        val firstChunk = area.lowerPosition2D.toChunk()
-        val secondChunk = area.upperPosition2D.toChunk()
+        val firstChunk = area.lowerPosition2D.getChunk()
+        val secondChunk = area.upperPosition2D.getChunk()
 
         val chunks: ArrayList<Position2D> = ArrayList()
         for (x in firstChunk.x..secondChunk.x) {

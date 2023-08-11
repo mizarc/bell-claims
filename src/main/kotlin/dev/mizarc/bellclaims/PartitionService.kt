@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims
 
-import net.kyori.adventure.text.BlockNBTComponent.Pos
-import org.bukkit.Bukkit
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
@@ -15,7 +14,8 @@ import kotlin.collections.ArrayList
  * A service class that allows for the querying and modification of partitions in the world.
  */
 class PartitionService(private val config: Config, private val claimService: ClaimService,
-                       private val partitionRepo: PartitionRepository) {
+                       private val partitionRepo: PartitionRepository
+) {
 
     /**
      * An enum representing the result of a partition creation operation.
@@ -48,7 +48,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
      * @return True if the location exists within a partition, false otherwise.
      */
     fun isLocationOverlap(location: Location): Boolean {
-        val chunk = Position2D(location).toChunk()
+        val chunk = Position2D(location).getChunk()
         val partitionsInChunk = filterByWorld(location.world!!.uid, partitionRepo.getByChunk(chunk))
         for (partition in partitionsInChunk) {
             if (partition.isPositionInPartition(Position2D(location))) {
@@ -353,7 +353,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
 
     private fun isResizeResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claimService.getById(partition.claimId) ?: return false
-        val claimPartitions = partitionRepo.getByClaim(claim)
+        val claimPartitions = partitionRepo.getByClaim(claim).toMutableSet()
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
         claimPartitions.removeAll { it.id == partition.id }
@@ -371,7 +371,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
 
     fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {
         val claim = claimService.getById(partition.claimId) ?: return false
-        val claimPartitions = partitionRepo.getByClaim(claim)
+        val claimPartitions = partitionRepo.getByClaim(claim).toMutableSet()
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
             .intersect(claimPartitions.toSet()).first()
         claimPartitions.remove(partition)
@@ -386,7 +386,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
         return false
     }
 
-    private fun isPartitionDisconnected(partition: Partition, testPartitions: ArrayList<Partition>): Boolean {
+    private fun isPartitionDisconnected(partition: Partition, testPartitions: Set<Partition>): Boolean {
         val claim = claimService.getById(partition.claimId) ?: return false
         val claimPartitions = partitionRepo.getByClaim(claim)
         val mainPartition = partitionRepo.getByPosition(Position2D(claim.position))
@@ -441,8 +441,7 @@ class PartitionService(private val config: Config, private val claimService: Cla
         return positions
     }
 
-    private fun getLinked(partition: Partition, testPartitions: ArrayList<Partition>): ArrayList<Partition> {
-        return testPartitions.filter { it.isPartitionLinked(partition) && it.claimId == partition.claimId }
-                as ArrayList<Partition>
+    private fun getLinked(partition: Partition, testPartitions: Set<Partition>): Set<Partition> {
+        return testPartitions.filter { it.isPartitionLinked(partition) && it.claimId == partition.claimId }.toSet()
     }
 }

@@ -2,13 +2,14 @@ package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.commands.*
 import dev.mizarc.bellclaims.listeners.*
-import dev.mizarc.bellclaims.partitions.PartitionRepository
+import dev.mizarc.bellclaims.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import dev.mizarc.bellclaims.storage.DatabaseStorage
 
@@ -18,7 +19,7 @@ class BellClaims : JavaPlugin() {
     internal var config: Config = Config(this)
     val storage = DatabaseStorage(this)
     private lateinit var claimRepo: ClaimRepository
-    val partitionRepo = PartitionRepository(storage)
+    private lateinit var partitionRepo: PartitionRepository
     val claimPermissionRepo = ClaimPermissionRepository(storage)
     val claimRuleRepo = ClaimRuleRepository(storage)
     val playerAccessRepo = PlayerAccessRepository(storage)
@@ -30,6 +31,7 @@ class BellClaims : JavaPlugin() {
 
     override fun onEnable() {
         claimRepo = ClaimRepositoryDatabase(storage)
+        partitionRepo = PartitionRepositorySQLite(storage)
         logger.info(Chat::class.java.toString())
         val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)
