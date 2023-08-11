@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.getClaimTool
 import dev.mizarc.bellclaims.getClaimMoveTool
@@ -22,7 +23,6 @@ import dev.mizarc.bellclaims.listeners.ClaimPermission
 import dev.mizarc.bellclaims.listeners.ClaimRule
 import dev.mizarc.bellclaims.partitions.Area
 import dev.mizarc.bellclaims.partitions.Partition
-import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.partitions.Position2D
 import dev.mizarc.bellclaims.utils.*
 import kotlin.concurrent.thread

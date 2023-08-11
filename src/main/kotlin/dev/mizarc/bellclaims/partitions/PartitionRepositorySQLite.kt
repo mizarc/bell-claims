@@ -1,13 +1,14 @@
 package dev.mizarc.bellclaims.partitions
 
 import co.aikar.idb.Database
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.Claim
 import dev.mizarc.bellclaims.storage.Storage
 import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PartitionRepository(private val storage: Storage<Database>) {
+class PartitionRepositorySQLite(private val storage: Storage<Database>): PartitionRepository {
     var partitions: MutableMap<UUID, Partition> = mutableMapOf()
     var chunkPartitions: MutableMap<Position2D, ArrayList<UUID>> = mutableMapOf()
 
@@ -16,27 +17,27 @@ class PartitionRepository(private val storage: Storage<Database>) {
         preload()
     }
 
-    fun getAll(): Set<Partition> {
+    override fun getAll(): Set<Partition> {
         return partitions.values.toSet()
     }
 
-    fun getById(id: UUID): Partition? {
+    override fun getById(id: UUID): Partition? {
         return partitions[id]
     }
 
-    fun getByClaim(claim: Claim): ArrayList<Partition> {
+    override fun getByClaim(claim: Claim): Set<Partition> {
         val foundPartitions = ArrayList<Partition>()
         for (partition in partitions.values) {
             if (partition.claimId == claim.id) {
                 foundPartitions.add(partition)
             }
         }
-        return foundPartitions
+        return foundPartitions.toSet()
     }
 
-    fun getByChunk(position2D: Position2D): Set<Partition> {
+    override fun getByChunk(position: Position): Set<Partition> {
         val foundPartitions = mutableSetOf<Partition>()
-        val localChunkPartitions = chunkPartitions[position2D] ?: return setOf()
+        val localChunkPartitions = chunkPartitions[position] ?: return setOf()
 
         for (id in localChunkPartitions) {
             foundPartitions.add(partitions[id] ?: continue)
@@ -45,54 +46,54 @@ class PartitionRepository(private val storage: Storage<Database>) {
         return foundPartitions
     }
 
-    fun getByPosition(position2D: Position2D): ArrayList<Partition> {
-        val partitionsInChunk = getByChunk(position2D.toChunk())
+    override fun getByPosition(position: Position): Set<Partition> {
+        val partitionsInChunk = getByChunk(position)
         val partitionsInPosition = ArrayList<Partition>()
         for (partition in partitionsInChunk) {
-            if (partition.isPositionInPartition(position2D)) {
+            if (partition.isPositionInPartition(position)) {
                 partitionsInPosition.add(partition)
             }
         }
-        return partitionsInPosition
+        return partitionsInPosition.toSet()
     }
 
-    fun add(entity: Partition) {
-        addToMemory(entity)
+    override fun add(partition: Partition) {
+        addToMemory(partition)
         try {
             storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, lowerPositionX, " +
                     "lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
-                entity.id, entity.claimId, entity.area.lowerPosition2D.x, entity.area.lowerPosition2D.z,
-                entity.area.upperPosition2D.x, entity.area.upperPosition2D.z)
+                partition.id, partition.claimId, partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z,
+                partition.area.upperPosition2D.x, partition.area.upperPosition2D.z)
             return
         } catch (error: SQLException) {
             error.printStackTrace()
         }
     }
 
-    fun update(entity: Partition) {
-        removeFromMemory(entity)
-        addToMemory(entity)
+    override fun update(partition: Partition) {
+        removeFromMemory(partition)
+        addToMemory(partition)
         try {
             storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
-                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", entity.claimId,
-                entity.area.lowerPosition2D.x,  entity.area.lowerPosition2D.z, entity.area.upperPosition2D.x,
-                entity.area.upperPosition2D.z, entity.id)
+                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", partition.claimId,
+                partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z, partition.area.upperPosition2D.x,
+                partition.area.upperPosition2D.z, partition.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
     }
 
-    fun remove(entity: Partition) {
-        removeFromMemory(entity)
+    override fun remove(partition: Partition) {
+        removeFromMemory(partition)
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;", entity.id)
+            storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;", partition.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
         return
     }
 
-    fun removeByClaim(claim: Claim) {
+    override fun removeByClaim(claim: Claim) {
         val partitions = getByClaim(claim)
         for (partition in partitions) {
             removeFromMemory(partition)

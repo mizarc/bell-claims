@@ -7,7 +7,7 @@ import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
 import dev.mizarc.bellclaims.listeners.ClaimVisualiser
-import dev.mizarc.bellclaims.partitions.PartitionRepository
+import dev.mizarc.bellclaims.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 
 
@@ -15,7 +15,7 @@ import dev.mizarc.bellclaims.players.PlayerStateRepository
 class UnclaimCommand : BaseCommand() {
     @Dependency
     lateinit var claims : ClaimRepositoryDatabase
-    lateinit var partitions: PartitionRepository
+    lateinit var partitions: PartitionRepositorySQLite
     lateinit var playerStates: PlayerStateRepository
     lateinit var claimVisualiser: ClaimVisualiser
     protected lateinit var claimService: ClaimService

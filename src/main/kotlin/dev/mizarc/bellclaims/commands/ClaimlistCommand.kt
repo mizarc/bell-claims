@@ -5,8 +5,8 @@ import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.ClaimService
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
-import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import kotlin.math.ceil
 

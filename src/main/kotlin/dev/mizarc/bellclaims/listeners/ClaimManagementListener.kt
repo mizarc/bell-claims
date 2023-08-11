@@ -10,9 +10,9 @@ import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.menus.ClaimManagementMenu
-import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.partitions.Position3D
 
 class ClaimManagementListener(private val claimRepository: ClaimRepository,

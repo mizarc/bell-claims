@@ -606,7 +606,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise a player's claims with individual partitions shown.
      */
     fun updatePartitionVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
@@ -661,7 +661,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise all of a player's claims with only outer borders.
      */
     fun updateClaimVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
@@ -747,7 +747,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise claims that aren't owned by the player.
      */
     fun updateOthersVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).toChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
             partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
@@ -1037,7 +1037,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != world) continue
             val playerState = playerStateRepo.get(player) ?: continue
-            if (finalChunks.contains(Position2D(player.location).toChunk()) && playerState.isVisualisingClaims) {
+            if (finalChunks.contains(Position2D(player.location).getChunk()) && playerState.isVisualisingClaims) {
                 players.add(player)
             }
         }

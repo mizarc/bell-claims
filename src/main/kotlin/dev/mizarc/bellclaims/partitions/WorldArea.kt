@@ -2,21 +2,4 @@ package dev.mizarc.bellclaims.partitions
 
 import java.util.*
 
-class WorldArea(lowerPosition2D: Position2D, upperPosition2D: Position2D, val worldId: UUID): Area(lowerPosition2D, upperPosition2D) {
-
-    constructor(area: Area, worldId: UUID): this(area.lowerPosition2D, area.upperPosition2D, worldId)
-
-    fun getWorldChunks(): ArrayList<Position2D> {
-        val firstChunk = lowerPosition2D.getChunk()
-        val secondChunk = upperPosition2D.getChunk()
-
-        val chunks: ArrayList<Position2D> = ArrayList()
-        for (x in firstChunk.x..secondChunk.x) {
-            for (z in firstChunk.z..secondChunk.z) {
-                chunks.add(Position2D(x, z))
-            }
-        }
-
-        return chunks
-    }
-}
+class WorldArea(area: Area, val worldId: UUID)

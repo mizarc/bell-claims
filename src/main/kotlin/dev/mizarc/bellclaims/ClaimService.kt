@@ -1,11 +1,11 @@
 package dev.mizarc.bellclaims
 
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.listeners.ClaimRule
-import dev.mizarc.bellclaims.partitions.PartitionRepository
 import dev.mizarc.bellclaims.partitions.Position3D
 import dev.mizarc.bellclaims.players.PlayerStateRepository
 import java.util.UUID
