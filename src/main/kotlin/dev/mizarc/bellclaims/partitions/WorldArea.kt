@@ -7,8 +7,8 @@ class WorldArea(lowerPosition2D: Position2D, upperPosition2D: Position2D, val wo
     constructor(area: Area, worldId: UUID): this(area.lowerPosition2D, area.upperPosition2D, worldId)
 
     fun getWorldChunks(): ArrayList<Position2D> {
-        val firstChunk = lowerPosition2D.toChunk()
-        val secondChunk = upperPosition2D.toChunk()
+        val firstChunk = lowerPosition2D.getChunk()
+        val secondChunk = upperPosition2D.getChunk()
 
         val chunks: ArrayList<Position2D> = ArrayList()
         for (x in firstChunk.x..secondChunk.x) {

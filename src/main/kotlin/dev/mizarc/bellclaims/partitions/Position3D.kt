@@ -8,7 +8,7 @@ import org.bukkit.World
  * @property x The X-Axis position.
  * @property z The Z-Axis position.
  */
-data class Position3D(override val x: Int, val y: Int, override val z: Int): Position(x, z) {
+data class Position3D(override val x: Int, override val y: Int, override val z: Int): Position(x, y, z) {
     constructor(location: Location): this(location.blockX, location.blockY, location.blockZ)
 
     fun toLocation(world: World): Location {
