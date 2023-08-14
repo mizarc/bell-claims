@@ -6,14 +6,15 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.ClaimService
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
-import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
-import dev.mizarc.bellclaims.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
 class ClaimlistCommand : BaseCommand() {
     @Dependency
-    lateinit var claims: ClaimRepositoryDatabase
+    lateinit var claims: ClaimRepositorySQLite
     lateinit var partitions: PartitionRepository
     lateinit var playerStates: PlayerStateRepository
     protected lateinit var claimService: ClaimService
@@ -42,7 +43,7 @@ class ClaimlistCommand : BaseCommand() {
         }
 
         // Output list of trusted players
-        val chatInfo = dev.mizarc.bellclaims.ChatInfoBuilder("Claims")
+        val chatInfo = ChatInfoBuilder("Claims")
         for (i in 0..9 + page) {
             if (i > playerClaims.count() - 1) {
                 break

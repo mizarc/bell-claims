@@ -4,7 +4,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.ChatInfoBuilder
+import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -27,7 +27,7 @@ class InfoCommand : ClaimCommand() {
         val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
             .withLocale(Locale.UK)
             .withZone(ZoneId.systemDefault())
-        val chatInfo = dev.mizarc.bellclaims.ChatInfoBuilder("$name Summary")
+        val chatInfo = ChatInfoBuilder("$name Summary")
         if (claim.description.isEmpty()) {
             chatInfo.addParagraph(claim.description)
             chatInfo.addSpace()

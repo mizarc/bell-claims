@@ -1,7 +1,6 @@
-package dev.mizarc.bellclaims.claims
+package dev.mizarc.bellclaims.domain.claims
 
-import org.bukkit.Bukkit
-import dev.mizarc.bellclaims.storage.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
 import dev.mizarc.bellclaims.listeners.ClaimRule
 import java.sql.SQLException
 import java.util.*

@@ -1,12 +1,8 @@
-package dev.mizarc.bellclaims.players
+package dev.mizarc.bellclaims.infrastructure.players
 
-import co.aikar.idb.Database
-import net.milkbowl.vault.chat.Chat
+import dev.mizarc.bellclaims.domain.players.PlayerState
 import org.bukkit.OfflinePlayer
-import dev.mizarc.bellclaims.Config
-import dev.mizarc.bellclaims.storage.Storage
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Holds a collection of every player on the server.

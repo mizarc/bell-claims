@@ -11,13 +11,14 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.EquipmentSlot
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
-import dev.mizarc.bellclaims.claims.Claim
-import dev.mizarc.bellclaims.players.PlayerStateRepository
-import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
-import dev.mizarc.bellclaims.getClaimTool
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.menus.EditToolMenu
+import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.partitions.*
 import java.util.*
 
@@ -27,7 +28,8 @@ import java.util.*
  */
 class ClaimToolListener(val claims: ClaimRepository, val playerStates: PlayerStateRepository,
                         val claimService: ClaimService, val partitionService: PartitionService,
-                        val claimVisualiser: ClaimVisualiser) : Listener {
+                        val claimVisualiser: ClaimVisualiser
+) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
 

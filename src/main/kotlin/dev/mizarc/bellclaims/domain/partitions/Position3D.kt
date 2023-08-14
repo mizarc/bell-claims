@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.partitions
+package dev.mizarc.bellclaims.domain.partitions
 
 import org.bukkit.Location
 import org.bukkit.World

@@ -6,14 +6,14 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
-import dev.mizarc.bellclaims.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 
@@ -30,7 +30,8 @@ class ClaimEventHandler(var plugin: BellClaims,
                         val playerAccessRepository: PlayerAccessRepository,
                         val playerStates: PlayerStateRepository,
                         val claimService: ClaimService,
-                        val partitionService: PartitionService) : Listener {
+                        val partitionService: PartitionService
+) : Listener {
     init {
         for (perm in ClaimPermission.values()) {
             for (e in perm.events) {

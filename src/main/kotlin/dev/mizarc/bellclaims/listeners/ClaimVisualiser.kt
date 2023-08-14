@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.listeners
 
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -14,16 +13,14 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
-import dev.mizarc.bellclaims.claims.Claim
-import dev.mizarc.bellclaims.getClaimTool
-import dev.mizarc.bellclaims.partitions.Partition
-import dev.mizarc.bellclaims.partitions.Position2D
-import dev.mizarc.bellclaims.partitions.Position3D
-import dev.mizarc.bellclaims.players.PlayerStateRepository
-import java.util.*
+import dev.mizarc.bellclaims.infrastructure.PartitionService
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position2D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 
@@ -33,7 +30,8 @@ private const val lowerRange = 50
 class ClaimVisualiser(private val plugin: JavaPlugin,
                       private val claimService: ClaimService,
                       private val partitionService: PartitionService,
-                      private val playerStateRepo: PlayerStateRepository) : Listener {
+                      private val playerStateRepo: PlayerStateRepository
+) : Listener {
 
     enum class Direction {
         North,

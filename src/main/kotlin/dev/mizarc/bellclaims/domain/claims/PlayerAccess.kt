@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.claims
+package dev.mizarc.bellclaims.domain.claims
 
 import dev.mizarc.bellclaims.listeners.ClaimPermission
 import java.util.*

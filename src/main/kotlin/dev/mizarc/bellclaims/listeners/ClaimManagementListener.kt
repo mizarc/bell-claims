@@ -8,12 +8,16 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.*
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.menus.ClaimManagementMenu
-import dev.mizarc.bellclaims.partitions.Position3D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 
 class ClaimManagementListener(private val claimRepository: ClaimRepository,
                               private val partitionRepository: PartitionRepository,
@@ -39,7 +43,8 @@ class ClaimManagementListener(private val claimRepository: ClaimRepository,
         }
 
         val claimBuilder = Claim.Builder(event.player,
-            event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location))
+            event.clickedBlock!!.location.world, Position3D(event.clickedBlock!!.location)
+        )
         ClaimManagementMenu(claimRepository, partitionRepository, claimPermissionRepository,
             playerAccessRepository, claimRuleRepository, claimService, partitionService, claimBuilder)
             .openClaimManagementMenu()

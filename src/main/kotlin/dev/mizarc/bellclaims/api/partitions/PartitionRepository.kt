@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.api.partitions
 
-import dev.mizarc.bellclaims.claims.Claim
-import dev.mizarc.bellclaims.partitions.Partition
-import dev.mizarc.bellclaims.partitions.Position
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position
 import java.util.*
 
 interface PartitionRepository {

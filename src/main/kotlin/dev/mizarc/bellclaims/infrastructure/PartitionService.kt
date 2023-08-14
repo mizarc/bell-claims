@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims
+package dev.mizarc.bellclaims.infrastructure
 
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import org.bukkit.Chunk
@@ -6,6 +6,10 @@ import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.claims.*
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.partitions.Area
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.partitions.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -73,10 +77,12 @@ class PartitionService(private val config: Config, private val claimService: Cla
 
         var newArea = area
         if (config.distanceBetweenClaims > 0) {
-            newArea = Area(Position2D(area.lowerPosition2D.x - config.distanceBetweenClaims,
+            newArea = Area(
+                Position2D(area.lowerPosition2D.x - config.distanceBetweenClaims,
                 area.lowerPosition2D.z - config.distanceBetweenClaims),
                 Position2D(area.upperPosition2D.x + config.distanceBetweenClaims,
-                    area.upperPosition2D.z + config.distanceBetweenClaims))
+                    area.upperPosition2D.z + config.distanceBetweenClaims)
+            )
         }
 
         for (existingPartition in existingPartitions) {
@@ -132,10 +138,12 @@ class PartitionService(private val config: Config, private val claimService: Cla
 
         var newArea = partition.area
         if (config.distanceBetweenClaims > 0) {
-            newArea = Area(Position2D( partition.area.lowerPosition2D.x - config.distanceBetweenClaims,
+            newArea = Area(
+                Position2D( partition.area.lowerPosition2D.x - config.distanceBetweenClaims,
                 partition.area.lowerPosition2D.z - config.distanceBetweenClaims),
                 Position2D( partition.area.upperPosition2D.x + config.distanceBetweenClaims,
-                    partition.area.upperPosition2D.z + config.distanceBetweenClaims))
+                    partition.area.upperPosition2D.z + config.distanceBetweenClaims)
+            )
         }
 
         existingPartitions.removeAll { it.id == partition.id }

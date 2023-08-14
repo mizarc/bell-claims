@@ -10,8 +10,6 @@ import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.getClaimMoveTool
-import dev.mizarc.bellclaims.getClaimTool
 import dev.mizarc.bellclaims.utils.getStringMeta
 
 

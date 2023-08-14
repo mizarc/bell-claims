@@ -8,10 +8,18 @@ import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import dev.mizarc.bellclaims.claims.*
 import dev.mizarc.bellclaims.commands.*
+import dev.mizarc.bellclaims.infrastructure.Config
+import dev.mizarc.bellclaims.infrastructure.PartitionService
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.commands.*
+import dev.mizarc.bellclaims.infrastructure.listeners.*
 import dev.mizarc.bellclaims.listeners.*
-import dev.mizarc.bellclaims.partitions.PartitionRepositorySQLite
-import dev.mizarc.bellclaims.players.PlayerStateRepository
-import dev.mizarc.bellclaims.storage.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.partitions.PartitionRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
 
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
@@ -30,7 +38,7 @@ class BellClaims : JavaPlugin() {
     val claimVisualiser = ClaimVisualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
-        claimRepo = ClaimRepositoryDatabase(storage)
+        claimRepo = ClaimRepositorySQLite(storage)
         partitionRepo = PartitionRepositorySQLite(storage)
         logger.info(Chat::class.java.toString())
         val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
@@ -47,7 +55,7 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerDependencies() {
-        commandManager.registerDependency(ClaimRepositoryDatabase::class.java, claimRepo)
+        commandManager.registerDependency(ClaimRepositorySQLite::class.java, claimRepo)
         commandManager.registerDependency(PartitionRepository::class.java, partitionRepo)
         commandManager.registerDependency(ClaimRuleRepository::class.java, claimRuleRepo)
         commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepo)
@@ -76,16 +84,20 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerEvents() {
-        server.pluginManager.registerEvents(ClaimEventHandler(this, claimRepo, partitionRepo,
+        server.pluginManager.registerEvents(
+            ClaimEventHandler(this, claimRepo, partitionRepo,
             claimRuleRepo, claimPermissionRepo, playerAccessRepo, playerStateRepo, claimService, partitionService),
             this)
-        server.pluginManager.registerEvents(ClaimToolListener(claimRepo, playerStateRepo, claimService,
+        server.pluginManager.registerEvents(
+            ClaimToolListener(claimRepo, playerStateRepo, claimService,
             partitionService, claimVisualiser), this)
         server.pluginManager.registerEvents(ClaimVisualiser(this, claimService, partitionService, playerStateRepo), this)
-        server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata,
+        server.pluginManager.registerEvents(
+            PlayerRegistrationListener(config, metadata,
             playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
-        server.pluginManager.registerEvents(ClaimManagementListener(claimRepo, partitionRepo,
+        server.pluginManager.registerEvents(
+            ClaimManagementListener(claimRepo, partitionRepo,
             claimRuleRepo, claimPermissionRepo, playerAccessRepo, partitionService, claimService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimVisualiser), this)
         server.pluginManager.registerEvents(ClaimMoveListener(claimRepo, partitionService), this)

@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.api.claims
 
-import dev.mizarc.bellclaims.claims.Claim
-import dev.mizarc.bellclaims.partitions.Position3D
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.OfflinePlayer
 import java.util.*
 

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.partitions
+package dev.mizarc.bellclaims.domain.partitions
 
 import dev.mizarc.bellclaims.exceptions.IncompleteBuilderException
 import java.util.*

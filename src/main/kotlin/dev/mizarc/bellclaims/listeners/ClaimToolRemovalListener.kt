@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.getClaimTool
+import dev.mizarc.bellclaims.infrastructure.getClaimTool
 
 
 class ClaimToolRemovalListener : Listener {

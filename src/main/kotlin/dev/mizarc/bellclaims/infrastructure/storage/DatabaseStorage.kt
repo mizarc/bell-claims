@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.storage
+package dev.mizarc.bellclaims.infrastructure.storage
 
 import co.aikar.idb.Database
 import co.aikar.idb.DatabaseOptions

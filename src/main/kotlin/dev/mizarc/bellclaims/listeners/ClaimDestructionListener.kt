@@ -8,8 +8,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.partitions.Position3D
-import org.bukkit.Bukkit
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Bisected
