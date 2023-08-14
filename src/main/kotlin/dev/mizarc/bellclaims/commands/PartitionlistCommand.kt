@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.ChatInfoBuilder
+import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import kotlin.math.ceil
 
 @CommandAlias("claim")
@@ -26,7 +26,7 @@ class PartitionlistCommand : ClaimCommand() {
 
         // Output list of partitions
         val name = if (claim.name.isNotEmpty()) claim.name else claim.id.toString().substring(0, 7)
-        val chatInfo = dev.mizarc.bellclaims.ChatInfoBuilder("$name Partitions")
+        val chatInfo = ChatInfoBuilder("$name Partitions")
         for (i in 0..9 + page) {
             if (i > claimPartitions.count() - 1) {
                 break

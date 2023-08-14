@@ -8,18 +8,18 @@ import co.aikar.commands.annotation.Syntax
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
-import dev.mizarc.bellclaims.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
-import dev.mizarc.bellclaims.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.getClaimTool
-import dev.mizarc.bellclaims.partitions.Partition
-import dev.mizarc.bellclaims.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 
 open class ClaimCommand : BaseCommand() {
-    @Dependency protected lateinit var claims : ClaimRepositoryDatabase
+    @Dependency protected lateinit var claims : ClaimRepositorySQLite
     @Dependency protected lateinit var partitions: PartitionRepository
     @Dependency protected lateinit var playerStates: PlayerStateRepository
     @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository

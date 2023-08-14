@@ -13,17 +13,22 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.claims.*
-import dev.mizarc.bellclaims.getClaimTool
-import dev.mizarc.bellclaims.getClaimMoveTool
+import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.listeners.ClaimPermission
 import dev.mizarc.bellclaims.listeners.ClaimRule
-import dev.mizarc.bellclaims.partitions.Area
-import dev.mizarc.bellclaims.partitions.Partition
-import dev.mizarc.bellclaims.partitions.Position2D
+import dev.mizarc.bellclaims.domain.partitions.Area
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position2D
+import dev.mizarc.bellclaims.infrastructure.utils.*
 import dev.mizarc.bellclaims.utils.*
 import kotlin.concurrent.thread
 import kotlin.math.ceil
@@ -65,8 +70,10 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         }
 
         // Check if created claim area would overlap
-        val area = Area(Position2D(claimBuilder.position.x - 5, claimBuilder.position.z - 5),
-            Position2D(claimBuilder.position.x + 5, claimBuilder.position.z + 5))
+        val area = Area(
+            Position2D(claimBuilder.position.x - 5, claimBuilder.position.z - 5),
+            Position2D(claimBuilder.position.x + 5, claimBuilder.position.z + 5)
+        )
         if (partitionService.isAreaOverlap(area, claimBuilder.world.uid)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name("Cannot Create Claim")
@@ -124,7 +131,9 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             claimRepo.add(claim)
             val partition = Partition(claim.id, Area(
                 Position2D(claim.position.x - 5, claim.position.z - 5),
-                Position2D(claim.position.x + 5, claim.position.z + 5)))
+                Position2D(claim.position.x + 5, claim.position.z + 5)
+            )
+            )
             partitionRepository.add(partition)
             openClaimEditMenu(claim)
             guiEvent.isCancelled = true

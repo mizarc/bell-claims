@@ -2,14 +2,12 @@ package dev.mizarc.bellclaims.listeners
 
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
 import org.bukkit.block.data.type.Farmland
-import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
@@ -39,87 +37,87 @@ class PermissionBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
         // Any block breaking
-        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockBreaker)
+        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockBreaker)
 
         // Any block placing
-        val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+        val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockPlacer)
 
         // Multi block placing (Beds are the only thing known to go under this)
-        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockPlacer)
+        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockPlacer)
 
         // Any entity placing
-        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelEntityPlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelEntityPlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
-        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelSpecialEntityEvent, ::getPlayerDamageSpecialLocation, ::getPlayerDamageSpecialPlayer)
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getPlayerDamageSpecialLocation, Companion::getPlayerDamageSpecialPlayer)
 
         // Used for placing fluids such as water and lava
-        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFluidPlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFluidPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for placing fluids such as water and lava
-        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelFarmlandStep, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for placing item frames
-        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelItemFramePlace, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for breaking item frames and paintings
-        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, ::cancelEvent, ::getHangingBreakByEntityEventLocation, ::getHangingBreakByEntityEventPlayer)
+        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEvent, Companion::getHangingBreakByEntityEventLocation, Companion::getHangingBreakByEntityEventPlayer)
 
         // Used for plant fertilisation with bonemeal
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, ::cancelEvent, ::getBlockLocation, ::getBlockFertilizer)
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockFertilizer)
 
         // Used for inventories that either store something or will have an effect in the world from being used
-        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelOpenInventory, ::getInventoryLocation, ::getInventoryInteractPlayer)
+        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelOpenInventory, Companion::getInventoryLocation, Companion::getInventoryInteractPlayer)
 
         // Used for villager trades
-        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, ::cancelVillagerOpen, ::getInventoryLocation, ::getInventoryInteractPlayer)
+        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelVillagerOpen, Companion::getInventoryLocation, Companion::getInventoryInteractPlayer)
 
         // Used for damaging passive mobs
-        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelEntityDamageEvent, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
+        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEntityDamageEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for leashing passive mobs with lead
-        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, ::cancelEvent, ::getLeashEntityLocation, ::getLeashPlayer)
+        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, Companion::cancelEvent, Companion::getLeashEntityLocation, Companion::getLeashPlayer)
 
         // Used for shearing mobs with a shear
-        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, ::cancelEvent, ::getShearEntityLocation, ::getShearPlayer)
+        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, Companion::cancelEvent, Companion::getShearEntityLocation, Companion::getShearPlayer)
 
         // Used for editing sign text
-        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, ::cancelEvent, ::getPlayerOpenSignLocation, ::getPlayerOpenSignPlayer)
+        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent, Companion::getPlayerOpenSignLocation, Companion::getPlayerOpenSignPlayer)
 
         // Used for taking and placing armour from armour stand
-        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, ::cancelEvent, ::getArmorStandLocation, ::getArmorStandManipulator)
+        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, Companion::cancelEvent, Companion::getArmorStandLocation, Companion::getArmorStandManipulator)
 
-        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, ::cancelFlowerPotInteract, ::getPlayerFlowerPotManipulateLocation, ::getPlayerFlowerPotManipulatePlayer)
+        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, Companion::cancelFlowerPotInteract, Companion::getPlayerFlowerPotManipulateLocation, Companion::getPlayerFlowerPotManipulatePlayer)
 
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
-        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelMiscDisplayInteractions, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelMiscDisplayInteractions, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for putting items into entity based holders such as item frames
-        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelMiscEntityDisplayInteractions, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
 
         // Used for taking items out of entities by damaging them such as with item frames
-        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, ::cancelStaticEntityDamage, ::getEntityDamageByEntityLocation, ::getEntityDamageSourcePlayer)
+        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for taking the book out of lecterns
-        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, ::cancelEvent, ::getLecternLocation, ::getLecternPlayer)
+        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, Companion::cancelEvent, Companion::getLecternLocation, Companion::getLecternPlayer)
 
         // Used for opening doors and other openable blocks
-        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelDoorOpen, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDoorOpen, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for blocks that can activate redstone such as buttons and levers
-        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, ::cancelRedstoneInteract, ::getInteractEventLocation, ::getInteractEventPlayer)
+        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRedstoneInteract, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for grabbing mobs with a fishing rod
-        val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, ::cancelFishingEvent, ::getFishingLocation, ::getFishingPlayer)
+        val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, Companion::cancelFishingEvent, Companion::getFishingLocation, Companion::getFishingPlayer)
 
         // Used for taking the lead off fences
-        val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, ::cancelLeadRemoval, ::getPlayerInteractEntityLocation, ::getPlayerInteractEntityPlayer)
+        val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelLeadRemoval, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
 
         // Used for breaking vehicles
-        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, ::cancelEvent, ::getVehicleDestroyLocation, ::getVehicleDestroyPlayer)
+        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, Companion::cancelEvent, Companion::getVehicleDestroyLocation, Companion::getVehicleDestroyPlayer)
 
         // Used for placing vehicles
-        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, ::cancelVehiclePlace, ::getEntityPlaceLocation, ::getEntityPlacePlayer)
+        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelVehiclePlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
 
         /**
          * Cancel any cancellable event.

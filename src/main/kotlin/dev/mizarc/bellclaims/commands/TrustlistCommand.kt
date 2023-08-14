@@ -6,7 +6,7 @@ import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.ChatInfoBuilder
+import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import java.util.*
 import kotlin.math.ceil
 
@@ -33,7 +33,7 @@ class TrustlistCommand : ClaimCommand() {
         }
 
         // Output list of trusted players
-        val chatInfo = dev.mizarc.bellclaims.ChatInfoBuilder("${claim.name} Trusted Players")
+        val chatInfo = ChatInfoBuilder("${claim.name} Trusted Players")
 
         for ((index, entry) in trustedPlayers.entries.withIndex()) {
             if (index >= trustedPlayers.count()) {

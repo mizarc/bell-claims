@@ -19,13 +19,15 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.hangingEntityBreak,
         PermissionBehaviour.fertilize,
-        PermissionBehaviour.farmlandStep)),
+        PermissionBehaviour.farmlandStep
+    )),
 
     /**
      * When a block is interacted with by a player.
      */
     ContainerInspect(null, arrayOf(
-        PermissionBehaviour.openInventory)),
+        PermissionBehaviour.openInventory
+    )),
 
     /**
      * When an item is taken or put in display blocks.
@@ -36,32 +38,37 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.flowerPotManipulate,
         PermissionBehaviour.miscDisplayInteractions,
         PermissionBehaviour.miscEntityDisplayInteractions,
-        PermissionBehaviour.miscEntityDisplayDamage)),
+        PermissionBehaviour.miscEntityDisplayDamage
+    )),
 
     /**
      * When a vehicle is placed or destroyed.
      */
     VehicleDeploy(null, arrayOf(
         PermissionBehaviour.vehiclePlace,
-        PermissionBehaviour.vehicleDestroy)),
+        PermissionBehaviour.vehicleDestroy
+    )),
 
     /**
      * When the sign edit menu is opened.
      */
     SignEdit(null, arrayOf(
-        PermissionBehaviour.signEditing)),
+        PermissionBehaviour.signEditing
+    )),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
      */
     RedstoneInteract(null, arrayOf(
-        PermissionBehaviour.redstoneInteract)),
+        PermissionBehaviour.redstoneInteract
+    )),
 
     /**
      * When a door is opened by a player.
      */
     DoorOpen(null, arrayOf(
-        PermissionBehaviour.openDoor)),
+        PermissionBehaviour.openDoor
+    )),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
@@ -79,7 +86,8 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     MobLeash(null, arrayOf(
         PermissionBehaviour.leashEntity,
         PermissionBehaviour.fishingRod,
-        PermissionBehaviour.takeLeadFromFence)),
+        PermissionBehaviour.takeLeadFromFence
+    )),
 
     /**
      * When an entity is sheared by a player.

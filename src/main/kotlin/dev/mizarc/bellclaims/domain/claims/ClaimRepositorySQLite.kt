@@ -1,16 +1,16 @@
-package dev.mizarc.bellclaims.claims
+package dev.mizarc.bellclaims.domain.claims
 
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
-import dev.mizarc.bellclaims.partitions.Position3D
-import dev.mizarc.bellclaims.storage.DatabaseStorage
+import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
 import java.sql.SQLException
 import java.time.Instant
 import java.util.*
 
-class ClaimRepositoryDatabase(private val storage: DatabaseStorage): ClaimRepository {
+class ClaimRepositorySQLite(private val storage: DatabaseStorage): ClaimRepository {
     val claims: MutableMap<UUID, Claim> = mutableMapOf()
 
     init {

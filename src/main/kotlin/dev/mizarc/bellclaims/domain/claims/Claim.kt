@@ -1,11 +1,11 @@
-package dev.mizarc.bellclaims.claims
+package dev.mizarc.bellclaims.domain.claims
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.partitions.Position3D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread

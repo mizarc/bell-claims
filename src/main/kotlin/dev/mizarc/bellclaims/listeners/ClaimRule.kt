@@ -13,7 +13,8 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
      */
     FireSpread(arrayOf(
         RuleBehaviour.fireSpread,
-        RuleBehaviour.fireBurn)),
+        RuleBehaviour.fireBurn
+    )),
 
     /**
      * When a mob destroys or otherwise changes blocks.
@@ -22,7 +23,8 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
         RuleBehaviour.mobGriefing,
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
-        RuleBehaviour.creeperDamageHangingEntity)),
+        RuleBehaviour.creeperDamageHangingEntity
+    )),
 
     /**
      * When TNT or other entities explode.
@@ -33,14 +35,16 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
         RuleBehaviour.entityExplodeDamage,
         RuleBehaviour.blockExplodeDamage,
         RuleBehaviour.entityExplodeHangingDamage,
-        RuleBehaviour.blockExplodeHangingDamage)),
+        RuleBehaviour.blockExplodeHangingDamage
+    )),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.
      */
     Pistons(arrayOf(
         RuleBehaviour.pistonExtend,
-        RuleBehaviour.pistonRetract));
+        RuleBehaviour.pistonRetract
+    ));
 
     companion object {
         /**

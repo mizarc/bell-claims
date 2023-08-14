@@ -1,6 +1,4 @@
-package dev.mizarc.bellclaims.partitions
-
-import org.bukkit.Location
+package dev.mizarc.bellclaims.domain.partitions
 
 /**
  * Stores two integers to define a flat position in the world.

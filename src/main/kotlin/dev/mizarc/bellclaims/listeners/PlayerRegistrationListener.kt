@@ -4,12 +4,13 @@ import net.milkbowl.vault.chat.Chat
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import dev.mizarc.bellclaims.Config
-import dev.mizarc.bellclaims.players.PlayerStateRepository
-import dev.mizarc.bellclaims.players.PlayerState
+import dev.mizarc.bellclaims.infrastructure.Config
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.players.PlayerState
 
 class PlayerRegistrationListener(val config: Config, val metadata: Chat,
-                                 val playerStateRepository: PlayerStateRepository) : Listener {
+                                 val playerStateRepository: PlayerStateRepository
+) : Listener {
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {

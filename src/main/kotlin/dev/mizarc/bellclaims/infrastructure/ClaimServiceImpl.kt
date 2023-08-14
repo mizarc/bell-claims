@@ -1,21 +1,26 @@
-package dev.mizarc.bellclaims
+package dev.mizarc.bellclaims.infrastructure
 
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.claims.ClaimService
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
-import dev.mizarc.bellclaims.claims.*
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.listeners.ClaimRule
-import dev.mizarc.bellclaims.partitions.Position3D
-import dev.mizarc.bellclaims.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import java.util.UUID
 
-class ClaimService(private val claimRepo: ClaimRepository,
-                   private val partitionRepo: PartitionRepository,
-                   private val claimRuleRepo: ClaimRuleRepository,
-                   private val claimPermissionRepo: ClaimPermissionRepository,
-                   private val playerAccessRepo: PlayerAccessRepository,
-                   private val playerStateRepo: PlayerStateRepository) {
+class ClaimServiceImpl(private val claimRepo: ClaimRepository,
+                       private val partitionRepo: PartitionRepository,
+                       private val claimRuleRepo: ClaimRuleRepository,
+                       private val claimPermissionRepo: ClaimPermissionRepository,
+                       private val playerAccessRepo: PlayerAccessRepository,
+                       private val playerStateRepo: PlayerStateRepository
+): ClaimService {
 
     fun getById(id: UUID): Claim? {
         return claimRepo.getById(id)
@@ -25,11 +30,11 @@ class ClaimService(private val claimRepo: ClaimRepository,
         return claimRepo.getByPlayer(player)
     }
 
-    fun getByLocation(location: Location): Claim? {
+    override fun getByLocation(location: Location): Claim? {
         return claimRepo.getByPosition(Position3D(location))
     }
 
-    fun getBlockCount(claim: Claim): Int {
+    override fun getBlockCount(claim: Claim): Int {
         val claimPartitions = partitionRepo.getByClaim(claim)
         var count = 0
         for (partition in claimPartitions) {

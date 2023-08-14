@@ -10,10 +10,9 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import dev.mizarc.bellclaims.PartitionService
+import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.api.claims.ClaimRepository
-import dev.mizarc.bellclaims.claims.ClaimRepositoryDatabase
-import dev.mizarc.bellclaims.partitions.Position3D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import java.util.*
 
 class ClaimMoveListener(private val claimRepo: ClaimRepository, private val partitionService: PartitionService): Listener {

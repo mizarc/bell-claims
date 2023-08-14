@@ -1,9 +1,13 @@
-package dev.mizarc.bellclaims.partitions
+package dev.mizarc.bellclaims.infrastructure.partitions
 
 import co.aikar.idb.Database
 import dev.mizarc.bellclaims.api.partitions.PartitionRepository
-import dev.mizarc.bellclaims.claims.Claim
-import dev.mizarc.bellclaims.storage.Storage
+import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.partitions.Area
+import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position
+import dev.mizarc.bellclaims.domain.partitions.Position2D
+import dev.mizarc.bellclaims.infrastructure.storage.Storage
 import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
