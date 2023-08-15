@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure
 
-import dev.mizarc.bellclaims.api.partitions.PartitionRepository
+import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer

@@ -1,25 +1,24 @@
 package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
-import dev.mizarc.bellclaims.api.claims.ClaimRepository
-import dev.mizarc.bellclaims.api.partitions.PartitionRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.api.claims.ClaimService
+import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
-import dev.mizarc.bellclaims.claims.*
-import dev.mizarc.bellclaims.commands.*
 import dev.mizarc.bellclaims.infrastructure.Config
 import dev.mizarc.bellclaims.infrastructure.PartitionService
-import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimRepositorySQLite
-import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.infrastructure.commands.*
-import dev.mizarc.bellclaims.infrastructure.listeners.*
-import dev.mizarc.bellclaims.listeners.*
+import dev.mizarc.bellclaims.infrastructure.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.infrastructure.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.infrastructure.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.ClaimServiceImpl
 import dev.mizarc.bellclaims.infrastructure.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
+import dev.mizarc.bellclaims.interaction.commands.*
+import dev.mizarc.bellclaims.interaction.listeners.*
 
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
@@ -32,14 +31,15 @@ class BellClaims : JavaPlugin() {
     val claimRuleRepo = ClaimRuleRepository(storage)
     val playerAccessRepo = PlayerAccessRepository(storage)
     val playerStateRepo = PlayerStateRepository()
-    val claimService = ClaimService(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo,
-        playerAccessRepo, playerStateRepo)
+    private lateinit var claimService: ClaimService
     val partitionService = PartitionService(config, claimService, partitionRepo)
     val claimVisualiser = ClaimVisualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
         claimRepo = ClaimRepositorySQLite(storage)
         partitionRepo = PartitionRepositorySQLite(storage)
+        claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo,
+            claimPermissionRepo, playerAccessRepo, playerStateRepo)
         logger.info(Chat::class.java.toString())
         val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)

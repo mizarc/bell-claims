@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.domain.claims
 
-import dev.mizarc.bellclaims.listeners.ClaimPermission
+import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import java.util.*
 
 /**
