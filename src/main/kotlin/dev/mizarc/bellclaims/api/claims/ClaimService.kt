@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.api.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.listeners.ClaimRule
+import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
 import org.bukkit.Location
 
 interface ClaimService {

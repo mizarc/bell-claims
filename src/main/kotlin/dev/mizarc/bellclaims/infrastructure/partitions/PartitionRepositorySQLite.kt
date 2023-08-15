@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.partitions
 
 import co.aikar.idb.Database
-import dev.mizarc.bellclaims.api.partitions.PartitionRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Partition

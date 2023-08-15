@@ -1,15 +1,15 @@
 package dev.mizarc.bellclaims.infrastructure
 
-import dev.mizarc.bellclaims.api.claims.ClaimRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.api.claims.ClaimService
-import dev.mizarc.bellclaims.api.partitions.PartitionRepository
+import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.listeners.ClaimRule
+import dev.mizarc.bellclaims.infrastructure.claims.ClaimPermissionRepository
+import dev.mizarc.bellclaims.infrastructure.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.infrastructure.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import java.util.UUID

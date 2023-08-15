@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.domain.partitions
 
-import dev.mizarc.bellclaims.exceptions.IncompleteBuilderException
+import dev.mizarc.bellclaims.domain.exceptions.IncompleteBuilderException
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.absoluteValue
