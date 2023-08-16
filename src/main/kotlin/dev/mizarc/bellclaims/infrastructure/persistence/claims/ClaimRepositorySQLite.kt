@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure.claims
+package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
@@ -6,7 +6,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
 import java.sql.SQLException
 import java.time.Instant
 import java.util.*

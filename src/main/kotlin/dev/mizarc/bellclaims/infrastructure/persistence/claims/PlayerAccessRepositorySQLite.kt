@@ -1,13 +1,14 @@
-package dev.mizarc.bellclaims.infrastructure.claims
+package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
-import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
 import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
-class PlayerAccessRepository(private val storage: DatabaseStorage) {
+class PlayerAccessRepositorySQLite(private val storage: DatabaseStorage): PlayerAccessRepository {
     private val playerAccess: MutableMap<UUID, MutableMap<UUID, MutableSet<ClaimPermission>>> = mutableMapOf()
 
     init {
@@ -23,15 +24,15 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         return playerAccess[claim.id]?.get(player.uniqueId)?.contains(permission) ?: false
     }
 
-    fun getByClaim(claim: Claim): MutableMap<UUID, MutableSet<ClaimPermission>> {
+    override fun getByClaim(claim: Claim): MutableMap<UUID, MutableSet<ClaimPermission>> {
         return playerAccess[claim.id] ?: mutableMapOf()
     }
 
-    fun getByPlayerInClaim(claim: Claim, player: OfflinePlayer): MutableSet<ClaimPermission> {
+    override fun getByPlayer(claim: Claim, player: OfflinePlayer): MutableSet<ClaimPermission> {
         return playerAccess[claim.id]?.get(player.uniqueId) ?: mutableSetOf()
     }
 
-    fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
+    override fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
         playerAccess.getOrPut(claim.id) { mutableMapOf() }.getOrPut(player.uniqueId) { mutableSetOf() }.add(permission)
         try {
             storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, permission) " +
@@ -41,7 +42,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun removePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
+    override fun remove(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
         val claimPermissions = playerAccess[claim.id] ?: return
         val playerPermissions = claimPermissions[player.uniqueId] ?: return
         playerPermissions.remove(permission)
@@ -57,7 +58,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun removePlayer(claim: Claim, player: OfflinePlayer) {
+    override fun removeByPlayer(claim: Claim, player: OfflinePlayer) {
         val claimPermissions = playerAccess[claim.id] ?: return
         claimPermissions.remove(player.uniqueId)
 
@@ -69,7 +70,7 @@ class PlayerAccessRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun removeClaim(claim: Claim) {
+    override fun removeByClaim(claim: Claim) {
         playerAccess.remove(claim.id)
 
         try {
