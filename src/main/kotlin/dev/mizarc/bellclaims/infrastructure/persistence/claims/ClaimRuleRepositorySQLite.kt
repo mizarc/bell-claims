@@ -1,12 +1,13 @@
-package dev.mizarc.bellclaims.infrastructure.claims
+package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.infrastructure.storage.DatabaseStorage
+import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
 import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
 import java.sql.SQLException
 import java.util.*
 
-class ClaimRuleRepository(private val storage: DatabaseStorage) {
+class ClaimRuleRepositorySQLite(private val storage: DatabaseStorage): ClaimRuleRepository {
     private val rules: MutableMap<UUID, MutableSet<ClaimRule>> = mutableMapOf()
 
     init {
@@ -18,11 +19,11 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         return rules[claim.id]?.contains(rule) ?: false
     }
 
-    fun getByClaim(claim: Claim): MutableSet<ClaimRule> {
+    override fun getByClaim(claim: Claim): MutableSet<ClaimRule> {
         return rules[claim.id] ?: mutableSetOf()
     }
 
-    fun add(claim: Claim, rule: ClaimRule) {
+    override fun add(claim: Claim, rule: ClaimRule) {
         rules.getOrPut(claim.id) { mutableSetOf() }.add(rule)
         try {
             storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule)" +
@@ -32,7 +33,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun remove(claim: Claim, rule: ClaimRule) {
+    override fun remove(claim: Claim, rule: ClaimRule) {
         val claimRules = rules[claim.id] ?: return
         claimRules.remove(rule)
         if (claimRules.isEmpty()) {
@@ -47,7 +48,7 @@ class ClaimRuleRepository(private val storage: DatabaseStorage) {
         }
     }
 
-    fun removeClaim(claim: Claim){
+    override fun removeByClaim(claim: Claim){
         rules.remove(claim.id)
 
         try {
