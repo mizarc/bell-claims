@@ -1,12 +1,14 @@
-package dev.mizarc.bellclaims.api.claims
+package dev.mizarc.bellclaims.api
 
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
 import org.bukkit.Location
+import org.bukkit.OfflinePlayer
+import java.util.UUID
 
 interface ClaimService {
-    fun getById()
-    fun getByPlayer()
+    fun getById(id: UUID): Claim?
+    fun getByPlayer(player: OfflinePlayer): Claim?
     fun getByLocation(location: Location): Claim?
     fun getBlockCount(claim: Claim): Int
     fun getOuterBorders(claim: Claim): Int
