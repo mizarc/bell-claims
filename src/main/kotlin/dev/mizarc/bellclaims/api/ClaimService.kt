@@ -19,7 +19,7 @@ interface ClaimService {
     fun getByPlayer(player: OfflinePlayer): Set<Claim>
     fun getBlockCount(claim: Claim): Int
     fun getPartitionCount(claim: Claim): Int
-    fun createClaim(location: Location, player: OfflinePlayer): ClaimCreationResult
+    fun createClaim(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult
     fun changeName(claim: Claim, name: String)
     fun changeIcon(claim: Claim, material: Material)
     fun changeLocation(claim: Claim, location: Location): ClaimMoveResult
