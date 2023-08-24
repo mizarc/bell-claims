@@ -6,11 +6,11 @@ import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import org.bukkit.OfflinePlayer
 
 interface PlayerPermissionService {
-    fun getPermissionsForPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
-    fun addPermissionForPlayer(claim: Claim, player: OfflinePlayer,
-                               claimPermission: ClaimPermission): PlayerPermissionChangeResult
-    fun addAllPermissionForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
-    fun removePermissionForPlayer(claim: Claim, player: OfflinePlayer,
-                                  claimPermission: ClaimPermission): PlayerPermissionChangeResult
-    fun removeAllPermissionForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
+    fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
+    fun addForPlayer(claim: Claim, player: OfflinePlayer,
+                     claimPermission: ClaimPermission): PlayerPermissionChangeResult
+    fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
+    fun removeForPlayer(claim: Claim, player: OfflinePlayer,
+                        claimPermission: ClaimPermission): PlayerPermissionChangeResult
+    fun removeAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
 }

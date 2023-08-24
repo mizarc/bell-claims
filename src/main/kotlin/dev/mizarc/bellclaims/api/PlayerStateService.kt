@@ -5,8 +5,8 @@ import org.bukkit.OfflinePlayer
 import java.util.UUID
 
 interface PlayerStateService {
-    fun getAllOnline(): PlayerState
-    fun getById(id: UUID): PlayerState
+    fun getAllOnline(): Set<PlayerState>
+    fun getById(id: UUID): PlayerState?
     fun getTotalClaimCount(player: OfflinePlayer): Int
     fun getTotalClaimBlockCount(player: OfflinePlayer): Int
     fun getUsedClaimsCount(player: OfflinePlayer): Int
