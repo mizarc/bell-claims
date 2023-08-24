@@ -33,20 +33,20 @@ class PartitionServiceImpl(private val config: Config,
         return partitions.any { it.isAreaOverlap(areaWithBoundary) } || claimPartitions.any { it.isAreaOverlap(area) }
     }
 
-    override fun getPartitionById(uuid: UUID): Partition? {
+    override fun getById(uuid: UUID): Partition? {
         return partitionRepo.getById(uuid)
     }
 
-    override fun getPartitionByLocation(location: Location): Partition? {
+    override fun getByLocation(location: Location): Partition? {
         val partitionsInPosition = partitionRepo.getByPosition(Position2D(location))
         return filterByWorld(location.world.uid, partitionsInPosition).firstOrNull()
     }
 
-    override fun getPartitionsByClaim(claim: Claim): Set<Partition> {
+    override fun getByClaim(claim: Claim): Set<Partition> {
         return partitionRepo.getByClaim(claim)
     }
 
-    override fun appendPartition(area: Area, claim: Claim): PartitionCreationResult {
+    override fun append(area: Area, claim: Claim): PartitionCreationResult {
         val partition = Partition(claim.id, area)
 
         // Check if selection overlaps an existing claim
@@ -73,7 +73,7 @@ class PartitionServiceImpl(private val config: Config,
         return PartitionCreationResult.NOT_CONNECTED
     }
 
-    override fun resizePartition(partition: Partition, area: Area): PartitionResizeResult {
+    override fun resize(partition: Partition, area: Area): PartitionResizeResult {
         val newPartition = partition.copy()
         newPartition.area = area
 
@@ -107,7 +107,7 @@ class PartitionServiceImpl(private val config: Config,
         return PartitionResizeResult.SUCCESS
     }
 
-    override fun deletePartition(partition: Partition): PartitionDestroyResult {
+    override fun delete(partition: Partition): PartitionDestroyResult {
         if (isRemoveResultInAnyDisconnected(partition)) return PartitionDestroyResult.DISCONNECTED
         partitionRepo.remove(partition)
         return PartitionDestroyResult.SUCCESS
