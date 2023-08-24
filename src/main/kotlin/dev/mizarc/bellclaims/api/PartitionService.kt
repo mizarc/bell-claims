@@ -28,7 +28,7 @@ interface PartitionService {
      * @param uuid The UUID of the partition.
      * @return The found partition or null if not found.
      */
-    fun getPartitionById(uuid: UUID): Partition?
+    fun getById(uuid: UUID): Partition?
 
     /**
      * Gets the partition that exists at the location in the world.
@@ -36,7 +36,7 @@ interface PartitionService {
      * @param location The Location to query.
      * @return The found partition or null if not found.
      */
-    fun getPartitionByLocation(location: Location): Partition?
+    fun getByLocation(location: Location): Partition?
 
     /**
      * Gets all partitions that are linked to a claim.
@@ -44,7 +44,7 @@ interface PartitionService {
      * @param claim The claim to get the partitions from.
      * @return A set of partitions that are linked to the claim.
      */
-    fun getPartitionsByClaim(claim: Claim): Set<Partition>
+    fun getByClaim(claim: Claim): Set<Partition>
 
     /**
      * Adds a new partition to the claim using an area.
@@ -52,7 +52,7 @@ interface PartitionService {
      * @param claim The claim to add the partition to.
      * @return An enum detailing the result of the append action.
      */
-    fun appendPartition(area: Area, claim: Claim): PartitionCreationResult
+    fun append(area: Area, claim: Claim): PartitionCreationResult
 
     /**
      * Resizes an existing partition to a new size.
@@ -60,12 +60,12 @@ interface PartitionService {
      * @param area The new area to set the partition size to.
      * @return An enum detailing the result of the resize action.
      */
-    fun resizePartition(partition: Partition, area: Area): PartitionResizeResult
+    fun resize(partition: Partition, area: Area): PartitionResizeResult
 
     /**
      * Deletes an existing partition.
      * @param partition The partition to delete
      * @return An enum detailing the result of the delete action.
      */
-    fun deletePartition(partition: Partition): PartitionDestroyResult
+    fun delete(partition: Partition): PartitionDestroyResult
 }
