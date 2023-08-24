@@ -44,7 +44,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         return partitionRepo.getByClaim(claim).count()
     }
 
-    override fun createClaim(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult {
+    override fun create(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult {
         val claim = Claim(location.world.uid, player, Position3D(location), name)
         val area = Area(
             Position2D(claim.position.x - 5, claim.position.z - 5),
@@ -80,7 +80,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
 
     override fun changeLocation(claim: Claim, location: Location): ClaimMoveResult {
         // Handle failure types
-        val partition = partitionService.getPartitionByLocation(location)
+        val partition = partitionService.getByLocation(location)
         
         if (partition == null || partition.claimId != claim.id) {
             return ClaimMoveResult.OUTSIDE_OF_AREA
@@ -91,7 +91,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         return ClaimMoveResult.SUCCESS
     }
 
-    override fun destroyClaim(claim: Claim) {
+    override fun destroy(claim: Claim) {
         partitionRepo.removeByClaim(claim)
         claimRuleRepo.removeByClaim(claim)
         claimPermissionRepo.removeByClaim(claim)
