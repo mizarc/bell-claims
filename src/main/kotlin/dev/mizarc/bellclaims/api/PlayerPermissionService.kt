@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import org.bukkit.OfflinePlayer
 
 interface PlayerPermissionService {
+    fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>>
     fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
     fun addForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): PlayerPermissionChangeResult
     fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult

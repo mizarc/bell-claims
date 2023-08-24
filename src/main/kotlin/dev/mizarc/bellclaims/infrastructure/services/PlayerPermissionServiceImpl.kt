@@ -10,6 +10,10 @@ import org.bukkit.OfflinePlayer
 
 class PlayerPermissionServiceImpl(private val
                                   playerAccessRepo: PlayerAccessRepository): PlayerPermissionService {
+    override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
+        return playerAccessRepo.getByClaim(claim)
+    }
+
     override fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission> {
         return playerAccessRepo.getByPlayer(claim, player)
     }
