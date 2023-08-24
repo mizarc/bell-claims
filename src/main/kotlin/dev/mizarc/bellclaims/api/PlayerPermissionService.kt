@@ -7,10 +7,8 @@ import org.bukkit.OfflinePlayer
 
 interface PlayerPermissionService {
     fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
-    fun addForPlayer(claim: Claim, player: OfflinePlayer,
-                     claimPermission: ClaimPermission): PlayerPermissionChangeResult
+    fun addForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): PlayerPermissionChangeResult
     fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
-    fun removeForPlayer(claim: Claim, player: OfflinePlayer,
-                        claimPermission: ClaimPermission): PlayerPermissionChangeResult
+    fun removeForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): PlayerPermissionChangeResult
     fun removeAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
 }
