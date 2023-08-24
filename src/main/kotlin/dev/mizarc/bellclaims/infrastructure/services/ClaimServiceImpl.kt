@@ -54,10 +54,10 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         if (location.block.type != Material.BELL) {
             return ClaimCreationResult.NOT_A_BELL
         }
-        else if (partitionService.isAreaOverlap(area)) {
+        else if (partitionService.isAreaValid(area, claim)) {
             return ClaimCreationResult.TOO_CLOSE
         }
-        else if (playerStateService.getRemainingClaimBlocksCount(player) <= 0) {
+        else if (playerStateService.getRemainingClaimBlockCount(player) <= 0) {
             return ClaimCreationResult.OUT_OF_CLAIMS
         }
 
