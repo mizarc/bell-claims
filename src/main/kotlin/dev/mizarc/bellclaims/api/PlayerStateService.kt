@@ -12,5 +12,5 @@ interface PlayerStateService {
     fun getUsedClaimsCount(player: OfflinePlayer): Int
     fun getUsedClaimBlockCount(player: OfflinePlayer): Int
     fun getRemainingClaimCount(player: OfflinePlayer): Int
-    fun getRemainingClaimBlocksCount(player: OfflinePlayer): Int
+    fun getRemainingClaimBlockCount(player: OfflinePlayer): Int
 }
