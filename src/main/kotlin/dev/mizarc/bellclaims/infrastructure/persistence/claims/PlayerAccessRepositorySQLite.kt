@@ -16,14 +16,6 @@ class PlayerAccessRepositorySQLite(private val storage: DatabaseStorage): Player
         preload()
     }
 
-    fun doesPlayerHaveAccess(claim: Claim, player: OfflinePlayer): Boolean {
-        return playerAccess[claim.id]?.contains(player.uniqueId) ?: false
-    }
-
-    fun doesPlayerHavePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean {
-        return playerAccess[claim.id]?.get(player.uniqueId)?.contains(permission) ?: false
-    }
-
     override fun getByClaim(claim: Claim): MutableMap<UUID, MutableSet<ClaimPermission>> {
         return playerAccess[claim.id] ?: mutableMapOf()
     }

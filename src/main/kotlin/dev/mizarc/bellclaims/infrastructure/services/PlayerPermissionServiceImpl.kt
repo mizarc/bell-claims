@@ -7,10 +7,16 @@ import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import org.bukkit.OfflinePlayer
+import java.util.*
 
 class PlayerPermissionServiceImpl(private val
                                   playerAccessRepo: PlayerAccessRepository): PlayerPermissionService {
-    override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
+    override fun doesPlayerHavePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean {
+        val playerPermissions = playerAccessRepo.getByPlayer(claim, player)
+        return playerPermissions.contains(permission)
+    }
+
+    override fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>> {
         return playerAccessRepo.getByClaim(claim)
     }
 
