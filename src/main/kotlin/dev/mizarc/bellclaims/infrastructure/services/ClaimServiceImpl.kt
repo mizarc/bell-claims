@@ -73,6 +73,11 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         claimRepo.update(claim)
     }
 
+    override fun changeDescription(claim: Claim, description: String) {
+        claim.description = description
+        claimRepo.update(claim)
+    }
+
     override fun changeIcon(claim: Claim, material: Material) {
         claim.icon = material
         claimRepo.update(claim)
