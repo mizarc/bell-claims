@@ -8,14 +8,26 @@ import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import org.bukkit.Chunk
 import org.bukkit.Location
+import org.bukkit.World
 import java.util.UUID
 
 /**
  * A service that handles the querying, creation, modification, and deletion of partitions.
  */
 interface PartitionService {
+
     /**
-     * Checks to see if an area placed in the world is valid based on overlap and minimum distance conditions.
+     * Checks to see if a new partition placed into the world would be valid based on overlap and minimum distance.
+     *
+     * @param area The area to query.
+     * @param world The world the partition will be added to.
+     * @return True if the queried area is valid.
+     */
+    fun isAreaValid(area: Area, world: World): Boolean
+
+    /**
+     * Checks to see if a new partition to be attached to an existing claim would be valid based on overlap and minimum
+     * distance conditions.
      *
      * @param area The area to query.
      * @param claim The claim that the partition would be attached to.
