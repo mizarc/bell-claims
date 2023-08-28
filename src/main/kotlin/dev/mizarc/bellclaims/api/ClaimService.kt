@@ -20,21 +20,11 @@ interface ClaimService {
      */
     fun getById(id: UUID): Claim?
 
-    /**
-     * Gets a partition by the location in the world.
-     *
-     * @param location The Location to query
-     * @return The found claim or null if not found.
-     */
-    fun getByLocation(location: Location): Claim?
-    
     fun getByPlayer(player: OfflinePlayer): Set<Claim>
     fun getBlockCount(claim: Claim): Int
     fun getPartitionCount(claim: Claim): Int
-    fun create(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult
     fun changeName(claim: Claim, name: String)
-    fun changeDescription(claim: Claim, name: String)
+    fun changeDescription(claim: Claim, description: String)
     fun changeIcon(claim: Claim, material: Material)
-    fun changeLocation(claim: Claim, location: Location): ClaimMoveResult
     fun destroy(claim: Claim)
 }
