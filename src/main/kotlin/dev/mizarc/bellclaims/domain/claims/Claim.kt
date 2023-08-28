@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import org.bukkit.Location
 import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
@@ -32,8 +33,8 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
     constructor(worldId: UUID, owner: OfflinePlayer, position: Position3D, name: String) : this(
         UUID.randomUUID(), worldId, owner, Instant.now(), name, "", position, Material.BELL)
 
-    constructor(builder: Builder): this(UUID.randomUUID(), builder.world.uid, builder.player, Instant.now(),
-        builder.name, builder.description, builder.position, builder.icon)
+    constructor(builder: Builder): this(UUID.randomUUID(), builder.location.world.uid, builder.player, Instant.now(),
+        builder.name, builder.description, Position3D(builder.location), builder.icon)
 
     /**
      * Gets a reference to the world if available.
@@ -54,7 +55,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
         }
     }
 
-    class Builder(val player: Player, val world: World, val position: Position3D) {
+    class Builder(val player: Player, val location: Location) {
         var name = ""
         var description = ""
         var icon = Material.BELL
