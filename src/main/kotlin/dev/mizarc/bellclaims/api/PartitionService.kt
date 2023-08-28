@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.api.enums.PartitionResizeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import org.bukkit.Chunk
 import org.bukkit.Location
 import java.util.UUID
 
@@ -37,6 +38,14 @@ interface PartitionService {
      * @return The found partition or null if not found.
      */
     fun getByLocation(location: Location): Partition?
+
+    /**
+     * Gets all partitions that exist in a chunk.
+     *
+     * @param chunk The Chunk to query.
+     * @return A set of partitions that exist in the chunk.
+     */
+    fun getByChunk(chunk: Chunk): Set<Partition>
 
     /**
      * Gets all partitions that are linked to a claim.

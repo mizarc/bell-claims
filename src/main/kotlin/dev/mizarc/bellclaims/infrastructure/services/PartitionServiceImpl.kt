@@ -10,6 +10,7 @@ import org.bukkit.Location
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import org.bukkit.Chunk
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -40,6 +41,10 @@ class PartitionServiceImpl(private val config: Config,
     override fun getByLocation(location: Location): Partition? {
         val partitionsInPosition = partitionRepo.getByPosition(Position2D(location))
         return filterByWorld(location.world.uid, partitionsInPosition).firstOrNull()
+    }
+
+    override fun getByChunk(chunk: Chunk): Set<Partition> {
+        return filterByWorld(chunk.world.uid, partitionRepo.getByChunk(Position2D(chunk.x, chunk.z)))
     }
 
     override fun getByClaim(claim: Claim): Set<Partition> {
