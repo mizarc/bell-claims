@@ -17,9 +17,6 @@ import kotlin.concurrent.thread
  * @property id The unique identifier for the claim.
  * @property worldId the unique identifier for the world.
  * @property owner A reference to the owning player.
- * @property defaultPermissions The permissions of this claim for all players
- * @property playerAccesses A list of trusted players.
- * @property partitions The partitions linked to this claim.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
             var name: String, var description: String, var position: Position3D, var icon: Material) {
@@ -32,8 +29,8 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      * @param worldId The unique identifier of the world the claim is to be made in.
      * @param owner A reference to the owning player.
      */
-    constructor(worldId: UUID, owner: OfflinePlayer, creationTime: Instant, position: Position3D, icon: Material) : this(
-        UUID.randomUUID(), worldId, owner, creationTime, "", "", position, icon)
+    constructor(worldId: UUID, owner: OfflinePlayer, position: Position3D, name: String) : this(
+        UUID.randomUUID(), worldId, owner, Instant.now(), name, "", position, Material.BELL)
 
     constructor(builder: Builder): this(UUID.randomUUID(), builder.world.uid, builder.player, Instant.now(),
         builder.name, builder.description, builder.position, builder.icon)
