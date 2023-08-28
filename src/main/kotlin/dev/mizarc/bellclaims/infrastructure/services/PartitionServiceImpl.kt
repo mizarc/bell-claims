@@ -11,6 +11,7 @@ import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import org.bukkit.Chunk
+import org.bukkit.World
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -21,6 +22,17 @@ class PartitionServiceImpl(private val config: Config,
                            private val partitionRepo: PartitionRepository,
                            private val claimService: ClaimService,
                            private val playerStateService: PlayerStateService) : PartitionService {
+    override fun isAreaValid(area: Area, world: World): Boolean {
+        val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
+        val partitions = chunks.flatMap { filterByWorld(world.uid, getByChunk(world.uid, it)) }.toMutableList()
+        val areaWithBoundary = Area(
+            Position2D( area.lowerPosition2D.x - config.distanceBetweenClaims,
+                area.lowerPosition2D.z - config.distanceBetweenClaims),
+            Position2D( area.upperPosition2D.x + config.distanceBetweenClaims,
+                area.upperPosition2D.z + config.distanceBetweenClaims))
+        return partitions.any { it.isAreaOverlap(areaWithBoundary) }
+    }
+
     override fun isAreaValid(area: Area, claim: Claim): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
         val partitions = chunks.flatMap { filterByWorld(claim.worldId, getByChunk(claim.worldId, it)) }.toMutableList()
