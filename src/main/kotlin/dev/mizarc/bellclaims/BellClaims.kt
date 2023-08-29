@@ -15,7 +15,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
-import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.services.*
@@ -26,7 +26,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
-    val storage = DatabaseStorage(this)
+    val storage = SQLiteStorage(this)
     private lateinit var claimRepo: ClaimRepository
     private lateinit var partitionRepo: PartitionRepository
     private lateinit var claimPermissionRepo: ClaimPermissionRepository
@@ -72,7 +72,7 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun initialiseServices() {
-        playerStateService = PlayerStateServiceImpl(playerStateRepo)
+        playerStateService = PlayerStateServiceImpl(config, metadata, playerStateRepo, claimRepo, partitionRepo)
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
@@ -93,7 +93,6 @@ class BellClaims : JavaPlugin() {
     private fun registerCommands() {
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(ClaimlistCommand())
-        commandManager.registerCommand(UnclaimCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(PartitionlistCommand())
         commandManager.registerCommand(TrustlistCommand())
@@ -109,12 +108,10 @@ class BellClaims : JavaPlugin() {
 
     private fun registerEvents() {
         server.pluginManager.registerEvents(
-            ClaimEventHandler(this, claimRepo, partitionRepo,
-            claimRuleRepo, claimPermissionRepo, playerAccessRepo, playerStateRepo, claimService, partitionService),
-            this)
+            ClaimInteractListener(this, claimService, partitionService, flagService, defaultPermissionService,
+                playerPermissionService, playerStateService), this)
         server.pluginManager.registerEvents(
-            ClaimToolListener(claimRepo, playerStateRepo, claimService,
-            partitionService, visualiser), this)
+            EditToolListener(claimRepo, partitionService, playerStateService, claimService, visualiser), this)
         server.pluginManager.registerEvents(Visualiser(this, claimService, partitionService, playerStateRepo),
             this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata, playerStateRepo), this)
