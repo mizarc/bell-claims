@@ -33,13 +33,16 @@ class BellClaims : JavaPlugin() {
     private lateinit var claimRuleRepo: ClaimFlagRepository
     private lateinit var playerAccessRepo: PlayerAccessRepository
     private lateinit var playerStateRepo: PlayerStateRepository
+
+    private lateinit var playerStateService: PlayerStateService
     private lateinit var claimService: ClaimService
-    private lateinit var claimWorldService: ClaimWorldService
     private lateinit var partitionService: PartitionService
+    private lateinit var claimWorldService: ClaimWorldService
+    private lateinit var flagService: FlagService
     private lateinit var defaultPermissionService: DefaultPermissionService
     private lateinit var playerPermissionService: PlayerPermissionService
     private lateinit var visualisationService: VisualisationService
-    private lateinit var playerStateService: PlayerStateService
+
     private val visualiser = Visualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
@@ -69,9 +72,10 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun initialiseServices() {
+        playerStateService = PlayerStateServiceImpl(playerStateRepo)
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
-        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
+        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
     }
@@ -113,13 +117,10 @@ class BellClaims : JavaPlugin() {
             partitionService, visualiser), this)
         server.pluginManager.registerEvents(Visualiser(this, claimService, partitionService, playerStateRepo),
             this)
-        server.pluginManager.registerEvents(
-            PlayerRegistrationListener(config, metadata,
-            playerStateRepo), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata, playerStateRepo), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
-        server.pluginManager.registerEvents(
-            ClaimManagementListener(claimRepo, partitionRepo,
-            claimRuleRepo, claimPermissionRepo, playerAccessRepo, partitionService, claimService), this)
+        server.pluginManager.registerEvents(ClaimBellListener(claimService, claimWorldService, flagService,
+            defaultPermissionService, playerPermissionService, playerStateService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService), this)
         server.pluginManager.registerEvents(ClaimMoveListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(ClaimMoveToolRemovalListener(), this)
