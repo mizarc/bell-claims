@@ -3,18 +3,18 @@ package dev.mizarc.bellclaims.interaction.menus
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRepositorySQLite
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import kotlin.math.ceil
 
-class ClaimMenu(private val claimRepo: ClaimRepositorySQLite, private val player: Player) {
+class ClaimListMenu(private val claimRepo: ClaimRepository, private val player: Player) {
     var page = 1
 
-    fun openClaimMenu(backCommand: String? = null) {
+    fun openClaimListMenu(backCommand: String? = null) {
         val claims = claimRepo.getByPlayer(player)
         val gui = ChestGui(6, "Claims")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
