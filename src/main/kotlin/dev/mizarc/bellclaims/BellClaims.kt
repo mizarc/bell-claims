@@ -77,15 +77,13 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerDependencies() {
-        commandManager.registerDependency(ClaimRepositorySQLite::class.java, claimRepo)
-        commandManager.registerDependency(PartitionRepository::class.java, partitionRepo)
-        commandManager.registerDependency(ClaimFlagRepository::class.java, claimRuleRepo)
-        commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepo)
-        commandManager.registerDependency(PlayerAccessRepository::class.java, playerAccessRepo)
-        commandManager.registerDependency(PlayerStateRepositoryMemory::class.java, playerStateRepo)
         commandManager.registerDependency(Visualiser::class.java, visualiser)
         commandManager.registerDependency(ClaimService::class.java, claimService)
+        commandManager.registerDependency(ClaimWorldService::class.java, claimWorldService)
         commandManager.registerDependency(PartitionService::class.java, partitionService)
+        commandManager.registerDependency(DefaultPermissionService::class.java, defaultPermissionService)
+        commandManager.registerDependency(PlayerPermissionService::class.java, playerPermissionService)
+        commandManager.registerDependency(VisualisationService::class.java, visualisationService)
     }
 
     private fun registerCommands() {
