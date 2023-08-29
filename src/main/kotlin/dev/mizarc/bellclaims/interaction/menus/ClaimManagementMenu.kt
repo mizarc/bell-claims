@@ -12,37 +12,25 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
-import dev.mizarc.bellclaims.claims.*
+import dev.mizarc.bellclaims.api.*
+import dev.mizarc.bellclaims.domain.claims.*
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.infrastructure.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
-import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
-import dev.mizarc.bellclaims.domain.partitions.Area
-import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.domain.partitions.Position2D
-import dev.mizarc.bellclaims.infrastructure.utils.*
+import dev.mizarc.bellclaims.interaction.listeners.Flag
 import dev.mizarc.bellclaims.utils.*
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
-class ClaimManagementMenu(private val claimRepo: ClaimRepository,
-                          private val partitionRepository: PartitionRepository,
-                          private val claimPermissionRepository: ClaimPermissionRepository,
-                          private val playerAccessRepository: PlayerAccessRepository,
-                          private val claimRuleRepository: ClaimRuleRepository,
-                          private val claimService: ClaimService,
-                          private val partitionService: PartitionService,
+class ClaimManagementMenu(private val claimService: ClaimService,
+                          private val claimWorldService: ClaimWorldService,
+                          private val flagService: FlagService,
+                          private val defaultPermissionService: DefaultPermissionService,
+                          private val playerPermissionService: PlayerPermissionService,
+                          private val playerStateService: PlayerStateService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
-        val existingClaim = claimRepo.getByPosition(claimBuilder.position)
+        val existingClaim = claimWorldService.getByLocation(claimBuilder.location)
         if (existingClaim == null) {
             openClaimCreationMenu()
             return
@@ -57,8 +45,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         gui.addPane(pane)
 
         // Check if player doesn't have enough claims
-        val remainingClaims = claimService.getRemainingClaimCount(claimBuilder.player) ?: return
-        if (remainingClaims < 1) {
+        if (playerStateService.getRemainingClaimCount(claimBuilder.player) < 1) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name("Cannot Create Claim")
                 .lore("You have run out of claims. ")
@@ -70,11 +57,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         }
 
         // Check if created claim area would overlap
-        val area = Area(
-            Position2D(claimBuilder.position.x - 5, claimBuilder.position.z - 5),
-            Position2D(claimBuilder.position.x + 5, claimBuilder.position.z + 5)
-        )
-        if (partitionService.isAreaOverlap(area, claimBuilder.world.uid)) {
+        if (claimWorldService.isNewLocationValid(claimBuilder.location)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name("Cannot Create Claim")
                 .lore("The created claim would overlap another claim.")
@@ -89,7 +72,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val iconEditorItem = ItemStack(Material.BELL)
             .name("Create Claim")
             .lore("The area around this bell will be protected from griefing.")
-            .lore("You have ${claimService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
+            .lore("You have ${playerStateService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -103,7 +86,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val firstPane = StaticPane(0, 0, 1, 1)
         val lodestoneItem = ItemStack(Material.BELL)
             .name(claimBuilder.name)
-            .lore("${claimBuilder.position.x}, ${claimBuilder.position.y}, ${claimBuilder.position.z}")
+            .lore("${claimBuilder.location.blockX}, ${claimBuilder.location.blockY}, " +
+                    "${claimBuilder.location.blockZ}")
         val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiItem, 0, 0)
         gui.firstItemComponent.addPane(firstPane)
@@ -123,18 +107,12 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             claimBuilder.name = gui.renameText
-            if (claimRepo.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+            if (claimService.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
                 openClaimNamingMenu(existingName = true)
                 return@GuiItem
             }
-            val claim = claimBuilder.build()
-            claimRepo.add(claim)
-            val partition = Partition(claim.id, Area(
-                Position2D(claim.position.x - 5, claim.position.z - 5),
-                Position2D(claim.position.x + 5, claim.position.z + 5)
-            )
-            )
-            partitionRepository.add(partition)
+            claimWorldService.create(gui.renameText, claimBuilder.location, claimBuilder.player)
+            val claim = claimWorldService.getByLocation(claimBuilder.location) ?: return@GuiItem
             openClaimEditMenu(claim)
             guiEvent.isCancelled = true
         }
@@ -177,14 +155,14 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         // Add player trusts
         val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
             .name("Trusted Players:")
-            .lore("${playerAccessRepository.getByClaim(claim).count()}")
+            .lore("${playerPermissionService.getByClaim(claim).count()}")
         val guiPlayerTrustItem = GuiItem(playerTrustItem) { openClaimTrustMenu(claim, 0) }
         pane.addItem(guiPlayerTrustItem, 5, 0)
 
         // Add claim flags
         val claimFlagsItem = ItemStack(Material.ACACIA_HANGING_SIGN)
             .name("Claim Flags")
-            .lore("${claimRuleRepository.getByClaim(claim).count()}")
+            .lore("${flagService.getByClaim(claim).count()}")
         val guiClaimFlagsItem = GuiItem(claimFlagsItem) { openClaimFlagMenu(claim) }
         pane.addItem(guiClaimFlagsItem, 6, 0)
 
@@ -264,8 +242,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
 
             // Set icon if item in slot
             if (newIcon != null) {
-                claim.icon = newIcon.type
-                claimRepo.update(claim)
+                claimService.changeIcon(claim, newIcon.type)
                 openClaimEditMenu(claim)
             }
 
@@ -285,7 +262,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val firstPane = StaticPane(0, 0, 1, 1)
         val lodestoneItem = ItemStack(Material.BELL)
             .name(claim.name)
-            .lore("${claimBuilder.position.x}, ${claimBuilder.position.y}, ${claimBuilder.position.z}")
+            .lore("${claimBuilder.location.blockX}, ${claimBuilder.location.blockY}, " +
+                    "${claimBuilder.location.blockZ}")
         val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiItem, 0, 0)
         gui.firstItemComponent.addPane(firstPane)
@@ -311,13 +289,12 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             }
 
             // Stay on menu if the name is already taken
-            if (claimRepo.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+            if (claimService.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
                 openClaimRenamingMenu(claim, existingName = true)
                 return@GuiItem
             }
 
-            claim.name = gui.renameText
-            claimRepo.update(claim)
+            claimService.changeName(claim, gui.renameText)
             openClaimEditMenu(claim)
             guiEvent.isCancelled = true
         }
@@ -344,9 +321,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
             .name("Deselect All")
         val guiDeselectItem = GuiItem(deselectItem) {
-            for (rule in ClaimRule.values()) {
-                claimRuleRepository.remove(claim, rule)
-            }
+            flagService.removeAll(claim)
             openClaimFlagMenu(claim)
         }
         controlsPane.addItem(guiDeselectItem, 2, 0)
@@ -355,9 +330,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val selectItem = ItemStack(Material.SLIME_BLOCK)
             .name("Select All")
         val guiSelectItem = GuiItem(selectItem) {
-            for (rule in ClaimRule.values()) {
-                claimRuleRepository.add(claim, rule)
-            }
+            flagService.addAll(claim)
             openClaimFlagMenu(claim)
         }
         controlsPane.addItem(guiSelectItem, 6, 0)
@@ -378,8 +351,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledRules = claimRuleRepository.getByClaim(claim)
-        val disabledRules = ClaimRule.values().subtract(enabledRules)
+        val enabledRules = flagService.getByClaim(claim)
+        val disabledRules = Flag.values().subtract(enabledRules)
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 2)
@@ -392,7 +365,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(rule.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                claimRuleRepository.add(claim, rule)
+                flagService.add(claim, rule)
                 openClaimFlagMenu(claim)
             }
 
@@ -416,7 +389,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(rule.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                claimRuleRepository.remove(claim, rule)
+                flagService.remove(claim, rule)
                 openClaimFlagMenu(claim)
             }
 
@@ -434,7 +407,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
     }
 
     fun openClaimTrustMenu(claim: Claim, page: Int) {
-        val trustedPlayers = playerAccessRepository.getByClaim(claim)
+        val trustedPlayers = playerPermissionService.getByClaim(claim)
 
         // Create trust menu
         val gui = ChestGui(6, "Trusted Players")
@@ -453,7 +426,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val defaultPermsItem = ItemStack(Material.LECTERN)
             .name("Default Permissions")
             .lore("Configures the permissions that untrusted players will have")
-        val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermisionsMenu(claim) }
+        val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermissionsMenu(claim) }
         controlsPane.addItem(guiDefaultPermsItem, 2, 0)
 
         // Add all players menu
@@ -500,7 +473,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .name("${Bukkit.getOfflinePlayer(trustedPlayer.key).name}")
                 .lore("Has ${trustedPlayer.value.count()} permissions")
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermisionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
+                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 
@@ -515,7 +488,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         gui.show(claimBuilder.player)
     }
 
-    fun openPlayerPermisionsMenu(claim: Claim, player: OfflinePlayer) {
+    fun openPlayerPermissionsMenu(claim: Claim, player: OfflinePlayer) {
         // Create player permissions menu
         val gui = ChestGui(6, "${player.name}'s Permissions")
 
@@ -539,10 +512,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
             .name("Deselect All")
         val guiDeselectItem = GuiItem(deselectItem) {
-            for (permission in ClaimPermission.values()) {
-                playerAccessRepository.removePermission(claim, player, permission)
-            }
-            openPlayerPermisionsMenu(claim, player)
+            playerPermissionService.removeAllForPlayer(claim, player)
+            openPlayerPermissionsMenu(claim, player)
         }
         controlsPane.addItem(guiDeselectItem, 2, 0)
 
@@ -550,10 +521,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val selectItem = ItemStack(Material.SLIME_BLOCK)
             .name("Select All")
         val guiSelectItem = GuiItem(selectItem) {
-            for (permission in ClaimPermission.values()) {
-                playerAccessRepository.add(claim, player, permission)
-            }
-            openPlayerPermisionsMenu(claim, player)
+            playerPermissionService.addAllForPlayer(claim, player)
+            openPlayerPermissionsMenu(claim, player)
         }
         controlsPane.addItem(guiSelectItem, 6, 0)
 
@@ -573,7 +542,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledPermissions = playerAccessRepository.getByPlayerInClaim(claim, player)
+        val enabledPermissions = playerPermissionService.getByPlayer(claim, player)
         val disabledPermissions = ClaimPermission.values().subtract(enabledPermissions)
 
         // Add list of disabled permissions
@@ -587,8 +556,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                playerAccessRepository.add(claim, player, permission)
-                openPlayerPermisionsMenu(claim, player)
+                playerPermissionService.addForPlayer(claim, player, permission)
+                openPlayerPermissionsMenu(claim, player)
             }
 
             disabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
@@ -611,8 +580,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                playerAccessRepository.removePermission(claim, player, permission)
-                openPlayerPermisionsMenu(claim, player)
+                playerPermissionService.removeForPlayer(claim, player, permission)
+                openPlayerPermissionsMenu(claim, player)
             }
 
             enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
@@ -628,7 +597,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         gui.show(claimBuilder.player)
     }
 
-    fun openClaimPermisionsMenu(claim: Claim) {
+    fun openClaimPermissionsMenu(claim: Claim) {
         // Create player permissions menu
         val gui = ChestGui(6, "Default Claim Permissions")
 
@@ -652,10 +621,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
             .name("Deselect All")
         val guiDeselectItem = GuiItem(deselectItem) {
-            for (permission in ClaimPermission.values()) {
-                claimPermissionRepository.remove(claim, permission)
-            }
-            openClaimPermisionsMenu(claim)
+            defaultPermissionService.removeAll(claim)
+            openClaimPermissionsMenu(claim)
         }
         controlsPane.addItem(guiDeselectItem, 2, 0)
 
@@ -663,10 +630,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
         val selectItem = ItemStack(Material.SLIME_BLOCK)
             .name("Select All")
         val guiSelectItem = GuiItem(selectItem) {
-            for (permission in ClaimPermission.values()) {
-                claimPermissionRepository.add(claim, permission)
-            }
-            openClaimPermisionsMenu(claim)
+            defaultPermissionService.addAll(claim)
+            openClaimPermissionsMenu(claim)
         }
         controlsPane.addItem(guiSelectItem, 6, 0)
 
@@ -686,7 +651,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledPermissions = claimPermissionRepository.getByClaim(claim)
+        val enabledPermissions = defaultPermissionService.getByClaim(claim)
         val disabledPermissions = ClaimPermission.values().subtract(enabledPermissions)
 
         // Add list of disabled permissions
@@ -700,8 +665,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                claimPermissionRepository.add(claim, permission)
-                openClaimPermisionsMenu(claim)
+                defaultPermissionService.add(claim, permission)
+                openClaimPermissionsMenu(claim)
             }
 
             disabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
@@ -724,8 +689,8 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                claimPermissionRepository.remove(claim, permission)
-                openClaimPermisionsMenu(claim)
+                defaultPermissionService.remove(claim, permission)
+                openClaimPermissionsMenu(claim)
             }
 
             enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
@@ -742,7 +707,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
     }
 
     fun openAllPlayersMenu(claim: Claim, page: Int = 0) {
-        val trustedPlayers = playerAccessRepository.getByClaim(claim)
+        val trustedPlayers = playerPermissionService.getByClaim(claim)
 
         // Create trust menu
         val gui = ChestGui(6, "All Players")
@@ -804,7 +769,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
             val warpItem = createHead(Bukkit.getOfflinePlayer(player.uniqueId))
                 .name("${Bukkit.getOfflinePlayer(player.uniqueId).name}")
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermisionsMenu(claim, Bukkit.getOfflinePlayer(player.uniqueId))
+                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(player.uniqueId))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 
@@ -851,7 +816,7 @@ class ClaimManagementMenu(private val claimRepo: ClaimRepository,
                 openPlayerSearchMenu(claim, true)
                 return@GuiItem
             }
-            openPlayerPermisionsMenu(claim, player)
+            openPlayerPermissionsMenu(claim, player)
         }
         thirdPane.addItem(confirmGuiItem, 0, 0)
         gui.resultComponent.addPane(thirdPane)
