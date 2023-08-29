@@ -17,6 +17,6 @@ class ClaimMenuCommand: BaseCommand() {
     @Default
     @CommandPermission("bellclaims.command.claimmenu")
     fun onWarp(player: Player, backCommand: String? = null) {
-        ClaimListMenu(claimRepo, player).openClaimMenu(backCommand)
+        ClaimListMenu(claimRepo, player).openClaimListMenu(backCommand)
     }
 }
