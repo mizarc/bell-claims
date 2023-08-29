@@ -46,6 +46,10 @@ class PartitionServiceImpl(private val config: Config,
         return partitions.any { it.isAreaOverlap(areaWithBoundary) } || claimPartitions.any { it.isAreaOverlap(area) }
     }
 
+    override fun isRemoveAllowed(partition: Partition): Boolean {
+        return isRemoveResultInAnyDisconnected(partition)
+    }
+
     override fun getById(uuid: UUID): Partition? {
         return partitionRepo.getById(uuid)
     }

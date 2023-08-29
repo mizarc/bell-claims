@@ -36,6 +36,13 @@ interface PartitionService {
     fun isAreaValid(area: Area, claim: Claim): Boolean
 
     /**
+     * Checks to see if the target partition can be removed without breaking the claim structure.
+     * @param partition The partition to remove.
+     * @return True if the partition can be removed.
+     */
+    fun isRemoveAllowed(partition: Partition): Boolean
+
+    /**
      * Gets a partition by its unique id.
      *
      * @param uuid The UUID of the partition.
