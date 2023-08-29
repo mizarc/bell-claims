@@ -9,8 +9,9 @@ import org.bukkit.event.Event
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.api.FlagService
+import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Creeper
@@ -27,12 +28,11 @@ import org.bukkit.event.hanging.HangingBreakEvent
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
  * and a method to obtain all the claims that the event is affecting [getClaims].
  */
-data class RuleExecutor(val eventClass: Class<out Event>, val handler: (event: Event, claimService: ClaimService,
-                                                                        partitionService: PartitionService
-) -> Boolean,
+data class RuleExecutor(val eventClass: Class<out Event>,
+                        val handler: (event: Event, claimService: ClaimService,
+                                      partitionService: PartitionService, flagService: FlagService) -> Boolean,
                         val getClaims: (event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-                        ) -> List<Claim>)
+                                        partitionService: PartitionService, flagService: FlagService) -> List<Claim>)
 
 /**
  * A static class object to define the behaviour of event handling for events that affect claims which do not specify
@@ -227,7 +227,7 @@ class RuleBehaviour {
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!claimService.getClaimRules(claim).contains(ClaimRule.MobGriefing)) {
+                if (!claimService.getClaimRules(claim).contains(Flag.MobGriefing)) {
                     cancelledBlocks.add(block)
                 }
             }
@@ -244,7 +244,7 @@ class RuleBehaviour {
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!claimService.getClaimRules(claim).contains(ClaimRule.Explosions)) {
+                if (!claimService.getClaimRules(claim).contains(Flag.Explosions)) {
                     cancelledBlocks.add(block)
                 }
             }

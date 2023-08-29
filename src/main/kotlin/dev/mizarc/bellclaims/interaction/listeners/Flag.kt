@@ -7,7 +7,7 @@ import org.bukkit.event.Event
  * NOTE: Unlike [ClaimPermission], this enum does not use a hierarchy to determine which rule takes precedence for any
  * particular event. Due to this, it assumes that every rule works on separate events with no overlap.
  */
-enum class ClaimRule(val rules: Array<RuleExecutor>) {
+enum class Flag(val rules: Array<RuleExecutor>) {
     /**
      * When a block is lit on fire.
      */
@@ -62,10 +62,10 @@ enum class ClaimRule(val rules: Array<RuleExecutor>) {
         }
 
         /**
-         * Get the [ClaimRule] that handles [event].
+         * Get the [Flag] that handles [event].
          */
-        fun getRulesForEvent(event: Class<out Event>): Array<ClaimRule> {
-            val rules: ArrayList<ClaimRule> = ArrayList()
+        fun getRulesForEvent(event: Class<out Event>): Array<Flag> {
+            val rules: ArrayList<Flag> = ArrayList()
             for (rule in values()) {
                 for (ruleEvent in rule.rules) {
                     if (ruleEvent.eventClass == event) {
