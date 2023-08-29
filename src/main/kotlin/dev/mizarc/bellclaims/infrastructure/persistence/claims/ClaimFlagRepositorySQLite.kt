@@ -2,12 +2,12 @@ package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.claims.ClaimFlagRepository
-import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.interaction.listeners.Flag
 import java.sql.SQLException
 import java.util.*
 
-class ClaimFlagRepositorySQLite(private val storage: DatabaseStorage): ClaimFlagRepository {
+class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRepository {
     private val rules: MutableMap<UUID, MutableSet<Flag>> = mutableMapOf()
 
     init {

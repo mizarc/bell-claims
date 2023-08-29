@@ -1,12 +1,12 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
-class ClaimPermissionRepositorySQLite(private val storage: DatabaseStorage) {
+class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage) {
     private val permissions: MutableMap<UUID, MutableSet<ClaimPermission>> = mutableMapOf()
 
     init {
