@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
+import dev.mizarc.bellclaims.api.PartitionService
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -10,12 +11,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import java.util.*
 
-class ClaimMoveListener(private val claimRepo: ClaimRepository, private val partitionService: PartitionService): Listener {
+class ClaimMoveListener(private val claimRepo: ClaimRepository,
+                        private val partitionService: PartitionService): Listener {
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {

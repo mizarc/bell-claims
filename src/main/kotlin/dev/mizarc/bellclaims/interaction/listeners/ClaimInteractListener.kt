@@ -5,15 +5,14 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
 import dev.mizarc.bellclaims.BellClaims
+import dev.mizarc.bellclaims.api.*
+import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimFlagRepository
+import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.infrastructure.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 
@@ -22,23 +21,20 @@ import net.kyori.adventure.text.format.TextColor
  * @property plugin A reference to the plugin instance
  * @property claimContainer A reference to the ClaimContainer instance
  */
-class ClaimEventHandler(var plugin: BellClaims,
-                        val claims: ClaimRepository,
-                        val partitions: PartitionRepository,
-                        val claimRuleRepository: ClaimRuleRepository,
-                        val claimPermissionRepository: ClaimPermissionRepository,
-                        val playerAccessRepository: PlayerAccessRepository,
-                        val playerStates: PlayerStateRepository,
-                        val claimService: ClaimService,
-                        val partitionService: PartitionService
-) : Listener {
+class ClaimInteractListener(private var plugin: BellClaims,
+                            private val claimService: ClaimService,
+                            private val partitionService: PartitionService,
+                            private val flagService: FlagService,
+                            private val defaultPermissionService: DefaultPermissionService,
+                            private val playerPermissionService: PlayerPermissionService,
+                            private val playerStateService: PlayerStateService) : Listener {
     init {
         for (perm in ClaimPermission.values()) {
             for (e in perm.events) {
                 registerEvent(e.eventClass, ::handleClaimPermission)
             }
         }
-        for (rule in ClaimRule.values()) {
+        for (rule in Flag.values()) {
             for (r in rule.rules) {
                 registerEvent(r.eventClass, ::handleClaimRule)
             }
@@ -51,20 +47,21 @@ class ClaimEventHandler(var plugin: BellClaims,
      * pass.
      */
     private fun handleClaimRule(listener: Listener, event: Event) {
-        val rules = ClaimRule.getRulesForEvent(event::class.java).toMutableList() // Get the rules to deal with this event
-        val tempExecutor = ClaimRule.getRuleExecutorForEvent(event::class.java) ?: return  // Get the executor that deals with this event
+        val rules = Flag.getRulesForEvent(event::class.java).toMutableList() // Get the rules to deal with this event
+        val tempExecutor = Flag.getRuleExecutorForEvent(event::class.java) ?: return  // Get the executor that deals with this event
         val claims = tempExecutor.getClaims(event, claimService, partitionService) // Get all claims that this event affects
         if (claims.isEmpty()) return // Check if any claims are affected by the event
 
-        var executor: ((e: Event, es: ClaimService, ps: PartitionService) -> Boolean)?
+        var executor: ((event: Event, claimService: ClaimService,
+                        partitionService: PartitionService, flagService: FlagService) -> Boolean)?
         for (claim in claims) { // If they are, check if they do not allow this event
             for (rule in rules) {
-                if (!claimRuleRepository.doesClaimHaveRule(claim, rule)) {
+                if (!flagService.doesClaimHaveFlag(claim, rule)) {
                     for (ruleExecutor in rule.rules) {
                         if (ruleExecutor.eventClass == event::class.java) {
                             // If they do not, invoke the handler
                             executor = ruleExecutor.handler
-                            if (executor.invoke(event, claimService, partitionService)) {
+                            if (executor.invoke(event, claimService, partitionService, flagService)) {
                                 break
                             }
                         }
@@ -92,10 +89,10 @@ class ClaimEventHandler(var plugin: BellClaims,
 
         // Determine if this event happened inside a claim's boundaries
         val partition = partitionService.getByLocation(location) ?: return
-        val claim = claims.getById(partition.claimId) ?: return
+        val claim = claimService.getById(partition.claimId) ?: return
 
         // If player has override, do nothing.
-        val playerState = playerStates.get(player)
+        val playerState = playerStateService.getByPlayer(player)
         if (playerState!!.claimOverride) {
             return
         }
@@ -106,9 +103,9 @@ class ClaimEventHandler(var plugin: BellClaims,
         }
 
         // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
-        var playerPermissions = playerAccessRepository.getByPlayerInClaim(claim, player)
+        var playerPermissions = playerPermissionService.getByPlayer(claim, player)
         if (playerPermissions.isEmpty()) {
-            playerPermissions = claimPermissionRepository.getByClaim(claim)
+            playerPermissions = defaultPermissionService.getByClaim(claim)
         }
 
         eventPerms.removeAll(playerPermissions)
