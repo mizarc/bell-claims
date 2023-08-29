@@ -25,14 +25,14 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 
 /**
- * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
- * and a method to obtain all the claims that the event is affecting [getClaims].
+ * A data structure that contains the type of event [eventClass], the function to handle the result of the event
+ * [handler], and a method to obtain all the claims that the event is affecting [getClaims].
  */
 data class RuleExecutor(val eventClass: Class<out Event>,
                         val handler: (event: Event, claimService: ClaimService,
                                       partitionService: PartitionService, flagService: FlagService) -> Boolean,
                         val getClaims: (event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService, flagService: FlagService) -> List<Claim>)
+                                        partitionService: PartitionService) -> List<Claim>)
 
 /**
  * A static class object to define the behaviour of event handling for events that affect claims which do not specify
@@ -41,25 +41,40 @@ data class RuleExecutor(val eventClass: Class<out Event>,
 class RuleBehaviour {
     @Suppress("UNUSED_PARAMETER")
     companion object {
-        val fireBurn = RuleExecutor(BlockBurnEvent::class.java, Companion::cancelEvent, Companion::blockInClaim)
-        val fireSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelEvent, Companion::fireSpreadInClaim)
-        val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
-        val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java, Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
-        val creeperDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelCreeperDamage, Companion::entityDamageInClaim)
-        val creeperDamageHangingEntity = RuleExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelCreeperHangingDamage, Companion::hangingBreakByEntityInClaim)
-        val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java, Companion::cancelEvent, Companion::pistonExtendInClaim)
-        val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java, Companion::cancelEvent, Companion::pistonRetractInClaim)
-        val entityExplode = RuleExecutor(EntityExplodeEvent::class.java, Companion::preventExplosionDamage, Companion::entityExplosionInClaim)
-        val blockExplode = RuleExecutor(BlockExplodeEvent::class.java, Companion::preventExplosionDamage, Companion::blockExplosionInClaim)
-        val entityExplodeDamage = RuleExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEntityExplosionDamage, Companion::entityDamageInClaim)
-        val blockExplodeDamage = RuleExecutor(EntityDamageByBlockEvent::class.java, Companion::cancelBlockExplosionDamage, Companion::blockDamageInClaim)
-        val entityExplodeHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
-        val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java, Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
+        val fireBurn = RuleExecutor(BlockBurnEvent::class.java,
+            Companion::cancelEvent, Companion::blockInClaim)
+        val fireSpread = RuleExecutor(BlockSpreadEvent::class.java,
+            Companion::cancelEvent, Companion::fireSpreadInClaim)
+        val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java,
+            Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
+        val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java,
+            Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
+        val creeperDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelCreeperDamage, Companion::entityDamageInClaim)
+        val creeperDamageHangingEntity = RuleExecutor(HangingBreakByEntityEvent::class.java,
+            Companion::cancelCreeperHangingDamage, Companion::hangingBreakByEntityInClaim)
+        val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java,
+            Companion::cancelEvent, Companion::pistonExtendInClaim)
+        val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java,
+            Companion::cancelEvent, Companion::pistonRetractInClaim)
+        val entityExplode = RuleExecutor(EntityExplodeEvent::class.java,
+            Companion::preventExplosionDamage, Companion::entityExplosionInClaim)
+        val blockExplode = RuleExecutor(BlockExplodeEvent::class.java,
+            Companion::preventExplosionDamage, Companion::blockExplosionInClaim)
+        val entityExplodeDamage = RuleExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelEntityExplosionDamage, Companion::entityDamageInClaim)
+        val blockExplodeDamage = RuleExecutor(EntityDamageByBlockEvent::class.java,
+            Companion::cancelBlockExplosionDamage, Companion::blockDamageInClaim)
+        val entityExplodeHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java,
+            Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
+        val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
+            Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
 
         /**
          * Cancel any cancellable event.
          */
-        private fun cancelEvent(event: Event, claimService: ClaimService, partitionService: PartitionService): Boolean {
+        private fun cancelEvent(event: Event, claimService: ClaimService,
+                                partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event is Cancellable) {
                 event.isCancelled = true
                 return true
@@ -68,8 +83,8 @@ class RuleBehaviour {
         }
 
         private fun cancelEntityExplosionHangingDamage(event: Event, claimService: ClaimService,
-                                                 partitionService: PartitionService
-        ): Boolean {
+                                                       partitionService: PartitionService,
+                                                       flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
             if (event.cause != HangingBreakEvent.RemoveCause.EXPLOSION) return false
             if (event.remover is Creeper) return false
@@ -78,8 +93,8 @@ class RuleBehaviour {
         }
 
         private fun cancelBlockExplosionHangingDamage(event: Event, claimService: ClaimService,
-                                               partitionService: PartitionService
-        ): Boolean {
+                                                      partitionService: PartitionService,
+                                                      flagService: FlagService): Boolean {
             if (event !is HangingBreakEvent) return false
             if (event.cause != HangingBreakEvent.RemoveCause.EXPLOSION) return false
             event.isCancelled = true
@@ -87,8 +102,7 @@ class RuleBehaviour {
         }
 
         private fun cancelCreeperHangingDamage(event: Event, claimService: ClaimService,
-                                                partitionService: PartitionService
-        ): Boolean {
+                                               partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
             if (event.remover !is Creeper) return false
             event.isCancelled = true
@@ -96,8 +110,7 @@ class RuleBehaviour {
         }
 
         private fun hangingBreakByBlockInClaim(event: Event, claimService: ClaimService,
-                                                partitionService: PartitionService
-        ): List<Claim> {
+                                                partitionService: PartitionService): List<Claim> {
             if (event !is HangingBreakEvent) return listOf()
             val claimList = ArrayList<Claim>()
             val partition = partitionService.getByLocation(event.entity.location)
@@ -109,8 +122,7 @@ class RuleBehaviour {
         }
 
         private fun hangingBreakByEntityInClaim(event: Event, claimService: ClaimService,
-                                                partitionService: PartitionService
-        ): List<Claim> {
+                                                partitionService: PartitionService): List<Claim> {
             if (event !is HangingBreakByEntityEvent) return listOf()
             val claimList = ArrayList<Claim>()
             val partition = partitionService.getByLocation(event.entity.location)
@@ -122,8 +134,7 @@ class RuleBehaviour {
         }
 
         private fun cancelBlockExplosionDamage(event: Event, claimService: ClaimService,
-                                                partitionService: PartitionService
-        ): Boolean {
+                                               partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityDamageByBlockEvent) return false
             if (event.damager is Creeper) return false
             if (event.cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) return false
@@ -133,8 +144,7 @@ class RuleBehaviour {
         }
 
         private fun cancelEntityExplosionDamage(event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-        ): Boolean {
+                                                partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager is Creeper) return false
             if (event.cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) return false
@@ -144,8 +154,7 @@ class RuleBehaviour {
         }
 
         private fun blockDamageInClaim(event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-        ): List<Claim> {
+                                        partitionService: PartitionService): List<Claim> {
             if (event !is EntityDamageByBlockEvent) return listOf()
             val claimList = ArrayList<Claim>()
             val partition = partitionService.getByLocation(event.entity.location)
@@ -157,8 +166,7 @@ class RuleBehaviour {
         }
 
         private fun entityDamageInClaim(event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-        ): List<Claim> {
+                                        partitionService: PartitionService): List<Claim> {
             if (event !is EntityDamageByEntityEvent) return listOf()
             val claimList = ArrayList<Claim>()
             val partition = partitionService.getByLocation(event.entity.location)
@@ -170,8 +178,7 @@ class RuleBehaviour {
         }
 
         private fun cancelCreeperDamage(event: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-        ): Boolean {
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Creeper) return false
             if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is Painting) return false
@@ -180,19 +187,17 @@ class RuleBehaviour {
         }
 
         private fun cancelCreeperExplode(event: Event, claimService: ClaimService,
-                                            partitionService: PartitionService
-        ): Boolean {
+                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityExplodeEvent) return false
             if (event.entity !is Creeper) return false
             val blocks = getCreeperExplosionBlocks(
-                 event.blockList(), event.location.world!!, claimService, partitionService)
+                 event.blockList(), event.location.world!!, claimService, partitionService, flagService)
             event.blockList().removeAll(blocks)
             return true
         }
 
         private fun cancelEntityBlockChange(event: Event, claimService: ClaimService,
-                                            partitionService: PartitionService
-        ): Boolean {
+                                            partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityChangeBlockEvent) return false
             if (event.entity is Player) return false
             event.isCancelled = true
@@ -203,31 +208,32 @@ class RuleBehaviour {
          * Allow explosions to occur, but prevent them from destroying blocks in claims that do not explicitly allow it.
          */
         private fun preventExplosionDamage(event: Event, claimService: ClaimService,
-                                           partitionService: PartitionService
-        ): Boolean {
+                                           partitionService: PartitionService, flagService: FlagService): Boolean {
             val blocks: List<Block>
             if (event is EntityExplodeEvent) {
                 if (event.entity is Creeper) return false
-                blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService, partitionService)
+                blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService,
+                    partitionService, flagService)
                 event.blockList().removeAll(blocks)
                 return true
             }
             else if (event is BlockExplodeEvent) {
-                blocks = getExplosionBlocks(event.blockList(), event.block.world, claimService, partitionService)
+                blocks = getExplosionBlocks(event.blockList(), event.block.world, claimService,
+                    partitionService, flagService)
                 event.blockList().removeAll(blocks)
                 return true
             }
             return false
         }
 
-        private fun getCreeperExplosionBlocks(blocks: MutableList<Block>, world: World, claimService: ClaimService,
-                                       partitionService: PartitionService
-        ): List<Block> {
+        private fun getCreeperExplosionBlocks(blocks: MutableList<Block>, world: World,
+                                              claimService: ClaimService, partitionService: PartitionService,
+                                              flagService: FlagService): List<Block> {
             val cancelledBlocks: MutableList<Block> = mutableListOf()
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!claimService.getClaimRules(claim).contains(Flag.MobGriefing)) {
+                if (!flagService.doesClaimHaveFlag(claim, Flag.MobGriefing)) {
                     cancelledBlocks.add(block)
                 }
             }
@@ -237,14 +243,14 @@ class RuleBehaviour {
         /**
          * Edit the explosion's destruction to exclude blocks inside of claims without the rule for it.
          */
-        private fun getExplosionBlocks(blocks: MutableList<Block>, world: World, claimService: ClaimService,
-                                          partitionService: PartitionService
-        ): List<Block> {
+        private fun getExplosionBlocks(blocks: MutableList<Block>, world: World,
+                                       claimService: ClaimService, partitionService: PartitionService,
+                                       flagService: FlagService): List<Block> {
             val cancelledBlocks: MutableList<Block> = mutableListOf()
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!claimService.getClaimRules(claim).contains(Flag.Explosions)) {
+                if (!flagService.doesClaimHaveFlag(claim, Flag.Explosions)) {
                     cancelledBlocks.add(block)
                 }
             }
@@ -255,8 +261,7 @@ class RuleBehaviour {
          * Get claims which this block resides in.
          */
         private fun blockInClaim(event: Event, claimService: ClaimService,
-                                 partitionService: PartitionService
-        ): List<Claim> {
+                                 partitionService: PartitionService): List<Claim> {
             if (event !is BlockEvent) return listOf()
             val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId)
@@ -264,8 +269,7 @@ class RuleBehaviour {
         }
 
         private fun fireSpreadInClaim(event: Event, claimService: ClaimService,
-                                      partitionService: PartitionService
-        ): List<Claim> {
+                                      partitionService: PartitionService): List<Claim> {
             if (event !is BlockSpreadEvent) return listOf()
             if (event.source.type != Material.FIRE) return listOf()
             val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
@@ -277,8 +281,7 @@ class RuleBehaviour {
          * Get claims which this explosion affects the blocks of.
          */
         private fun blockExplosionInClaim(e: Event, claimService: ClaimService,
-                                          partitionService: PartitionService
-        ): List<Claim> {
+                                          partitionService: PartitionService): List<Claim> {
             if (e !is BlockExplodeEvent) return listOf()
             return getExplosionClaims(e.blockList(), claimService, partitionService)
         }
@@ -287,8 +290,7 @@ class RuleBehaviour {
          * Get claims which this explosion affects the blocks of.
          */
         private fun entityExplosionInClaim(e: Event, claimService: ClaimService,
-                                           partitionService: PartitionService
-        ): List<Claim> {
+                                           partitionService: PartitionService): List<Claim> {
             if (e !is EntityExplodeEvent) return listOf()
             return getExplosionClaims(e.blockList(), claimService, partitionService)
         }
@@ -297,8 +299,7 @@ class RuleBehaviour {
          * Get claims that this explosion affects.
          */
         private fun getExplosionClaims(blocks: List<Block>, claimService: ClaimService,
-                                       partitionService: PartitionService
-        ): List<Claim> {
+                                       partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             for (block in blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
@@ -312,8 +313,7 @@ class RuleBehaviour {
          * Get claims which this entity grief event resides in.
          */
         private fun entityGriefInClaim(event: Event, claimService: ClaimService,
-                                       partitionService: PartitionService
-        ): List<Claim> {
+                                       partitionService: PartitionService): List<Claim> {
             if (event !is EntityChangeBlockEvent) return listOf()
             val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
@@ -324,8 +324,7 @@ class RuleBehaviour {
          * Get claims for piston extends.
          */
         private fun pistonExtendInClaim(e: Event, claimService: ClaimService,
-                                        partitionService: PartitionService
-        ): List<Claim> {
+                                        partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonExtendEvent) return listOf()
             return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
         }
@@ -334,8 +333,7 @@ class RuleBehaviour {
          * Get claims for piston retracts.
          */
         private fun pistonRetractInClaim(e: Event, claimService: ClaimService,
-                                         partitionService: PartitionService
-        ): List<Claim> {
+                                         partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonRetractEvent) return listOf()
             return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
         }
@@ -345,8 +343,7 @@ class RuleBehaviour {
          * allowed to occur.
          */
         private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
-                                    partitionService: PartitionService
-        ): List<Claim> {
+                                    partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             val checks: ArrayList<Block> = ArrayList()
             for (c in blocks) {
