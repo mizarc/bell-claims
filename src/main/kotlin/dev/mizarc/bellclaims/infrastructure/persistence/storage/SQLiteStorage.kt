@@ -1,11 +1,11 @@
-package dev.mizarc.bellclaims.infrastructure.storage
+package dev.mizarc.bellclaims.infrastructure.persistence.storage
 
 import co.aikar.idb.Database
 import co.aikar.idb.DatabaseOptions
 import co.aikar.idb.PooledDatabaseOptions
 import org.bukkit.plugin.Plugin
 
-class DatabaseStorage(plugin: Plugin): Storage<Database> {
+class SQLiteStorage(plugin: Plugin): Storage<Database> {
     override val connection: Database
 
     init {
