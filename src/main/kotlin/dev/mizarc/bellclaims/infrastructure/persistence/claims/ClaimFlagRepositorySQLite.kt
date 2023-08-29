@@ -1,39 +1,39 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimRuleRepository
+import dev.mizarc.bellclaims.domain.claims.ClaimFlagRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
-import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
+import dev.mizarc.bellclaims.interaction.listeners.Flag
 import java.sql.SQLException
 import java.util.*
 
-class ClaimRuleRepositorySQLite(private val storage: DatabaseStorage): ClaimRuleRepository {
-    private val rules: MutableMap<UUID, MutableSet<ClaimRule>> = mutableMapOf()
+class ClaimFlagRepositorySQLite(private val storage: DatabaseStorage): ClaimFlagRepository {
+    private val rules: MutableMap<UUID, MutableSet<Flag>> = mutableMapOf()
 
     init {
         createTable()
         preload()
     }
 
-    fun doesClaimHaveRule(claim: Claim, rule: ClaimRule): Boolean {
+    fun doesClaimHaveRule(claim: Claim, rule: Flag): Boolean {
         return rules[claim.id]?.contains(rule) ?: false
     }
 
-    override fun getByClaim(claim: Claim): MutableSet<ClaimRule> {
+    override fun getByClaim(claim: Claim): MutableSet<Flag> {
         return rules[claim.id] ?: mutableSetOf()
     }
 
-    override fun add(claim: Claim, rule: ClaimRule) {
+    override fun add(claim: Claim, rule: Flag) {
         rules.getOrPut(claim.id) { mutableSetOf() }.add(rule)
         try {
-            storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule)" +
-                    "VALUES (?,?)", claim.id, rule.name)
+            storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule) VALUES (?,?)",
+                claim.id, rule.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
     }
 
-    override fun remove(claim: Claim, rule: ClaimRule) {
+    override fun remove(claim: Claim, rule: Flag) {
         val claimRules = rules[claim.id] ?: return
         claimRules.remove(rule)
         if (claimRules.isEmpty()) {
@@ -76,7 +76,7 @@ class ClaimRuleRepositorySQLite(private val storage: DatabaseStorage): ClaimRule
     private fun preload() {
         val results = storage.connection.getResults("SELECT * FROM claimRules")
         for (result in results) {
-            val rule = ClaimRule.valueOf(result.getString("rule"))
+            val rule = Flag.valueOf(result.getString("rule"))
             rules.getOrPut(UUID.fromString(result.getString("claimId"))) { mutableSetOf() }.add(rule)
         }
     }
