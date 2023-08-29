@@ -12,14 +12,16 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import org.bukkit.Bukkit
+import org.bukkit.Chunk
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
@@ -27,10 +29,10 @@ import kotlin.concurrent.thread
 private const val upperRange = 5
 private const val lowerRange = 50
 
-class ClaimVisualiser(private val plugin: JavaPlugin,
-                      private val claimService: ClaimService,
-                      private val partitionService: PartitionService,
-                      private val playerStateRepo: PlayerStateRepository
+class Visualiser(private val plugin: JavaPlugin,
+                 private val claimService: ClaimService,
+                 private val partitionService: PartitionService,
+                 private val playerStateRepo: PlayerStateRepository
 ) : Listener {
 
     enum class Direction {
@@ -556,11 +558,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
             borders = updateOthersVisualisation(player, claim)
         }
         else {
-            if (playerState.claimToolMode == 1) {
-                borders = (updatePartitionVisualisation(player, claim))
-            }
-            else {
-                borders = updateClaimVisualisation(player, claim)
+            borders = if (playerState.claimToolMode == 1) {
+                (updatePartitionVisualisation(player, claim))
+            } else {
+                updateClaimVisualisation(player, claim)
             }
         }
 
@@ -604,10 +605,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise a player's claims with individual partitions shown.
      */
     fun updatePartitionVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(player.chunk, plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
-            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+            partitionsInChunks.addAll(partitionService.getByChunk(chunk))
         }
         if (partitionsInChunks.isEmpty()) return mutableMapOf()
 
@@ -633,7 +634,7 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
 
         val partitions = partitionService.getByClaim(claim)
         for (partition in partitions) {
-            val mainPartition = partitionService.getPrimaryPartition(claim)
+            val mainPartition = partitionService.getPrimary(claim) ?: continue
             if (claim.owner.uniqueId != player.uniqueId) {
                 continue
             }
@@ -659,10 +660,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise all of a player's claims with only outer borders.
      */
     fun updateClaimVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(player.chunk, plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
-            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+            partitionsInChunks.addAll(partitionService.getByChunk(chunk))
         }
         if (partitionsInChunks.isEmpty()) return mutableMapOf()
 
@@ -745,10 +746,10 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
      * Visualise claims that aren't owned by the player.
      */
     fun updateOthersVisualisation(player: Player): MutableMap<Claim, MutableSet<Position3D>> {
-        val chunks = getSurroundingChunks(Position2D(player.location).getChunk(), plugin.server.viewDistance)
+        val chunks = getSurroundingChunks(player.chunk, plugin.server.viewDistance)
         val partitionsInChunks = ArrayList<Partition>()
         for (chunk in chunks) {
-            partitionsInChunks.addAll(partitionService.getByChunk(player.world.uid, chunk))
+            partitionsInChunks.addAll(partitionService.getByChunk(player.chunk))
         }
         if (partitionsInChunks.isEmpty()) return mutableMapOf()
 
@@ -910,16 +911,16 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
     }
 
     /**
-     * Get a square of chunks centering on [position2D] with a size of [radius]
+     * Get a square of chunks centering on [chunk] with a size of [radius]
      */
     @Suppress("SameParameterValue")
-    private fun getSurroundingChunks(position2D: Position2D, radius: Int): Array<Position2D> {
-        val sideLength = (radius * 2) + 1 // Make it always odd (eg. radius of 2 results in 5x5 square)
-        val chunks = Array(sideLength * sideLength) { Position2D(0,0) }
+    private fun getSurroundingChunks(chunk: Chunk, radius: Int): Set<Chunk> {
+        val sideLength = (radius * 2) + 1 // Make it always odd (e.g. radius of 2 results in 5x5 square)
+        val chunks: MutableSet<Chunk> = mutableSetOf()
 
         for (x in 0 until sideLength) {
             for (z in 0 until sideLength) {
-                chunks[(x * sideLength) + z] = Position2D(position2D.x + x - radius, position2D.z + z - radius)
+                chunks.add(chunk.world.getChunkAt(chunk.x + x - radius, chunk.z + z - radius))
             }
         }
 
@@ -1018,24 +1019,24 @@ class ClaimVisualiser(private val plugin: JavaPlugin,
         val players: ArrayList<Player> = ArrayList()
 
         // Get list of chunks that the claim occupies
-        val startingChunks: MutableSet<Position2D> = mutableSetOf()
+        val startingChunks: MutableSet<Chunk> = mutableSetOf()
         val partitions = partitionService.getByClaim(claim)
+        val world = claim.getWorld() ?: return arrayOf()
         for (partition in partitions) {
-            startingChunks.addAll(partition.getChunks())
+            startingChunks.addAll(partition.getChunks().map { world.getChunkAt(it.x, it.z) })
         }
 
         // Get surrounding chunks
-        val finalChunks: MutableSet<Position2D> = mutableSetOf()
+        val finalChunks: MutableSet<Chunk> = mutableSetOf()
         for (chunk in startingChunks) {
             finalChunks.addAll(getSurroundingChunks(chunk, 1))
         }
 
         // Get players in chunks
-        val world = claim.getWorld()
         for (player in plugin.server.onlinePlayers) {
             if (player.location.world != world) continue
             val playerState = playerStateRepo.get(player) ?: continue
-            if (finalChunks.contains(Position2D(player.location).getChunk()) && playerState.isVisualisingClaims) {
+            if (finalChunks.contains(player.chunk) && playerState.isVisualisingClaims) {
                 players.add(player)
             }
         }
