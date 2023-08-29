@@ -3,12 +3,12 @@ package dev.mizarc.bellclaims.infrastructure.persistence.claims
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
-import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
-class PlayerAccessRepositorySQLite(private val storage: DatabaseStorage): PlayerAccessRepository {
+class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAccessRepository {
     private val playerAccess: MutableMap<UUID, MutableMap<UUID, MutableSet<ClaimPermission>>> = mutableMapOf()
 
     init {
