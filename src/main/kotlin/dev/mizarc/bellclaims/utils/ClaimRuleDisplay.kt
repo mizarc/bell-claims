@@ -2,31 +2,31 @@ package dev.mizarc.bellclaims.utils
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
+import dev.mizarc.bellclaims.interaction.listeners.Flag
 
-fun ClaimRule.getIcon(): ItemStack {
+fun Flag.getIcon(): ItemStack {
     return when (this) {
-        ClaimRule.Explosions -> ItemStack(Material.TNT)
-        ClaimRule.FireSpread -> ItemStack(Material.FLINT_AND_STEEL)
-        ClaimRule.MobGriefing -> ItemStack(Material.CREEPER_HEAD)
-        ClaimRule.Pistons -> ItemStack(Material.PISTON)
+        Flag.Explosions -> ItemStack(Material.TNT)
+        Flag.FireSpread -> ItemStack(Material.FLINT_AND_STEEL)
+        Flag.MobGriefing -> ItemStack(Material.CREEPER_HEAD)
+        Flag.Pistons -> ItemStack(Material.PISTON)
     }
 }
 
-fun ClaimRule.getDisplayName(): String {
+fun Flag.getDisplayName(): String {
     return when (this) {
-        ClaimRule.Explosions -> "Explosions"
-        ClaimRule.FireSpread -> "Fire Spread"
-        ClaimRule.MobGriefing -> "Mob Griefing"
-        ClaimRule.Pistons -> "Pistons"
+        Flag.Explosions -> "Explosions"
+        Flag.FireSpread -> "Fire Spread"
+        Flag.MobGriefing -> "Mob Griefing"
+        Flag.Pistons -> "Pistons"
     }
 }
 
-fun ClaimRule.getDescription(): String {
+fun Flag.getDescription(): String {
     return when (this) {
-        ClaimRule.Explosions -> "Allows TNT to damage claim blocks"
-        ClaimRule.FireSpread -> "Allows fire to spread to other blocks"
-        ClaimRule.MobGriefing -> "Allows mobs to damage claim blocks"
-        ClaimRule.Pistons -> "Allows pistons to move claim blocks"
+        Flag.Explosions -> "Allows TNT to damage claim blocks"
+        Flag.FireSpread -> "Allows fire to spread to other blocks"
+        Flag.MobGriefing -> "Allows mobs to damage claim blocks"
+        Flag.Pistons -> "Allows pistons to move claim blocks"
     }
 }
