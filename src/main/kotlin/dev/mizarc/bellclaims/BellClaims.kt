@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
-import co.aikar.commands.annotation.Default
 import dev.mizarc.bellclaims.api.*
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
@@ -14,13 +13,12 @@ import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.services.ClaimServiceImpl
 import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 import dev.mizarc.bellclaims.infrastructure.persistence.DatabaseStorage
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRuleRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.services.PartitionServiceImpl
+import dev.mizarc.bellclaims.infrastructure.services.*
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 
@@ -36,28 +34,20 @@ class BellClaims : JavaPlugin() {
     private lateinit var playerAccessRepo: PlayerAccessRepository
     private lateinit var playerStateRepo: PlayerStateRepository
     private lateinit var claimService: ClaimService
+    private lateinit var claimWorldService: ClaimWorldService
     private lateinit var partitionService: PartitionService
-    private lateinit var claimPermissionService: DefaultPermissionService
+    private lateinit var defaultPermissionService: DefaultPermissionService
     private lateinit var playerPermissionService: PlayerPermissionService
     private lateinit var visualisationService: VisualisationService
     private lateinit var playerStateService: PlayerStateService
-    val claimVisualiser = ClaimVisualiser(this, claimService, partitionService, playerStateRepo)
+    private val visualiser = Visualiser(this, claimService, partitionService, playerStateRepo)
 
     override fun onEnable() {
-        // Initialise Repositories
-        claimRepo = ClaimRepositorySQLite(storage)
-        partitionRepo = PartitionRepositorySQLite(storage)
-        claimRuleRepo = ClaimRuleRepositorySQLite(storage)
-        playerAccessRepo = PlayerAccessRepositorySQLite(storage)
-        playerStateRepo = PlayerStateRepositoryMemory()
-
-        // Initialise Services
-        claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo,
-            claimPermissionRepo, partitionService, playerStateService)
-        partitionService = PartitionServiceImpl(config, claimService, partitionRepo)
-
         logger.info(Chat::class.java.toString())
-        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(Chat::class.java)!!
+        initialiseRepositories()
+        initialiseServices()
+        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
+            .getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)
         metadata = serviceProvider.provider
         registerDependencies()
@@ -70,6 +60,22 @@ class BellClaims : JavaPlugin() {
         logger.info("Bell Claims has been Disabled")
     }
 
+    private fun initialiseRepositories() {
+        claimRepo = ClaimRepositorySQLite(storage)
+        partitionRepo = PartitionRepositorySQLite(storage)
+        claimRuleRepo = ClaimRuleRepositorySQLite(storage)
+        playerAccessRepo = PlayerAccessRepositorySQLite(storage)
+        playerStateRepo = PlayerStateRepositoryMemory()
+    }
+
+    private fun initialiseServices() {
+        claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
+        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
+        partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
+        defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
+        playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
+    }
+
     private fun registerDependencies() {
         commandManager.registerDependency(ClaimRepositorySQLite::class.java, claimRepo)
         commandManager.registerDependency(PartitionRepository::class.java, partitionRepo)
@@ -77,7 +83,7 @@ class BellClaims : JavaPlugin() {
         commandManager.registerDependency(ClaimPermissionRepository::class.java, claimPermissionRepo)
         commandManager.registerDependency(PlayerAccessRepository::class.java, playerAccessRepo)
         commandManager.registerDependency(PlayerStateRepositoryMemory::class.java, playerStateRepo)
-        commandManager.registerDependency(ClaimVisualiser::class.java, claimVisualiser)
+        commandManager.registerDependency(Visualiser::class.java, visualiser)
         commandManager.registerDependency(ClaimService::class.java, claimService)
         commandManager.registerDependency(PartitionService::class.java, partitionService)
     }
@@ -106,8 +112,9 @@ class BellClaims : JavaPlugin() {
             this)
         server.pluginManager.registerEvents(
             ClaimToolListener(claimRepo, playerStateRepo, claimService,
-            partitionService, claimVisualiser), this)
-        server.pluginManager.registerEvents(ClaimVisualiser(this, claimService, partitionService, playerStateRepo), this)
+            partitionService, visualiser), this)
+        server.pluginManager.registerEvents(Visualiser(this, claimService, partitionService, playerStateRepo),
+            this)
         server.pluginManager.registerEvents(
             PlayerRegistrationListener(config, metadata,
             playerStateRepo), this)
@@ -115,7 +122,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(
             ClaimManagementListener(claimRepo, partitionRepo,
             claimRuleRepo, claimPermissionRepo, playerAccessRepo, partitionService, claimService), this)
-        server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimVisualiser), this)
+        server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService), this)
         server.pluginManager.registerEvents(ClaimMoveListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(ClaimMoveToolRemovalListener(), this)
         server.pluginManager.registerEvents(MiscPreventions(claimService, partitionService), this)
