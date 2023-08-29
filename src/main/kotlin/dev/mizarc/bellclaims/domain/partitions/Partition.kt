@@ -81,6 +81,14 @@ data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
         return chunks
     }
 
+    /**
+     * Gets the amount of blocks that make up the claim.
+     * @return The amount of blocks.
+     */
+    fun getBlockCount(): Int {
+        return area.getBlockCount()
+    }
+
     class Builder(val claimId: UUID, var firstPosition2D: Position2D) {
         val id: UUID = UUID.randomUUID()
         lateinit var secondPosition2D: Position2D
