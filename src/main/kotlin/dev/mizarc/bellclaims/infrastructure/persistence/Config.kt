@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure
+package dev.mizarc.bellclaims.infrastructure.persistence
 
 import org.bukkit.plugin.Plugin
 
