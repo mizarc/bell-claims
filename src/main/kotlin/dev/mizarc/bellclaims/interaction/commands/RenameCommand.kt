@@ -17,15 +17,11 @@ class RenameCommand : ClaimCommand() {
         }
 
         // Ensure name is under character limit
-        if (name.count() > 32) {
-            player.sendMessage("§cName must be under 32 characters.")
-            return
-        }
+        if (name.count() > 32) return player.sendMessage("§cName must be under 32 characters.")
 
         // Set new name
-        val claim = claims.getById(partition.claimId)!!
-        claim.name = name
-        claims.update(claim)
+        val claim = claimService.getById(partition.claimId) ?: return
+        claimService.changeName(claim, name)
         player.sendMessage("§aThe name of the claim has been set to §6$name§a.")
     }
 }

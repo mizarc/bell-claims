@@ -3,12 +3,12 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.api.claims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRepositorySQLite
-import dev.mizarc.bellclaims.interaction.listeners.ClaimVisualiser
-import dev.mizarc.bellclaims.infrastructure.partitions.PartitionRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.infrastructure.services.PartitionService
+import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.interaction.listeners.Visualiser
+import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 
 
 @CommandAlias("unclaim")
@@ -16,8 +16,8 @@ class UnclaimCommand : BaseCommand() {
     @Dependency
     lateinit var claims : ClaimRepositorySQLite
     lateinit var partitions: PartitionRepositorySQLite
-    lateinit var playerStates: PlayerStateRepository
-    lateinit var claimVisualiser: ClaimVisualiser
+    lateinit var playerStates: PlayerStateRepositoryMemory
+    lateinit var visualiser: Visualiser
     protected lateinit var claimService: ClaimService
     protected lateinit var partitionService: PartitionService
 
@@ -40,7 +40,7 @@ class UnclaimCommand : BaseCommand() {
 
         // Update visualiser
         val claim = claims.getById(partition.claimId) ?: return
-        claimVisualiser.registerClaimUpdate(claim)
+        visualiser.registerClaimUpdate(claim)
 
         // Remove claim if there are no more partitions attached to it
         if (partitions.getByClaim(claim).isEmpty()) {

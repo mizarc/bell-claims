@@ -12,13 +12,12 @@ class DescriptionCommand : ClaimCommand() {
     @CommandPermission("bellclaims.command.claim.description")
     fun onDescription(player: Player, description: String) {
         val partition = getPartitionAtPlayer(player) ?: return
+        val claim = claimService.getById(partition.claimId) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {
             return
         }
 
-        val claim = claims.getById(partition.claimId)!!
-        claim.description = description
-        claims.update(claim)
+        claimService.changeDescription(claim, description)
         player.sendMessage("§aNew claim description has been set.")
     }
 }
