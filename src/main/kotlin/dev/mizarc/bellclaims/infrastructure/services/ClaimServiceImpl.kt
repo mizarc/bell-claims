@@ -3,17 +3,15 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.domain.claims.*
 import dev.mizarc.bellclaims.domain.partitions.*
-import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.Material
 import java.util.UUID
 
 class ClaimServiceImpl(private val claimRepo: ClaimRepository,
                        private val partitionRepo: PartitionRepository,
-                       private val claimRuleRepo: ClaimRuleRepository,
+                       private val claimFlagRepo: ClaimFlagRepository,
                        private val claimPermissionRepo: ClaimPermissionRepository,
                        private val playerPermissionRepo: PlayerAccessRepository): ClaimService {
-
     override fun getById(id: UUID): Claim? {
         return claimRepo.getById(id)
     }
@@ -52,7 +50,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
 
     override fun destroy(claim: Claim) {
         partitionRepo.removeByClaim(claim)
-        claimRuleRepo.removeByClaim(claim)
+        claimFlagRepo.removeByClaim(claim)
         claimPermissionRepo.removeByClaim(claim)
         playerPermissionRepo.removeByClaim(claim)
         claimRepo.remove(claim)
