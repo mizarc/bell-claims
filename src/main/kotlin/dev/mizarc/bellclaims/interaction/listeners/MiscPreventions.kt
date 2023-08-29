@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.api.PartitionService
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -9,8 +9,7 @@ import org.bukkit.event.block.BlockSpreadEvent
 import org.bukkit.event.world.StructureGrowEvent
 
 class MiscPreventions(private val claimService: ClaimService,
-                      private val partitionService: PartitionService
-) : Listener {
+                      private val partitionService: PartitionService) : Listener {
     @EventHandler
     fun onTreeGrowth(event: StructureGrowEvent) {
         if (partitionService.getByLocation(event.location) != null) {
