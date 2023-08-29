@@ -7,7 +7,8 @@ import org.bukkit.block.data.type.Bell
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
-import dev.mizarc.bellclaims.ClaimService
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -22,13 +23,14 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.world.StructureGrowEvent
 
-class ClaimDestructionListener(val claimService: ClaimService, val claimVisualiser: ClaimVisualiser): Listener {
+class ClaimDestructionListener(val claimService: ClaimService,
+                               private val claimWorldService: ClaimWorldService): Listener {
     @EventHandler
     fun onClaimHubDestroy(event: BlockBreakEvent) {
         if (event.block.blockData !is Bell) return
+        val claim = claimWorldService.getByLocation(event.block.location) ?: return
 
-        val claim = claimService.getByLocation(event.block.location) ?: return
-
+        // No permission to break bell
         if (event.player.uniqueId != claim.owner.uniqueId) {
             event.player.sendActionBar(
                 Component.text("This claim belongs to ${claim.owner.name}")
@@ -48,8 +50,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
             return
         }
 
-        claimService.removeClaim(claim)
-        claimVisualiser.registerClaimRemoval(claim)
+        claimService.destroy(claim)
         event.player.sendActionBar(
             Component.text("Claim '${claim.name}' has been destroyed")
             .color(TextColor.color(85, 255, 85)))
@@ -81,7 +82,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
     @EventHandler
     fun onPistolPush(event: BlockPistonExtendEvent) {
         for (block in event.blocks) {
-            if (claimService.getByLocation(block.location) != null) {
+            if (claimWorldService.getByLocation(block.location) != null) {
                 event.isCancelled = true
             }
         }
@@ -90,7 +91,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
     @EventHandler
     fun onPistolPull(event: BlockPistonRetractEvent) {
         for (block in event.blocks) {
-            if (claimService.getByLocation(block.location) != null) {
+            if (claimWorldService.getByLocation(block.location) != null) {
                 event.isCancelled = true
             }
         }
@@ -150,7 +151,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
 
     @EventHandler
     fun onBlockDestroy(event: BlockDestroyEvent) {
-        if (claimService.getByLocation(event.block.location) != null) {
+        if (claimWorldService.getByLocation(event.block.location) != null) {
             event.isCancelled = true
         }
     }
@@ -158,7 +159,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
     @EventHandler
     fun onTreeGrowth(event: StructureGrowEvent) {
         for (block in event.blocks) {
-            if (claimService.getByLocation(block.location) != null) {
+            if (claimWorldService.getByLocation(block.location) != null) {
                 event.isCancelled = true
             }
         }
@@ -167,7 +168,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
     fun explosionHandler(blocks: MutableList<Block>): List<Block> {
         val cancelledBlocks = mutableListOf<Block>()
         for (block in blocks) {
-            if (claimService.getByLocation(block.location) != null) {
+            if (claimWorldService.getByLocation(block.location) != null) {
                 cancelledBlocks.add(block)
             }
 
@@ -193,7 +194,7 @@ class ClaimDestructionListener(val claimService: ClaimService, val claimVisualis
 
     fun wouldBlockBreakBell(block: Block): Boolean {
         for (position in getSurroundingPositions(Position3D(block.location))) {
-            claimService.getByLocation(position.toLocation(block.world)) ?: continue
+            claimWorldService.getByLocation(position.toLocation(block.world)) ?: continue
             val blockAt = block.world.getBlockAt(position.toLocation(block.world))
             val bell = blockAt.blockData as? Bell ?: continue
 
