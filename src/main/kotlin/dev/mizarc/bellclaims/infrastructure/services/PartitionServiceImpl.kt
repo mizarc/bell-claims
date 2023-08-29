@@ -63,6 +63,10 @@ class PartitionServiceImpl(private val config: Config,
         return partitionRepo.getByClaim(claim)
     }
 
+    override fun getPrimary(claim: Claim): Partition? {
+        return filterByWorld(claim.worldId, partitionRepo.getByPosition(claim.position)).firstOrNull()
+    }
+
     override fun append(area: Area, claim: Claim): PartitionCreationResult {
         val partition = Partition(claim.id, area)
 

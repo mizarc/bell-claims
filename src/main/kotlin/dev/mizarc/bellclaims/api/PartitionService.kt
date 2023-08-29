@@ -68,6 +68,14 @@ interface PartitionService {
     fun getByClaim(claim: Claim): Set<Partition>
 
     /**
+     * Gets the partition that the claim bell exists in.
+     *
+     * @param claim The claim to get the partition of.
+     * @return The primary partition.
+     */
+    fun getPrimary(claim: Claim): Partition?
+
+    /**
      * Adds a new partition to the claim using an area.
      * @param area The area to compose the partition out of.
      * @param claim The claim to add the partition to.
