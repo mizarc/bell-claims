@@ -5,28 +5,19 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
+import dev.mizarc.bellclaims.api.*
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
-import dev.mizarc.bellclaims.api.claims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
-import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRuleRepository
-import dev.mizarc.bellclaims.infrastructure.claims.PlayerAccessRepository
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 
 open class ClaimCommand : BaseCommand() {
-    @Dependency protected lateinit var claims : ClaimRepositorySQLite
-    @Dependency protected lateinit var partitions: PartitionRepository
-    @Dependency protected lateinit var playerStates: PlayerStateRepository
-    @Dependency protected lateinit var claimRuleRepository: ClaimRuleRepository
-    @Dependency protected lateinit var claimPermissionRepository: ClaimPermissionRepository
-    @Dependency protected lateinit var playerAccessRepository: PlayerAccessRepository
     @Dependency protected lateinit var claimService: ClaimService
     @Dependency protected lateinit var partitionService: PartitionService
+    @Dependency protected lateinit var flagService: FlagService
+    @Dependency protected lateinit var defaultPermissionService: DefaultPermissionService
+    @Dependency protected lateinit var playerPermissionService: PlayerPermissionService
+    @Dependency protected lateinit var playerStateService: PlayerStateService
 
     @CommandAlias("claim")
     @CommandPermission("bellclaims.command.claim")
@@ -67,7 +58,7 @@ open class ClaimCommand : BaseCommand() {
 
     fun isPlayerHasClaimPermission(player: Player, partition: Partition): Boolean {
         // Check if player state exists
-        val playerState = playerStates.get(player)
+        val playerState = playerStateService.getById(player.uniqueId)
         if (playerState == null) {
             player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
             return false
@@ -79,7 +70,7 @@ open class ClaimCommand : BaseCommand() {
         }
 
         // Check if player owns claim
-        val claim = claims.getById(partition.claimId)!!
+        val claim = claimService.getById(partition.claimId)!!
         if (player.uniqueId != claim.owner.uniqueId) {
             player.sendMessage("§cYou don't have permission to modify this claim.")
             return false

@@ -13,19 +13,19 @@ class PartitionlistCommand : ClaimCommand() {
 
     @Subcommand("partitionlist")
     @CommandPermission("bellclaims.command.claim.partitionlist")
-    fun onPartitionlist(player: Player, @Default("1") page: Int) {
+    fun onPartitionList(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
 
         // Check if page is empty
-        val claim = claims.getById(partition.claimId)!!
-        val claimPartitions = partitions.getByClaim(claim).toMutableList()
+        val claim = claimService.getById(partition.claimId)!!
+        val claimPartitions = partitionService.getByClaim(claim).toList()
         if (page * 10 - 9 > claimPartitions.count()) {
             player.sendMessage("§cThere are no claim partitions on that page.")
             return
         }
 
         // Output list of partitions
-        val name = if (claim.name.isNotEmpty()) claim.name else claim.id.toString().substring(0, 7)
+        val name = claim.name.ifEmpty { claim.id.toString().substring(0, 7) }
         val chatInfo = ChatInfoBuilder("$name Partitions")
         for (i in 0..9 + page) {
             if (i > claimPartitions.count() - 1) {
@@ -36,6 +36,6 @@ class PartitionlistCommand : ClaimCommand() {
         }
 
         player.spigot().sendMessage(*chatInfo.createPaged(page,
-            ceil(((playerAccessRepository.getByClaim(claim)?.count() ?: 0) / 10.0)).toInt()))
+            ceil(((playerPermissionService.getByClaim(claim).count()) / 10.0)).toInt()))
     }
 }

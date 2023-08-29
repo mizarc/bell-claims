@@ -6,12 +6,12 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 
 @CommandAlias("claimoverride")
 class ClaimOverrideCommand: BaseCommand() {
     @Dependency
-    lateinit var players: PlayerStateRepository
+    lateinit var players: PlayerStateRepositoryMemory
 
     @Default
     @CommandPermission("bellclaims.command.claimoverride")

@@ -16,11 +16,11 @@ class InfoCommand : ClaimCommand() {
 
     @Subcommand("info")
     @CommandPermission("bellclaims.command.claim.info")
-    fun onClaiminfo(player: Player) {
+    fun onClaimInfo(player: Player) {
         val partition = getPartitionAtPlayer(player) ?: return
 
-        val claim = claims.getById(partition.claimId)!!
-        val claimPartitions = partitions.getByClaim(claim)
+        val claim = claimService.getById(partition.claimId)!!
+        val claimPartitions = partitionService.getByClaim(claim)
         val blockCount = claimService.getBlockCount(claim)
         val name = if (claim.name.isEmpty()) claim.name else claim.id.toString().substring(0, 7)
 
@@ -36,7 +36,7 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", claimPartitions.count().toString())
         chatInfo.addLinked("Block Count", blockCount.toString())
-        chatInfo.addLinked("Trusted Users", playerAccessRepository.getByClaim(claim)?.count().toString())
+        chatInfo.addLinked("Trusted Users", playerPermissionService.getByClaim(claim).count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
         chatInfo.addLinked("First Corner", partition.area.lowerPosition2D.toString())

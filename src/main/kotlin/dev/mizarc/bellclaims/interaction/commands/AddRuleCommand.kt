@@ -4,26 +4,26 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.interaction.listeners.ClaimRule
+import dev.mizarc.bellclaims.interaction.listeners.Flag
 
 @CommandAlias("claim")
 class AddRuleCommand : ClaimCommand() {
 
-    @Subcommand("addrule")
+    @Subcommand("addflag")
     @CommandPermission("bellclaims.command.claim.addrule")
-    fun onRule(player: Player, rule: ClaimRule) {
+    fun onFlag(player: Player, rule: Flag) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {
             return
         }
 
-        val claim = claims.getById(partition.id)!!
-        if (claimRuleRepository.doesClaimHaveRule(claim, rule)) {
+        val claim = claimService.getById(partition.id)!!
+        if (flagService.getByClaim(claim).contains(rule)) {
             player.sendMessage("§6${claim.name} §calready has §6${rule}§c.")
             return
         }
 
-        claimRuleRepository.add(claim, rule)
+        flagService.add(claim, rule)
         player.sendMessage("§aAdded §6$rule §afor §6${claim.name}§a.")
     }
 }

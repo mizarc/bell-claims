@@ -4,20 +4,16 @@ import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.api.claims.ClaimService
-import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
-import dev.mizarc.bellclaims.infrastructure.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
 class ClaimlistCommand : BaseCommand() {
     @Dependency
-    lateinit var claims: ClaimRepositorySQLite
-    lateinit var partitions: PartitionRepository
-    lateinit var playerStates: PlayerStateRepository
-    protected lateinit var claimService: ClaimService
+    private lateinit var claimRepo: ClaimRepository
+    private lateinit var claimService: ClaimService
 
     @Default
     @CommandPermission("bellclaims.command.claimlist")
@@ -25,9 +21,9 @@ class ClaimlistCommand : BaseCommand() {
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
         val playerClaims = if (otherPlayer != null) {
-            claims.getByPlayer(otherPlayer).toList()
+            claimRepo.getByPlayer(otherPlayer).toList()
         } else {
-            claims.getByPlayer(player).toList()
+            claimRepo.getByPlayer(player).toList()
         }
 
         // Check if player has claims
