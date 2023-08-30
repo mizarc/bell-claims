@@ -15,8 +15,8 @@ import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import java.util.*
 
-class ClaimMoveListener(private val claimRepo: ClaimRepository,
-                        private val partitionService: PartitionService): Listener {
+class MoveToolListener(private val claimRepo: ClaimRepository,
+                       private val partitionService: PartitionService): Listener {
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
