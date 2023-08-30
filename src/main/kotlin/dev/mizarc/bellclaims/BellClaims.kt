@@ -125,6 +125,6 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService), this)
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
-        server.pluginManager.registerEvents(MiscPreventions(claimService, partitionService), this)
+        server.pluginManager.registerEvents(MiscPreventionsListener(claimService, partitionService), this)
     }
 }
