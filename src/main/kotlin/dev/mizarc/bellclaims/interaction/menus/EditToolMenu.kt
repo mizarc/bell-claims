@@ -7,17 +7,19 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.ClaimService
-import dev.mizarc.bellclaims.infrastructure.PartitionService
-import dev.mizarc.bellclaims.interaction.listeners.ClaimVisualiser
+import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerStateService
+import dev.mizarc.bellclaims.api.VisualisationService
+import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
+import dev.mizarc.bellclaims.interaction.listeners.Visualiser
 import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.infrastructure.players.PlayerStateRepository
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 
 class EditToolMenu(private val player: Player, private val claimService: ClaimService,
-                   private val partitionService: PartitionService, private val playerStateRepo: PlayerStateRepository,
-                   private val claimVisualiser: ClaimVisualiser, private val partition: Partition? = null) {
+                   private val partitionService: PartitionService, private val playerStateService: PlayerStateService,
+                   private val visualiserService: VisualisationService, private val partition: Partition? = null) {
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
@@ -29,14 +31,13 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val modeSwitchItem = ItemStack(Material.SPYGLASS)
             .name("Change Mode")
 
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateService.getByPlayer(player) ?: return
         val guiModeSwitchItem: GuiItem
         if (playerState.claimToolMode == 0) {
             modeSwitchItem.lore("> View Mode")
             modeSwitchItem.lore("Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 1
-                claimVisualiser.showVisualisation(player)
                 openEditToolMenu()
             }
         }
@@ -45,7 +46,6 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             modeSwitchItem.lore("> Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 0
-                claimVisualiser.showVisualisation(player)
                 openEditToolMenu()
             }
         }
@@ -98,8 +98,9 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiPartitionItem, 5, 0)
 
-        if (partitionService.isRemoveResultInAnyDisconnected(partition) ||
-                partition.id == partitionService.getPrimaryPartition(claim).id) {
+        val primaryPartition = partitionService.getPrimary(claim) ?: return
+        if (partitionService.isRemoveAllowed(partition) ||
+                partition.id == primaryPartition.id) {
             val deleteItem = ItemStack(Material.GUNPOWDER)
                 .name("Can't Delete Partition")
                 .lore("Deleting this would result in your claim being fragmented.")
@@ -137,9 +138,9 @@ class EditToolMenu(private val player: Player, private val claimService: ClaimSe
             .lore("Warning, this is a permanent action")
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
-            partitionService.removePartition(partition)
-            val claim = claimService.getById(partition.claimId) ?: return@GuiItem
-            claimVisualiser.registerClaimUpdate(claim)
+            partitionService.delete(partition)
+            val event = PartitionModificationEvent(partition)
+            event.callEvent()
             player.closeInventory()
         }
         pane.addItem(guiYesItem, 2, 0)
