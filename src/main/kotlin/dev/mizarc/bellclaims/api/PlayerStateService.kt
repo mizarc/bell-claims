@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.api
 import dev.mizarc.bellclaims.domain.players.PlayerState
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
 import org.bukkit.OfflinePlayer
+import org.bukkit.entity.Player
 import java.util.UUID
 
 interface PlayerStateService {
@@ -15,4 +16,6 @@ interface PlayerStateService {
     fun getUsedClaimBlockCount(player: OfflinePlayer): Int
     fun getRemainingClaimCount(player: OfflinePlayer): Int
     fun getRemainingClaimBlockCount(player: OfflinePlayer): Int
+    fun registerPlayer(player: Player)
+    fun unregisterPlayer(player: OfflinePlayer)
 }

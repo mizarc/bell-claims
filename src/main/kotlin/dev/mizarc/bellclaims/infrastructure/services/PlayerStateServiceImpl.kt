@@ -9,6 +9,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.entity.Player
 import java.util.*
 
 class PlayerStateServiceImpl(private val config: Config, private val metadata: Chat,
@@ -60,5 +61,14 @@ class PlayerStateServiceImpl(private val config: Config, private val metadata: C
 
     override fun getRemainingClaimBlockCount(player: OfflinePlayer): Int {
         return getTotalClaimBlockCount(player) - getUsedClaimBlockCount(player)
+    }
+
+    override fun registerPlayer(player: Player) {
+        playerStateRepo.add(PlayerState(player))
+    }
+
+    override fun unregisterPlayer(player: OfflinePlayer) {
+        val playerState = getById(player.uniqueId) ?: return
+        playerStateRepo.remove(playerState)
     }
 }
