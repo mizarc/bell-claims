@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.utils
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {

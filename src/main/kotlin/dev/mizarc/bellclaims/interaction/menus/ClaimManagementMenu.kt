@@ -16,8 +16,8 @@ import dev.mizarc.bellclaims.api.*
 import dev.mizarc.bellclaims.domain.claims.*
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
-import dev.mizarc.bellclaims.interaction.listeners.Flag
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.flags.Flag
 import dev.mizarc.bellclaims.utils.*
 import kotlin.concurrent.thread
 import kotlin.math.ceil

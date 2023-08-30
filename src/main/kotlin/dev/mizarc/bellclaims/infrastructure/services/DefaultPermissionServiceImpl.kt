@@ -3,8 +3,8 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.api.DefaultPermissionService
 import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
 class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRepository): DefaultPermissionService {
 

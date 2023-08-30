@@ -1,5 +1,7 @@
-package dev.mizarc.bellclaims.interaction.listeners
+package dev.mizarc.bellclaims.domain.flags
 
+import dev.mizarc.bellclaims.interaction.listeners.RuleBehaviour
+import dev.mizarc.bellclaims.interaction.listeners.RuleExecutor
 import org.bukkit.event.Event
 
 /**

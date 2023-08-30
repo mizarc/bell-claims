@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.api
 
 import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
 interface DefaultPermissionService {
     fun getByClaim(claim: Claim): Set<ClaimPermission>

@@ -10,9 +10,7 @@ import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.interaction.listeners.Visualiser
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name

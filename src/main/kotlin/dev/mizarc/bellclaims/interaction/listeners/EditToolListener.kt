@@ -21,6 +21,7 @@ import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.interaction.menus.EditToolMenu
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import java.util.*
 
 /**
@@ -29,7 +30,8 @@ import java.util.*
  */
 class EditToolListener(private val claims: ClaimRepository, private val partitionService: PartitionService,
                        private val playerStateService: PlayerStateService, private val claimService: ClaimService,
-                       private val visualiser: Visualiser) : Listener {
+                       private val visualiser: Visualiser
+) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
 

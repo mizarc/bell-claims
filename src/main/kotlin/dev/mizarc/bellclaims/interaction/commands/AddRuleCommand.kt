@@ -4,7 +4,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.interaction.listeners.Flag
+import dev.mizarc.bellclaims.domain.flags.Flag
 
 @CommandAlias("claim")
 class AddRuleCommand : ClaimCommand() {

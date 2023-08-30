@@ -1,6 +1,6 @@
-package dev.mizarc.bellclaims.domain.claims
+package dev.mizarc.bellclaims.domain.flags
 
-import dev.mizarc.bellclaims.interaction.listeners.Flag
+import dev.mizarc.bellclaims.domain.claims.Claim
 
 interface ClaimFlagRepository {
     fun getByClaim(claim: Claim): MutableSet<Flag>

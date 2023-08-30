@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.api
 
 import dev.mizarc.bellclaims.api.enums.FlagChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.interaction.listeners.Flag
+import dev.mizarc.bellclaims.domain.flags.Flag
 
 interface FlagService {
     fun doesClaimHaveFlag(claim: Claim, flag: Flag): Boolean
