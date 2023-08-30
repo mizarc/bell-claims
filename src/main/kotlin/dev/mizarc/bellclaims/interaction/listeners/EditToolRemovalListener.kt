@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 
 
-class ClaimToolRemovalListener : Listener {
+class EditToolRemovalListener : Listener {
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
         val itemStack = event.itemDrop.itemStack

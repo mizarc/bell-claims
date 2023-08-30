@@ -78,7 +78,6 @@ class BellClaims : JavaPlugin() {
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
-        flagService = FlagS
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
         visualisationService = VisualisationServiceImpl()
@@ -120,7 +119,7 @@ class BellClaims : JavaPlugin() {
             Visualiser(this, claimService, partitionService, playerStateRepo),
             this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
-        server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
+        server.pluginManager.registerEvents(EditToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimBellListener(claimService, claimWorldService, flagService,
             defaultPermissionService, playerPermissionService, playerStateService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService), this)
