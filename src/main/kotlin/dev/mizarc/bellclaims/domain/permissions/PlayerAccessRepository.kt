@@ -1,6 +1,6 @@
-package dev.mizarc.bellclaims.domain.claims
+package dev.mizarc.bellclaims.domain.permissions
 
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
+import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.OfflinePlayer
 import java.util.*
 

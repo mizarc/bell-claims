@@ -7,12 +7,8 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.api.*
-import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
-import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 

@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.api
 
 import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.interaction.listeners.ClaimPermission
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import org.bukkit.OfflinePlayer
 import java.util.*
 

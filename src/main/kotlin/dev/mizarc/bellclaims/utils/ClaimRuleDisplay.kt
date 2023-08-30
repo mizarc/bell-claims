@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.utils
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.interaction.listeners.Flag
+import dev.mizarc.bellclaims.domain.flags.Flag
 
 fun Flag.getIcon(): ItemStack {
     return when (this) {

@@ -2,7 +2,10 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.domain.claims.*
+import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
 import dev.mizarc.bellclaims.domain.partitions.*
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
 import org.bukkit.Material
 import java.util.UUID

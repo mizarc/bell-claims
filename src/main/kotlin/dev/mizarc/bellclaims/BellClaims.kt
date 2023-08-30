@@ -3,9 +3,9 @@ package dev.mizarc.bellclaims
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.api.*
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.claims.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.claims.PlayerAccessRepository
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
+import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
 import net.milkbowl.vault.chat.Chat
@@ -21,12 +21,14 @@ import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepos
 import dev.mizarc.bellclaims.infrastructure.services.*
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
+import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
     val storage = SQLiteStorage(this)
+
     private lateinit var claimRepo: ClaimRepository
     private lateinit var partitionRepo: PartitionRepository
     private lateinit var claimPermissionRepo: ClaimPermissionRepository
@@ -76,15 +78,17 @@ class BellClaims : JavaPlugin() {
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
+        flagService = FlagS
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
+        visualisationService = VisualisationServiceImpl()
     }
 
     private fun registerDependencies() {
         commandManager.registerDependency(Visualiser::class.java, visualiser)
         commandManager.registerDependency(ClaimService::class.java, claimService)
-        commandManager.registerDependency(ClaimWorldService::class.java, claimWorldService)
         commandManager.registerDependency(PartitionService::class.java, partitionService)
+        commandManager.registerDependency(ClaimWorldService::class.java, claimWorldService)
         commandManager.registerDependency(DefaultPermissionService::class.java, defaultPermissionService)
         commandManager.registerDependency(PlayerPermissionService::class.java, playerPermissionService)
         commandManager.registerDependency(VisualisationService::class.java, visualisationService)
@@ -112,7 +116,8 @@ class BellClaims : JavaPlugin() {
                 playerPermissionService, playerStateService), this)
         server.pluginManager.registerEvents(
             EditToolListener(claimRepo, partitionService, playerStateService, claimService, visualiser), this)
-        server.pluginManager.registerEvents(Visualiser(this, claimService, partitionService, playerStateRepo),
+        server.pluginManager.registerEvents(
+            Visualiser(this, claimService, partitionService, playerStateRepo),
             this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)

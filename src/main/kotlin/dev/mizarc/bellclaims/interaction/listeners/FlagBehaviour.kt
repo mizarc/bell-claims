@@ -13,6 +13,7 @@ import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
