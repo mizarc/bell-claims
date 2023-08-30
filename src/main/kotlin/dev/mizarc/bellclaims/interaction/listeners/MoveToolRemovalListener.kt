@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.utils.getStringMeta
 
 
-class ClaimMoveToolRemovalListener : Listener {
+class MoveToolRemovalListener : Listener {
     val claimMoveToolKey = "claim"
 
     @EventHandler
