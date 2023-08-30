@@ -114,7 +114,7 @@ class BellClaims : JavaPlugin() {
             EditToolListener(claimRepo, partitionService, playerStateService, claimService, visualiser), this)
         server.pluginManager.registerEvents(Visualiser(this, claimService, partitionService, playerStateRepo),
             this)
-        server.pluginManager.registerEvents(PlayerRegistrationListener(config, metadata, playerStateRepo), this)
+        server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
         server.pluginManager.registerEvents(ClaimToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimBellListener(claimService, claimWorldService, flagService,
             defaultPermissionService, playerPermissionService, playerStateService), this)
