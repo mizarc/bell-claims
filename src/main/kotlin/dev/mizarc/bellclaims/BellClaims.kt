@@ -49,13 +49,15 @@ class BellClaims : JavaPlugin() {
 
     override fun onEnable() {
         logger.info(Chat::class.java.toString())
+        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
+            .getRegistration(Chat::class.java)!!
+        metadata = serviceProvider.provider
+
         initialiseRepositories()
         initialiseServices()
         initialiseInteractions()
-        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
-            .getRegistration(Chat::class.java)!!
+
         commandManager = PaperCommandManager(this)
-        metadata = serviceProvider.provider
         registerDependencies()
         registerCommands()
         registerEvents()
