@@ -11,7 +11,7 @@ class PlayerState(val player: OfflinePlayer) {
     var claimToolMode = 0
     var isHoldingClaimTool = false
     var isVisualisingClaims = false
-    var visualisedBlockPositions: MutableMap<Claim, MutableSet<Position3D>> = mutableMapOf()
+    var visualisedBlockPositions: MutableMap<Claim, Set<Position3D>> = mutableMapOf()
 
     fun getOnlinePlayer(): Player? {
         return Bukkit.getPlayer(player.uniqueId)
