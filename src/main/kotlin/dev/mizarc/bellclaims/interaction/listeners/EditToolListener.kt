@@ -15,6 +15,7 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionResizeResult
+import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
@@ -50,7 +51,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
             return
         }
 
-        visualiser.refreshVisualisation(event.player)
+        visualiser.refresh(event.player)
 
         // Resizes an existing partition
         val partitionResizer = partitionResizers[event.player]
@@ -180,7 +181,8 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
 
         // Update builders list and visualisation
         partitionBuilders.remove(player)
-        visualiser.registerClaimUpdate(claim)
+        val event = PartitionModificationEvent(partition)
+        event.callEvent()
     }
 
     /**
@@ -258,7 +260,8 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
         // Update visualiser
         if (result == PartitionResizeResult.SUCCESS) {
             val claim = claimService.getById(newPartition.claimId) ?: return
-            visualiser.registerClaimUpdate(claim)
+            val event = PartitionModificationEvent(newPartition)
+            event.callEvent()
             partitionResizers.remove(player)
         }
     }

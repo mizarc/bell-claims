@@ -45,7 +45,8 @@ class BellClaims : JavaPlugin() {
     private lateinit var playerPermissionService: PlayerPermissionService
     private lateinit var visualisationService: VisualisationService
 
-    private val visualiser = Visualiser(this, claimService, partitionService, playerStateRepo)
+    private val visualiser = Visualiser(this, claimService,
+        partitionService, playerStateRepo, visualisationService)
 
     override fun onEnable() {
         logger.info(Chat::class.java.toString())
@@ -80,7 +81,7 @@ class BellClaims : JavaPlugin() {
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
-        visualisationService = VisualisationServiceImpl()
+        visualisationService = VisualisationServiceImpl(partitionService)
     }
 
     private fun registerDependencies() {
@@ -116,8 +117,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(
             EditToolListener(claimRepo, partitionService, playerStateService, claimService, visualiser), this)
         server.pluginManager.registerEvents(
-            Visualiser(this, claimService, partitionService, playerStateRepo),
-            this)
+            EditToolVisualisingListener(this, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
         server.pluginManager.registerEvents(EditToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimBellListener(claimService, claimWorldService, flagService,
@@ -126,5 +126,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
         server.pluginManager.registerEvents(MiscPreventionsListener(claimService, partitionService), this)
+        server.pluginManager.registerEvents(
+            Visualiser(this, claimService, partitionService, playerStateRepo, visualisationService), this)
     }
 }
