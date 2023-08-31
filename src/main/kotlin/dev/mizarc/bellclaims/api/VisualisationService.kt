@@ -14,7 +14,7 @@ interface VisualisationService {
     fun getMainPartitionCorners(claim: Claim): Set<Position2D>
     fun get3DOuterBorders(claim: Claim, renderLocation: Location): Set<Position3D>
     fun get3DPartitionedBorders(claim: Claim, renderLocation: Location): Map<Partition, Set<Position3D>>
-    fun get3DPartitionedCorners(claim: Claim, renderLocation: Location): Map<Partition, Set<Position2D>>
-    fun get3DMainPartitionBorders(claim: Claim, renderLocation: Location): Set<Position2D>
-    fun get3DMainPartitionCorners(claim: Claim, renderLocation: Location): Set<Position2D>
+    fun get3DPartitionedCorners(claim: Claim, renderLocation: Location): Map<Partition, Set<Position3D>>
+    fun get3DMainPartitionBorders(claim: Claim, renderLocation: Location): Set<Position3D>
+    fun get3DMainPartitionCorners(claim: Claim, renderLocation: Location): Set<Position3D>
 }
