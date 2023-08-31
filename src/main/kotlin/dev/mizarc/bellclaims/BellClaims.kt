@@ -17,6 +17,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepo
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.services.*
 import dev.mizarc.bellclaims.interaction.commands.*
@@ -72,6 +73,7 @@ class BellClaims : JavaPlugin() {
         claimRepo = ClaimRepositorySQLite(storage)
         partitionRepo = PartitionRepositorySQLite(storage)
         claimRuleRepo = ClaimFlagRepositorySQLite(storage)
+        claimPermissionRepo = ClaimPermissionRepositorySQLite(storage)
         playerAccessRepo = PlayerAccessRepositorySQLite(storage)
         playerStateRepo = PlayerStateRepositoryMemory()
     }
