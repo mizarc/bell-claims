@@ -45,13 +45,13 @@ class BellClaims : JavaPlugin() {
     private lateinit var playerPermissionService: PlayerPermissionService
     private lateinit var visualisationService: VisualisationService
 
-    private val visualiser = Visualiser(this, claimService,
-        partitionService, playerStateRepo, visualisationService)
+    private lateinit var visualiser: Visualiser
 
     override fun onEnable() {
         logger.info(Chat::class.java.toString())
         initialiseRepositories()
         initialiseServices()
+        initialiseInteractions()
         val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
             .getRegistration(Chat::class.java)!!
         commandManager = PaperCommandManager(this)
@@ -82,6 +82,11 @@ class BellClaims : JavaPlugin() {
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
         visualisationService = VisualisationServiceImpl(partitionService)
+    }
+
+    private fun initialiseInteractions() {
+        visualiser = Visualiser(this, claimService,
+            partitionService, playerStateRepo, visualisationService)
     }
 
     private fun registerDependencies() {
