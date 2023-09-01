@@ -12,7 +12,6 @@ import kotlin.math.ceil
 @CommandAlias("claimlist")
 class ClaimlistCommand : BaseCommand() {
     @Dependency
-    private lateinit var claimRepo: ClaimRepository
     private lateinit var claimService: ClaimService
 
     @Default
@@ -21,9 +20,9 @@ class ClaimlistCommand : BaseCommand() {
     @Syntax("[count] [player]")
     fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
         val playerClaims = if (otherPlayer != null) {
-            claimRepo.getByPlayer(otherPlayer).toList()
+            claimService.getByPlayer(otherPlayer).toList()
         } else {
-            claimRepo.getByPlayer(player).toList()
+            claimService.getByPlayer(player).toList()
         }
 
         // Check if player has claims

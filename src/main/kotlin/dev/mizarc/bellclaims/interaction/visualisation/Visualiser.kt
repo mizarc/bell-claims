@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.interaction.visualisation
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Partition
@@ -28,13 +29,13 @@ import kotlin.concurrent.thread
 class Visualiser(private val plugin: JavaPlugin,
                  private val claimService: ClaimService,
                  private val partitionService: PartitionService,
-                 private val playerStateRepo: PlayerStateRepository,
+                 private val playerStateService: PlayerStateService,
                  private val visualisationService: VisualisationService) : Listener {
     /**
      * Display claim visualisation to target player
      */
     fun show(player: Player): MutableMap<Claim, Set<Position3D>> {
-        val playerState = playerStateRepo.get(player) ?: return mutableMapOf()
+        val playerState = playerStateService.getByPlayer(player) ?: return mutableMapOf()
 
         // Change visualiser depending on view mode
         val borders: MutableMap<Claim, Set<Position3D>> = mutableMapOf()
@@ -56,7 +57,7 @@ class Visualiser(private val plugin: JavaPlugin,
      * Display claim visualisation to target player
      */
     fun show(player: Player, claim: Claim): Set<Position3D> {
-        val playerState = playerStateRepo.get(player) ?: return mutableSetOf()
+        val playerState = playerStateService.getByPlayer(player) ?: return mutableSetOf()
 
         // Change visualiser depending on view mode
         val borders: Set<Position3D> = when {
@@ -75,7 +76,7 @@ class Visualiser(private val plugin: JavaPlugin,
      * Hide claim visualisation for target player
      */
     fun hide(player: Player) {
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateService.getByPlayer(player) ?: return
         revertVisualisedBlocks(player)
         playerState.visualisedBlockPositions.clear()
         playerState.isVisualisingClaims = false
@@ -85,7 +86,7 @@ class Visualiser(private val plugin: JavaPlugin,
      * Load a new visualiser display for a target player who is already visualising
      */
     fun refresh(player: Player) {
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateService.getByPlayer(player) ?: return
 
         // Get all currently visualised blocks
         val currentVisualised = playerState.visualisedBlockPositions.values.flatten().toMutableSet()
@@ -215,7 +216,7 @@ class Visualiser(private val plugin: JavaPlugin,
     }
 
     fun revertVisualisedBlocks(player: Player, positions: Set<Position3D>) {
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateService.getByPlayer(player) ?: return
         val removed = mutableSetOf<Position3D>()
         for (position in positions) {
             val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
@@ -231,7 +232,7 @@ class Visualiser(private val plugin: JavaPlugin,
     }
 
     fun revertVisualisedBlocks(player: Player) {
-        val playerState = playerStateRepo.get(player) ?: return
+        val playerState = playerStateService.getByPlayer(player) ?: return
         for (claim in playerState.visualisedBlockPositions) {
             for (position in claim.value) {
                 val blockData = player.world.getBlockAt(position.toLocation(player.world)).blockData
