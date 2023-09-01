@@ -32,8 +32,8 @@ class BellClaims : JavaPlugin() {
 
     private lateinit var claimRepo: ClaimRepository
     private lateinit var partitionRepo: PartitionRepository
+    private lateinit var claimFlagRepo: ClaimFlagRepository
     private lateinit var claimPermissionRepo: ClaimPermissionRepository
-    private lateinit var claimRuleRepo: ClaimFlagRepository
     private lateinit var playerAccessRepo: PlayerAccessRepository
     private lateinit var playerStateRepo: PlayerStateRepository
 
@@ -72,7 +72,7 @@ class BellClaims : JavaPlugin() {
     private fun initialiseRepositories() {
         claimRepo = ClaimRepositorySQLite(storage)
         partitionRepo = PartitionRepositorySQLite(storage)
-        claimRuleRepo = ClaimFlagRepositorySQLite(storage)
+        claimFlagRepo = ClaimFlagRepositorySQLite(storage)
         claimPermissionRepo = ClaimPermissionRepositorySQLite(storage)
         playerAccessRepo = PlayerAccessRepositorySQLite(storage)
         playerStateRepo = PlayerStateRepositoryMemory()
@@ -80,9 +80,10 @@ class BellClaims : JavaPlugin() {
 
     private fun initialiseServices() {
         playerStateService = PlayerStateServiceImpl(config, metadata, playerStateRepo, claimRepo, partitionRepo)
-        claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimRuleRepo, claimPermissionRepo, playerAccessRepo)
+        claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimFlagRepo, claimPermissionRepo, playerAccessRepo)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
+        flagService = FlagServiceImpl(claimFlagRepo)
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
         visualisationService = VisualisationServiceImpl(partitionService)
