@@ -5,7 +5,13 @@ import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
 class PartitionModificationEvent(val partition: Partition): Event() {
-    private val handlerList: HandlerList = HandlerList()
+    companion object {
+        private val handlerList: HandlerList = HandlerList()
+        @JvmStatic fun getHandlerList(): HandlerList {
+            return handlerList
+        }
+    }
+
     override fun getHandlers(): HandlerList {
         return handlerList
     }

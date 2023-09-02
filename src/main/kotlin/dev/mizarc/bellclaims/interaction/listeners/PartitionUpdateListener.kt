@@ -10,9 +10,12 @@ import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 
-class PartitionUpdateListener(private val claimService: ClaimService, private val partitionService: PartitionService,
-                              private val playerStateService: PlayerStateService, private val visualiser: Visualiser) {
+class PartitionUpdateListener(private val claimService: ClaimService,
+                              private val partitionService: PartitionService,
+                              private val playerStateService: PlayerStateService,
+                              private val visualiser: Visualiser): Listener {
     @EventHandler
     fun onPartitionUpdate(event: PartitionModificationEvent) {
         val claim = claimService.getById(event.partition.claimId) ?: return
