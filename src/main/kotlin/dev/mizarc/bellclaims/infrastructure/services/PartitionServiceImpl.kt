@@ -10,6 +10,7 @@ import org.bukkit.Location
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.World
 import java.util.*
@@ -95,6 +96,15 @@ class PartitionServiceImpl(private val config: Config,
                 return PartitionCreationResult.SUCCESS
             }
         }
+
+        // Alternatively if no partitions exist in claim yet, add initial partition if bell is within borders
+        if (getByClaim(claim).isEmpty()) {
+            if (area.isPositionInArea(claim.position)) {
+                partitionRepo.add(partition)
+                return PartitionCreationResult.SUCCESS
+            }
+        }
+
         return PartitionCreationResult.NOT_CONNECTED
     }
 
