@@ -186,6 +186,7 @@ class PartitionServiceImpl(private val config: Config,
         val claim = claimService.getById(partition.claimId)?: return true
         val chunks = partition.area.getChunks().flatMap { getSurroundingPositions(it, 1) }
         val partitions = chunks.flatMap { filterByWorld(claim.worldId, getByChunk(claim.worldId, it)) }.toMutableList()
+        partitions.removeAll { it.claimId == partition.claimId }
         val areaWithBoundary = Area(
             Position2D( partition.area.lowerPosition2D.x - config.distanceBetweenClaims,
                 partition.area.lowerPosition2D.z - config.distanceBetweenClaims),

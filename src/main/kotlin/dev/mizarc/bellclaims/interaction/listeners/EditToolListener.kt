@@ -154,8 +154,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
         partitionBuilder.secondPosition2D = Position2D(location.x.toInt(), location.z.toInt())
         val partition = partitionBuilder.build()
         val claim = claimService.getById(partition.claimId) ?: return
-        val result = partitionService.append(partition.area, claim)
-        when (result) {
+        when (partitionService.append(partition.area, claim)) {
             PartitionCreationResult.OVERLAP ->
                 return player.sendActionBar(Component.text("That selection overlaps an existing partition")
                     .color(TextColor.color(255, 85, 85)))
