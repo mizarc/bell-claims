@@ -259,7 +259,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
 
         // Update visualiser
         if (result == PartitionResizeResult.SUCCESS) {
-            val claim = claimService.getById(newPartition.claimId) ?: return
+            claimService.getById(newPartition.claimId) ?: return
             val event = PartitionModificationEvent(newPartition)
             event.callEvent()
             partitionResizers.remove(player)

@@ -91,7 +91,7 @@ class BellClaims : JavaPlugin() {
 
     private fun initialiseInteractions() {
         visualiser = Visualiser(this, claimService,
-            partitionService, playerStateRepo, visualisationService)
+            partitionService, playerStateService, visualisationService)
     }
 
     private fun registerDependencies() {
@@ -139,6 +139,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
         server.pluginManager.registerEvents(MiscPreventionsListener(claimService, partitionService), this)
         server.pluginManager.registerEvents(
-            Visualiser(this, claimService, partitionService, playerStateRepo, visualisationService), this)
+            Visualiser(this, claimService, partitionService,
+                playerStateService, visualisationService), this)
     }
 }
