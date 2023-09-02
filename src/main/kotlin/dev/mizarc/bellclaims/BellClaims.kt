@@ -141,5 +141,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(
             Visualiser(this, claimService, partitionService,
                 playerStateService, visualisationService), this)
+        server.pluginManager.registerEvents(
+            PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
     }
 }
