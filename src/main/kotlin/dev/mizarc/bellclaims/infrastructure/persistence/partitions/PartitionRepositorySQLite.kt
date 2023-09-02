@@ -4,6 +4,7 @@ import co.aikar.idb.Database
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
+import org.bukkit.Bukkit
 import java.sql.SQLException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -47,7 +48,7 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
     }
 
     override fun getByPosition(position: Position): Set<Partition> {
-        val partitionsInChunk = getByChunk(position)
+        val partitionsInChunk = getByChunk(position.getChunk())
         val partitionsInPosition = ArrayList<Partition>()
         for (partition in partitionsInChunk) {
             if (partition.isPositionInPartition(position)) {
