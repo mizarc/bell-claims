@@ -113,21 +113,22 @@ class PartitionServiceImpl(private val config: Config,
         newPartition.area = area
 
         // Check if selection would result in it being disconnected from the claim
-        val claim = claimService.getById(partition.claimId) ?: return PartitionResizeResult.DISCONNECTED
+        val claim = claimService.getById(newPartition.claimId) ?: return PartitionResizeResult.DISCONNECTED
         if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
 
         // Check if selection overlaps an existing claim
-        if (isPartitionOverlap(partition)) return PartitionResizeResult.OVERLAP
+        if (isPartitionOverlap(newPartition)) return PartitionResizeResult.OVERLAP
 
         // Check if selection is too close to another claim's partition
-        if (isPartitionTooClose(partition)) return PartitionResizeResult.TOO_CLOSE
+        if (isPartitionTooClose(newPartition)) return PartitionResizeResult.TOO_CLOSE
 
         // Check if claim bell would be outside partition
-        if (partition.id == getPrimaryPartition(claim).id && !partition.area.isPositionInArea(claim.position))
+        if (newPartition.id == getPrimaryPartition(claim).id && !newPartition.area.isPositionInArea(claim.position))
             return PartitionResizeResult.EXPOSED_CLAIM_HUB
 
         // Check if claim meets minimum size
-        if (partition.area.getXLength() < 5 || partition.area.getZLength() < 5) return PartitionResizeResult.TOO_SMALL
+        if (newPartition.area.getXLength() < 5 || newPartition.area.getZLength() < 5)
+            return PartitionResizeResult.TOO_SMALL
 
         // Check if claim takes too much space
         if (playerStateService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
@@ -138,7 +139,7 @@ class PartitionServiceImpl(private val config: Config,
         if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
 
         // Successful resizing
-        partitionRepo.update(partition)
+        partitionRepo.update(newPartition)
         return PartitionResizeResult.SUCCESS
     }
 
