@@ -72,7 +72,7 @@ class FlagServiceImplTest {
     }
 
     @Test
-    fun `addAll - when all flags are not in repo - returns SUCCESS`() {
+    fun `addAll - when no flags are in repo - returns SUCCESS`() {
         every { flagRepo.getByClaim(claim) } returns emptySet()
         every { flagRepo.add(claim, any()) } returns Unit
 
@@ -83,9 +83,18 @@ class FlagServiceImplTest {
     }
 
     @Test
+    fun `addAll - when some flags are in repo - returns SUCCESS`() {
+        val flags = setOf(Flag.Explosions, Flag.Pistons)
+        every { flagRepo.getByClaim(claim) } returns flags
+        every { flagRepo.add(claim, any()) } returns Unit
+
+        assertEquals(FlagChangeResult.SUCCESS, flagService.addAll(claim))
+        verify { flagRepo.add(any(), any()) }
+    }
+
+    @Test
     fun `addAll - when all flags are in repo - returns UNCHANGED`() {
-        val flagsToAdd = Flag.entries.toSet()
-        every { flagRepo.getByClaim(claim) } returns flagsToAdd
+        every { flagRepo.getByClaim(claim) } returns Flag.entries.toSet()
 
         val result = flagService.addAll(claim)
 
@@ -114,8 +123,17 @@ class FlagServiceImplTest {
     }
 
     @Test
-    fun `removeAll - when flag is in repo - returns SUCCESS`() {
-        val flags = Flag.entries.toSet()
+    fun `removeAll - when all flags are in repo - returns SUCCESS`() {
+        every { flagRepo.getByClaim(claim) } returns Flag.entries.toSet()
+        every { flagRepo.remove(claim, any()) } returns Unit
+
+        assertEquals(FlagChangeResult.SUCCESS, flagService.removeAll(claim))
+        verify { flagRepo.remove(any(), any()) }
+    }
+
+    @Test
+    fun `removeAll - when some flags are in repo - returns SUCCESS`() {
+        val flags = setOf(Flag.Explosions, Flag.Pistons)
         every { flagRepo.getByClaim(claim) } returns flags
         every { flagRepo.remove(claim, any()) } returns Unit
 
