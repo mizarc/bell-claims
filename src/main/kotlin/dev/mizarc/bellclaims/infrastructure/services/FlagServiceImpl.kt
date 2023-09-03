@@ -24,8 +24,8 @@ class FlagServiceImpl(private val flagRepo: ClaimFlagRepository): FlagService {
     }
 
     override fun addAll(claim: Claim): FlagChangeResult {
-        val flagsToAdd = Flag.entries.toMutableList() - getByClaim(claim)
-        if (flagsToAdd.isEmpty()) FlagChangeResult.UNCHANGED
+        val flagsToAdd = Flag.entries - getByClaim(claim)
+        if (flagsToAdd.isEmpty()) return FlagChangeResult.UNCHANGED
 
         for (flag in flagsToAdd) {
             flagRepo.add(claim, flag)
