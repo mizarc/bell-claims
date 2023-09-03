@@ -43,7 +43,7 @@ class FlagServiceImpl(private val flagRepo: ClaimFlagRepository): FlagService {
 
     override fun removeAll(claim: Claim): FlagChangeResult {
         val flagsToRemove = getByClaim(claim)
-        if (flagsToRemove.isEmpty()) FlagChangeResult.UNCHANGED
+        if (flagsToRemove.isEmpty()) return FlagChangeResult.UNCHANGED
 
         for (flag in flagsToRemove) {
             flagRepo.remove(claim, flag)

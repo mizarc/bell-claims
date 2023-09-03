@@ -125,7 +125,6 @@ class FlagServiceImplTest {
 
     @Test
     fun `removeAll - when no flags are in repo - returns UNCHANGED`() {
-        val flags = Flag.entries.toSet()
         every { flagRepo.getByClaim(claim) } returns emptySet()
 
         assertEquals(FlagChangeResult.UNCHANGED, flagService.removeAll(claim))
