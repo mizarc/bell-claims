@@ -35,6 +35,7 @@ dependencies {
     testImplementation("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation ("org.slf4j:slf4j-nop:2.0.7")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
