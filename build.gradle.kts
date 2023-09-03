@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
@@ -30,6 +30,9 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.zaxxer:HikariCP:5.0.1")
