@@ -59,30 +59,50 @@ class ClaimServiceImplTest {
 
     @Test
     fun getById() {
+        // Given
         every { claimRepo.getById(claim.id) } returns claim
 
-        assertEquals(claim, claimService.getById(claim.id))
+        // When
+        val result = claimService.getById(claim.id)
+
+        // Then
+        assertEquals(claim, result)
     }
 
     @Test
     fun getByPlayer() {
+        // Given
         every { claimRepo.getByPlayer(playerOne) } returns claimCollection.slice(0..2).toSet()
 
-        assertEquals(claimService.getByPlayer(playerOne), claimCollection.slice(0..2).toSet())
+        // When
+        val result = claimService.getByPlayer(playerOne)
+
+        // Then
+        assertEquals(claimCollection.slice(0..2).toSet(), result)
     }
 
     @Test
     fun getBlockCount() {
+        // Given
         every { partitionRepo.getByClaim(claim) } returns partitionCollection.toSet()
 
-        assertEquals(395, claimService.getBlockCount(claim))
+        // When
+        val result = claimService.getBlockCount(claim)
+
+        // Then
+        assertEquals(395, result)
     }
 
     @Test
     fun getPartitionCount() {
+        // Given
         every {partitionRepo.getByClaim(claim)} returns partitionCollection.toSet()
 
-        assertEquals(5, claimService.getPartitionCount(claim))
+        // When
+        val result = claimService.getPartitionCount(claim)
+
+        // Then
+        assertEquals(5, result)
     }
 
     @Test
