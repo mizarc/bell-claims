@@ -7,8 +7,8 @@ import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.*
+import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.junit.jupiter.api.Test
 
@@ -80,21 +80,69 @@ class ClaimServiceImplTest {
 
     @Test
     fun getPartitionCount() {
+        every {partitionRepo.getByClaim(claim)} returns partitionCollection.toSet()
+
+        assertEquals(5, claimService.getPartitionCount(claim))
     }
 
     @Test
     fun changeName() {
+        // Given
+        every { claimRepo.update(claim) } returns Unit
+
+        // When
+        claimService.changeName(claim, "Changed")
+
+        // Then
+        assertEquals("Changed", claim.name)
+        verify { claimRepo.update(claim) }
     }
 
     @Test
     fun changeDescription() {
+        // Given
+        every { claimRepo.update(claim) } returns Unit
+
+        // When
+        claimService.changeDescription(claim, "Updated")
+
+        // Then
+        assertEquals("Updated", claim.description)
+        verify { claimRepo.update(claim) }
     }
 
     @Test
     fun changeIcon() {
+        // Given
+        every { claimRepo.update(claim) } returns Unit
+
+        // When
+        claimService.changeIcon(claim, Material.ACACIA_BOAT)
+
+        // Then
+        assertEquals(Material.ACACIA_BOAT, claim.icon)
+        verify { claimRepo.update(claim) }
     }
 
     @Test
     fun destroy() {
+        // Given
+        every { partitionRepo.removeByClaim(claim) } just Runs
+        every { claimFlagRepo.removeByClaim(claim) } just Runs
+        every { claimPermissionRepo.removeByClaim(claim) } just Runs
+        every { playerPermissionRepo.removeByClaim(claim) } just Runs
+        every { claimRepo.remove(claim) } just Runs
+
+        // When
+        claimService.destroy(claim)
+
+        // Then
+        verifyOrder {
+            partitionRepo.removeByClaim(claim)
+            claimFlagRepo.removeByClaim(claim)
+            claimPermissionRepo.removeByClaim(claim)
+            playerPermissionRepo.removeByClaim(claim)
+            claimRepo.remove(claim)
+        }
     }
 }
