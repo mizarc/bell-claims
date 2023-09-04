@@ -42,7 +42,9 @@ class ClaimServiceImplTest {
     private val partitionCollection = arrayOf(
         Partition(UUID.randomUUID(), claim.id, Area(Position2D(8, 5), Position2D(19, 16))),
         Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -4), Position2D(7, 8))))
+        Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -5), Position2D(7, 8))),
+        Partition(UUID.randomUUID(), claim.id, Area(Position2D(-5, -6), Position2D(1, -1))),
+        Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -19), Position2D(-6, -5))))
 
     @BeforeEach
     fun setup() {
@@ -73,7 +75,7 @@ class ClaimServiceImplTest {
     fun getBlockCount() {
         every { partitionRepo.getByClaim(claim) } returns partitionCollection.toSet()
 
-        assertEquals(308, claimService.getBlockCount(claim))
+        assertEquals(395, claimService.getBlockCount(claim))
     }
 
     @Test
