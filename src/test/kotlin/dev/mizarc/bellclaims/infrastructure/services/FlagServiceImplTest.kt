@@ -29,7 +29,7 @@ class FlagServiceImplTest {
     }
 
     @Test
-    fun doesClaimHaveFlag() {
+    fun `doesClaimHaveFlag - returns true if flag in claim`() {
         // Mock a claim that contains the flags "Explosions" and "Pistons"
         val flags = setOf(Flag.Explosions, Flag.Pistons)
         every { flagRepo.getByClaim(claim) } returns flags
@@ -41,7 +41,7 @@ class FlagServiceImplTest {
     }
 
     @Test
-    fun getByClaim() {
+    fun `getByClaim - returns expected flags`() {
         // Mock a claim that contains the flags "Explosions" and "Pistons"
         val flags = setOf(Flag.Explosions, Flag.Pistons)
         every { flagRepo.getByClaim(claim) } returns flags
