@@ -7,7 +7,7 @@ import kotlin.math.absoluteValue
  * @property lowerPosition2D The lower corner position.
  * @property upperPosition2D The upper corner position.
  */
-open class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D) {
+data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D) {
     init {
         sortPositionSizes()
     }
