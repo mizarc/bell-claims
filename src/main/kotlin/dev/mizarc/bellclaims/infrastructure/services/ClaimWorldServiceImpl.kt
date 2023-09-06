@@ -40,8 +40,10 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
 
         // Handle failure types
         if (location.block.type != Material.BELL) return ClaimCreationResult.NOT_A_BELL
-        else if (partitionService.isAreaValid(area, location.world)) return ClaimCreationResult.TOO_CLOSE
-        else if (playerStateService.getRemainingClaimBlockCount(player) <= 0) return ClaimCreationResult.OUT_OF_CLAIMS
+        else if (!partitionService.isAreaValid(area, location.world)) return ClaimCreationResult.TOO_CLOSE
+        else if (playerStateService.getRemainingClaimCount(player) < 1) return ClaimCreationResult.OUT_OF_CLAIMS
+        else if (playerStateService.getRemainingClaimBlockCount(player) < area.getBlockCount())
+            return ClaimCreationResult.OUT_OF_CLAIM_BLOCKS
 
         // Store the claim and associated partition
         val claim = Claim(location.world.uid, player, Position3D(location), name)
@@ -51,7 +53,7 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
     }
 
     override fun move(claim: Claim, location: Location): ClaimMoveResult {
-        if (isMoveLocationValid(claim, location)) return ClaimMoveResult.OUTSIDE_OF_AREA
+        if (!isMoveLocationValid(claim, location)) return ClaimMoveResult.OUTSIDE_OF_AREA
         claim.position = Position3D(location)
         claimRepo.update(claim)
         return ClaimMoveResult.SUCCESS
