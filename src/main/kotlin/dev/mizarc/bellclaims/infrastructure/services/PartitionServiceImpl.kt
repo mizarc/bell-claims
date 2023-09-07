@@ -25,7 +25,7 @@ class PartitionServiceImpl(private val config: Config,
                            private val playerStateService: PlayerStateService) : PartitionService {
     override fun isAreaValid(area: Area, world: World): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
-        val partitions = chunks.flatMap { filterByWorld(world.uid, getByChunk(world.uid, it)) }.toMutableList()
+        val partitions = chunks.flatMap { getByChunk(world.uid, it) }.toMutableList()
         val areaWithBoundary = Area(
             Position2D( area.lowerPosition2D.x - config.distanceBetweenClaims,
                 area.lowerPosition2D.z - config.distanceBetweenClaims),
@@ -36,7 +36,7 @@ class PartitionServiceImpl(private val config: Config,
 
     override fun isAreaValid(area: Area, claim: Claim): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
-        val partitions = chunks.flatMap { filterByWorld(claim.worldId, getByChunk(claim.worldId, it)) }.toMutableList()
+        val partitions = chunks.flatMap { getByChunk(claim.worldId, it) }.toMutableList()
         val claimPartitions = partitions.filter { it.claimId == claim.id }
         partitions.removeAll(claimPartitions)
         val areaWithBoundary = Area(
