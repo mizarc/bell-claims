@@ -55,7 +55,7 @@ class PartitionServiceImplTest {
         val testArea = Area(Position2D(4, 3), Position2D(17, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollection + otherPartitionCollection).toSet()
         every { claimService.getById(claim.id) } returns claim
         every { config.distanceBetweenClaims } returns 3
 
@@ -69,10 +69,10 @@ class PartitionServiceImplTest {
     @Test
     fun `isAreaValid (World) - when the area is too close to an existing partition - returns False`() {
         // Given
-        val testArea = Area(Position2D(-4, 3), Position2D(6, 9))
+        val testArea = Area(Position2D(-4, 3), Position2D(5, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
+        every { partitionRepo.getByChunk(any()) } returns partitionCollection.toSet()
         every { claimService.getById(claim.id) } returns claim
         every { config.distanceBetweenClaims } returns 3
 
@@ -89,8 +89,62 @@ class PartitionServiceImplTest {
         val testArea = Area(Position2D(-10, 3), Position2D(2, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
+        every { partitionRepo.getByChunk(any()) } returns partitionCollection.toSet()
         every { claimService.getById(claim.id) } returns claim
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.isAreaValid(testArea, world)
+
+        // Then
+        assertTrue(result)
+    }
+
+    @Test
+    fun `isAreaValid (Claim) - when the area overlaps an existing partition - returns False`() {
+        // Given
+        val testArea = Area(Position2D(15, 22), Position2D(22, 28))
+        val world = mockk<World>()
+        every { world.uid } returns otherClaim.worldId
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollection + otherPartitionCollection).toSet()
+        every { claimService.getById(claim.id) } returns claim
+        every { claimService.getById(otherClaim.id) } returns otherClaim
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.isAreaValid(testArea, otherClaim)
+
+        // Then
+        assertFalse(result)
+    }
+
+    @Test
+    fun `isAreaValid (Claim) - when the area is too close to an existing partition - returns False`() {
+        // Given
+        val testArea = Area(Position2D(9, 26), Position2D(16, 34))
+        val world = mockk<World>()
+        every { world.uid } returns claim.worldId
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollection + otherPartitionCollection).toSet()
+        every { claimService.getById(claim.id) } returns claim
+        every { claimService.getById(otherClaim.id) } returns otherClaim
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.isAreaValid(testArea, world)
+
+        // Then
+        assertFalse(result)
+    }
+
+    @Test
+    fun `isAreaValid (Claim) - when the area is in a valid spot - returns True`() {
+        // Given
+        val testArea = Area(Position2D(24, 38), Position2D(32, 50))
+        val world = mockk<World>()
+        every { world.uid } returns claim.worldId
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollection + otherPartitionCollection).toSet()
+        every { claimService.getById(claim.id) } returns claim
+        every { claimService.getById(otherClaim.id) } returns otherClaim
         every { config.distanceBetweenClaims } returns 3
 
         // When
