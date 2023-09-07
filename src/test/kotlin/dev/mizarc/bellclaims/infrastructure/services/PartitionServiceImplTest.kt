@@ -8,9 +8,6 @@ import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
-import net.kyori.adventure.text.BlockNBTComponent.Pos
-import org.bukkit.Chunk
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.junit.jupiter.api.Test
@@ -58,7 +55,7 @@ class PartitionServiceImplTest {
         val testArea = Area(Position2D(4, 3), Position2D(17, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[1])
+        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
         every { claimService.getById(claim.id) } returns claim
         every { config.distanceBetweenClaims } returns 3
 
@@ -75,7 +72,7 @@ class PartitionServiceImplTest {
         val testArea = Area(Position2D(-4, 3), Position2D(6, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[1])
+        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
         every { claimService.getById(claim.id) } returns claim
         every { config.distanceBetweenClaims } returns 3
 
@@ -92,7 +89,7 @@ class PartitionServiceImplTest {
         val testArea = Area(Position2D(-10, 3), Position2D(2, 9))
         val world = mockk<World>()
         every { world.uid } returns claim.worldId
-        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[1])
+        every { partitionRepo.getByChunk(any()) } returns setOf(partitionCollection[0])
         every { claimService.getById(claim.id) } returns claim
         every { config.distanceBetweenClaims } returns 3
 
