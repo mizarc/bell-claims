@@ -36,15 +36,15 @@ class PartitionServiceImpl(private val config: Config,
 
     override fun isAreaValid(area: Area, claim: Claim): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
-        val partitions = chunks.flatMap { getByChunk(claim.worldId, it) }.toMutableList()
-        val claimPartitions = partitions.filter { it.claimId == claim.id }
+        val partitions = chunks.flatMap { getByChunk(claim.worldId, it) }.toMutableSet()
+        val claimPartitions = partitions.filter { it.claimId == claim.id }.toSet()
         partitions.removeAll(claimPartitions)
         val areaWithBoundary = Area(
             Position2D( area.lowerPosition2D.x - config.distanceBetweenClaims,
                 area.lowerPosition2D.z - config.distanceBetweenClaims),
             Position2D( area.upperPosition2D.x + config.distanceBetweenClaims,
                 area.upperPosition2D.z + config.distanceBetweenClaims))
-        return partitions.any { it.isAreaOverlap(areaWithBoundary) } || claimPartitions.any { it.isAreaOverlap(area) }
+        return !partitions.any { it.isAreaOverlap(areaWithBoundary) } && !claimPartitions.any { it.isAreaOverlap(area) }
     }
 
     override fun isRemoveAllowed(partition: Partition): Boolean {
