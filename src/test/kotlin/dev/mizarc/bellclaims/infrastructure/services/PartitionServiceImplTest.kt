@@ -8,6 +8,8 @@ import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import io.mockk.every
 import io.mockk.mockk
+import org.bukkit.Chunk
+import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.junit.jupiter.api.Test
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PartitionServiceImplTest {
@@ -172,24 +175,73 @@ class PartitionServiceImplTest {
     }
 
     @Test
-    fun getByLocation() {
+    fun `getByLocation - when location is outside of any partition - return null`() {
         // Given
         //val location = Location()
-        every { partitionRepo.getById(partitionCollectionOne[0].id) } returns partitionCollectionOne[0]
+        every { partitionRepo.getByPosition(Position2D(10, 22)) } returns setOf()
+        every { claimService.getById(claimOne.id) } returns null
 
         // When
-        //val result = partitionService.getByLocation()
+        val result = partitionService.getByLocation(Location(world, 10.5, 71.0, 22.5))
 
         // Then
-        //assertEquals(partitionCollection[0], result)
+        assertNull(result)
     }
 
     @Test
-    fun getByChunk() {
+    fun `getByLocation - when location is inside of a partition - return found Partition`() {
+        // Given
+        every { partitionRepo.getByPosition(Position2D(17, 14)) } returns setOf(partitionCollectionOne[0])
+        every { claimService.getById(claimOne.id) } returns claimOne
+
+        // When
+        val result = partitionService.getByLocation(Location(world, 17.5, 71.0, 14.5))
+
+        // Then
+        assertEquals(partitionCollectionOne[0], result)
+    }
+
+    @Test
+    fun `getByChunk - when no partitions exist in the chunk - return empty Set`() {
+        // Given
+        val chunk = mockk<Chunk>()
+        every { chunk.world } returns world
+        every { chunk.x } returns 5
+        every { chunk.z } returns 5
+        every { partitionRepo.getByChunk(Position2D(5, 5)) } returns setOf()
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+
+        // When
+        val result = partitionService.getByChunk(chunk)
+
+        // Then
+        assertEquals(result, setOf())
+    }
+
+    @Test
+    fun `getByChunk - when partitions exist in the chunk - return Set of Partition`() {
+        // Given
+        val chunk = mockk<Chunk>()
+        every { chunk.world } returns world
+        every { chunk.x } returns 1
+        every { chunk.z } returns 1
+        every { partitionRepo.getByChunk(Position2D(1, 1)) } returns
+                setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+
+        // When
+        val result = partitionService.getByChunk(chunk)
+
+        // Then
+        assertEquals(result, setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0]))
     }
 
     @Test
     fun getByClaim() {
+        // Given
+
     }
 
     @Test
