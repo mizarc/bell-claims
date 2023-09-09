@@ -3,11 +3,13 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
+import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
+import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
+import dev.mizarc.bellclaims.api.enums.PartitionResizeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.*
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
@@ -61,7 +63,8 @@ class PartitionServiceImplTest {
         claimTwo = Claim(world.uid, playerTwo, Position3D(21,74,30), "Test1")
         partitionCollectionTwo = listOf(
             Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(17, 29), Position2D(23, 39))),
-            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(11, 37), Position2D(16, 43))))
+            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(11, 37), Position2D(16, 43))),
+            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(15, 44), Position2D(25, 53))))
     }
 
     @Test
@@ -145,7 +148,7 @@ class PartitionServiceImplTest {
     @Test
     fun `isAreaValid (Claim) - when the area is in a valid spot - returns True`() {
         // Given
-        val testArea = Area(Position2D(24, 38), Position2D(32, 50))
+        val testArea = Area(Position2D(24, 54), Position2D(32, 69))
         every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
         every { claimService.getById(claimOne.id) } returns claimOne
         every { claimService.getById(claimTwo.id) } returns claimTwo
@@ -239,24 +242,289 @@ class PartitionServiceImplTest {
     }
 
     @Test
-    fun getByClaim() {
+    fun `getByClaim - when claim is selected - returns Set of Partition`() {
         // Given
+        every { partitionRepo.getByClaim(claimOne) } returns partitionCollectionOne.toSet()
 
+        // When
+        val result = partitionService.getByClaim(claimOne)
+
+        // Then
+        assertEquals(partitionCollectionOne.toSet(), result)
     }
 
     @Test
-    fun getPrimary() {
+    fun `getPrimary - when claim exists inside partition - return Partition`() {
+        // Given
+        every { partitionRepo.getByPosition(claimOne.position) } returns setOf(partitionCollectionOne[0])
+        every { claimService.getById(claimOne.id) } returns claimOne
+
+        // When
+        val result = partitionService.getPrimary(claimOne)
+
+        // Then
+        assertEquals(partitionCollectionOne[0], result)
     }
 
     @Test
-    fun append() {
+    fun `append - when area overlaps another claim's partition - return OVERLAP`() {
+        // Given
+        val area = Area(Position2D(14, 20), Position2D(23, 28))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByChunk(any()) } returns
+        setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+
+        // When
+        val result = partitionService.append(area, claimTwo)
+
+        // Then
+        assertEquals(PartitionCreationResult.OVERLAP, result)
+        verify(exactly = 0) { partitionRepo.add(any()) }
     }
 
     @Test
-    fun resize() {
+    fun `append - when area too close to another claim's partition - return TOO_CLOSE`() {
+        // Given
+        val area = Area(Position2D(11, 27), Position2D(16, 34))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByChunk(any()) } returns
+                setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.append(area, claimTwo)
+
+        // Then
+        assertEquals(PartitionCreationResult.TOO_CLOSE, result)
+        verify(exactly = 0) { partitionRepo.add(any()) }
     }
 
     @Test
-    fun delete() {
+    fun `append - when area is too small (less than 5x5) - return TOO_SMALL`() {
+        // Given
+        val area = Area(Position2D(20, 40), Position2D(23, 43))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByChunk(any()) } returns
+                setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.append(area, claimTwo)
+
+        // Then
+        assertEquals(PartitionCreationResult.TOO_SMALL, result)
+        verify(exactly = 0) { partitionRepo.add(any()) }
+    }
+
+    @Test
+    fun `append - when player doesn't have enough claim blocks - return INSUFFICIENT_BLOCKS`() {
+        // Given
+        val area = Area(Position2D(24, 37), Position2D(35, 51))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByChunk(any()) } returns
+                setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+        every { config.distanceBetweenClaims } returns 3
+        every { playerStateService.getRemainingClaimBlockCount(playerTwo) } returns 10
+
+        // When
+        val result = partitionService.append(area, claimTwo)
+
+        // Then
+        assertEquals(PartitionCreationResult.INSUFFICIENT_BLOCKS, result)
+        verify(exactly = 0) { partitionRepo.add(any()) }
+    }
+
+    @Test
+    fun `append - when area is valid - return SUCCESS`() {
+        // Given
+        val area = Area(Position2D(24, 37), Position2D(35, 51))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByChunk(any()) } returns
+                setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
+        every { config.distanceBetweenClaims } returns 3
+        every { playerStateService.getRemainingClaimBlockCount(playerTwo) } returns 9999
+        every { partitionRepo.add(any()) } just runs
+
+        // When
+        val result = partitionService.append(area, claimTwo)
+
+        // Then
+        assertEquals(PartitionCreationResult.SUCCESS, result)
+        verify { partitionRepo.add(any()) }
+    }
+
+    @Test
+    fun `resize - when resizing the partition would overlap an existing partition - return DISCONNECTED`() {
+        // Given
+        val area = Area(Position2D(11, 37), Position2D(19, 47))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[1], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.OVERLAP, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when the partition being resized is too close to another claim's partition - return TOO_CLOSE`() {
+        // Given
+        val area = Area(Position2D(17, 26), Position2D(23, 39))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[0], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.TOO_CLOSE, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when resizing the partition would result in disconnected partitions - return DISCONNECTED`() {
+        // Given
+        val area = Area(Position2D(11, 37), Position2D(16, 41))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[1], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.DISCONNECTED, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when resizing would cause the claim bell to be outside the partition - return EXPOSED_CLAIM_HUB`() {
+        // Given
+        val area = Area(Position2D(17, 32), Position2D(23, 39))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[0], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.EXPOSED_CLAIM_HUB, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when the resize makes the partition too small - return TOO_SMALL`() {
+        // Given
+        val area = Area(Position2D(13, 31), Position2D(16, 43))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[1], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.TOO_SMALL, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when the player doesn't have enough claim blocks - return INSUFFICIENT_BLOCKS`() {
+        // Given
+        val area = Area(Position2D(8, 31), Position2D(16, 43))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+        every { playerStateService.getTotalClaimBlockCount(playerTwo) } returns 250
+        every { playerStateService.getUsedClaimBlockCount(playerTwo) } returns 229
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[1], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.INSUFFICIENT_BLOCKS, result)
+        verify(exactly = 0) { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `resize - when resize is valid - return SUCCESS`() {
+        // Given
+        val area = Area(Position2D(8, 31), Position2D(16, 43))
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
+        every { config.distanceBetweenClaims } returns 3
+        every { playerStateService.getTotalClaimBlockCount(playerTwo) } returns 500
+        every { playerStateService.getUsedClaimBlockCount(playerTwo) } returns 229
+        every { partitionRepo.update(any()) } just runs
+
+        // When
+        val result = partitionService.resize(partitionCollectionTwo[1], area)
+
+        // Then
+        assertEquals(PartitionResizeResult.SUCCESS, result)
+        verify { partitionRepo.update(any()) }
+    }
+
+    @Test
+    fun `delete - when deletion would result in a disconnected partition - return DISCONNECTED`() {
+        // Given
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+
+        // When
+        val result = partitionService.delete(partitionCollectionTwo[1])
+
+        // Then
+        assertEquals(PartitionDestroyResult.DISCONNECTED, result)
+        verify(exactly = 0) { partitionRepo.remove(any()) }
+    }
+
+    @Test
+    fun `delete - when deletion is valid - return SUCCESS`() {
+        // Given
+        every { claimService.getById(claimOne.id) } returns claimOne
+        every { claimService.getById(claimTwo.id) } returns claimTwo
+        every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
+        every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
+        every { partitionRepo.remove(any()) } just runs
+
+        // When
+        val result = partitionService.delete(partitionCollectionTwo[2])
+
+        // Then
+        assertEquals(PartitionDestroyResult.SUCCESS, result)
+        verify { partitionRepo.remove(any()) }
     }
 }
