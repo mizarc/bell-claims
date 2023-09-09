@@ -112,15 +112,15 @@ class PartitionServiceImpl(private val config: Config,
         val newPartition = partition.copy()
         newPartition.area = area
 
-        // Check if selection would result in it being disconnected from the claim
-        val claim = claimService.getById(newPartition.claimId) ?: return PartitionResizeResult.DISCONNECTED
-        if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
-
         // Check if selection overlaps an existing claim
         if (isPartitionOverlap(newPartition)) return PartitionResizeResult.OVERLAP
 
         // Check if selection is too close to another claim's partition
         if (isPartitionTooClose(newPartition)) return PartitionResizeResult.TOO_CLOSE
+
+        // Check if selection would result in it being disconnected from the claim
+        val claim = claimService.getById(newPartition.claimId) ?: return PartitionResizeResult.DISCONNECTED
+        if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
 
         // Check if claim bell would be outside partition
         if (newPartition.id == getPrimaryPartition(claim).id && !newPartition.area.isPositionInArea(claim.position))
@@ -132,7 +132,7 @@ class PartitionServiceImpl(private val config: Config,
 
         // Check if claim takes too much space
         if (playerStateService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
-                + newPartition.area.getBlockCount() > playerStateService.getRemainingClaimBlockCount(claim.owner))
+                + newPartition.area.getBlockCount() > playerStateService.getTotalClaimBlockCount(claim.owner))
             return PartitionResizeResult.INSUFFICIENT_BLOCKS
 
         // Check if claim resize would result a partition being disconnected from the main
