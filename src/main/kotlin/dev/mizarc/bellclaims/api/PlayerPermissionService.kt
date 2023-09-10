@@ -8,7 +8,7 @@ import java.util.*
 
 interface PlayerPermissionService {
     fun doesPlayerHavePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean
-    fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>>
+    fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>>
     fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
     fun addForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): PlayerPermissionChangeResult
     fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult
