@@ -35,7 +35,7 @@ class PlayerPermissionServiceImpl(private val
 
     override fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult {
         val permissionsToAdd = ClaimPermission.values().toMutableList() - getByPlayer(claim, player)
-        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToAdd) {
             playerAccessRepo.add(claim, player, permission)
@@ -53,7 +53,7 @@ class PlayerPermissionServiceImpl(private val
 
     override fun removeAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult {
         val permissionsToRemove = getByPlayer(claim, player)
-        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToRemove) {
             playerAccessRepo.remove(claim, player, permission)

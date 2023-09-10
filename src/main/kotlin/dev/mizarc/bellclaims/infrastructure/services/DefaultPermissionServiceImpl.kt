@@ -14,7 +14,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun add(claim: Claim, permission: ClaimPermission): DefaultPermissionChangeResult {
         if (permission in permissionRepo.getByClaim(claim))
-            return DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+            return DefaultPermissionChangeResult.UNCHANGED
 
         permissionRepo.add(claim, permission)
         return DefaultPermissionChangeResult.SUCCESS
@@ -22,7 +22,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun addAll(claim: Claim): DefaultPermissionChangeResult {
         val permissionsToAdd = ClaimPermission.entries.toMutableList() - getByClaim(claim)
-        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToAdd) {
             permissionRepo.add(claim, permission)
@@ -32,7 +32,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun remove(claim: Claim, permission: ClaimPermission): DefaultPermissionChangeResult {
         if (permission !in permissionRepo.getByClaim(claim))
-            return DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+            return DefaultPermissionChangeResult.UNCHANGED
 
         permissionRepo.remove(claim, permission)
         return DefaultPermissionChangeResult.SUCCESS
@@ -40,7 +40,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun removeAll(claim: Claim): DefaultPermissionChangeResult {
         val permissionsToRemove = getByClaim(claim)
-        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToRemove) {
             permissionRepo.remove(claim, permission)
