@@ -6,27 +6,25 @@ import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import java.util.*
 
-class PlayerPermissionServiceImpl(private val
-                                  playerAccessRepo: PlayerAccessRepository
-): PlayerPermissionService {
+class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepository): PlayerPermissionService {
     override fun doesPlayerHavePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean {
         val playerPermissions = playerAccessRepo.getByPlayer(claim, player)
         return playerPermissions.contains(permission)
     }
 
-    override fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>> {
-        return playerAccessRepo.getByClaim(claim)
+    override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
+        return playerAccessRepo.getByClaim(claim).mapKeys { Bukkit.getOfflinePlayer(it.key) }
     }
 
     override fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission> {
         return playerAccessRepo.getByPlayer(claim, player)
     }
 
-    override fun addForPlayer(claim: Claim, player: OfflinePlayer,
-                              permission: ClaimPermission
+    override fun addForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission
     ): PlayerPermissionChangeResult {
         if (permission in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.add(claim, player, permission)
