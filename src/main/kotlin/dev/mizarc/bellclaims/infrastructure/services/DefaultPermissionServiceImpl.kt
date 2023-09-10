@@ -22,7 +22,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun addAll(claim: Claim): DefaultPermissionChangeResult {
         val permissionsToAdd = ClaimPermission.entries.toMutableList() - getByClaim(claim)
-        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
+        if (permissionsToAdd.isEmpty()) return DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToAdd) {
             permissionRepo.add(claim, permission)
@@ -40,7 +40,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
 
     override fun removeAll(claim: Claim): DefaultPermissionChangeResult {
         val permissionsToRemove = getByClaim(claim)
-        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
+        if (permissionsToRemove.isEmpty()) return DefaultPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToRemove) {
             permissionRepo.remove(claim, permission)
