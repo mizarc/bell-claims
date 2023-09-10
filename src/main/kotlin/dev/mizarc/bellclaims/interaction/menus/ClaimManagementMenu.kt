@@ -469,11 +469,11 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         var xSlot = 0
         var ySlot = 0
         for (trustedPlayer in trustedPlayers) {
-            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key))
-                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key).name}")
+            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
+                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId).name}")
                 .lore("Has ${trustedPlayer.value.count()} permissions")
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
+                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 

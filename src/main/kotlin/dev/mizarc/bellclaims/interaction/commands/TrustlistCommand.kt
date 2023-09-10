@@ -18,7 +18,7 @@ class TrustlistCommand : ClaimCommand() {
     fun onTrustlist(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
         val claim = claimService.getById(partition.claimId)!!
-        val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy {it})
+        val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy {it.uniqueId})
 
         // Check if claim has no trusted players
         if (trustedPlayers.isEmpty()) {
@@ -41,7 +41,8 @@ class TrustlistCommand : ClaimCommand() {
             }
 
             if (index in 0 + page..9 + page) {
-                chatInfo.addLinked(Bukkit.getOfflinePlayer(entry.key).name ?: "N/A", entry.value.toString())
+                chatInfo.addLinked(
+                    Bukkit.getOfflinePlayer(entry.key.uniqueId).name ?: "N/A", entry.value.toString())
             }
         }
 
