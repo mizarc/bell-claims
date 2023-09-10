@@ -17,6 +17,7 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
+        println(playerAccessRepo.getByClaim(claim))
         return playerAccessRepo.getByClaim(claim).mapKeys { Bukkit.getOfflinePlayer(it.key) }
     }
 
@@ -24,16 +25,16 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
         return playerAccessRepo.getByPlayer(claim, player)
     }
 
-    override fun addForPlayer(claim: Claim, player: OfflinePlayer, permission: ClaimPermission
-    ): PlayerPermissionChangeResult {
+    override fun addForPlayer(claim: Claim, player: OfflinePlayer,
+                              permission: ClaimPermission): PlayerPermissionChangeResult {
         if (permission in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.add(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
     }
 
     override fun addAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult {
-        val permissionsToAdd = ClaimPermission.values().toMutableList() - getByPlayer(claim, player)
-        if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
+        val permissionsToAdd = ClaimPermission.entries.toMutableList() - getByPlayer(claim, player)
+        if (permissionsToAdd.isEmpty()) return PlayerPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToAdd) {
             playerAccessRepo.add(claim, player, permission)
@@ -51,7 +52,7 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
 
     override fun removeAllForPlayer(claim: Claim, player: OfflinePlayer): PlayerPermissionChangeResult {
         val permissionsToRemove = getByPlayer(claim, player)
-        if (permissionsToRemove.isEmpty()) DefaultPermissionChangeResult.UNCHANGED
+        if (permissionsToRemove.isEmpty()) return PlayerPermissionChangeResult.UNCHANGED
 
         for (permission in permissionsToRemove) {
             playerAccessRepo.remove(claim, player, permission)
