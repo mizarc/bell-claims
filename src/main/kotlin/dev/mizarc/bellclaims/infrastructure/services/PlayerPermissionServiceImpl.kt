@@ -28,7 +28,7 @@ class PlayerPermissionServiceImpl(private val
     override fun addForPlayer(claim: Claim, player: OfflinePlayer,
                               permission: ClaimPermission
     ): PlayerPermissionChangeResult {
-        if (permission in getByPlayer(claim, player)) return PlayerPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permission in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.add(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
     }
@@ -46,7 +46,7 @@ class PlayerPermissionServiceImpl(private val
     override fun removeForPlayer(claim: Claim, player: OfflinePlayer,
                                  permission: ClaimPermission
     ): PlayerPermissionChangeResult {
-        if (permission !in getByPlayer(claim, player)) return PlayerPermissionChangeResult.PERMISSION_STATE_UNCHANGED
+        if (permission !in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.remove(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
     }

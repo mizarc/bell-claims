@@ -21,7 +21,7 @@ class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRe
     }
 
     override fun addAll(claim: Claim): DefaultPermissionChangeResult {
-        val permissionsToAdd = ClaimPermission.values().toMutableList() - getByClaim(claim)
+        val permissionsToAdd = ClaimPermission.entries.toMutableList() - getByClaim(claim)
         if (permissionsToAdd.isEmpty()) DefaultPermissionChangeResult.PERMISSION_STATE_UNCHANGED
 
         for (permission in permissionsToAdd) {
