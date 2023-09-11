@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.ClaimCreationResult
 import dev.mizarc.bellclaims.api.enums.ClaimMoveResult
@@ -17,7 +18,6 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -27,7 +27,7 @@ import java.util.*
 class ClaimWorldServiceImplTest {
     private lateinit var claimRepo: ClaimRepository
     private lateinit var partitionService: PartitionService
-    private lateinit var playerStateService: PlayerStateService
+    private lateinit var playerLimitService: PlayerLimitService
     private lateinit var claimWorldService: ClaimWorldService
 
     private val playerOne = mockk<OfflinePlayer>()
@@ -48,8 +48,8 @@ class ClaimWorldServiceImplTest {
     fun setup() {
         claimRepo = mockk()
         partitionService = mockk()
-        playerStateService = mockk()
-        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
+        playerLimitService = mockk()
+        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerLimitService)
     }
 
     @Test
@@ -199,7 +199,7 @@ class ClaimWorldServiceImplTest {
             Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
         every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
-        every { playerStateService.getRemainingClaimCount(playerThree) } returns 0
+        every { playerLimitService.getRemainingClaimCount(playerThree) } returns 0
 
         // When
         val result = claimWorldService.create("New", location, playerThree)
@@ -218,7 +218,7 @@ class ClaimWorldServiceImplTest {
             Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
         every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
-        every { playerStateService.getRemainingClaimCount(playerThree) } returns 0
+        every { playerLimitService.getRemainingClaimCount(playerThree) } returns 0
 
         // When
         val result = claimWorldService.create("New", location, playerThree)
@@ -237,8 +237,8 @@ class ClaimWorldServiceImplTest {
             Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
         every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
-        every { playerStateService.getRemainingClaimCount(playerThree) } returns 1
-        every { playerStateService.getRemainingClaimBlockCount(playerThree) } returns 12
+        every { playerLimitService.getRemainingClaimCount(playerThree) } returns 1
+        every { playerLimitService.getRemainingClaimBlockCount(playerThree) } returns 12
 
         // When
         val result = claimWorldService.create("New", location, playerThree)
@@ -257,8 +257,8 @@ class ClaimWorldServiceImplTest {
             Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
         every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
-        every { playerStateService.getRemainingClaimCount(playerThree) } returns 1
-        every { playerStateService.getRemainingClaimBlockCount(playerThree) } returns 121
+        every { playerLimitService.getRemainingClaimCount(playerThree) } returns 1
+        every { playerLimitService.getRemainingClaimBlockCount(playerThree) } returns 121
         every { world.uid } returns UUID.randomUUID()
         every { claimRepo.add(any()) } returns Unit
         every { partitionService.append(any(), any()) } returns PartitionCreationResult.SUCCESS

@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
@@ -27,7 +28,7 @@ class PartitionServiceImplTest {
     private lateinit var config: Config
     private lateinit var partitionRepo: PartitionRepository
     private lateinit var claimService: ClaimService
-    private lateinit var playerStateService: PlayerStateService
+    private lateinit var playerLimitService: PlayerLimitService
     private lateinit var partitionService: PartitionService
 
     private val playerOne = mockk<OfflinePlayer>()
@@ -47,8 +48,8 @@ class PartitionServiceImplTest {
         config = mockk()
         partitionRepo = mockk()
         claimService = mockk()
-        playerStateService = mockk()
-        partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
+        playerLimitService = mockk()
+        partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerLimitService)
 
         // World Placeholder
         world = mockk<World>()
@@ -328,7 +329,7 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByChunk(any()) } returns
                 setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
         every { config.distanceBetweenClaims } returns 3
-        every { playerStateService.getRemainingClaimBlockCount(playerTwo) } returns 10
+        every { playerLimitService.getRemainingClaimBlockCount(playerTwo) } returns 10
 
         // When
         val result = partitionService.append(area, claimTwo)
@@ -347,7 +348,7 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByChunk(any()) } returns
                 setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
         every { config.distanceBetweenClaims } returns 3
-        every { playerStateService.getRemainingClaimBlockCount(playerTwo) } returns 9999
+        every { playerLimitService.getRemainingClaimBlockCount(playerTwo) } returns 9999
         every { partitionRepo.add(any()) } just runs
 
         // When
@@ -462,8 +463,8 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
         every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
         every { config.distanceBetweenClaims } returns 3
-        every { playerStateService.getTotalClaimBlockCount(playerTwo) } returns 250
-        every { playerStateService.getUsedClaimBlockCount(playerTwo) } returns 229
+        every { playerLimitService.getTotalClaimBlockCount(playerTwo) } returns 250
+        every { playerLimitService.getUsedClaimBlockCount(playerTwo) } returns 229
 
         // When
         val result = partitionService.resize(partitionCollectionTwo[1], area)
@@ -483,8 +484,8 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
         every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
         every { config.distanceBetweenClaims } returns 3
-        every { playerStateService.getTotalClaimBlockCount(playerTwo) } returns 500
-        every { playerStateService.getUsedClaimBlockCount(playerTwo) } returns 229
+        every { playerLimitService.getTotalClaimBlockCount(playerTwo) } returns 500
+        every { playerLimitService.getUsedClaimBlockCount(playerTwo) } returns 229
         every { partitionRepo.update(any()) } just runs
 
         // When
