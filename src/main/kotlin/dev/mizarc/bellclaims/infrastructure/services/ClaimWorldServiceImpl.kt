@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.ClaimCreationResult
 import dev.mizarc.bellclaims.api.enums.ClaimMoveResult
@@ -16,7 +17,7 @@ import org.bukkit.OfflinePlayer
 
 class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
                             private val partitionService: PartitionService,
-                            private val playerStateService: PlayerStateService): ClaimWorldService {
+                            private val playerLimitService: PlayerLimitService): ClaimWorldService {
     override fun isNewLocationValid(location: Location): Boolean {
         val area = Area(
             Position2D(location.blockX - 5, location.blockZ - 5),
@@ -41,8 +42,8 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
         // Handle failure types
         if (location.block.type != Material.BELL) return ClaimCreationResult.NOT_A_BELL
         else if (!partitionService.isAreaValid(area, location.world)) return ClaimCreationResult.TOO_CLOSE
-        else if (playerStateService.getRemainingClaimCount(player) < 1) return ClaimCreationResult.OUT_OF_CLAIMS
-        else if (playerStateService.getRemainingClaimBlockCount(player) < area.getBlockCount())
+        else if (playerLimitService.getRemainingClaimCount(player) < 1) return ClaimCreationResult.OUT_OF_CLAIMS
+        else if (playerLimitService.getRemainingClaimBlockCount(player) < area.getBlockCount())
             return ClaimCreationResult.OUT_OF_CLAIM_BLOCKS
 
         // Store the claim and associated partition

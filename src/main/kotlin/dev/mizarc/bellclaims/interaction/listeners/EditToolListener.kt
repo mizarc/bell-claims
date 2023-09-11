@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.EquipmentSlot
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionResizeResult
@@ -29,10 +30,12 @@ import java.util.*
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
  */
-class EditToolListener(private val claims: ClaimRepository, private val partitionService: PartitionService,
-                       private val playerStateService: PlayerStateService, private val claimService: ClaimService,
-                       private val visualiser: Visualiser
-) : Listener {
+class EditToolListener(private val claims: ClaimRepository,
+                       private val partitionService: PartitionService,
+                       private val playerLimitService: PlayerLimitService,
+                       private val playerStateService: PlayerStateService,
+                       private val claimService: ClaimService,
+                       private val visualiser: Visualiser) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
 
@@ -130,7 +133,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
                     .color(TextColor.color(255, 85, 85)))
         }
 
-        val remainingClaimBlockCount = playerStateService.getRemainingClaimBlockCount(player)
+        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
 
         // Check if the player already hit claim block limit
         if (remainingClaimBlockCount < 1) {
@@ -166,7 +169,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.INSUFFICIENT_BLOCKS ->
                 return player.sendActionBar(Component.text("That selection would require an additional " +
-                        "${partition.area.getBlockCount() - playerStateService.getRemainingClaimBlockCount(player)} " +
+                        "${partition.area.getBlockCount() - playerLimitService.getRemainingClaimBlockCount(player)} " +
                         "claim blocks.")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.SUCCESS ->
@@ -224,7 +227,7 @@ class EditToolListener(private val claims: ClaimRepository, private val partitio
     fun resizePartition(player: Player, location: Location, partitionResizer: Partition.Resizer) {
         partitionResizer.setNewCorner(Position2D(location.x.toInt(), location.z.toInt()))
 
-        val remainingClaimBlockCount = playerStateService.getRemainingClaimBlockCount(player)
+        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
         val newPartition = partitionResizer.partition.copy()
         newPartition.area = partitionResizer.newArea
         val result = partitionService.resize(partitionResizer.partition, partitionResizer.newArea)
