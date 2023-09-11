@@ -37,6 +37,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var playerAccessRepo: PlayerAccessRepository
     private lateinit var playerStateRepo: PlayerStateRepository
 
+    private lateinit var playerLimitService: PlayerLimitService
     private lateinit var playerStateService: PlayerStateService
     private lateinit var claimService: ClaimService
     private lateinit var partitionService: PartitionService
@@ -79,10 +80,11 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun initialiseServices() {
-        playerStateService = PlayerStateServiceImpl(config, metadata, playerStateRepo, claimRepo, partitionRepo)
+        playerLimitService = PlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
+        playerStateService = PlayerStateServiceImpl(playerStateRepo)
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimFlagRepo, claimPermissionRepo, playerAccessRepo)
-        partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerStateService)
-        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerStateService)
+        partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerLimitService)
+        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerLimitService)
         flagService = FlagServiceImpl(claimFlagRepo)
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
@@ -90,11 +92,11 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun initialiseInteractions() {
-        visualiser = Visualiser(this, claimService,
-            partitionService, playerStateService, visualisationService)
+        visualiser = Visualiser(this, claimService, partitionService, playerStateService, visualisationService)
     }
 
     private fun registerDependencies() {
+        commandManager.registerDependency(PlayerLimitService::class.java, playerLimitService)
         commandManager.registerDependency(PlayerStateService::class.java, playerStateService)
         commandManager.registerDependency(ClaimService::class.java, claimService)
         commandManager.registerDependency(PartitionService::class.java, partitionService)
@@ -127,7 +129,8 @@ class BellClaims : JavaPlugin() {
             ClaimInteractListener(this, claimService, partitionService, flagService, defaultPermissionService,
                 playerPermissionService, playerStateService), this)
         server.pluginManager.registerEvents(
-            EditToolListener(claimRepo, partitionService, playerStateService, claimService, visualiser), this)
+            EditToolListener(claimRepo, partitionService, playerLimitService, playerStateService, claimService,
+                visualiser), this)
         server.pluginManager.registerEvents(
             EditToolVisualisingListener(this, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)

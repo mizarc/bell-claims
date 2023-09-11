@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
@@ -22,7 +23,7 @@ import kotlin.collections.ArrayList
 class PartitionServiceImpl(private val config: Config,
                            private val partitionRepo: PartitionRepository,
                            private val claimService: ClaimService,
-                           private val playerStateService: PlayerStateService) : PartitionService {
+                           private val playerLimitService: PlayerLimitService) : PartitionService {
     override fun isAreaValid(area: Area, world: World): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
         val partitions = chunks.flatMap { getByChunk(world.uid, it) }.toSet()
@@ -85,7 +86,7 @@ class PartitionServiceImpl(private val config: Config,
         if (area.getXLength() < 5 || area.getZLength() < 5) return PartitionCreationResult.TOO_SMALL
 
         // Check if selection is greater than the player's remaining claim blocks
-        val remainingClaimBlockCount = playerStateService.getRemainingClaimBlockCount(claim.owner)
+        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(claim.owner)
         if (area.getBlockCount() > remainingClaimBlockCount) return PartitionCreationResult.INSUFFICIENT_BLOCKS
 
         // Append partition to existing claim if adjacent partition is part of the same claim
@@ -131,8 +132,8 @@ class PartitionServiceImpl(private val config: Config,
             return PartitionResizeResult.TOO_SMALL
 
         // Check if claim takes too much space
-        if (playerStateService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
-                + newPartition.area.getBlockCount() > playerStateService.getTotalClaimBlockCount(claim.owner))
+        if (playerLimitService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
+                + newPartition.area.getBlockCount() > playerLimitService.getTotalClaimBlockCount(claim.owner))
             return PartitionResizeResult.INSUFFICIENT_BLOCKS
 
         // Check if claim resize would result a partition being disconnected from the main
