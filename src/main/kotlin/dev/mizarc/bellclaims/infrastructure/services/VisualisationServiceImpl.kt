@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.utils.toward
 import dev.mizarc.bellclaims.utils.transparentMaterials
 import org.bukkit.Location
 
@@ -125,6 +126,12 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
         return get3DPositions(getMainPartitionCorners(claim), renderLocation)
     }
 
+    /**
+     * Gets the cardinal direction movement from one Position to another.
+     * @param first The starting position.
+     * @param second The position to move to.
+     * @return The Direction enum that is being moved to.
+     */
     private fun getTravelDirection(first: Position2D, second: Position2D): Direction {
         return when {
             second.z > first.z -> Direction.South
@@ -136,33 +143,51 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
 
     /**
      * Determine if a block is a floor/ceiling and therefore should be considered visible
+     * @param location The location of the block.
+     * @return True if the block is considered visible.
      */
-    private fun isBlockVisible(loc: Location): Boolean {
-        val above = Location(loc.world, loc.x, loc.y + 1, loc.z).block.blockData.material
-        val below = Location(loc.world, loc.x, loc.y - 1, loc.z).block.blockData.material
+    private fun isBlockVisible(location: Location): Boolean {
+        val above = Location(location.world, location.x, location.y + 1, location.z).block.blockData.material
+        val below = Location(location.world, location.x, location.y - 1, location.z).block.blockData.material
         return transparentMaterials.contains(above) || transparentMaterials.contains(below)
     }
 
+    /**
+     * Gets the 3D positions of the first solid blocks found in both upper and lower directions.
+     * @param positions The set of positions to query.
+     * @param renderLocation The position of the player as a starting point.
+     * @return A set of 3D positions of solid blocks.
+     */
     private fun get3DPositions(positions: Set<Position2D>, renderLocation: Location): Set<Position3D> {
         val visualisedBlocks: MutableSet<Position3D> = mutableSetOf()
         for (position in positions) {
-            for (y in renderLocation.blockY + 1 .. renderLocation.blockY + 1 + upperRange) {
-                val blockLocation = Location(renderLocation.world, position.x.toDouble(),
-                    y.toDouble(), position.z.toDouble())
-                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue
-                if (!isBlockVisible(blockLocation)) continue
-                visualisedBlocks.add(Position3D(blockLocation))
-                break
-            }
-            for (y in renderLocation.blockY downTo renderLocation.blockY - lowerRange) {
-                val blockLocation = Location(renderLocation.world, position.x.toDouble(),
-                    y.toDouble(), position.z.toDouble())
-                if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue
-                if (!isBlockVisible(blockLocation)) continue
-                visualisedBlocks.add(Position3D(blockLocation))
-                break
-            }
+            findSolidBlock(position, renderLocation, upperRange, 1)?.let { visualisedBlocks.add(it) }
+            findSolidBlock(position, renderLocation, lowerRange, -1)?.let { visualisedBlocks.add(it) }
         }
         return visualisedBlocks
+    }
+
+    /**
+     * Gets the first solid block when querying each block up or down from a starting position.
+     * @param position The 2D position in the world.
+     * @param renderLocation The position of the player as a starting point.
+     * @param range How many blocks to search.
+     * @param direction The direction to check, 1 for up and -1 for down.
+     * @return The 3D position of the first solid block.
+     */
+    private fun findSolidBlock(position: Position2D, renderLocation: Location,
+                                range: Int, direction: Int): Position3D? {
+        val startY = if (direction > 0) renderLocation.blockY + 1 else renderLocation.blockY
+        val endY = renderLocation.blockY + direction * range
+        for (y in startY toward endY) {
+            val blockLocation = Location(
+                renderLocation.world, position.x.toDouble(),
+                y.toDouble(), position.z.toDouble()
+            )
+            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue
+            if (!isBlockVisible(blockLocation)) continue
+            return Position3D(blockLocation)
+        }
+        return null
     }
 }
