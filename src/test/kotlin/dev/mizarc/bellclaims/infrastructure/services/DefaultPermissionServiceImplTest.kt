@@ -18,15 +18,16 @@ class DefaultPermissionServiceImplTest {
     private lateinit var permissionRepo: ClaimPermissionRepository
     private lateinit var defaultPermissionService: DefaultPermissionServiceImpl
 
-    private val playerOne = mockk<OfflinePlayer>()
-
+    private lateinit var playerOne: OfflinePlayer
     private lateinit var claim: Claim
 
     @BeforeEach
     fun setup() {
-        claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
         permissionRepo = mockk()
         defaultPermissionService = DefaultPermissionServiceImpl(permissionRepo)
+
+        playerOne = mockk<OfflinePlayer>()
+        claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
     }
 
     @Test

@@ -27,24 +27,10 @@ class ClaimServiceImplTest {
     private val playerOne = mockk<OfflinePlayer>()
     private val playerTwo = mockk<OfflinePlayer>()
     private val playerThree = mockk<OfflinePlayer>()
-    private val claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
-    private val claimCollection = arrayOf(
-        Claim(UUID.randomUUID(), playerOne, Position3D(86,12,32), "Test 1"),
-        Claim(UUID.randomUUID(), playerOne, Position3D(23,85,34), "Test 2"),
-        Claim(UUID.randomUUID(), playerOne, Position3D(58,74,93), "Test 3"),
-        Claim(UUID.randomUUID(), playerTwo, Position3D(11,5,40), "Test 4"),
-        Claim(UUID.randomUUID(), playerTwo, Position3D(37,17,61), "Test 5"),
-        Claim(UUID.randomUUID(), playerTwo, Position3D(67,88,59), "Test 6"),
-        Claim(UUID.randomUUID(), playerThree, Position3D(72,24,87), "Test 7"),
-        Claim(UUID.randomUUID(), playerThree, Position3D(18,15,77), "Test 8"),
-        Claim(UUID.randomUUID(), playerThree, Position3D(46,36,83), "Test 9"))
 
-    private val partitionCollection = arrayOf(
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(8, 5), Position2D(19, 16))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -5), Position2D(7, 8))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(-5, -6), Position2D(1, -1))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5))))
+    private lateinit var claim: Claim
+    private lateinit var claimCollection: Array<Claim>
+    private lateinit var partitionCollection: Array<Partition>
 
     @BeforeEach
     fun setup() {
@@ -55,6 +41,24 @@ class ClaimServiceImplTest {
         playerPermissionRepo = mockk()
         claimService = ClaimServiceImpl(claimRepo, partitionRepo,
             claimFlagRepo, claimPermissionRepo, playerPermissionRepo)
+
+        claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
+        claimCollection = arrayOf(
+            Claim(UUID.randomUUID(), playerOne, Position3D(86,12,32), "Test 1"),
+            Claim(UUID.randomUUID(), playerOne, Position3D(23,85,34), "Test 2"),
+            Claim(UUID.randomUUID(), playerOne, Position3D(58,74,93), "Test 3"),
+            Claim(UUID.randomUUID(), playerTwo, Position3D(11,5,40), "Test 4"),
+            Claim(UUID.randomUUID(), playerTwo, Position3D(37,17,61), "Test 5"),
+            Claim(UUID.randomUUID(), playerTwo, Position3D(67,88,59), "Test 6"),
+            Claim(UUID.randomUUID(), playerThree, Position3D(72,24,87), "Test 7"),
+            Claim(UUID.randomUUID(), playerThree, Position3D(18,15,77), "Test 8"),
+            Claim(UUID.randomUUID(), playerThree, Position3D(46,36,83), "Test 9"))
+        partitionCollection = arrayOf(
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(8, 5), Position2D(19, 16))),
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))),
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -5), Position2D(7, 8))),
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-5, -6), Position2D(1, -1))),
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5))))
     }
 
     @Test

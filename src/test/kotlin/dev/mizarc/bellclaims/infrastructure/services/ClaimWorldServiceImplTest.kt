@@ -30,19 +30,15 @@ class ClaimWorldServiceImplTest {
     private lateinit var playerLimitService: PlayerLimitService
     private lateinit var claimWorldService: ClaimWorldService
 
-    private val playerOne = mockk<OfflinePlayer>()
-    private val playerTwo = mockk<OfflinePlayer>()
-    private val playerThree = mockk<OfflinePlayer>()
+    private lateinit var playerOne: OfflinePlayer
+    private lateinit var playerTwo: OfflinePlayer
+    private lateinit var playerThree: OfflinePlayer
 
-    private val claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
-    private val partitionCollection = arrayOf(
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(8, 5), Position2D(19, 16))),
-        Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))))
+    private lateinit var claimOne: Claim
+    private lateinit var partitionCollectionOne: Array<Partition>
 
-    private val otherClaim = Claim(UUID.randomUUID(), playerTwo, Position3D(21,74,30), "Test1")
-    private val otherPartitionCollection = arrayOf(
-        Partition(UUID.randomUUID(), otherClaim.id, Area(Position2D(17, 29), Position2D(23, 39))),
-        Partition(UUID.randomUUID(), otherClaim.id, Area(Position2D(11, 37), Position2D(16, 43))))
+    private lateinit var claimTwo: Claim
+    private lateinit var partitionCollectionTwo: Array<Partition>
 
     @BeforeEach
     fun setup() {
@@ -50,6 +46,20 @@ class ClaimWorldServiceImplTest {
         partitionService = mockk()
         playerLimitService = mockk()
         claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerLimitService)
+
+        playerOne = mockk<OfflinePlayer>()
+        playerTwo = mockk<OfflinePlayer>()
+        playerThree = mockk<OfflinePlayer>()
+
+        claimOne = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "ClaimOne")
+        partitionCollectionOne = arrayOf(
+            Partition(UUID.randomUUID(), claimOne.id, Area(Position2D(8, 5), Position2D(19, 16))),
+            Partition(UUID.randomUUID(), claimOne.id, Area(Position2D(16, 17), Position2D(25, 24))))
+
+        claimTwo = Claim(UUID.randomUUID(), playerTwo, Position3D(21,74,30), "ClaimTwo")
+        partitionCollectionTwo = arrayOf(
+            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(17, 29), Position2D(23, 39))),
+            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(11, 37), Position2D(16, 43))))
     }
 
     @Test
@@ -91,10 +101,10 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 13.5, 73.0, 40.5)
-        every { partitionService.getByLocation(location) } returns partitionCollection[0]
+        every { partitionService.getByLocation(location) } returns partitionCollectionOne[0]
 
         // When
-        val result = claimWorldService.isMoveLocationValid(claim, location)
+        val result = claimWorldService.isMoveLocationValid(claimOne, location)
 
         // Then
         assertTrue(result)
@@ -105,10 +115,10 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 22.5, 71.0, 19.5)
-        every { partitionService.getByLocation(location) } returns otherPartitionCollection[0]
+        every { partitionService.getByLocation(location) } returns partitionCollectionTwo[0]
 
         // When
-        val result = claimWorldService.isMoveLocationValid(claim, location)
+        val result = claimWorldService.isMoveLocationValid(claimOne, location)
 
         // Then
         assertFalse(result)
@@ -122,7 +132,7 @@ class ClaimWorldServiceImplTest {
         every { partitionService.getByLocation(location) } returns null
 
         // When
-        val result = claimWorldService.isMoveLocationValid(claim, location)
+        val result = claimWorldService.isMoveLocationValid(claimOne, location)
 
         // Then
         assertFalse(result)
@@ -147,13 +157,13 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 21.5, 74.0, 30.5)
-        every { claimRepo.getByPosition(Position3D(21, 74, 30), world.uid) } returns claim
+        every { claimRepo.getByPosition(Position3D(21, 74, 30), world.uid) } returns claimOne
 
         // When
         val result = claimWorldService.getByLocation(location)
 
         // Then
-        assertEquals(claim, result)
+        assertEquals(claimOne, result)
     }
 
     @Test
@@ -275,11 +285,11 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 44.5, 72.0, 19.5)
-        every { claimWorldService.isMoveLocationValid(claim, location) } returns false
-        every { claimRepo.update(claim) } returns Unit
+        every { claimWorldService.isMoveLocationValid(claimOne, location) } returns false
+        every { claimRepo.update(claimOne) } returns Unit
 
         // When
-        val result = claimWorldService.move(claim, location)
+        val result = claimWorldService.move(claimOne, location)
 
         // Then
         assertEquals(ClaimMoveResult.OUTSIDE_OF_AREA, result)
@@ -290,11 +300,11 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 46.5, 74.0, 31.5)
-        every { claimWorldService.isMoveLocationValid(claim, location) } returns true
-        every { claimRepo.update(claim) } returns Unit
+        every { claimWorldService.isMoveLocationValid(claimOne, location) } returns true
+        every { claimRepo.update(claimOne) } returns Unit
 
         // When
-        val result = claimWorldService.move(claim, location)
+        val result = claimWorldService.move(claimOne, location)
 
         // Then
         assertEquals(ClaimMoveResult.SUCCESS, result)

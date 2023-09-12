@@ -20,12 +20,14 @@ class FlagServiceImplTest {
     private lateinit var flagRepo: ClaimFlagRepository
     private lateinit var flagService: FlagService
 
-    private val claim = Claim(UUID.randomUUID(), mockk<OfflinePlayer>(), Position3D(15,85,10), "Test")
+    private lateinit var claim: Claim
 
     @BeforeEach
     fun setup() {
         flagRepo = mockk()
         flagService = FlagServiceImpl(flagRepo)
+
+        claim = Claim(UUID.randomUUID(), mockk<OfflinePlayer>(), Position3D(15,85,10), "Test")
     }
 
     @Test

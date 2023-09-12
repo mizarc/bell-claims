@@ -33,7 +33,6 @@ class PartitionServiceImplTest {
 
     private val playerOne = mockk<OfflinePlayer>()
     private val playerTwo = mockk<OfflinePlayer>()
-    private val playerThree = mockk<OfflinePlayer>()
 
     private lateinit var world: World
 
