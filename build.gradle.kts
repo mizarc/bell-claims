@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
@@ -30,8 +30,14 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    testImplementation("com.github.MilkBowl:VaultAPI:1.7")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation ("org.slf4j:slf4j-nop:2.0.7")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")

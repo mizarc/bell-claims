@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.domain.players
 
-import org.bukkit.OfflinePlayer
+import java.util.*
 
 interface PlayerStateRepository {
     fun getAll() : Set<PlayerState>
@@ -10,7 +10,7 @@ interface PlayerStateRepository {
      * @param player The player to fetch.
      * @return A PlayerState object of the player. May return null.
      */
-    fun get(player: OfflinePlayer) : PlayerState?
+    fun get(id: UUID) : PlayerState?
     fun add(playerState: PlayerState)
     fun remove(playerState: PlayerState)
 }

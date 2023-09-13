@@ -27,7 +27,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                           private val flagService: FlagService,
                           private val defaultPermissionService: DefaultPermissionService,
                           private val playerPermissionService: PlayerPermissionService,
-                          private val playerStateService: PlayerStateService,
+                          private val playerLimitService: PlayerLimitService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimWorldService.getByLocation(claimBuilder.location)
@@ -45,7 +45,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         gui.addPane(pane)
 
         // Check if player doesn't have enough claims
-        if (playerStateService.getRemainingClaimCount(claimBuilder.player) < 1) {
+        if (playerLimitService.getRemainingClaimCount(claimBuilder.player) < 1) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name("Cannot Create Claim")
                 .lore("You have run out of claims. ")
@@ -72,7 +72,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val iconEditorItem = ItemStack(Material.BELL)
             .name("Create Claim")
             .lore("The area around this bell will be protected from griefing.")
-            .lore("You have ${playerStateService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
+            .lore("You have ${playerLimitService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -469,11 +469,11 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         var xSlot = 0
         var ySlot = 0
         for (trustedPlayer in trustedPlayers) {
-            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key))
-                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key).name}")
+            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
+                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId).name}")
                 .lore("Has ${trustedPlayer.value.count()} permissions")
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key))
+                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 
