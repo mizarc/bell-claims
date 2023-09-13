@@ -1,3 +1,6 @@
+
+<a href="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN"><img src="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN" style="width: 650px; max-width: 100%; height: auto" title="Click to enlarge picture" />
+
 # Bell Claims
 
 Bell Claims is an intuitive and comprehensive land-claiming Spigot/PaperMC plugin for Minecraft multiplayer servers. It allows players to claim
