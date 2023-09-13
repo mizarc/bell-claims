@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims.api.enums
 
-enum class DefaultPermissionChangeResult {
+enum class PlayerUnregisterResult {
     SUCCESS,
-    CLAIM_DOES_NOT_EXIST,
     UNCHANGED
 }

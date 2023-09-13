@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.ClaimCreationResult
 import dev.mizarc.bellclaims.api.enums.ClaimMoveResult
@@ -16,7 +17,7 @@ import org.bukkit.OfflinePlayer
 
 class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
                             private val partitionService: PartitionService,
-                            private val playerStateService: PlayerStateService): ClaimWorldService {
+                            private val playerLimitService: PlayerLimitService): ClaimWorldService {
     override fun isNewLocationValid(location: Location): Boolean {
         val area = Area(
             Position2D(location.blockX - 5, location.blockZ - 5),
@@ -40,8 +41,10 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
 
         // Handle failure types
         if (location.block.type != Material.BELL) return ClaimCreationResult.NOT_A_BELL
-        else if (partitionService.isAreaValid(area, location.world)) return ClaimCreationResult.TOO_CLOSE
-        else if (playerStateService.getRemainingClaimBlockCount(player) <= 0) return ClaimCreationResult.OUT_OF_CLAIMS
+        else if (!partitionService.isAreaValid(area, location.world)) return ClaimCreationResult.TOO_CLOSE
+        else if (playerLimitService.getRemainingClaimCount(player) < 1) return ClaimCreationResult.OUT_OF_CLAIMS
+        else if (playerLimitService.getRemainingClaimBlockCount(player) < area.getBlockCount())
+            return ClaimCreationResult.OUT_OF_CLAIM_BLOCKS
 
         // Store the claim and associated partition
         val claim = Claim(location.world.uid, player, Position3D(location), name)
@@ -51,7 +54,7 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
     }
 
     override fun move(claim: Claim, location: Location): ClaimMoveResult {
-        if (isMoveLocationValid(claim, location)) return ClaimMoveResult.OUTSIDE_OF_AREA
+        if (!isMoveLocationValid(claim, location)) return ClaimMoveResult.OUTSIDE_OF_AREA
         claim.position = Position3D(location)
         claimRepo.update(claim)
         return ClaimMoveResult.SUCCESS

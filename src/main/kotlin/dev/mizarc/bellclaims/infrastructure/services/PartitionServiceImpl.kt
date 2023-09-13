@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
+import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
@@ -22,29 +23,29 @@ import kotlin.collections.ArrayList
 class PartitionServiceImpl(private val config: Config,
                            private val partitionRepo: PartitionRepository,
                            private val claimService: ClaimService,
-                           private val playerStateService: PlayerStateService) : PartitionService {
+                           private val playerLimitService: PlayerLimitService) : PartitionService {
     override fun isAreaValid(area: Area, world: World): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
-        val partitions = chunks.flatMap { filterByWorld(world.uid, getByChunk(world.uid, it)) }.toMutableList()
+        val partitions = chunks.flatMap { getByChunk(world.uid, it) }.toSet()
         val areaWithBoundary = Area(
             Position2D( area.lowerPosition2D.x - config.distanceBetweenClaims,
                 area.lowerPosition2D.z - config.distanceBetweenClaims),
             Position2D( area.upperPosition2D.x + config.distanceBetweenClaims,
                 area.upperPosition2D.z + config.distanceBetweenClaims))
-        return partitions.any { it.isAreaOverlap(areaWithBoundary) }
+        return !partitions.any { it.isAreaOverlap(areaWithBoundary) }
     }
 
     override fun isAreaValid(area: Area, claim: Claim): Boolean {
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
-        val partitions = chunks.flatMap { filterByWorld(claim.worldId, getByChunk(claim.worldId, it)) }.toMutableList()
-        val claimPartitions = partitions.filter { it.claimId == claim.id }
+        val partitions = chunks.flatMap { getByChunk(claim.worldId, it) }.toMutableSet()
+        val claimPartitions = partitions.filter { it.claimId == claim.id }.toSet()
         partitions.removeAll(claimPartitions)
         val areaWithBoundary = Area(
             Position2D( area.lowerPosition2D.x - config.distanceBetweenClaims,
                 area.lowerPosition2D.z - config.distanceBetweenClaims),
             Position2D( area.upperPosition2D.x + config.distanceBetweenClaims,
                 area.upperPosition2D.z + config.distanceBetweenClaims))
-        return partitions.any { it.isAreaOverlap(areaWithBoundary) } || claimPartitions.any { it.isAreaOverlap(area) }
+        return !partitions.any { it.isAreaOverlap(areaWithBoundary) } && !claimPartitions.any { it.isAreaOverlap(area) }
     }
 
     override fun isRemoveAllowed(partition: Partition): Boolean {
@@ -85,7 +86,7 @@ class PartitionServiceImpl(private val config: Config,
         if (area.getXLength() < 5 || area.getZLength() < 5) return PartitionCreationResult.TOO_SMALL
 
         // Check if selection is greater than the player's remaining claim blocks
-        val remainingClaimBlockCount = playerStateService.getRemainingClaimBlockCount(claim.owner)
+        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(claim.owner)
         if (area.getBlockCount() > remainingClaimBlockCount) return PartitionCreationResult.INSUFFICIENT_BLOCKS
 
         // Append partition to existing claim if adjacent partition is part of the same claim
@@ -112,15 +113,15 @@ class PartitionServiceImpl(private val config: Config,
         val newPartition = partition.copy()
         newPartition.area = area
 
-        // Check if selection would result in it being disconnected from the claim
-        val claim = claimService.getById(newPartition.claimId) ?: return PartitionResizeResult.DISCONNECTED
-        if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
-
         // Check if selection overlaps an existing claim
         if (isPartitionOverlap(newPartition)) return PartitionResizeResult.OVERLAP
 
         // Check if selection is too close to another claim's partition
         if (isPartitionTooClose(newPartition)) return PartitionResizeResult.TOO_CLOSE
+
+        // Check if selection would result in it being disconnected from the claim
+        val claim = claimService.getById(newPartition.claimId) ?: return PartitionResizeResult.DISCONNECTED
+        if (isResizeResultInAnyDisconnected(newPartition)) return PartitionResizeResult.DISCONNECTED
 
         // Check if claim bell would be outside partition
         if (newPartition.id == getPrimaryPartition(claim).id && !newPartition.area.isPositionInArea(claim.position))
@@ -131,8 +132,8 @@ class PartitionServiceImpl(private val config: Config,
             return PartitionResizeResult.TOO_SMALL
 
         // Check if claim takes too much space
-        if (playerStateService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
-                + newPartition.area.getBlockCount() > playerStateService.getRemainingClaimBlockCount(claim.owner))
+        if (playerLimitService.getUsedClaimBlockCount(claim.owner) - partition.area.getBlockCount()
+                + newPartition.area.getBlockCount() > playerLimitService.getTotalClaimBlockCount(claim.owner))
             return PartitionResizeResult.INSUFFICIENT_BLOCKS
 
         // Check if claim resize would result a partition being disconnected from the main
