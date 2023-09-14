@@ -27,7 +27,7 @@ unit-test:
 build:
   stage: build
   script:
-    - ./gradle shadowJar
+    - ./gradlew shadowJar
   artifacts:
     paths:
       - build/libs/*.jar
