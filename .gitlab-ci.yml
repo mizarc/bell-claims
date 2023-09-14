@@ -22,3 +22,11 @@ unit-test:
   artifacts:
     reports:
       junit: build/test-results/test/**/TEST-*.xml
+
+build:
+  stage: build
+  script:
+    - ./gradle shadowJar
+  artifacts:
+    paths:
+      - build/libs/*.jar
