@@ -26,6 +26,9 @@ unit-test:
 
 build:
   stage: build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
   script:
     - ./gradlew shadowJar
   artifacts:
