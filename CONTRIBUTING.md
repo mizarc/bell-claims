@@ -1,6 +1,6 @@
-# Contributing to SpaceCat
+# Contributing to Bell Claims
 
-So you'd like to contribute to the SpaceCat Discord project? Well you're in luck because we're a little short on developers... or generally just anyone ranging from designers, testers, QA, translaters, you name it. If you've got any experience in Kotlin and a passion to make cool Minecraft server stuff, feel free to join the club so long as you're willing to accept the few and loose guidelines.
+So you'd like to contribute to the Bell Claims project? Well you're in luck because we're a little short on developers... or generally just anyone ranging from designers, testers, QA, translaters, you name it. If you've got any experience in Kotlin and a passion to make cool Minecraft server stuff, feel free to join the club so long as you're willing to accept the few and loose guidelines.
 
 ## Want to talk?
 There's no official team based communication right now, but you can contact me through either:
