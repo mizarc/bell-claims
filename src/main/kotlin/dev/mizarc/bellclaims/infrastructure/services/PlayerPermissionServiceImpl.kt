@@ -43,8 +43,7 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun removeForPlayer(claim: Claim, player: OfflinePlayer,
-                                 permission: ClaimPermission
-    ): PlayerPermissionChangeResult {
+                                 permission: ClaimPermission): PlayerPermissionChangeResult {
         if (permission !in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.remove(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
