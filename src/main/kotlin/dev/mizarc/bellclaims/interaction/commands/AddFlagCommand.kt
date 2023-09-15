@@ -7,10 +7,10 @@ import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.flags.Flag
 
 @CommandAlias("claim")
-class AddRuleCommand : ClaimCommand() {
+class AddFlagCommand : ClaimCommand() {
 
     @Subcommand("addflag")
-    @CommandPermission("bellclaims.command.claim.addrule")
+    @CommandPermission("bellclaims.command.claim.addflag")
     fun onFlag(player: Player, rule: Flag) {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) {

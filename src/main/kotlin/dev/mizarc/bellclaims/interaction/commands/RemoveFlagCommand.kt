@@ -7,10 +7,10 @@ import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.flags.Flag
 
 @CommandAlias("claim")
-class RemoveRuleCommand : ClaimCommand() {
+class RemoveFlagCommand : ClaimCommand() {
 
-    @Subcommand("removerule")
-    @CommandPermission("bellclaims.command.claim.removerule")
+    @Subcommand("removeflag")
+    @CommandPermission("bellclaims.command.claim.removeflag")
     fun onRemoveClaim(player: Player, rule: Flag) {
         val partition = getPartitionAtPlayer(player) ?: return
         val claim = claimService.getById(partition.claimId) ?: return
