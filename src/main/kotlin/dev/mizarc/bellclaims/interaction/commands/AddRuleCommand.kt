@@ -17,7 +17,7 @@ class AddRuleCommand : ClaimCommand() {
             return
         }
 
-        val claim = claimService.getById(partition.id)!!
+        val claim = claimService.getById(partition.claimId) ?: return
         if (flagService.getByClaim(claim).contains(rule)) {
             player.sendMessage("§6${claim.name} §calready has §6${rule}§c.")
             return
