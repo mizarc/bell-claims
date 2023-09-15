@@ -118,8 +118,8 @@ class BellClaims : JavaPlugin() {
         commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(RenameCommand())
         commandManager.registerCommand(DescriptionCommand())
-        commandManager.registerCommand(AddRuleCommand())
-        commandManager.registerCommand(RemoveRuleCommand())
+        commandManager.registerCommand(AddFlagCommand())
+        commandManager.registerCommand(RemoveFlagCommand())
         commandManager.registerCommand(ClaimOverrideCommand())
         commandManager.registerCommand(ClaimMenuCommand())
     }
