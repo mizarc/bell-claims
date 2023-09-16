@@ -32,7 +32,10 @@ class PartitionsCommand : ClaimCommand() {
                 break
             }
             chatInfo.addLinked((i + 1).toString(),
-                "${claimPartitions[i].area.lowerPosition2D} ${claimPartitions[i].area.upperPosition2D}")
+                "Lower (${claimPartitions[i].area.lowerPosition2D.x}), " +
+                        "${claimPartitions[i].area.lowerPosition2D.z} | " +
+                        "Upper (${claimPartitions[i].area.upperPosition2D.x}), " +
+                        "${claimPartitions[i].area.upperPosition2D.z}")
         }
 
         player.sendMessage(chatInfo.createPaged(page,
