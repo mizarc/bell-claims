@@ -57,7 +57,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
 
         // Check if created claim area would overlap
-        if (claimWorldService.isNewLocationValid(claimBuilder.location)) {
+        if (!claimWorldService.isNewLocationValid(claimBuilder.location)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name("Cannot Create Claim")
                 .lore("The created claim would overlap another claim.")
