@@ -8,7 +8,6 @@ import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
 @CommandAlias("claim")
 class UntrustCommand : ClaimCommand() {
-
     @Subcommand("untrust")
     @CommandPermission("bellclaims.command.claim.untrust")
     fun onUntrust(player: Player, targetPlayer: OnlinePlayer, claimPermission: ClaimPermission) {
