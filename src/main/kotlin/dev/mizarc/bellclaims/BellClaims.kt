@@ -120,6 +120,7 @@ class BellClaims : JavaPlugin() {
         commandManager.registerCommand(DescriptionCommand())
         commandManager.registerCommand(AddFlagCommand())
         commandManager.registerCommand(RemoveFlagCommand())
+        commandManager.registerCommand(RemoveCommand())
         commandManager.registerCommand(ClaimOverrideCommand())
         commandManager.registerCommand(ClaimMenuCommand())
     }
