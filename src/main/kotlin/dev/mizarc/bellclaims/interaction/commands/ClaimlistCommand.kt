@@ -51,7 +51,7 @@ class ClaimlistCommand : BaseCommand() {
                 "<${playerClaims[i].position.x}, ${playerClaims[i].position.y}, ${playerClaims[i].position.z} " +
                         "(${blockCount} Blocks)")
         }
-        player.spigot().sendMessage(*chatInfo.createPaged(page,
+        player.sendMessage(chatInfo.createPaged(page,
             ceil((playerClaims.count() / 10.0)).toInt()))
     }
 }

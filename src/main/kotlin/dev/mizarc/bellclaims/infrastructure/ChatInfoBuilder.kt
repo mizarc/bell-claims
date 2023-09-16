@@ -1,70 +1,54 @@
 package dev.mizarc.bellclaims.infrastructure
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.NamedTextColor
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ComponentBuilder
 
 class ChatInfoBuilder(var title: String) {
-    private var elements: ComponentBuilder
+    private var elements = Component.text()
 
     init {
-        var titleLine = "§m"
-        for (i in 0 until 26 - title.length / 2) {
-            titleLine += " "
-        }
-        titleLine += "§r $title §m"
-        for (i in 0 until 26 - title.length / 2) {
-            titleLine += " "
-        }
-        elements = ComponentBuilder(titleLine).color(ChatColor.AQUA)
+        elements.append(Component.text("-----", NamedTextColor.WHITE))
+        elements.append(Component.text(" $title ", NamedTextColor.DARK_AQUA))
+        elements.append(Component.text("-----", NamedTextColor.WHITE))
     }
 
     fun addHeader(text: String) {
         newLine()
-        elements.append(ComponentBuilder(text).color(ChatColor.BLUE).bold(true).create())
+        elements.append(Component.text(text, NamedTextColor.BLUE))
     }
 
     fun addParagraph(text: String) {
         newLine()
-        elements.append(ComponentBuilder(text).color(ChatColor.GRAY).create())
+        elements.append(Component.text(text, NamedTextColor.GRAY))
     }
 
     fun addLinked(left: String, right: String) {
         newLine()
-        elements.append(ComponentBuilder("${left}: ").color(ChatColor.GOLD)
-            .append(right).color(ChatColor.WHITE).create())
+        elements.append(Component.text("${left}: ", NamedTextColor.GOLD))
+        elements.append(Component.text(right, NamedTextColor.WHITE))
     }
 
     fun addSpace() {
         newLine()
     }
 
-    fun create() : Array<BaseComponent> {
-        var underLine = "§m"
-        for (i in 0 until 52) {
-            underLine += " "
-        }
-
-        val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
-        return finalisedElement.create()
+    fun create(): Component {
+        val finalisedElement = elements.append(Component.text("\n-----", NamedTextColor.WHITE))
+        return finalisedElement.build()
     }
 
-    fun createPaged(currentPage: Int, pages: Int) : Array<BaseComponent> {
+    fun createPaged(currentPage: Int, pages: Int): Component {
         val pageText = "§r Page ${currentPage}/${pages} §m"
-        var underLine = "§m"
-        for (i in 0 until 26 - pageText.count() / 2) {
-            underLine += " "
-        }
-        underLine += pageText
-        for (i in 0 until 26 - pageText.count() / 2) {
-            underLine += " "
-        }
-
-        val finalisedElement = elements.append("\n${underLine}").color(ChatColor.AQUA)
-        return finalisedElement.create()
+        val finalisedElement = elements.append(Component.text("\n-----", NamedTextColor.WHITE))
+            .append(Component.text(pageText, NamedTextColor.DARK_AQUA))
+        return finalisedElement.build()
     }
 
     private fun newLine() {
-        elements.append("\n").reset()
+        elements.append(Component.text("\n"))
     }
 }
