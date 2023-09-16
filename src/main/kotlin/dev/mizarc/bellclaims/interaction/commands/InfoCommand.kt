@@ -43,6 +43,6 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Second Corner", partition.area.upperPosition2D.toString())
         chatInfo.addLinked("Block Count", partition.area.getBlockCount().toString())
 
-        player.spigot().sendMessage(*chatInfo.create())
+        player.sendMessage(chatInfo.create())
     }
 }

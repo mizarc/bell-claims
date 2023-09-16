@@ -46,6 +46,6 @@ class TrustlistCommand : ClaimCommand() {
             }
         }
 
-        player.spigot().sendMessage(*chatInfo.createPaged(page, ceil((trustedPlayers.count() / 10.0)).toInt()))
+        player.sendMessage(chatInfo.createPaged(page, ceil((trustedPlayers.count() / 10.0)).toInt()))
     }
 }

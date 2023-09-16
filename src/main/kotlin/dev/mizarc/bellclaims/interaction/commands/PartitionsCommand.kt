@@ -35,7 +35,7 @@ class PartitionsCommand : ClaimCommand() {
                 "${claimPartitions[i].area.lowerPosition2D} ${claimPartitions[i].area.upperPosition2D}")
         }
 
-        player.spigot().sendMessage(*chatInfo.createPaged(page,
+        player.sendMessage(chatInfo.createPaged(page,
             ceil(((playerPermissionService.getByClaim(claim).count()) / 10.0)).toInt()))
     }
 }
