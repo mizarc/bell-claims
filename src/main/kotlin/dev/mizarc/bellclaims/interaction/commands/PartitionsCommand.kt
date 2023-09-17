@@ -20,7 +20,7 @@ class PartitionsCommand : ClaimCommand() {
         val claim = claimService.getById(partition.claimId)!!
         val claimPartitions = partitionService.getByClaim(claim).toList()
         if (page * 10 - 9 > claimPartitions.count()) {
-            player.sendMessage("§cThere are no claim partitions on that page.")
+            player.sendMessage("§cThere are no partitions on that page.")
             return
         }
 
@@ -39,6 +39,6 @@ class PartitionsCommand : ClaimCommand() {
         }
 
         player.sendMessage(chatInfo.createPaged(page,
-            ceil(((playerPermissionService.getByClaim(claim).count()) / 10.0)).toInt()))
+            ceil(((partitionService.getByClaim(claim).count()) / 10.0)).toInt()))
     }
 }
