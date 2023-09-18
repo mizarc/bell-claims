@@ -21,7 +21,7 @@ class TrustCommand : ClaimCommand() {
         // Add permission for player and output result
         when (playerPermissionService.addForPlayer(claim, otherPlayer.player, permission)) {
             PlayerPermissionChangeResult.UNCHANGED ->
-                player.sendMessage("§6${Bukkit.getPlayer(player.uniqueId)?.name} §calready has " +
+                player.sendMessage("§6${Bukkit.getPlayer(otherPlayer.player.uniqueId)?.name} §calready has " +
                         "permission §6${permission.name}§c.")
             PlayerPermissionChangeResult.SUCCESS ->
                 player.sendMessage("§6${Bukkit.getPlayer(otherPlayer.player.uniqueId)?.name} §ahas been given " +

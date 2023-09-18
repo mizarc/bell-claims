@@ -22,8 +22,7 @@ class TrustAllCommand : ClaimCommand() {
         // Add permission for player and output result
         when (defaultPermissionService.add(claim, permission)) {
             DefaultPermissionChangeResult.UNCHANGED ->
-                player.sendMessage("§6${Bukkit.getPlayer(player.uniqueId)?.name} §calready has " +
-                        "permission §6${permission.name}§c.")
+                player.sendMessage("§cClaim already has §6${permission.name} §cset as a default permission.")
             DefaultPermissionChangeResult.SUCCESS ->
                 player.sendMessage("§aAll players now have §6${permission.name} permissions §afor this claim.")
             else -> player.sendMessage("Unknown Error.")
