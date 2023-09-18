@@ -1,5 +1,8 @@
 package dev.mizarc.bellclaims.api.enums
 
+/**
+ * Represents the result of creating a claim.
+ */
 enum class ClaimCreationResult {
     SUCCESS,
     TOO_CLOSE,

@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.api.enums
 
 /**
- * An enum representing the result of a partition resizing operation.
+ * Represents the result of resizing an existing partition.
  */
 enum class PartitionResizeResult {
     EXPOSED_CLAIM_HUB,
