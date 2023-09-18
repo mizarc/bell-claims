@@ -14,27 +14,42 @@ import kotlin.concurrent.thread
 /**
  * A claim object holds the data for the world its in and the players associated with it. It relies on partitions to
  * define its shape.
- * @constructor Compiles an existing claim with associated ID and trusted players.
+ *
+ * @constructor Compiles an existing claim using its complete data set.
  * @property id The unique identifier for the claim.
  * @property worldId the unique identifier for the world.
  * @property owner A reference to the owning player.
+ * @property creationTime The timestamp when the claim was created.
+ * @property name The name of the claim.
+ * @property description The description of the claim.
+ * @property position The position in the world the claim exists in.
+ * @property icon The material the claim is using as an icon.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
             var name: String, var description: String, var position: Position3D, var icon: Material) {
-    val defaultBreakCount = 3
     var breakCount = 3
-    var breakPeriod = false
+
+    private val defaultBreakCount = 3
+    private var breakPeriod = false
 
     /**
-     * Compiles a new claim based on the world and owning player.
+     * Compiles a new claim based on the minimum details required.
+     *
      * @param worldId The unique identifier of the world the claim is to be made in.
-     * @param owner A reference to the owning player.
+     * @param owner The player who owns the claim.
+     * @param position The position of the claim.
+     * @param name The name of the claim.
      */
     constructor(worldId: UUID, owner: OfflinePlayer, position: Position3D, name: String) : this(
         UUID.randomUUID(), worldId, owner, Instant.now(), name, "", position, Material.BELL)
 
-    constructor(builder: Builder): this(UUID.randomUUID(), builder.location.world.uid, builder.player, Instant.now(),
-        builder.name, builder.description, Position3D(builder.location), builder.icon)
+    /**
+     * Compiles a claim based on claim builder object data.
+     *
+     * @param builder The claim builder to build a claim out of.
+     */
+    constructor(builder: Builder): this(builder.location.world.uid, builder.player,
+        Position3D(builder.location), builder.name)
 
     /**
      * Gets a reference to the world if available.
@@ -44,6 +59,9 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
         return Bukkit.getWorld(worldId)
     }
 
+    /**
+     * Resets the break count after a set period of time.
+     */
     fun resetBreakCount() {
         if (!breakPeriod) {
             thread(start = true) {
@@ -55,10 +73,14 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
         }
     }
 
+    /**
+     * A builder for creation instances of a Claim.
+     *
+     * @property player The player who should own the claim.
+     * @property location The location the claim should exist in.
+     */
     class Builder(val player: Player, val location: Location) {
         var name = ""
-        var description = ""
-        var icon = Material.BELL
 
         fun build() = Claim(this)
     }
