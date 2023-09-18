@@ -109,17 +109,20 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerCommands() {
+        commandManager.registerCommand(ClaimListCommand())
         commandManager.registerCommand(ClaimCommand())
-        commandManager.registerCommand(ClaimlistCommand())
-        commandManager.registerCommand(TrustCommand())
-        commandManager.registerCommand(PartitionlistCommand())
-        commandManager.registerCommand(TrustlistCommand())
         commandManager.registerCommand(InfoCommand())
-        commandManager.registerCommand(UntrustCommand())
         commandManager.registerCommand(RenameCommand())
         commandManager.registerCommand(DescriptionCommand())
-        commandManager.registerCommand(AddRuleCommand())
-        commandManager.registerCommand(RemoveRuleCommand())
+        commandManager.registerCommand(PartitionsCommand())
+        commandManager.registerCommand(AddFlagCommand())
+        commandManager.registerCommand(RemoveFlagCommand())
+        commandManager.registerCommand(TrustListCommand())
+        commandManager.registerCommand(TrustCommand())
+        commandManager.registerCommand(TrustAllCommand())
+        commandManager.registerCommand(UntrustCommand())
+        commandManager.registerCommand(UntrustAllCommand())
+        commandManager.registerCommand(RemoveCommand())
         commandManager.registerCommand(ClaimOverrideCommand())
         commandManager.registerCommand(ClaimMenuCommand())
     }

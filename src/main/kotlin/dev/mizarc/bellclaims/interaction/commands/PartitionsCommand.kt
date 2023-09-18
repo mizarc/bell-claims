@@ -9,18 +9,18 @@ import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import kotlin.math.ceil
 
 @CommandAlias("claim")
-class PartitionlistCommand : ClaimCommand() {
+class PartitionsCommand : ClaimCommand() {
 
-    @Subcommand("partitionlist")
-    @CommandPermission("bellclaims.command.claim.partitionlist")
-    fun onPartitionList(player: Player, @Default("1") page: Int) {
+    @Subcommand("partitions")
+    @CommandPermission("bellclaims.command.claim.partitions")
+    fun onPartitions(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
 
         // Check if page is empty
         val claim = claimService.getById(partition.claimId)!!
         val claimPartitions = partitionService.getByClaim(claim).toList()
-        if (page * 10 - 9 > claimPartitions.count()) {
-            player.sendMessage("§cThere are no claim partitions on that page.")
+        if (page * 10 - 9 > claimPartitions.count() || page < 1) {
+            player.sendMessage("§cInvalid page specified.")
             return
         }
 
@@ -32,10 +32,13 @@ class PartitionlistCommand : ClaimCommand() {
                 break
             }
             chatInfo.addLinked((i + 1).toString(),
-                "${claimPartitions[i].area.lowerPosition2D} ${claimPartitions[i].area.upperPosition2D}")
+                "Lower (${claimPartitions[i].area.lowerPosition2D.x}), " +
+                        "${claimPartitions[i].area.lowerPosition2D.z} | " +
+                        "Upper (${claimPartitions[i].area.upperPosition2D.x}), " +
+                        "${claimPartitions[i].area.upperPosition2D.z}")
         }
 
-        player.spigot().sendMessage(*chatInfo.createPaged(page,
-            ceil(((playerPermissionService.getByClaim(claim).count()) / 10.0)).toInt()))
+        player.sendMessage(chatInfo.createPaged(page,
+            ceil(((partitionService.getByClaim(claim).count()) / 10.0)).toInt()))
     }
 }

@@ -17,7 +17,6 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
-        println(playerAccessRepo.getByClaim(claim))
         return playerAccessRepo.getByClaim(claim).mapKeys { Bukkit.getOfflinePlayer(it.key) }
     }
 
@@ -43,8 +42,7 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun removeForPlayer(claim: Claim, player: OfflinePlayer,
-                                 permission: ClaimPermission
-    ): PlayerPermissionChangeResult {
+                                 permission: ClaimPermission): PlayerPermissionChangeResult {
         if (permission !in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.remove(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
