@@ -17,16 +17,12 @@ class ClaimListCommand : BaseCommand() {
     @CommandPermission("bellclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
-    fun onClaimList(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
-        val playerClaims = if (otherPlayer != null) {
-            claimService.getByPlayer(otherPlayer).toList()
-        } else {
-            claimService.getByPlayer(player).toList()
-        }
+    fun onClaimList(player: Player, @Default("1") page: Int) {
+        val playerClaims = claimService.getByPlayer(player).toList()
 
         // Check if player has claims
         if (playerClaims.isEmpty()) {
-            player.sendMessage("§cThis player has no claims.")
+            player.sendMessage("§cYou have no claims. Interact with a bell to get started.")
             return
         }
 
