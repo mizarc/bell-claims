@@ -28,6 +28,9 @@ class InfoCommand : ClaimCommand() {
             .withLocale(Locale.UK)
             .withZone(ZoneId.systemDefault())
         val chatInfo = ChatInfoBuilder("${claim.name} Summary")
+        if (claim.description.isNotEmpty()) {
+            chatInfo.addParagraph("${claim.description}\n")
+        }
         chatInfo.addLinked("Owner", claim.owner.name.toString())
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", claimPartitions.count().toString())
