@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
+import dev.mizarc.bellclaims.utils.getDisplayName
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -31,6 +32,9 @@ class InfoCommand : ClaimCommand() {
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", claimPartitions.count().toString())
         chatInfo.addLinked("Block Count", blockCount.toString())
+        chatInfo.addLinked("Flags", flagService.getByClaim(claim).map { it.getDisplayName() }.toString())
+        chatInfo.addLinked("Default Permissions",
+            defaultPermissionService.getByClaim(claim).map { it.getDisplayName() }.toString())
         chatInfo.addLinked("Trusted Users", playerPermissionService.getByClaim(claim).count().toString())
         chatInfo.addSpace()
         chatInfo.addHeader("Current Partition")
