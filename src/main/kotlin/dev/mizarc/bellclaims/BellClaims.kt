@@ -109,7 +109,7 @@ class BellClaims : JavaPlugin() {
     }
 
     private fun registerCommands() {
-        commandManager.registerCommand(ClaimlistCommand())
+        commandManager.registerCommand(ClaimListCommand())
         commandManager.registerCommand(ClaimCommand())
         commandManager.registerCommand(InfoCommand())
         commandManager.registerCommand(RenameCommand())
@@ -117,7 +117,7 @@ class BellClaims : JavaPlugin() {
         commandManager.registerCommand(PartitionsCommand())
         commandManager.registerCommand(AddFlagCommand())
         commandManager.registerCommand(RemoveFlagCommand())
-        commandManager.registerCommand(TrustlistCommand())
+        commandManager.registerCommand(TrustListCommand())
         commandManager.registerCommand(TrustCommand())
         commandManager.registerCommand(TrustAllCommand())
         commandManager.registerCommand(UntrustCommand())
