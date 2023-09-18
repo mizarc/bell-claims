@@ -9,7 +9,7 @@ import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
 @CommandAlias("claim")
 class UntrustAllCommand : ClaimCommand() {
-    @Subcommand("untrust")
+    @Subcommand("untrustall")
     @CommandPermission("bellclaims.command.claim.untrustall")
     fun onUntrustAll(player: Player, claimPermission: ClaimPermission) {
         val partition = getPartitionAtPlayer(player) ?: return
