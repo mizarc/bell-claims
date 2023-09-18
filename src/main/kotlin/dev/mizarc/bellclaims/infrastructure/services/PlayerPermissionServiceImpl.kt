@@ -17,7 +17,6 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun getByClaim(claim: Claim): Map<OfflinePlayer, Set<ClaimPermission>> {
-        println(playerAccessRepo.getByClaim(claim))
         return playerAccessRepo.getByClaim(claim).mapKeys { Bukkit.getOfflinePlayer(it.key) }
     }
 

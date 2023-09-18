@@ -31,8 +31,26 @@ class TrustlistCommand : ClaimCommand() {
             return
         }
 
-        // Output list of trusted players
+        // Output trusted players
         val chatInfo = ChatInfoBuilder("${claim.name} Trusted Players")
+
+        // Default Permission
+        if (page == 1) {
+            if (defaultPermissionService.getByClaim(claim).isNotEmpty()) {
+                chatInfo.addLinked("All Players", defaultPermissionService.getByClaim(claim).toString())
+            }
+
+            // Individual player permissions
+            val entries = trustedPlayers.entries.withIndex().toList().subList(0, 4.coerceAtMost(trustedPlayers.size))
+            entries.forEach { (_, entry) ->
+                chatInfo.addLinked(
+                    Bukkit.getOfflinePlayer(entry.key.uniqueId).name ?: "N/A", entry.value.toString())
+            }
+            player.sendMessage(chatInfo.createPaged(page, ceil(trustedPlayers.count() / 5.0).toInt()))
+            return
+        }
+
+        // Individual player permissions
         val entries = trustedPlayers.entries.withIndex().toList().subList(0 + ((page - 1) * 5),
             (4 + ((page - 1) * 5)).coerceAtMost(trustedPlayers.size))
         entries.forEach { (_, entry) ->
