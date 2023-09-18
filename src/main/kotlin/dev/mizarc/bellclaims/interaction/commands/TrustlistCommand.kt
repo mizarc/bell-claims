@@ -7,7 +7,6 @@ import co.aikar.commands.annotation.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
-import java.util.*
 import kotlin.math.ceil
 
 @CommandAlias("claim")
@@ -18,7 +17,7 @@ class TrustlistCommand : ClaimCommand() {
     fun onTrustlist(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
         val claim = claimService.getById(partition.claimId)!!
-        val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy {it.uniqueId})
+        val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy { it.uniqueId })
 
         // Check if claim has no trusted players
         if (trustedPlayers.isEmpty()) {
@@ -34,18 +33,12 @@ class TrustlistCommand : ClaimCommand() {
 
         // Output list of trusted players
         val chatInfo = ChatInfoBuilder("${claim.name} Trusted Players")
-
-        for ((index, entry) in trustedPlayers.entries.withIndex()) {
-            if (index >= trustedPlayers.count()) {
-                break
-            }
-
-            if (index in 0 + page..9 + page) {
-                chatInfo.addLinked(
-                    Bukkit.getOfflinePlayer(entry.key.uniqueId).name ?: "N/A", entry.value.toString())
-            }
+        val entries = trustedPlayers.entries.withIndex().toList().subList(0 + ((page - 1) * 5),
+            (4 + ((page - 1) * 5)).coerceAtMost(trustedPlayers.size))
+        entries.forEach { (_, entry) ->
+            chatInfo.addLinked(
+                Bukkit.getOfflinePlayer(entry.key.uniqueId).name ?: "N/A", entry.value.toString())
         }
-
-        player.sendMessage(chatInfo.createPaged(page, ceil((trustedPlayers.count() / 10.0)).toInt()))
+        player.sendMessage(chatInfo.createPaged(page, ceil(trustedPlayers.count() / 5.0).toInt()))
     }
 }
