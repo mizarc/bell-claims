@@ -31,16 +31,11 @@ class TrustlistCommand : ClaimCommand() {
             return
         }
 
-        // Output trusted players
+        // Page 1 includes default permissions alongside 4 player permissions if there are default permissions
         val chatInfo = ChatInfoBuilder("${claim.name} Trusted Players")
+        if (page == 1 && defaultPermissionService.getByClaim(claim).isNotEmpty()) {
+            chatInfo.addLinked("All Players", defaultPermissionService.getByClaim(claim).toString())
 
-        // Default Permission
-        if (page == 1) {
-            if (defaultPermissionService.getByClaim(claim).isNotEmpty()) {
-                chatInfo.addLinked("All Players", defaultPermissionService.getByClaim(claim).toString())
-            }
-
-            // Individual player permissions
             val entries = trustedPlayers.entries.withIndex().toList().subList(0, 4.coerceAtMost(trustedPlayers.size))
             entries.forEach { (_, entry) ->
                 chatInfo.addLinked(
@@ -50,7 +45,7 @@ class TrustlistCommand : ClaimCommand() {
             return
         }
 
-        // Individual player permissions
+        // Output 5 player permissions at a time
         val entries = trustedPlayers.entries.withIndex().toList().subList(0 + ((page - 1) * 5),
             (4 + ((page - 1) * 5)).coerceAtMost(trustedPlayers.size))
         entries.forEach { (_, entry) ->
