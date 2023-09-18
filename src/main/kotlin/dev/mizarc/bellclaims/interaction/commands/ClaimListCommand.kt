@@ -17,7 +17,7 @@ class ClaimListCommand : BaseCommand() {
     @CommandPermission("bellclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
-    fun onClaimlist(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
+    fun onClaimList(player: Player, @Default("1") page: Int, @Optional otherPlayer: OfflinePlayer?) {
         val playerClaims = if (otherPlayer != null) {
             claimService.getByPlayer(otherPlayer).toList()
         } else {
@@ -31,8 +31,8 @@ class ClaimListCommand : BaseCommand() {
         }
 
         // Check if page is empty
-        if (page * 10 - 9 > playerClaims.count()) {
-            player.sendMessage("§cThere are no trusted player entries on that page.")
+        if (page * 10 - 9 > playerClaims.count() || page < 1) {
+            player.sendMessage("§cInvalid page specified.")
             return
         }
 
@@ -43,8 +43,7 @@ class ClaimListCommand : BaseCommand() {
                 break
             }
 
-            val name: String = if (playerClaims[i].name.isEmpty()) playerClaims[i].id.toString().substring(0, 7)
-                else playerClaims[i].name
+            val name: String = playerClaims[i].name.ifEmpty { playerClaims[i].id.toString().substring(0, 7) }
             val blockCount = claimService.getBlockCount(playerClaims[i])
             chatInfo.addLinked(name,
                 "<${playerClaims[i].position.x}, ${playerClaims[i].position.y}, ${playerClaims[i].position.z} " +

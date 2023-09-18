@@ -15,7 +15,7 @@ class TrustListCommand : ClaimCommand() {
 
     @Subcommand("trustlist")
     @CommandPermission("bellclaims.command.claim.trustlist")
-    fun onTrustlist(player: Player, @Default("1") page: Int) {
+    fun onTrustList(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
         val claim = claimService.getById(partition.claimId)!!
         val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy { it.uniqueId })
@@ -27,8 +27,8 @@ class TrustListCommand : ClaimCommand() {
         }
 
         // Check if page is empty
-        if (page * 10 - 9 > trustedPlayers.count()) {
-            player.sendMessage("§cThere are no trusted player entries on that page.")
+        if (page * 10 - 9 > trustedPlayers.count() || page < 1) {
+            player.sendMessage("§cInvalid page specified.")
             return
         }
 

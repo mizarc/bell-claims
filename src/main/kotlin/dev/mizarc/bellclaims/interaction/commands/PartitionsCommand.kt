@@ -19,8 +19,8 @@ class PartitionsCommand : ClaimCommand() {
         // Check if page is empty
         val claim = claimService.getById(partition.claimId)!!
         val claimPartitions = partitionService.getByClaim(claim).toList()
-        if (page * 10 - 9 > claimPartitions.count()) {
-            player.sendMessage("§cThere are no partitions on that page.")
+        if (page * 10 - 9 > claimPartitions.count() || page < 1) {
+            player.sendMessage("§cInvalid page specified.")
             return
         }
 
