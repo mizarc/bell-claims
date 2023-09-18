@@ -5,12 +5,11 @@ import co.aikar.commands.annotation.*
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.api.ClaimService
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
-class ClaimlistCommand : BaseCommand() {
+class ClaimListCommand : BaseCommand() {
     @Dependency
     private lateinit var claimService: ClaimService
 

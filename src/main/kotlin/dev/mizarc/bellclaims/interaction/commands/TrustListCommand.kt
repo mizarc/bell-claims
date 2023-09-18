@@ -11,7 +11,7 @@ import dev.mizarc.bellclaims.utils.getDisplayName
 import kotlin.math.ceil
 
 @CommandAlias("claim")
-class TrustlistCommand : ClaimCommand() {
+class TrustListCommand : ClaimCommand() {
 
     @Subcommand("trustlist")
     @CommandPermission("bellclaims.command.claim.trustlist")
