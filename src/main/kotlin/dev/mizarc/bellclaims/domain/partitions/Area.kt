@@ -4,6 +4,7 @@ import kotlin.math.absoluteValue
 
 /**
  * Stores two positions that define the corners of an area.
+ *
  * @property lowerPosition2D The lower corner position.
  * @property upperPosition2D The upper corner position.
  */
@@ -13,7 +14,8 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
     }
 
     /**
-     * Checks if the position is on one of the four corners of the claim
+     * Checks if the position is on one of the four corners of the claim.
+     *
      * @param position2D The position to check
      * @return True if in corner.
      */
@@ -33,6 +35,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Checks if the specified position exists within the bounds of this area.
+     *
      * @param position2D The position to check
      * @return True if in area.
      */
@@ -45,6 +48,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Checks if an area is overlapping this one.
+     *
      * @param area The area to check
      * @return True if area overlaps.
      */
@@ -57,6 +61,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Checks if area is directly adjacent to this one.
+     *
      * @param area The area to check
      * @return True if area is adjacent.
      */
@@ -99,11 +104,18 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Gets the total block count of the area.
+     *
+     * @return The number of blocks.
      */
     fun getBlockCount(): Int {
         return ((upperPosition2D.x - lowerPosition2D.x + 1) * (upperPosition2D.z - lowerPosition2D.z + 1)).absoluteValue
     }
 
+    /**
+     * Gets the chunk positions that this claim occupies.
+     *
+     * @return The list of chunk positions.
+     */
     fun getChunks(): ArrayList<Position2D> {
         val firstChunk = lowerPosition2D.getChunk()
         val secondChunk = upperPosition2D.getChunk()
@@ -120,6 +132,8 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
 
     /**
      * Gets the length of the X axis.
+     *
+     * @return The
      */
     fun getXLength(): Int {
         return (lowerPosition2D.x - upperPosition2D.x + 1).absoluteValue

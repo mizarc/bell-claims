@@ -74,7 +74,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
     }
 
     /**
-     * A builder for creation instances of a Claim.
+     * A builder for creating instances of a Claim.
      *
      * @property player The player who should own the claim.
      * @property location The location the claim should exist in.
