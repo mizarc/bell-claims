@@ -4,6 +4,11 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.domain.flags.Flag
 
+/**
+ * Associates claim flags with a specific in-game item.
+ *
+ * @return ItemStack of the associated item for the given flag enum.
+ */
 fun Flag.getIcon(): ItemStack {
     return when (this) {
         Flag.Explosions -> ItemStack(Material.TNT)
@@ -13,6 +18,11 @@ fun Flag.getIcon(): ItemStack {
     }
 }
 
+/**
+ * Display names for each flag.
+ *
+ * @return The set display name for the given flag enum.
+ */
 fun Flag.getDisplayName(): String {
     return when (this) {
         Flag.Explosions -> "Explosions"
@@ -22,6 +32,11 @@ fun Flag.getDisplayName(): String {
     }
 }
 
+/**
+ * Display descriptions for each flag.
+ *
+ * @return The set display description for the given flag enum.
+ */
 fun Flag.getDescription(): String {
     return when (this) {
         Flag.Explosions -> "Allows TNT to damage claim blocks"

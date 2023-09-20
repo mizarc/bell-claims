@@ -2,15 +2,35 @@ package dev.mizarc.bellclaims.domain.players
 
 import java.util.*
 
+/**
+ * A repository that handles the persistence of player state.
+ */
 interface PlayerStateRepository {
-    fun getAll() : Set<PlayerState>
+    /**
+     * Gets all registered player states.
+     *
+     * @return The set of player states.
+     */
+    fun getAll(): Set<PlayerState>
 
     /**
-     * Gets the player state for a specific player.
-     * @param player The player to fetch.
-     * @return A PlayerState object of the player. May return null.
+     * Gets a player state by its id.
+     * @param id The unique id of the player.
+     * @return A player's player state, or null if not found.
      */
-    fun get(id: UUID) : PlayerState?
+    fun get(id: UUID): PlayerState?
+
+    /**
+     * Adds a new player state.
+     *
+     * @param playerState The player state to add.
+     */
     fun add(playerState: PlayerState)
+
+    /**
+     * Removes an existing player state.
+     *
+     * @param playerState The player state to remove.
+     */
     fun remove(playerState: PlayerState)
 }

@@ -7,7 +7,6 @@ import org.bukkit.entity.Player
 
 @CommandAlias("claim")
 class DescriptionCommand : ClaimCommand() {
-
     @Subcommand("description")
     @CommandPermission("bellclaims.command.claim.description")
     fun onDescription(player: Player, description: String) {
