@@ -9,7 +9,6 @@ import dev.mizarc.bellclaims.domain.flags.Flag
 
 @CommandAlias("claim")
 class RemoveFlagCommand : ClaimCommand() {
-
     @Subcommand("removeflag")
     @CommandPermission("bellclaims.command.claim.removeflag")
     fun onRemoveFlag(player: Player, flag: Flag) {
