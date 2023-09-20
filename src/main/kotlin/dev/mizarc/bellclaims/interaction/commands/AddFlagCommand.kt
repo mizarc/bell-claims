@@ -9,7 +9,6 @@ import dev.mizarc.bellclaims.domain.flags.Flag
 
 @CommandAlias("claim")
 class AddFlagCommand : ClaimCommand() {
-
     @Subcommand("addflag")
     @CommandPermission("bellclaims.command.claim.addflag")
     fun onFlag(player: Player, rule: Flag) {
@@ -26,6 +25,5 @@ class AddFlagCommand : ClaimCommand() {
                 player.sendMessage("§aAdded §6$rule §afor §6${claim.name}§a.")
             else -> player.sendMessage("Unknown Error.")
         }
-
     }
 }

@@ -12,7 +12,6 @@ import kotlin.math.ceil
 
 @CommandAlias("claim")
 class TrustListCommand : ClaimCommand() {
-
     @Subcommand("trustlist")
     @CommandPermission("bellclaims.command.claim.trustlist")
     fun onTrustList(player: Player, @Default("1") page: Int) {
