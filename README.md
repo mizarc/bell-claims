@@ -40,7 +40,7 @@ To establish a claim, place down a bell and shift right click it. This opens up 
 - bellclaims.command.claim.remove - Allows use of the `claim remove` command to remove a partition from the current claim.
 
 ### Recommended Moderation Permissions
-- bellclaims.command.claimoverride - Allows you to bypass claim protections.
+- bellclaims.command.claimoverride - Allows use of the `claimoverride` command bypass claim protections.
 
 ## Building from Source
 ### Requirements
