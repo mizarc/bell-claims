@@ -51,7 +51,7 @@ To establish a claim, place down a bell and shift right click it. This opens up 
 ```
 git clone https://gitlab.com/Mizarc/bellclaims.git
 cd BellClaims/
-./gradlew shadowjar
+./gradlew shadowJar
 ```
 Built .jar binary can be found in the `build/libs` folder.
 
