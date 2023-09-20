@@ -2,6 +2,9 @@ package dev.mizarc.bellclaims.utils
 
 import org.bukkit.Material
 
+/**
+ * Materials that you can consider transparent, useful for excluding from the visualiser.
+ */
 val transparentMaterials = arrayOf(
     Material.AIR,
     Material.OAK_SAPLING,
@@ -432,6 +435,9 @@ val transparentMaterials = arrayOf(
     Material.POTTED_FLOWERING_AZALEA_BUSH
 )
 
+/**
+ * Materials of blocks that are considered low enough that it is at "carpet" level.
+ */
 val carpetBlocks = arrayOf(
     Material.SNOW,
     Material.MOSS_CARPET,
