@@ -4,6 +4,11 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 
+/**
+ * Associates claim permissions with a specific in-game item.
+ *
+ * @return ItemStack of the associated item for the given permission enum.
+ */
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {
         ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
@@ -20,6 +25,11 @@ fun ClaimPermission.getIcon(): ItemStack {
     }
 }
 
+/**
+ * Display names for each permission.
+ *
+ * @return The set display name for the given permission enum.
+ */
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
         ClaimPermission.Build -> "Build"
@@ -36,6 +46,11 @@ fun ClaimPermission.getDisplayName(): String {
     }
 }
 
+/**
+ * Display descriptions for each permission.
+ *
+ * @return The set display description for the given permission enum.
+ */
 fun ClaimPermission.getDescription(): String {
     return when (this) {
         ClaimPermission.Build -> "Grants permission to build"
