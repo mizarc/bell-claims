@@ -24,6 +24,9 @@ import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 
+/**
+ * The entry point for the Bell Claims plugin.
+ */
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     private lateinit var metadata: Chat
@@ -70,6 +73,9 @@ class BellClaims : JavaPlugin() {
         logger.info("Bell Claims has been Disabled")
     }
 
+    /**
+     * Initialises all repositories.
+     */
     private fun initialiseRepositories() {
         claimRepo = ClaimRepositorySQLite(storage)
         partitionRepo = PartitionRepositorySQLite(storage)
@@ -79,6 +85,9 @@ class BellClaims : JavaPlugin() {
         playerStateRepo = PlayerStateRepositoryMemory()
     }
 
+    /**
+     * Initialises all services.
+     */
     private fun initialiseServices() {
         playerLimitService = PlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
         playerStateService = PlayerStateServiceImpl(playerStateRepo)
@@ -91,10 +100,16 @@ class BellClaims : JavaPlugin() {
         visualisationService = VisualisationServiceImpl(partitionService)
     }
 
+    /**
+     * Initialises all special interactions.
+     */
     private fun initialiseInteractions() {
         visualiser = Visualiser(this, claimService, partitionService, playerStateService, visualisationService)
     }
 
+    /**
+     * Registers all dependencies to be automatically captured by the command framework.
+     */
     private fun registerDependencies() {
         commandManager.registerDependency(PlayerLimitService::class.java, playerLimitService)
         commandManager.registerDependency(PlayerStateService::class.java, playerStateService)
@@ -108,6 +123,9 @@ class BellClaims : JavaPlugin() {
         commandManager.registerDependency(Visualiser::class.java, visualiser)
     }
 
+    /**
+     * Registers all commands.
+     */
     private fun registerCommands() {
         commandManager.registerCommand(ClaimListCommand())
         commandManager.registerCommand(ClaimCommand())
@@ -127,6 +145,9 @@ class BellClaims : JavaPlugin() {
         commandManager.registerCommand(ClaimMenuCommand())
     }
 
+    /**
+     * Registers all listeners.
+     */
     private fun registerEvents() {
         server.pluginManager.registerEvents(
             ClaimInteractListener(this, claimService, partitionService, flagService, defaultPermissionService,

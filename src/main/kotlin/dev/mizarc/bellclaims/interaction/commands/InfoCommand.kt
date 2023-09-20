@@ -14,7 +14,6 @@ import java.util.*
 
 @CommandAlias("claim")
 class InfoCommand : ClaimCommand() {
-
     @Subcommand("info")
     @CommandPermission("bellclaims.command.claim.info")
     fun onClaimInfo(player: Player) {

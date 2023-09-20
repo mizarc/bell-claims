@@ -15,7 +15,6 @@ import java.util.UUID
  * A service that handles the querying, creation, modification, and deletion of partitions.
  */
 interface PartitionService {
-
     /**
      * Checks to see if a new partition placed into the world would be valid based on overlap and minimum distance.
      *

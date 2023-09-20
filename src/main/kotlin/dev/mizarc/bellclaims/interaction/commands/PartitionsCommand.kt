@@ -10,7 +10,6 @@ import kotlin.math.ceil
 
 @CommandAlias("claim")
 class PartitionsCommand : ClaimCommand() {
-
     @Subcommand("partitions")
     @CommandPermission("bellclaims.command.claim.partitions")
     fun onPartitions(player: Player, @Default("1") page: Int) {

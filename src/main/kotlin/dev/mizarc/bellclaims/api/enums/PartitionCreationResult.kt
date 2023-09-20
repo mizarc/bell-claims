@@ -1,5 +1,8 @@
 package dev.mizarc.bellclaims.api.enums
 
+/**
+ * Represents the result of adding a new partition to a claim.
+ */
 enum class PartitionCreationResult {
     INSUFFICIENT_BLOCKS,
     NOT_CONNECTED,
