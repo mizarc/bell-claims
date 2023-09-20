@@ -12,7 +12,7 @@ Here are some of the cool features you can expect:
 - **Efficient & Informative Visualisations** - Never have trouble finding the borders of your own claim, as well as the claims of others.
 
 ## Project status
-Alpha. Safe to run on testing servers, but would not recommend for production due to frequent breaking changes.
+Beta. Safe to run on testing servers, but would not recommend for production due to frequent breaking changes.
 
 ## Installation
 Download the latest release (.jar file) from the releases tab and place it in your server's plugins folder. 
