@@ -1,4 +1,4 @@
-<a href="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN"><img src="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN" style="width: 650px; max-width: 100%; height: auto" align="center" title="Click to enlarge picture" />
+<a href="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN"><img src="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN" title="Click to enlarge picture" />
 
 # Bell Claims
 
