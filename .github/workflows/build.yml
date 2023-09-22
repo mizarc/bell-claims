@@ -1,0 +1,28 @@
+name: Build Gradle
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+
+    - name: Build Gradle using shadowJar
+      run: ./gradlew shadowJar
+
+    - name: Save Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifact
+        path: build/libs/
