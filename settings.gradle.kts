@@ -1,3 +1,1 @@
-
-rootProject.name = "BellClaims"
-
+rootProject.name = "Bell Claims"
