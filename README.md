@@ -1,4 +1,4 @@
-<a href="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN"><img src="https://drive.google.com/uc?export=view&id=1BBIw9VyTch1mp0up4aNLgewJd8CXk1WN" title="Click to enlarge picture" />
+![Banner](branding/banner.svg)
 
 # Bell Claims
 
@@ -60,4 +60,3 @@ If you encounter any bugs, crashes, or unexpected behaviour, please [open an iss
 
 ## License
 Solid Claims is licensed under the permissive MIT license. Please view [LICENSE](https://gitlab.com/Mizarc/BellClaims/-/blob/main/LICENSE) for more info.
-
