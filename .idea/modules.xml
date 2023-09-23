@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell Claims.BellClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell Claims.BellClaims.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/BellClaims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BellClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/BellClaims.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Minecraft.Plugins.Bell Claims.BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Minecraft.Plugins.Bell Claims.BellClaims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Plugins.Bell Claims.BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Plugins.Bell Claims.BellClaims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Plugins.BellClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Plugins.BellClaims.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xyz.mizarc.BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/xyz.mizarc.BellClaims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xyz.mizarc.BellClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/xyz.mizarc.BellClaims.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell_Claims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell_Claims.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" />
     </modules>
   </component>
 </project>
