@@ -358,7 +358,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
 
         val enabledRules = flagService.getByClaim(claim)
-        val disabledRules = Flag.values().subtract(enabledRules)
+        val disabledRules = Flag.entries.toTypedArray().subtract(enabledRules)
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 2)
@@ -420,14 +420,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
-        val controlsPane = StaticPane(0, 0, 9, 1)
-        gui.addPane(controlsPane)
-
-        // Add go back item
-        val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
-        controlsPane.addItem(guiExitItem, 0, 0)
+        val controlsPane = addControlsSection(gui) { openClaimEditMenu(claim) }
+        addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
 
         // Add default permissions button
         val defaultPermsItem = ItemStack(Material.LECTERN)
@@ -442,33 +436,6 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             .lore("Find a player from a list of all online players")
         val guiAllPlayersItem = GuiItem(allPlayersItem) { openAllPlayersMenu(claim, 0) }
         controlsPane.addItem(guiAllPlayersItem, 4, 0)
-
-        // Add prev item
-        val prevItem = ItemStack(Material.ARROW)
-            .name("Prev")
-        val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiPrevItem, 6, 0)
-
-        // Add page item
-        val pageItem = ItemStack(Material.PAPER)
-            .name("Page $page of ${ceil(trustedPlayers.count() / 36.0).toInt()}")
-        val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiPageItem, 7, 0)
-
-        // Add next item
-        val nextItem = ItemStack(Material.ARROW)
-            .name("Next")
-        val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiNextItem, 8, 0)
-
-        // Add divider
-        val dividerPane = StaticPane(0, 1, 9, 1)
-        gui.addPane(dividerPane)
-        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
-        for (slot in 0..8) {
-            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
-            dividerPane.addItem(guiDividerItem, slot, 0)
-        }
 
         // Add list of players
         val warpsPane = StaticPane(0, 2, 9, 4)
@@ -501,49 +468,23 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
-        val controlsPane = StaticPane(0, 0, 9, 1)
-        gui.addPane(controlsPane)
+        val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
 
-        // Add go back item
-        val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
-        controlsPane.addItem(guiExitItem, 0, 0)
-
-        // Add player head
-        val playerItem = createHead(player)
-            .name("${player.name}")
-        val guiPlayerItem = GuiItem(playerItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiPlayerItem, 4, 0)
-
-        // Add deselect all button
-        val deselectItem = ItemStack(Material.HONEY_BLOCK)
-            .name("Deselect All")
-        val guiDeselectItem = GuiItem(deselectItem) {
+        val deselectAction: () -> Unit = {
             playerPermissionService.removeAllForPlayer(claim, player)
             openPlayerPermissionsMenu(claim, player)
         }
-        controlsPane.addItem(guiDeselectItem, 2, 0)
 
-        // Add select all button
-        val selectItem = ItemStack(Material.SLIME_BLOCK)
-            .name("Select All")
-        val guiSelectItem = GuiItem(selectItem) {
+        val selectAction: () -> Unit = {
             playerPermissionService.addAllForPlayer(claim, player)
             openPlayerPermissionsMenu(claim, player)
         }
-        controlsPane.addItem(guiSelectItem, 6, 0)
 
-        // Add horizontal divider
-        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
-        val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
-        val horizontalDividerPane = StaticPane(0, 1, 9, 1)
-        gui.addPane(horizontalDividerPane)
-        for (slot in 0..8) {
-            horizontalDividerPane.addItem(guiDividerItem, slot, 0)
-        }
+        addSelector(controlsPane, createHead(player).name("${player.name}"), deselectAction, selectAction)
 
         // Add vertical divider
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
         val verticalDividerPane = StaticPane(4, 2, 1, 6)
         gui.addPane(verticalDividerPane)
         for (slot in 0..3) {
@@ -551,7 +492,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
 
         val enabledPermissions = playerPermissionService.getByPlayer(claim, player)
-        val disabledPermissions = ClaimPermission.values().subtract(enabledPermissions)
+        val disabledPermissions = ClaimPermission.entries.toTypedArray().subtract(enabledPermissions)
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
@@ -610,48 +551,24 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val gui = ChestGui(6, "Default Claim Permissions")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
-        // Add controls pane
-        val controlsPane = StaticPane(0, 0, 9, 1)
-        gui.addPane(controlsPane)
+        // Add controls
+        val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
 
-        // Add go back item
-        val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
-        controlsPane.addItem(guiExitItem, 0, 0)
-
-        // Add bell icon
-        val bellItem = ItemStack(Material.BELL)
-            .name("Default")
-        val guiBellItem = GuiItem(bellItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiBellItem, 4, 0)
-
-        // Add deselect all button
-        val deselectItem = ItemStack(Material.HONEY_BLOCK)
-            .name("Deselect All")
-        val guiDeselectItem = GuiItem(deselectItem) {
+        val deselectAction: () -> Unit = {
             defaultPermissionService.removeAll(claim)
             openClaimPermissionsMenu(claim)
         }
-        controlsPane.addItem(guiDeselectItem, 2, 0)
 
-        // Add select all button
-        val selectItem = ItemStack(Material.SLIME_BLOCK)
-            .name("Select All")
-        val guiSelectItem = GuiItem(selectItem) {
+        val selectAction: () -> Unit = {
             defaultPermissionService.addAll(claim)
             openClaimPermissionsMenu(claim)
         }
-        controlsPane.addItem(guiSelectItem, 6, 0)
+
+        addSelector(controlsPane, ItemStack(Material.BELL).name("Default"), deselectAction, selectAction)
 
         // Add horizontal divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
         val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
-        val horizontalDividerPane = StaticPane(0, 1, 9, 1)
-        gui.addPane(horizontalDividerPane)
-        for (slot in 0..8) {
-            horizontalDividerPane.addItem(guiDividerItem, slot, 0)
-        }
 
         // Add vertical divider
         val verticalDividerPane = StaticPane(4, 2, 1, 6)
@@ -661,7 +578,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
 
         val enabledPermissions = defaultPermissionService.getByClaim(claim)
-        val disabledPermissions = ClaimPermission.values().subtract(enabledPermissions)
+        val disabledPermissions = ClaimPermission.entries.toTypedArray().subtract(enabledPermissions)
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
@@ -722,15 +639,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val gui = ChestGui(6, "All Players")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
-        // Add controls pane
-        val controlsPane = StaticPane(0, 0, 9, 1)
-        gui.addPane(controlsPane)
-
-        // Add go back item
-        val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
-        val guiExitItem = GuiItem(exitItem) { openClaimTrustMenu(claim, 0) }
-        controlsPane.addItem(guiExitItem, 0, 0)
+        // Add controls
+        val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
+        addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
 
         // Add player search item
         val playerSearchItem = ItemStack(Material.NAME_TAG)
@@ -738,33 +649,6 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             .lore("Find player by name, even if they aren't online")
         val guiPlayerSearchItem = GuiItem(playerSearchItem) { openPlayerSearchMenu(claim, false) }
         controlsPane.addItem(guiPlayerSearchItem, 3, 0)
-
-        // Add prev item
-        val prevItem = ItemStack(Material.ARROW)
-            .name("Prev")
-        val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiPrevItem, 6, 0)
-
-        // Add page item
-        val pageItem = ItemStack(Material.PAPER)
-            .name("Page $page of ${ceil(trustedPlayers.count() / 36.0).toInt()}")
-        val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiPageItem, 7, 0)
-
-        // Add next item
-        val nextItem = ItemStack(Material.ARROW)
-            .name("Next")
-        val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiNextItem, 8, 0)
-
-        // Add divider
-        val dividerPane = StaticPane(0, 1, 9, 1)
-        gui.addPane(dividerPane)
-        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
-        for (slot in 0..8) {
-            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
-            dividerPane.addItem(guiDividerItem, slot, 0)
-        }
 
         // Add list of players
         val warpsPane = StaticPane(0, 2, 9, 4)
@@ -832,5 +716,61 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         thirdPane.addItem(confirmGuiItem, 0, 0)
         gui.resultComponent.addPane(thirdPane)
         gui.show(claimBuilder.player)
+    }
+
+    private fun addControlsSection(gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
+        // Add divider
+        val dividerPane = StaticPane(0, 1, 9, 1)
+        gui.addPane(dividerPane)
+        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
+        for (slot in 0..8) {
+            val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
+            dividerPane.addItem(guiDividerItem, slot, 0)
+        }
+
+        // Add controls pane
+        val controlsPane = StaticPane(0, 0, 9, 1)
+        gui.addPane(controlsPane)
+
+        // Add go back item
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { backButtonAction() }
+        controlsPane.addItem(guiExitItem, 0, 0)
+        return controlsPane
+    }
+
+    private fun addPaginator(controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
+        // Add prev item
+        val prevItem = ItemStack(Material.ARROW).name("Prev")
+        val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPrevItem, 6, 0)
+
+        // Add page item
+        val pageItem = ItemStack(Material.PAPER).name("Page $currentPage of $totalPages")
+        val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiPageItem, 7, 0)
+
+        // Add next item
+        val nextItem = ItemStack(Material.ARROW).name("Next")
+        val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiNextItem, 8, 0)
+    }
+
+    private fun addSelector(controlsPane: StaticPane, displayItem: ItemStack,
+                            deselectAction: () -> Unit, selectAction: () -> Unit) {
+        // Add display item
+        val guiDisplayItem = GuiItem(displayItem) { guiEvent -> guiEvent.isCancelled = true }
+        controlsPane.addItem(guiDisplayItem, 4, 0)
+
+        // Add deselect all button
+        val deselectItem = ItemStack(Material.HONEY_BLOCK).name("Deselect All")
+        val guiDeselectItem = GuiItem(deselectItem) { deselectAction() }
+        controlsPane.addItem(guiDeselectItem, 2, 0)
+
+        // Add select all button
+        val selectItem = ItemStack(Material.SLIME_BLOCK).name("Select All")
+        val guiSelectItem = GuiItem(selectItem) { selectAction() }
+        controlsPane.addItem(guiSelectItem, 6, 0)
     }
 }
