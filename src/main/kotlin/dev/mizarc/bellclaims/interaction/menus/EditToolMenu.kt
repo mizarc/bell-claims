@@ -118,6 +118,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
     fun openDeleteMenu(partition: Partition) {
         val gui = HopperGui("Delete Partition?")
         val pane = StaticPane(1, 0, 3, 1)
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.slotsComponent.addPane(pane)
 
         // Add no menu item

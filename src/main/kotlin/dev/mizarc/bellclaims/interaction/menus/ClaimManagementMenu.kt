@@ -42,6 +42,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimCreationMenu() {
         val gui = ChestGui(1, "Claim Creation")
         val pane = StaticPane(0, 0, 9, 1)
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.addPane(pane)
 
         // Check if player doesn't have enough claims
@@ -81,6 +82,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimNamingMenu(existingName: Boolean = false) {
         // Create homes menu
         val gui = AnvilGui("Naming Claim")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
@@ -124,6 +126,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimEditMenu(claim: Claim) {
         val gui = ChestGui(1, "Claim '${claim.name}'")
         val pane = StaticPane(0, 0, 9, 1)
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.addPane(pane)
 
         // Add claim tool button
@@ -202,6 +205,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimIconMenu(claim: Claim) {
         val gui = FurnaceGui("Set Warp Icon")
         val fuelPane = StaticPane(0, 0, 1, 1)
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add info paper menu item
         val paperItem = ItemStack(Material.PAPER)
@@ -257,6 +261,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimRenamingMenu(claim: Claim, existingName: Boolean = false) {
         // Create homes menu
         val gui = AnvilGui("Renaming Claim")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
@@ -306,6 +311,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimFlagMenu(claim: Claim) {
         // Create claim flags menu
         val gui = ChestGui(4, "Claim Flags")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -411,6 +417,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Create trust menu
         val gui = ChestGui(6, "Trusted Players")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -491,6 +498,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openPlayerPermissionsMenu(claim: Claim, player: OfflinePlayer) {
         // Create player permissions menu
         val gui = ChestGui(6, "${player.name}'s Permissions")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -600,6 +608,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openClaimPermissionsMenu(claim: Claim) {
         // Create player permissions menu
         val gui = ChestGui(6, "Default Claim Permissions")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -711,6 +720,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Create trust menu
         val gui = ChestGui(6, "All Players")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -787,6 +797,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     fun openPlayerSearchMenu(claim: Claim, playerDoesNotExist: Boolean = false) {
         // Create homes menu
         val gui = AnvilGui("Search for Player")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
