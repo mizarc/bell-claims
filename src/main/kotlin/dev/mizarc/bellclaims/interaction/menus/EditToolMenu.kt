@@ -12,12 +12,13 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 
 class EditToolMenu(private val claimService: ClaimService, private val partitionService: PartitionService,
                    private val playerStateService: PlayerStateService, private val player: Player,
-                   private val partition: Partition? = null) {
+                   private val visualiser: Visualiser, private val partition: Partition? = null) {
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
@@ -36,6 +37,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             modeSwitchItem.lore("Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 1
+                visualiser.refresh(player)
                 openEditToolMenu()
             }
         }
@@ -44,6 +46,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             modeSwitchItem.lore("> Edit Mode")
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 0
+                visualiser.refresh(player)
                 openEditToolMenu()
             }
         }

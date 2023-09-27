@@ -49,7 +49,7 @@ class EditToolListener(private val claims: ClaimRepository,
         if (event.hand == EquipmentSlot.OFF_HAND) {
             val location = event.clickedBlock?.location ?: return
             val partition: Partition? = partitionService.getByLocation(location)
-            EditToolMenu(claimService, partitionService, playerStateService, event.player, partition)
+            EditToolMenu(claimService, partitionService, playerStateService, event.player, visualiser, partition)
                 .openEditToolMenu()
             return
         }
