@@ -56,7 +56,7 @@ cd BellClaims/
 Built .jar binary can be found in the `build/libs` folder.
 
 ## Support
-If you encounter any bugs, crashes, or unexpected behaviour, please [open an issue](https://gitlab.com/Mizarc/BellClaims/-/issues) in this repository.
+If you encounter any bugs, crashes, or unexpected behaviour, please [open an issue](https://github.com/mizarc/bell-claims/issues) in this repository.
 
 ## License
-Solid Claims is licensed under the permissive MIT license. Please view [LICENSE](https://gitlab.com/Mizarc/BellClaims/-/blob/main/LICENSE) for more info.
+Solid Claims is licensed under the permissive MIT license. Please view [LICENSE](LICENSE) for more info.
