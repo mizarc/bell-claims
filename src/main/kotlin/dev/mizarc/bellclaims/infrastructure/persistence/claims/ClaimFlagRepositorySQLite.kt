@@ -23,26 +23,26 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
         return rules[claim.id]?.toSet() ?: mutableSetOf()
     }
 
-    override fun add(claim: Claim, rule: Flag) {
-        rules.getOrPut(claim.id) { mutableSetOf() }.add(rule)
+    override fun add(claim: Claim, flag: Flag) {
+        rules.getOrPut(claim.id) { mutableSetOf() }.add(flag)
         try {
             storage.connection.executeUpdate("INSERT INTO claimRules (claimId, rule) VALUES (?,?)",
-                claim.id, rule.name)
+                claim.id, flag.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
     }
 
-    override fun remove(claim: Claim, rule: Flag) {
+    override fun remove(claim: Claim, flag: Flag) {
         val claimRules = rules[claim.id] ?: return
-        claimRules.remove(rule)
+        claimRules.remove(flag)
         if (claimRules.isEmpty()) {
             rules.remove(claim.id)
         }
 
         try {
             storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=? AND rule=?",
-                claim.id, rule.name)
+                claim.id, flag.name)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
