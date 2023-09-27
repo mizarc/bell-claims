@@ -20,7 +20,7 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
     }
 
     override fun getByClaim(claim: Claim): Set<Flag> {
-        return rules[claim.id] ?: mutableSetOf()
+        return rules[claim.id]?.toSet() ?: mutableSetOf()
     }
 
     override fun add(claim: Claim, rule: Flag) {
