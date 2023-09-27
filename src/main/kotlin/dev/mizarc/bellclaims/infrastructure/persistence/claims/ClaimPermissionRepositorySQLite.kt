@@ -19,8 +19,8 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
         return permissions[claim.id]?.contains(permission) ?: false
     }
 
-    override fun getByClaim(claim: Claim): MutableSet<ClaimPermission> {
-        return permissions[claim.id] ?: mutableSetOf()
+    override fun getByClaim(claim: Claim): Set<ClaimPermission> {
+        return permissions[claim.id]?.toSet() ?: setOf()
     }
 
     override fun add(claim: Claim, permission: ClaimPermission) {
