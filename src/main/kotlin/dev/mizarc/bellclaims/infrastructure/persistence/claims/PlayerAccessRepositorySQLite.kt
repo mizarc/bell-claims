@@ -16,12 +16,12 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         preload()
     }
 
-    override fun getByClaim(claim: Claim): MutableMap<UUID, MutableSet<ClaimPermission>> {
-        return playerAccess[claim.id] ?: mutableMapOf()
+    override fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>> {
+        return playerAccess[claim.id]?.toMap() ?: emptyMap()
     }
 
-    override fun getByPlayer(claim: Claim, player: OfflinePlayer): MutableSet<ClaimPermission> {
-        return playerAccess[claim.id]?.get(player.uniqueId) ?: mutableSetOf()
+    override fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission> {
+        return playerAccess[claim.id]?.get(player.uniqueId)?.toSet() ?: emptySet()
     }
 
     override fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
