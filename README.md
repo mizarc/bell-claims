@@ -17,8 +17,13 @@ Beta. Safe to run on testing servers, but would not recommend for production due
 ## Installation
 Download the latest release (.jar file) from the releases tab and place it in your server's plugins folder. 
 
+For additional functionality such as per player/rank permissions and claim limits, you must install 
+[Vault](https://www.spigotmc.org/resources/vault.34315/) as well as a compatible permission and chat
+metadata provider. [LuckPerms](https://luckperms.net/) is a recommended plugin for handling both.
+
 ## Getting Started
-To establish a claim, place down a bell and shift right click it. This opens up a creation menu where you are able to name your claim. Once the claim is established, you will be presented with various options to do with claim management.
+To establish a claim, place down a bell and shift right click it. This opens up a creation menu where you are able to 
+name your claim. Once the claim is established, you will be presented with various options to do with claim management.
 
 ## Permissions
 ### Recommended User Permissions
@@ -41,6 +46,23 @@ To establish a claim, place down a bell and shift right click it. This opens up 
 
 ### Recommended Moderation Permissions
 - bellclaims.command.claimoverride - Allows use of the `claimoverride` command bypass claim protections.
+
+## Per Player Claims Limits
+Ensure that you have a Vault provider installed to set limits as described out in the installation section. Each Vault 
+provider plugin has its own way of implementing this feature. As LuckPerms is the recommended provider, instructions 
+will make use of it as such.
+
+To set a metadata for a player, use command:
+
+`/lp group <player_name> meta set <limit_name> <desired_number>`
+
+For groups:
+
+`/lp user <group_name> meta set <limit_name> <desired_number>`
+
+Here are the different limits you can set:
+- bellclaims.claim_limit - Defines how many claim bells the player can own.
+- bellclaims.claim_block_limit - Defines how many blocks the player's claims can occupy in total.
 
 ## Building from Source
 ### Requirements
