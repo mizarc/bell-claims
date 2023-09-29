@@ -20,9 +20,12 @@ import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagReposito
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.services.*
+import dev.mizarc.bellclaims.infrastructure.services.playerlimit.SimplePlayerLimitServiceImpl
+import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import org.bukkit.Bukkit
 
 /**
  * The entry point for the Bell Claims plugin.
@@ -53,11 +56,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var visualiser: Visualiser
 
     override fun onEnable() {
-        logger.info(Chat::class.java.toString())
-        val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
-            .getRegistration(Chat::class.java)!!
-        metadata = serviceProvider.provider
-
+        initialiseVaultDependency()
         initialiseRepositories()
         initialiseServices()
         initialiseInteractions()
@@ -66,11 +65,21 @@ class BellClaims : JavaPlugin() {
         registerDependencies()
         registerCommands()
         registerEvents()
+
         logger.info("Bell Claims has been Enabled")
     }
 
     override fun onDisable() {
         logger.info("Bell Claims has been Disabled")
+    }
+
+    private fun initialiseVaultDependency() {
+        if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+            val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
+                .getRegistration(Chat::class.java)!!
+            metadata = serviceProvider.provider
+            logger.info(Chat::class.java.toString())
+        }
     }
 
     /**
@@ -89,7 +98,12 @@ class BellClaims : JavaPlugin() {
      * Initialises all services.
      */
     private fun initialiseServices() {
-        playerLimitService = PlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
+        playerLimitService = if (::metadata.isInitialized) {
+            VaultPlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
+        } else {
+            SimplePlayerLimitServiceImpl(config, claimRepo, partitionRepo)
+        }
+
         playerStateService = PlayerStateServiceImpl(playerStateRepo)
         claimService = ClaimServiceImpl(claimRepo, partitionRepo, claimFlagRepo, claimPermissionRepo, playerAccessRepo)
         partitionService = PartitionServiceImpl(config, partitionRepo, claimService, playerLimitService)
