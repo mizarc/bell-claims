@@ -17,8 +17,13 @@ Beta. Safe to run on testing servers, but would not recommend for production due
 ## Installation
 Download the latest release (.jar file) from the releases tab and place it in your server's plugins folder. 
 
+For additional functionality such as per player/rank permissions and claim limits, you must install 
+[Vault](https://www.spigotmc.org/resources/vault.34315/) as well as a compatible permission and chat
+metadata provider. [LuckPerms](https://luckperms.net/) is a recommended plugin for handling both.
+
 ## Getting Started
-To establish a claim, place down a bell and shift right click it. This opens up a creation menu where you are able to name your claim. Once the claim is established, you will be presented with various options to do with claim management.
+To establish a claim, place down a bell and shift right click it. This opens up a creation menu where you are able to 
+name your claim. Once the claim is established, you will be presented with various options to do with claim management.
 
 ## Permissions
 ### Recommended User Permissions
