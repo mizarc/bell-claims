@@ -47,6 +47,23 @@ name your claim. Once the claim is established, you will be presented with vario
 ### Recommended Moderation Permissions
 - bellclaims.command.claimoverride - Allows use of the `claimoverride` command bypass claim protections.
 
+## Per Player Claims Limits
+Ensure that you have a Vault provider installed to set limits as described out in the installation section. Each Vault 
+provider plugin has its own way of implementing this feature. As LuckPerms is the recommended provider, instructions 
+will make use of it as such.
+
+To set a metadata for a player, use command:
+
+`/lp group <player_name> meta set <limit_name> <desired_number>`
+
+For groups:
+
+`/lp user <group_name> meta set <limit_name> <desired_number>`
+
+Here are the different limits you can set:
+- bellclaims.claim_limit - Defines how many claim bells the player can own.
+- bellclaims.claim_block_limit - Defines how many blocks the player's claims can occupy in total.
+
 ## Building from Source
 ### Requirements
 - Java JDK 17 or newer
