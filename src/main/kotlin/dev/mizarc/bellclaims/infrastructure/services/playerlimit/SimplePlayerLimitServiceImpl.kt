@@ -9,11 +9,11 @@ import org.bukkit.OfflinePlayer
 class SimplePlayerLimitServiceImpl(private val config: Config, private val claimRepo: ClaimRepository,
                                    private val partitionRepo: PartitionRepository): PlayerLimitService {
     override fun getTotalClaimCount(player: OfflinePlayer): Int {
-        return config.claimLimit
+        return config.claimLimit.coerceAtLeast(0)
     }
 
     override fun getTotalClaimBlockCount(player: OfflinePlayer): Int {
-        return config.claimBlockLimit
+        return config.claimBlockLimit.coerceAtLeast(0)
     }
 
     override fun getUsedClaimsCount(player: OfflinePlayer): Int {

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.playerlimit
 
 import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.domain.claims.Claim
@@ -6,7 +6,6 @@ import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -19,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 
-class PlayerLimitServiceImplTest {
+class SimplePlayerLimitServiceImplTest {
     private lateinit var config: Config
     private lateinit var metadata: Chat
     private lateinit var playerStateRepo: PlayerStateRepository
@@ -50,7 +49,7 @@ class PlayerLimitServiceImplTest {
         playerStateRepo = mockk()
         claimRepo = mockk()
         partitionRepo = mockk()
-        playerLimitService = VaultPlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
+        playerLimitService = SimplePlayerLimitServiceImpl(config, claimRepo, partitionRepo)
 
         playerOne = mockk<OfflinePlayer>()
         uuidOne = UUID.fromString("22d7b7e7-7773-4f78-8e0b-817960fba37a")
@@ -83,12 +82,8 @@ class PlayerLimitServiceImplTest {
     @Test
     fun `getTotalClaimCount - when limit is below 0 - return Int of 0`() {
         // Given
-        val configDefault = 3
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimLimit } returns configDefault
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_limit", configDefault) } returns -2
+        every { config.claimLimit } returns -2
 
         // When
         val result = playerLimitService.getTotalClaimCount(playerOne)
@@ -100,30 +95,21 @@ class PlayerLimitServiceImplTest {
     @Test
     fun `getTotalClaimCount - when limit is valid - return Int`() {
         // Given
-        val configDefault = 3
-        val set = 5
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimLimit } returns configDefault
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_limit", configDefault) } returns set
+        every { config.claimLimit } returns 5
 
         // When
         val result = playerLimitService.getTotalClaimCount(playerOne)
 
         // Then
-        Assertions.assertEquals(set, result)
+        Assertions.assertEquals(5, result)
     }
 
     @Test
     fun `getTotalClaimBlockCount - when limit is below 0 - return Int of 0`() {
         // Given
-        val configDefault = 3000
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimBlockLimit } returns configDefault
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_block_limit", configDefault) } returns -2000
+        every { config.claimBlockLimit } returns -2000
 
         // When
         val result = playerLimitService.getTotalClaimBlockCount(playerOne)
@@ -135,19 +121,14 @@ class PlayerLimitServiceImplTest {
     @Test
     fun `getTotalClaimBlockCount - when limit is valid - return Int`() {
         // Given
-        val configDefault = 3000
-        val set = 5000
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimBlockLimit } returns configDefault
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_block_limit", configDefault) } returns set
+        every { config.claimBlockLimit } returns 5000
 
         // When
         val result = playerLimitService.getTotalClaimBlockCount(playerOne)
 
         // Then
-        Assertions.assertEquals(set, result)
+        Assertions.assertEquals(5000, result)
     }
 
     @Test
@@ -203,14 +184,9 @@ class PlayerLimitServiceImplTest {
     @Test
     fun `getRemainingClaimCount - return Int`() {
         // Given
-        val configDefault = 3
-        val set = 5
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimLimit } returns configDefault
+        every { config.claimLimit } returns 5
         every { claimRepo.getByPlayer(playerOne) } returns setOf(claimOne, claimTwo)
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_limit", configDefault) } returns set
 
         // When
         val result = playerLimitService.getRemainingClaimCount(playerOne)
@@ -222,16 +198,11 @@ class PlayerLimitServiceImplTest {
     @Test
     fun `getRemainingClaimBlockCount - return Int`() {
         // Given
-        val configDefault = 3000
-        val set = 5000
         mockkStatic(Bukkit::class)
-        every { Bukkit.getServer().worlds[0].name } returns "world"
-        every { config.claimBlockLimit } returns configDefault
+        every { config.claimBlockLimit } returns 5000
         every { claimRepo.getByPlayer(playerOne) } returns setOf(claimOne, claimTwo)
         every { partitionRepo.getByClaim(claimOne) } returns partitionCollectionOne.toSet()
         every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
-        every { metadata.getPlayerInfoInteger("world", playerOne,
-            "bellclaims.claim_block_limit", configDefault) } returns set
 
         // When
         val result = playerLimitService.getRemainingClaimBlockCount(playerOne)
