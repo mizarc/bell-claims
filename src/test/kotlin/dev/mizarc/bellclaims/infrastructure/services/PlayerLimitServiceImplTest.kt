@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -49,7 +50,7 @@ class PlayerLimitServiceImplTest {
         playerStateRepo = mockk()
         claimRepo = mockk()
         partitionRepo = mockk()
-        playerLimitService = PlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
+        playerLimitService = VaultPlayerLimitServiceImpl(config, metadata, claimRepo, partitionRepo)
 
         playerOne = mockk<OfflinePlayer>()
         uuidOne = UUID.fromString("22d7b7e7-7773-4f78-8e0b-817960fba37a")
