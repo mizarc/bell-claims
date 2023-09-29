@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.playerlimit
 
 import dev.mizarc.bellclaims.api.PlayerLimitService
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
@@ -8,9 +8,9 @@ import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 
-class PlayerLimitServiceImpl(private val config: Config, private val metadata: Chat,
-                             private val claimRepo: ClaimRepository,
-                             private val partitionRepo: PartitionRepository): PlayerLimitService {
+class VaultPlayerLimitServiceImpl(private val config: Config, private val metadata: Chat,
+                                  private val claimRepo: ClaimRepository,
+                                  private val partitionRepo: PartitionRepository): PlayerLimitService {
     override fun getTotalClaimCount(player: OfflinePlayer): Int {
         return metadata.getPlayerInfoInteger(
             Bukkit.getServer().worlds[0].name, player,
@@ -29,12 +29,9 @@ class PlayerLimitServiceImpl(private val config: Config, private val metadata: C
 
     override fun getUsedClaimBlockCount(player: OfflinePlayer): Int {
         val claims = claimRepo.getByPlayer(player)
-        var count = 0
-        for (claim in claims) {
+        val count = claims.sumOf { claim ->
             val partitions = partitionRepo.getByClaim(claim)
-            for (partition in partitions) {
-                count += partition.getBlockCount()
-            }
+            partitions.sumOf { partition -> partition.getBlockCount() }
         }
         return count
     }
