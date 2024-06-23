@@ -32,7 +32,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("io.mockk:mockk:1.13.7")
-    testImplementation("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
@@ -41,7 +41,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.11")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.14")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 
