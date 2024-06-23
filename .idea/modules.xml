@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell_Claims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell_Claims.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xyz.mizarc.Bell_Claims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/xyz.mizarc.Bell_Claims.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xyz.mizarc.Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/xyz.mizarc.Bell_Claims.test.iml" />
     </modules>
   </component>
 </project>
