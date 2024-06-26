@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.24"
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
@@ -11,7 +11,7 @@ version = "0.1.1"
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        url = uri("https://repo.papermc.io/repository/maven-public/")
     }
     maven {
         url = uri("https://oss.sonatype.org/content/repositories/snapshots")
@@ -35,7 +35,7 @@ dependencies {
     testImplementation("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation ("org.slf4j:slf4j-nop:2.0.7")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -55,6 +55,6 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "21"
     kotlinOptions.javaParameters = true
 }
