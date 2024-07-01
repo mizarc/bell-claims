@@ -133,7 +133,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val claimToolItem = ItemStack(Material.STICK)
             .name("Claim Tool")
             .lore("Gives you a copy of the claim tool")
-            .enchantment(Enchantment.LUCK)
+            .enchantment(Enchantment.LUCK_OF_THE_SEA)
             .flag(ItemFlag.HIDE_ENCHANTS)
         val guiClaimToolItem = GuiItem(claimToolItem) { guiEvent ->
             guiEvent.isCancelled = true
