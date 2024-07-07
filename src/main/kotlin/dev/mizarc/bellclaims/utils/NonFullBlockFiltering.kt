@@ -15,7 +15,7 @@ val transparentMaterials = arrayOf(
     Material.DARK_OAK_SAPLING,
     Material.BUDDING_AMETHYST,
     Material.COBWEB,
-    Material.SHORT_GRASS,
+    Material.GRASS,
     Material.FERN,
     Material.DEAD_BUSH,
     Material.SEAGRASS,
