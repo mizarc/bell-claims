@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
