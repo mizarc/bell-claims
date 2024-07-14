@@ -44,6 +44,10 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
 tasks.shadowJar {
     relocate("co.aikar.commands", "dev.mizarc.bellclaims.acf")
     relocate("co.aikar.locales", "dev.mizarc.bellclaims.locales")
@@ -51,9 +55,4 @@ tasks.shadowJar {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "21"
-    kotlinOptions.javaParameters = true
 }
