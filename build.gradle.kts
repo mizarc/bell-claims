@@ -46,11 +46,6 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-tasks.shadowJar {
-    relocate("co.aikar.commands", "dev.mizarc.bellclaims.acf")
-    relocate("co.aikar.locales", "dev.mizarc.bellclaims.locales")
-}
-
 tasks.test {
     useJUnitPlatform()
 }
