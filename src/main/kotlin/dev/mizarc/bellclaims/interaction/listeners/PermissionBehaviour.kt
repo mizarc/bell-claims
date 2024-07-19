@@ -14,6 +14,7 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
+import org.bukkit.event.entity.EntityBreedEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
@@ -94,6 +95,9 @@ class PermissionBehaviour {
 
         // Used for putting items into entity based holders such as item frames
         val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+
+        // Used for breeding passive mobs with food
+        val breedEntity = PermissionExecutor(EntityBreedEvent::class.java, Companion::cancelEvent, Companion::getEntityBreedLocation, Companion::getEntityBreedPlayer)
 
         // Used for taking items out of entities by damaging them such as with item frames
         val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
@@ -201,6 +205,17 @@ class PermissionBehaviour {
         private fun getPlayerInteractEntityPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
+        }
+
+        private fun getEntityBreedLocation(event: Event): Location? {
+            if (event !is EntityBreedEvent) return null
+            return event.mother.location
+        }
+
+        private fun getEntityBreedPlayer(event: Event): Player? {
+            if (event !is EntityBreedEvent) return null
+            if (event.breeder !is Player) return null
+            return event.breeder as Player;
         }
 
         private fun getPlayerInteractEntityLocation(event: Event): Location? {
