@@ -25,11 +25,9 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     )),
 
     /**
-     * When a block is interacted with by a player.
+     * When a container is opened by a player.
      */
-    ContainerInspect(null, arrayOf(
-        PermissionBehaviour.openInventory
-    )),
+    ContainerInspect(null, arrayOf(PermissionBehaviour.openInventory)),
 
     /**
      * When an item is taken or put in display blocks.
@@ -54,23 +52,17 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When the sign edit menu is opened.
      */
-    SignEdit(null, arrayOf(
-        PermissionBehaviour.signEditing
-    )),
+    SignEdit(null, arrayOf(PermissionBehaviour.signEditing)),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
      */
-    RedstoneInteract(null, arrayOf(
-        PermissionBehaviour.redstoneInteract
-    )),
+    RedstoneInteract(null, arrayOf(PermissionBehaviour.redstoneInteract)),
 
     /**
      * When a door is opened by a player.
      */
-    DoorOpen(null, arrayOf(
-        PermissionBehaviour.openDoor
-    )),
+    DoorOpen(null, arrayOf(PermissionBehaviour.openDoor)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
