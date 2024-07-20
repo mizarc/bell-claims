@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [Latest]
+Update to support MC version 1.21
+
 ## [0.1.2]
 Update to support MC Version 1.20.6
 
