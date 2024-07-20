@@ -21,8 +21,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.hangingEntityBreak,
         PermissionBehaviour.fertilize,
-        PermissionBehaviour.farmlandStep,
-        PermissionBehaviour.breedEntity,
+        PermissionBehaviour.farmlandStep
     )),
 
     /**
@@ -79,23 +78,16 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     VillagerTrade(null, arrayOf(PermissionBehaviour.villagerTrade)),
 
     /**
-     * When an entity is hurt by a player.
+     * When a passive mob is interacted with.
      */
-    MobHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
-
-    /**
-     * When an entity is leashed by a player.
-     */
-    MobLeash(null, arrayOf(
+    Husbandry(null, arrayOf(
+        PermissionBehaviour.playerDamageEntity,
         PermissionBehaviour.leashEntity,
         PermissionBehaviour.fishingRod,
-        PermissionBehaviour.takeLeadFromFence
-    )),
-
-    /**
-     * When an entity is sheared by a player.
-     */
-    MobShear(null, arrayOf(PermissionBehaviour.shearEntity));
+        PermissionBehaviour.takeLeadFromFence,
+        PermissionBehaviour.shearEntity,
+        PermissionBehaviour.breedEntity,
+    ));
 
     companion object {
         /**
