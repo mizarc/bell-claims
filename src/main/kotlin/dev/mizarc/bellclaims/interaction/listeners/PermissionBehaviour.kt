@@ -77,12 +77,6 @@ class PermissionBehaviour {
         // Used for damaging passive mobs
         val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEntityDamageEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
-        // Used for leashing passive mobs with lead
-        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, Companion::cancelEvent, Companion::getLeashEntityLocation, Companion::getLeashPlayer)
-
-        // Used for shearing mobs with a shear
-        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, Companion::cancelEvent, Companion::getShearEntityLocation, Companion::getShearPlayer)
-
         // Used for editing sign text
         val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent, Companion::getPlayerOpenSignLocation, Companion::getPlayerOpenSignPlayer)
 
@@ -538,38 +532,6 @@ class PermissionBehaviour {
         private fun getInventoryInteractPlayer(e: Event): Player? {
             if (e !is InventoryOpenEvent) return null
             return e.player as Player
-        }
-
-        /**
-         * Get the location of an entity that is being leashed by a player.
-         */
-        private fun getLeashEntityLocation(e: Event): Location? {
-            if (e !is PlayerLeashEntityEvent) return null
-            return e.entity.location
-        }
-
-        /**
-         * Get the player that is leashing an entity.
-         */
-        private fun getLeashPlayer(e: Event): Player? {
-            if (e !is PlayerLeashEntityEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of an entity that is being sheared by a player.
-         */
-        private fun getShearEntityLocation(e: Event): Location? {
-            if (e !is PlayerShearEntityEvent) return null
-            return e.entity.location
-        }
-
-        /**
-         * Get the player that is shearing an entity.
-         */
-        private fun getShearPlayer(e: Event): Player? {
-            if (e !is PlayerShearEntityEvent) return null
-            return e.player
         }
     }
 }
