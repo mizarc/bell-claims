@@ -16,6 +16,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityBreedEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -97,7 +98,7 @@ class PermissionBehaviour {
         val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
 
         // Used for breeding passive mobs with food
-        val breedEntity = PermissionExecutor(EntityBreedEvent::class.java, Companion::cancelEvent, Companion::getEntityBreedLocation, Companion::getEntityBreedPlayer)
+        val interactAnimals = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelAnimalInteract, Companion::getAnimalInteractLocation, Companion::getAnimalInteractPlayer)
 
         // Used for taking items out of entities by damaging them such as with item frames
         val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
@@ -207,15 +208,21 @@ class PermissionBehaviour {
             return event.player
         }
 
-        private fun getEntityBreedLocation(event: Event): Location? {
-            if (event !is EntityBreedEvent) return null
-            return event.mother.location
+        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is Animals) return false
+            event.isCancelled = true
+            return true
         }
 
-        private fun getEntityBreedPlayer(event: Event): Player? {
-            if (event !is EntityBreedEvent) return null
-            if (event.breeder !is Player) return null
-            return event.breeder as Player;
+        private fun getAnimalInteractLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        private fun getAnimalInteractPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
         }
 
         private fun getPlayerInteractEntityLocation(event: Event): Location? {

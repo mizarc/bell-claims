@@ -78,7 +78,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.fishingRod,
         PermissionBehaviour.takeLeadFromFence,
         PermissionBehaviour.shearEntity,
-        PermissionBehaviour.breedEntity,
+        PermissionBehaviour.interactAnimals,
     ));
 
     companion object {
