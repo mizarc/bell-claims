@@ -83,6 +83,7 @@ class PermissionBehaviour {
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, Companion::cancelEvent, Companion::getArmorStandLocation, Companion::getArmorStandManipulator)
 
+        // Used to change the contents of a flower pot
         val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, Companion::cancelFlowerPotInteract, Companion::getPlayerFlowerPotManipulateLocation, Companion::getPlayerFlowerPotManipulatePlayer)
 
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
