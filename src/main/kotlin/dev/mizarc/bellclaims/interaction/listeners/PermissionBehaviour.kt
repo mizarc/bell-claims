@@ -4,6 +4,7 @@ import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.BlockType
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
@@ -118,6 +119,9 @@ class PermissionBehaviour {
 
         // Used for placing vehicles
         val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelVehiclePlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
+
+        // Used for dragon egg teleports
+        val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         /**
          * Cancel any cancellable event.
@@ -273,6 +277,14 @@ class PermissionBehaviour {
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
             val item = event.item ?: return false
             if (item.type != Material.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelDragonEggTeleport(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.DRAGON_EGG) return false
             event.isCancelled = true
             return true
         }
