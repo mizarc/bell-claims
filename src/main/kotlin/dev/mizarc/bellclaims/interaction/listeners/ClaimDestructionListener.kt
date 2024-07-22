@@ -202,9 +202,9 @@ class ClaimDestructionListener(val claimService: ClaimService,
                 bell.attachment == Bell.Attachment.FLOOR && blockAt.getRelative(BlockFace.DOWN) == block ||
                 bell.attachment == Bell.Attachment.SINGLE_WALL &&
                 (bell.facing == BlockFace.EAST && blockAt.getRelative(BlockFace.EAST) == block ||
-                        bell.facing == BlockFace.WEST && blockAt.getRelative(BlockFace.WEST) == block) ||
-                bell.facing == BlockFace.NORTH && blockAt.getRelative(BlockFace.NORTH) == block ||
-                bell.facing == BlockFace.SOUTH && blockAt.getRelative(BlockFace.SOUTH) == block) {
+                        bell.facing == BlockFace.WEST && blockAt.getRelative(BlockFace.WEST) == block ||
+                        bell.facing == BlockFace.NORTH && blockAt.getRelative(BlockFace.NORTH) == block ||
+                        bell.facing == BlockFace.SOUTH && blockAt.getRelative(BlockFace.SOUTH) == block)) {
                 return true
             }
         }
