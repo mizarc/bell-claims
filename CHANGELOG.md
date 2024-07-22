@@ -10,6 +10,9 @@ Update to support MC version 1.21
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into one "Husbandry" permission.
 
+### Fixed
+- Inability to break blocks in north or south direction of bell regardless of bell attachment.
+
 ## [0.1.2]
 Update to support MC Version 1.20.6
 
