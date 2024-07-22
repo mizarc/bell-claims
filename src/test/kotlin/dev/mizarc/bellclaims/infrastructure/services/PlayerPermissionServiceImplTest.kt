@@ -46,13 +46,11 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `doesPlayerHavePermission - when player doesn't have permission - returns False`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.MobHurt, ClaimPermission.Build)
-        val playerTwoPermissions = setOf(ClaimPermission.ContainerInspect,
-            ClaimPermission.SignEdit, ClaimPermission.RedstoneInteract)
+        val playerOnePermissions = setOf(ClaimPermission.Husbandry, ClaimPermission.Build)
         every { permissionRepo.getByPlayer(claim, playerOne) } returns playerOnePermissions
 
         // When
-        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.MobLeash)
+        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.VehicleDeploy)
 
         // Then
         assertFalse(result)
@@ -61,7 +59,7 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `doesPlayerHavePermission - when player does have permission - returns True`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.MobHurt, ClaimPermission.Build)
+        val playerOnePermissions = setOf(ClaimPermission.Husbandry, ClaimPermission.Build)
         val playerTwoPermissions = setOf(ClaimPermission.ContainerInspect,
             ClaimPermission.SignEdit, ClaimPermission.RedstoneInteract)
         every { permissionRepo.getByPlayer(claim, playerOne) } returns playerOnePermissions
@@ -76,7 +74,7 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `getByClaim - returns expected Permission Map`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.MobHurt, ClaimPermission.Build)
+        val playerOnePermissions = setOf(ClaimPermission.SignEdit, ClaimPermission.Build)
         val playerTwoPermissions = setOf(ClaimPermission.ContainerInspect,
             ClaimPermission.SignEdit, ClaimPermission.RedstoneInteract)
         val permissions = mapOf(uuidOne to playerOnePermissions, uuidTwo to playerTwoPermissions)
@@ -95,7 +93,7 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `getByPlayer - returns expected Permission Set`() {
         // Given
-        val permissions = setOf(ClaimPermission.MobHurt, ClaimPermission.Build)
+        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.Build)
         every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
 
         // When
@@ -127,7 +125,7 @@ class PlayerPermissionServiceImplTest {
         every { permissionRepo.add(claim, playerOne, any()) } just runs
 
         // When
-        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.MobLeash)
+        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.Husbandry)
 
         // Then
         assertEquals(PlayerPermissionChangeResult.SUCCESS, result)

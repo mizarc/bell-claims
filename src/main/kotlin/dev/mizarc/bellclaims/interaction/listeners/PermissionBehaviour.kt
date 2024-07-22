@@ -16,6 +16,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityBreedEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PlayerLeashEntityEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -76,18 +77,13 @@ class PermissionBehaviour {
         // Used for damaging passive mobs
         val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEntityDamageEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
-        // Used for leashing passive mobs with lead
-        val leashEntity = PermissionExecutor(PlayerLeashEntityEvent::class.java, Companion::cancelEvent, Companion::getLeashEntityLocation, Companion::getLeashPlayer)
-
-        // Used for shearing mobs with a shear
-        val shearEntity = PermissionExecutor(PlayerShearEntityEvent::class.java, Companion::cancelEvent, Companion::getShearEntityLocation, Companion::getShearPlayer)
-
         // Used for editing sign text
         val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent, Companion::getPlayerOpenSignLocation, Companion::getPlayerOpenSignPlayer)
 
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, Companion::cancelEvent, Companion::getArmorStandLocation, Companion::getArmorStandManipulator)
 
+        // Used to change the contents of a flower pot
         val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, Companion::cancelFlowerPotInteract, Companion::getPlayerFlowerPotManipulateLocation, Companion::getPlayerFlowerPotManipulatePlayer)
 
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
@@ -97,7 +93,7 @@ class PermissionBehaviour {
         val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
 
         // Used for breeding passive mobs with food
-        val breedEntity = PermissionExecutor(EntityBreedEvent::class.java, Companion::cancelEvent, Companion::getEntityBreedLocation, Companion::getEntityBreedPlayer)
+        val interactAnimals = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelAnimalInteract, Companion::getAnimalInteractLocation, Companion::getAnimalInteractPlayer)
 
         // Used for taking items out of entities by damaging them such as with item frames
         val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
@@ -207,15 +203,21 @@ class PermissionBehaviour {
             return event.player
         }
 
-        private fun getEntityBreedLocation(event: Event): Location? {
-            if (event !is EntityBreedEvent) return null
-            return event.mother.location
+        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is Animals) return false
+            event.isCancelled = true
+            return true
         }
 
-        private fun getEntityBreedPlayer(event: Event): Player? {
-            if (event !is EntityBreedEvent) return null
-            if (event.breeder !is Player) return null
-            return event.breeder as Player;
+        private fun getAnimalInteractLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        private fun getAnimalInteractPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
         }
 
         private fun getPlayerInteractEntityLocation(event: Event): Location? {
@@ -531,38 +533,6 @@ class PermissionBehaviour {
         private fun getInventoryInteractPlayer(e: Event): Player? {
             if (e !is InventoryOpenEvent) return null
             return e.player as Player
-        }
-
-        /**
-         * Get the location of an entity that is being leashed by a player.
-         */
-        private fun getLeashEntityLocation(e: Event): Location? {
-            if (e !is PlayerLeashEntityEvent) return null
-            return e.entity.location
-        }
-
-        /**
-         * Get the player that is leashing an entity.
-         */
-        private fun getLeashPlayer(e: Event): Player? {
-            if (e !is PlayerLeashEntityEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of an entity that is being sheared by a player.
-         */
-        private fun getShearEntityLocation(e: Event): Location? {
-            if (e !is PlayerShearEntityEvent) return null
-            return e.entity.location
-        }
-
-        /**
-         * Get the player that is shearing an entity.
-         */
-        private fun getShearPlayer(e: Event): Player? {
-            if (e !is PlayerShearEntityEvent) return null
-            return e.player
         }
     }
 }
