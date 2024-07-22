@@ -21,16 +21,13 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.itemFramePlace,
         PermissionBehaviour.hangingEntityBreak,
         PermissionBehaviour.fertilize,
-        PermissionBehaviour.farmlandStep,
-        PermissionBehaviour.breedEntity,
+        PermissionBehaviour.farmlandStep
     )),
 
     /**
-     * When a block is interacted with by a player.
+     * When a container is opened by a player.
      */
-    ContainerInspect(null, arrayOf(
-        PermissionBehaviour.openInventory
-    )),
+    ContainerInspect(null, arrayOf(PermissionBehaviour.openInventory)),
 
     /**
      * When an item is taken or put in display blocks.
@@ -55,23 +52,17 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When the sign edit menu is opened.
      */
-    SignEdit(null, arrayOf(
-        PermissionBehaviour.signEditing
-    )),
+    SignEdit(null, arrayOf(PermissionBehaviour.signEditing)),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
      */
-    RedstoneInteract(null, arrayOf(
-        PermissionBehaviour.redstoneInteract
-    )),
+    RedstoneInteract(null, arrayOf(PermissionBehaviour.redstoneInteract)),
 
     /**
      * When a door is opened by a player.
      */
-    DoorOpen(null, arrayOf(
-        PermissionBehaviour.openDoor
-    )),
+    DoorOpen(null, arrayOf(PermissionBehaviour.openDoor)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
@@ -79,23 +70,14 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     VillagerTrade(null, arrayOf(PermissionBehaviour.villagerTrade)),
 
     /**
-     * When an entity is hurt by a player.
+     * When a passive mob is interacted with.
      */
-    MobHurt(null, arrayOf(PermissionBehaviour.playerDamageEntity)),
-
-    /**
-     * When an entity is leashed by a player.
-     */
-    MobLeash(null, arrayOf(
-        PermissionBehaviour.leashEntity,
+    Husbandry(null, arrayOf(
+        PermissionBehaviour.playerDamageEntity,
+        PermissionBehaviour.interactAnimals,
         PermissionBehaviour.fishingRod,
-        PermissionBehaviour.takeLeadFromFence
-    )),
-
-    /**
-     * When an entity is sheared by a player.
-     */
-    MobShear(null, arrayOf(PermissionBehaviour.shearEntity));
+        PermissionBehaviour.takeLeadFromFence,
+    ));
 
     companion object {
         /**

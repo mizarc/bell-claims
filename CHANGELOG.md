@@ -7,6 +7,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Latest]
 Update to support MC version 1.21
 
+### Changed
+- Mob hurt/leash/shear claim permissions merged into one "Husbandry" permission.
+
 ## [0.1.2]
 Update to support MC Version 1.20.6
 

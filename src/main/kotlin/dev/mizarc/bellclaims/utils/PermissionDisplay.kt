@@ -19,9 +19,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.RedstoneInteract -> ItemStack(Material.LEVER)
         ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
         ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
-        ClaimPermission.MobHurt -> ItemStack(Material.IRON_SWORD)
-        ClaimPermission.MobLeash -> ItemStack(Material.LEAD)
-        ClaimPermission.MobShear -> ItemStack(Material.SHEARS)
+        ClaimPermission.Husbandry -> ItemStack(Material.LEAD)
     }
 }
 
@@ -40,9 +38,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.RedstoneInteract -> "Redstone Interact"
         ClaimPermission.DoorOpen -> "Door Open"
         ClaimPermission.VillagerTrade -> "Villager Trade"
-        ClaimPermission.MobHurt -> "Mob Hurt"
-        ClaimPermission.MobLeash -> "Mob Leash"
-        ClaimPermission.MobShear -> "Mob Shear"
+        ClaimPermission.Husbandry -> "Husbandry"
     }
 }
 
@@ -61,8 +57,6 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.RedstoneInteract -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
-        ClaimPermission.MobHurt -> "Grants permission to damage passive mobs"
-        ClaimPermission.MobLeash -> "Grants permission to use leads on passive mobs"
-        ClaimPermission.MobShear -> "Grants permission to use shears on passive mobs"
+        ClaimPermission.Husbandry -> "Grants permission to interact with passive animals"
     }
 }
