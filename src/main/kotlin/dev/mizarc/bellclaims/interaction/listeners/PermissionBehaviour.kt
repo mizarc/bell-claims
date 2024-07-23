@@ -148,27 +148,6 @@ class PermissionBehaviour {
             return true
         }
 
-        private fun getVehicleDestroyPlayer(event: Event): Player? {
-            if (event !is VehicleDestroyEvent) return null
-            if (event.attacker !is Player) return null
-            return event.attacker as Player
-        }
-
-        private fun getVehicleDestroyLocation(event: Event): Location? {
-            if (event !is VehicleDestroyEvent) return null
-            return event.vehicle.location
-        }
-
-        private fun getPlayerOpenSignPlayer(event: Event): Player? {
-            if (event !is PlayerOpenSignEvent) return null
-            return event.player
-        }
-
-        private fun getPlayerOpenSignLocation(event: Event): Location? {
-            if (event !is PlayerOpenSignEvent) return null
-            return event.sign.location
-        }
-
         private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             if (event.action != Action.PHYSICAL) return false
@@ -185,14 +164,11 @@ class PermissionBehaviour {
             return true
         }
 
-        private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
-            if (event !is HangingBreakByEntityEvent) return null
-            return event.remover as? Player ?: return null
-        }
-
-        private fun getHangingBreakByEntityEventLocation(event: Event): Location? {
-            if (event !is HangingBreakByEntityEvent) return null
-            return event.entity.location
+        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is Animals) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
@@ -202,47 +178,10 @@ class PermissionBehaviour {
             return true
         }
 
-        private fun getPlayerInteractEntityPlayer(event: Event): Player? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.player
-        }
-
-        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEntityEvent) return false
-            if (event.rightClicked !is Animals) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun getAnimalInteractLocation(event: Event): Location? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.rightClicked.location
-        }
-
-        private fun getAnimalInteractPlayer(event: Event): Player? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.player
-        }
-
-        private fun getPlayerInteractEntityLocation(event: Event): Location? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.rightClicked.location
-        }
-
         private fun cancelFlowerPotInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerFlowerPotManipulateEvent) return false
             event.isCancelled = true
             return true
-        }
-
-        private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
-            if (event !is PlayerFlowerPotManipulateEvent) return null
-            return event.player
-        }
-
-        private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
-            if (event !is PlayerFlowerPotManipulateEvent) return null
-            return event.flowerpot.location
         }
 
         /**
@@ -289,23 +228,6 @@ class PermissionBehaviour {
             return true
         }
 
-        /**
-         * Get the location of an entity being placed.
-         */
-        private fun getInteractEventLocation(event: Event): Location? {
-            if (event !is PlayerInteractEvent) return null
-            val block = event.clickedBlock ?: return null
-            return block.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getInteractEventPlayer(event: Event): Player? {
-            if (event !is PlayerInteractEvent) return null
-            return event.player
-        }
-
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.entity is ArmorStand) {
@@ -316,56 +238,12 @@ class PermissionBehaviour {
             return false
         }
 
-        /**
-         * Get the location of an entity being placed.
-         */
-        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
-            if (event !is EntityDamageByEntityEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
-            if (event !is EntityDamageByEntityEvent) return null
-            if (event.damager !is Player) return null
-            return event.damager as Player
-        }
-
-        /**
-         * Get the location of an entity being placed.
-         */
-        private fun getEntityPlaceLocation(event: Event): Location? {
-            if (event !is EntityPlaceEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getEntityPlacePlayer(event: Event): Player? {
-            if (event !is EntityPlaceEvent) return null
-            return event.player
-        }
-
         private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
             if (event !is PlayerFishEvent) return false
             val caught = event.caught ?: return false
             if (caught is Monster && caught is Player) return false
             event.isCancelled = true
             return true
-        }
-
-        private fun getFishingLocation(event: Event): Location? {
-            if (event !is PlayerFishEvent) return null
-            val caught = event.caught ?: return null
-            return caught.location
-        }
-
-        private fun getFishingPlayer(event: Event): Player? {
-            if (event !is PlayerFishEvent) return null
-            return event.player
         }
 
         /**
@@ -440,6 +318,128 @@ class PermissionBehaviour {
             if (t != InventoryType.MERCHANT) return false
             event.isCancelled = true
             return true
+        }
+
+        private fun getVehicleDestroyPlayer(event: Event): Player? {
+            if (event !is VehicleDestroyEvent) return null
+            if (event.attacker !is Player) return null
+            return event.attacker as Player
+        }
+
+        private fun getVehicleDestroyLocation(event: Event): Location? {
+            if (event !is VehicleDestroyEvent) return null
+            return event.vehicle.location
+        }
+
+        private fun getPlayerOpenSignPlayer(event: Event): Player? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerOpenSignLocation(event: Event): Location? {
+            if (event !is PlayerOpenSignEvent) return null
+            return event.sign.location
+        }
+
+        private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.remover as? Player ?: return null
+        }
+
+        private fun getHangingBreakByEntityEventLocation(event: Event): Location? {
+            if (event !is HangingBreakByEntityEvent) return null
+            return event.entity.location
+        }
+
+        private fun getPlayerInteractEntityPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
+        }
+
+        private fun getAnimalInteractLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        private fun getAnimalInteractPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerInteractEntityLocation(event: Event): Location? {
+            if (event !is PlayerInteractEntityEvent) return null
+            return event.rightClicked.location
+        }
+
+        private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.player
+        }
+
+        private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
+            if (event !is PlayerFlowerPotManipulateEvent) return null
+            return event.flowerpot.location
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getInteractEventLocation(event: Event): Location? {
+            if (event !is PlayerInteractEvent) return null
+            val block = event.clickedBlock ?: return null
+            return block.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getInteractEventPlayer(event: Event): Player? {
+            if (event !is PlayerInteractEvent) return null
+            return event.player
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
+            if (event !is EntityDamageByEntityEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            if (event.damager !is Player) return null
+            return event.damager as Player
+        }
+
+        /**
+         * Get the location of an entity being placed.
+         */
+        private fun getEntityPlaceLocation(event: Event): Location? {
+            if (event !is EntityPlaceEvent) return null
+            return event.entity.location
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getEntityPlacePlayer(event: Event): Player? {
+            if (event !is EntityPlaceEvent) return null
+            return event.player
+        }
+
+        private fun getFishingLocation(event: Event): Location? {
+            if (event !is PlayerFishEvent) return null
+            val caught = event.caught ?: return null
+            return caught.location
+        }
+
+        private fun getFishingPlayer(event: Event): Player? {
+            if (event !is PlayerFishEvent) return null
+            return event.player
         }
 
         /**
