@@ -8,7 +8,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 Update to support MC version 1.21
 
 ### Added
-- Protection against players right-clicking dragon eggs, causing it to teleport.
+- Protection against players right-clicking dragon eggs, causing it to teleport. Requires the build permission.
+- Protection against fluid being picked up from the ground. Requires the build permission.
+- Protection against fluid being picked up from a cauldron. Requires the display manipulate permission.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into one "Husbandry" permission.

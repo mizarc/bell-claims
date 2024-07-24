@@ -119,6 +119,9 @@ class PermissionBehaviour {
         // Used for dragon egg teleports
         val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
+        // Used for using a bucket to pick up fluids
+        val bucketFill = PermissionExecutor(PlayerBucketFillEvent::class.java, Companion::cancelEvent, Companion::getBucketFillLocation, Companion::getBucketFillPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -210,7 +213,11 @@ class PermissionBehaviour {
             if (block.type != Material.ITEM_FRAME &&
                 block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.CHISELED_BOOKSHELF &&
-                block.type != Material.JUKEBOX) return false
+                block.type != Material.JUKEBOX &&
+                block.type != Material.CAULDRON &&
+                block.type != Material.WATER_CAULDRON &&
+                block.type != Material.LAVA_CAULDRON &&
+                block.type != Material.POWDER_SNOW_CAULDRON) return false
             event.isCancelled = true
             return true
         }
@@ -221,6 +228,8 @@ class PermissionBehaviour {
         private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.type == Material.CAULDRON) return false
             val item = event.item ?: return false
             if (item.type != Material.WATER_BUCKET &&
                 item.type != Material.LAVA_BUCKET) return false
@@ -575,6 +584,22 @@ class PermissionBehaviour {
         private fun getInventoryInteractPlayer(e: Event): Player? {
             if (e !is InventoryOpenEvent) return null
             return e.player as Player
+        }
+
+        /**
+         * Get the player that is filling a bucket.
+         */
+        private fun getBucketFillPlayer(event: Event): Player? {
+            if (event !is PlayerBucketFillEvent) return null
+            return event.player
+        }
+
+        /**
+         * Get the location of the block the bucket is filling from.
+         */
+        private fun getBucketFillLocation(event: Event): Location? {
+            if (event !is PlayerBucketFillEvent) return null
+            return event.block.location
         }
     }
 }
