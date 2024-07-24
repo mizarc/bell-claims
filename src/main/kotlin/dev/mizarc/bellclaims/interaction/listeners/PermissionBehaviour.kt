@@ -529,14 +529,6 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that is damaging a block.
-         */
-        private fun getBlockDamager(e: Event): Player? {
-            if (e !is BlockDamageEvent) return null
-            return e.player
-        }
-
-        /**
          * Get the location of an entity being damaged by another entity.
          */
         private fun getEntityDamageByEntityLocation(e: Event): Location? {
