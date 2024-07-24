@@ -213,7 +213,11 @@ class PermissionBehaviour {
             if (block.type != Material.ITEM_FRAME &&
                 block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.CHISELED_BOOKSHELF &&
-                block.type != Material.JUKEBOX) return false
+                block.type != Material.JUKEBOX &&
+                block.type != Material.CAULDRON &&
+                block.type != Material.WATER_CAULDRON &&
+                block.type != Material.LAVA_CAULDRON &&
+                block.type != Material.POWDER_SNOW_CAULDRON) return false
             event.isCancelled = true
             return true
         }
@@ -224,6 +228,8 @@ class PermissionBehaviour {
         private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.type == Material.CAULDRON) return false
             val item = event.item ?: return false
             if (item.type != Material.WATER_BUCKET &&
                 item.type != Material.LAVA_BUCKET) return false
