@@ -14,11 +14,8 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
-import org.bukkit.event.entity.EntityBreedEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
-import org.bukkit.event.entity.PlayerLeashEntityEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -119,8 +116,11 @@ class PermissionBehaviour {
         // Used for placing vehicles
         val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelVehiclePlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
 
+        // Used for dragon egg teleports
+        val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
         /**
-         * Cancel any cancellable event.
+         * Cancels any cancellable event.
          */
         private fun cancelEvent(listener: Listener, event: Event): Boolean {
             if (event is Cancellable) {
@@ -130,6 +130,9 @@ class PermissionBehaviour {
             return false
         }
 
+        /**
+         * Cancels the action of placing down a vehicle such as a boat or minecart.
+         */
         private fun cancelVehiclePlace(listener: Listener, event: Event): Boolean {
             if (event !is EntityPlaceEvent) return false
             if (event.entity !is Vehicle) return false
@@ -137,9 +140,220 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of placing down other non-vehicle entities.
+         */
         private fun cancelEntityPlace(listener: Listener, event: Event): Boolean {
             if (event !is EntityPlaceEvent) return false
             if (event.entity is Vehicle) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of breaking farmland from stepping.
+         */
+        private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.PHYSICAL) return false
+            val block = event.clickedBlock ?: return false
+            if (block.blockData !is Farmland) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of removing a lead from a fence.
+         */
+        private fun cancelLeadRemoval(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is LeashHitch) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of animal interactions such as leadingk, shearing or feeding.
+         */
+        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked !is Animals) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels all other entity display interactions such as item frames.
+         */
+        private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEntityEvent) return false
+            if (event.rightClicked.type != EntityType.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of interacting with flower pots.
+         */
+        private fun cancelFlowerPotInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFlowerPotManipulateEvent) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of interacting with misc display blocks such as item frames.
+         */
+        private fun cancelMiscDisplayInteractions(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.ITEM_FRAME &&
+                block.type != Material.GLOW_ITEM_FRAME &&
+                block.type != Material.CHISELED_BOOKSHELF &&
+                block.type != Material.JUKEBOX) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of placing water or lava buckets.
+         */
+        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.WATER_BUCKET &&
+                item.type != Material.LAVA_BUCKET) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of placing down item frames.
+         */
+        private fun cancelItemFramePlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of interacting with a dragon egg, causing it to teleport.
+         */
+        private fun cancelDragonEggTeleport(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.DRAGON_EGG) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of damaging an armor stand.
+         */
+        private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.entity is ArmorStand) {
+                event.isCancelled = true
+                return true
+            }
+
+            return false
+        }
+
+        /**
+         * Cancels the action of reeling in passive mobs with a fishing rod.
+         */
+        private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerFishEvent) return false
+            val caught = event.caught ?: return false
+            if (caught is Monster && caught is Player) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of damaging passive mobs caused by the player.
+         */
+        private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Player) return false
+            if (event.entity !is Animals && event.entity !is AbstractVillager) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of damaging static entities such as item frames.
+         */
+        private fun cancelStaticEntityDamage(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Player) return false
+            if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of door opening.
+         */
+        private fun cancelDoorOpen(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+            if (block.state.blockData !is Openable) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of redstone triggers such as buttons or levers.
+         */
+        private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val block = event.clickedBlock ?: return false
+
+            // Block is of type switch, analogue powerable, or a powerable that isn't a door
+            if (block.state.blockData is Switch ||
+                (block.state.blockData is Powerable && block.state.blockData !is Openable) ||
+                block.state.blockData is AnaloguePowerable) {
+                event.isCancelled = true
+                return true
+            }
+            return false
+        }
+
+        /**
+         * Cancel the action of opening inventories such as chests and furnaces.
+         */
+        private fun cancelOpenInventory(listener: Listener, event: Event): Boolean {
+            if (event !is InventoryOpenEvent) return false
+            val t = event.inventory.type
+            if (t != InventoryType.CHEST &&
+                t != InventoryType.SHULKER_BOX &&
+                t != InventoryType.BARREL &&
+                t != InventoryType.FURNACE &&
+                t != InventoryType.BLAST_FURNACE &&
+                t != InventoryType.SMOKER &&
+                t != InventoryType.ANVIL &&
+                t != InventoryType.BEACON &&
+                t != InventoryType.HOPPER &&
+                t != InventoryType.BREWING &&
+                t != InventoryType.DISPENSER &&
+                t != InventoryType.DROPPER) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of opening the villager trading menu.
+         */
+        private fun cancelVillagerOpen(listener: Listener, event: Event): Boolean {
+            if (event !is InventoryOpenEvent) return false
+            val t = event.inventory.type
+            if (t != InventoryType.MERCHANT) return false
             event.isCancelled = true
             return true
         }
@@ -165,22 +379,6 @@ class PermissionBehaviour {
             return event.sign.location
         }
 
-        private fun cancelFarmlandStep(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            if (event.action != Action.PHYSICAL) return false
-            val block = event.clickedBlock ?: return false
-            if (block.blockData !is Farmland) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun cancelLeadRemoval(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEntityEvent) return false
-            if (event.rightClicked !is LeashHitch) return false
-            event.isCancelled = true
-            return true
-        }
-
         private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
             if (event !is HangingBreakByEntityEvent) return null
             return event.remover as? Player ?: return null
@@ -191,23 +389,9 @@ class PermissionBehaviour {
             return event.entity.location
         }
 
-        private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEntityEvent) return false
-            if (event.rightClicked.type != EntityType.ITEM_FRAME) return false
-            event.isCancelled = true
-            return true
-        }
-
         private fun getPlayerInteractEntityPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
-        }
-
-        private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEntityEvent) return false
-            if (event.rightClicked !is Animals) return false
-            event.isCancelled = true
-            return true
         }
 
         private fun getAnimalInteractLocation(event: Event): Location? {
@@ -225,12 +409,6 @@ class PermissionBehaviour {
             return event.rightClicked.location
         }
 
-        private fun cancelFlowerPotInteract(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerFlowerPotManipulateEvent) return false
-            event.isCancelled = true
-            return true
-        }
-
         private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
             if (event !is PlayerFlowerPotManipulateEvent) return null
             return event.player
@@ -239,42 +417,6 @@ class PermissionBehaviour {
         private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
             if (event !is PlayerFlowerPotManipulateEvent) return null
             return event.flowerpot.location
-        }
-
-        /**
-         * Get the location of an entity being placed.
-         */
-        private fun cancelMiscDisplayInteractions(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            val block = event.clickedBlock ?: return false
-            if (block.type != Material.ITEM_FRAME &&
-                block.type != Material.GLOW_ITEM_FRAME &&
-                block.type != Material.CHISELED_BOOKSHELF &&
-                block.type != Material.JUKEBOX) return false
-            event.isCancelled = true
-            return true
-        }
-
-        /**
-         * Get the location of an entity being placed.
-         */
-        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
-            val item = event.item ?: return false
-            if (item.type != Material.WATER_BUCKET &&
-                item.type != Material.LAVA_BUCKET) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun cancelItemFramePlace(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
-            val item = event.item ?: return false
-            if (item.type != Material.ITEM_FRAME) return false
-            event.isCancelled = true
-            return true
         }
 
         /**
@@ -292,16 +434,6 @@ class PermissionBehaviour {
         private fun getInteractEventPlayer(event: Event): Player? {
             if (event !is PlayerInteractEvent) return null
             return event.player
-        }
-
-        private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
-            if (event !is EntityDamageByEntityEvent) return false
-            if (event.entity is ArmorStand) {
-                event.isCancelled = true
-                return true
-            }
-
-            return false
         }
 
         /**
@@ -337,14 +469,6 @@ class PermissionBehaviour {
             return event.player
         }
 
-        private fun cancelFishingEvent(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerFishEvent) return false
-            val caught = event.caught ?: return false
-            if (caught is Monster && caught is Player) return false
-            event.isCancelled = true
-            return true
-        }
-
         private fun getFishingLocation(event: Event): Location? {
             if (event !is PlayerFishEvent) return null
             val caught = event.caught ?: return null
@@ -354,80 +478,6 @@ class PermissionBehaviour {
         private fun getFishingPlayer(event: Event): Player? {
             if (event !is PlayerFishEvent) return null
             return event.player
-        }
-
-        /**
-         * Cancel entity damage if caused by a player entity. Does not cancel if entity is considered a monster.
-         */
-        private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
-            if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Player) return false
-            if (event.entity !is Animals && event.entity !is AbstractVillager) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun cancelStaticEntityDamage(listener: Listener, event: Event): Boolean {
-            if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Player) return false
-            if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun cancelDoorOpen(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            val block = event.clickedBlock ?: return false
-            if (block.state.blockData !is Openable) return false
-            event.isCancelled = true
-            return true
-        }
-
-        private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            val block = event.clickedBlock ?: return false
-
-            // Block is of type switch, analogue powerable, or a powerable that isn't a door
-            if (block.state.blockData is Switch ||
-                (block.state.blockData is Powerable && block.state.blockData !is Openable) ||
-                block.state.blockData is AnaloguePowerable) {
-                event.isCancelled = true
-                return true
-            }
-            return false
-        }
-
-        /**
-         * Cancel inventory open events if the inventory is a chest.
-         */
-        private fun cancelOpenInventory(listener: Listener, event: Event): Boolean {
-            if (event !is InventoryOpenEvent) return false
-            val t = event.inventory.type
-            if (t != InventoryType.CHEST &&
-                t != InventoryType.SHULKER_BOX &&
-                t != InventoryType.BARREL &&
-                t != InventoryType.FURNACE &&
-                t != InventoryType.BLAST_FURNACE &&
-                t != InventoryType.SMOKER &&
-                t != InventoryType.ANVIL &&
-                t != InventoryType.BEACON &&
-                t != InventoryType.HOPPER &&
-                t != InventoryType.BREWING &&
-                t != InventoryType.DISPENSER &&
-                t != InventoryType.DROPPER) return false
-            event.isCancelled = true
-            return true
-        }
-
-        /**
-         * Cancel entity interactions if the player is trading with a village.
-         */
-        private fun cancelVillagerOpen(listener: Listener, event: Event): Boolean {
-            if (event !is InventoryOpenEvent) return false
-            val t = event.inventory.type
-            if (t != InventoryType.MERCHANT) return false
-            event.isCancelled = true
-            return true
         }
 
         /**
@@ -475,14 +525,6 @@ class PermissionBehaviour {
          */
         private fun getArmorStandManipulator(e: Event): Player? {
             if (e !is PlayerArmorStandManipulateEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the player that is damaging a block.
-         */
-        private fun getBlockDamager(e: Event): Player? {
-            if (e !is BlockDamageEvent) return null
             return e.player
         }
 

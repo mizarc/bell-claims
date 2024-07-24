@@ -7,6 +7,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Latest]
 Update to support MC version 1.21
 
+### Added
+- Protection against players right-clicking dragon eggs, causing it to teleport.
+
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into one "Husbandry" permission.
 
