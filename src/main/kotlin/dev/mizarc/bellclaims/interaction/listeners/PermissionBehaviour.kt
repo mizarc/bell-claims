@@ -119,6 +119,9 @@ class PermissionBehaviour {
         // Used for dragon egg teleports
         val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
+        // Used for using a bucket to pick up fluids
+        val bucketFill = PermissionExecutor(PlayerBucketFillEvent::class.java, Companion::cancelEvent, Companion::getBucketFillLocation, Companion::getBucketFillPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -575,6 +578,22 @@ class PermissionBehaviour {
         private fun getInventoryInteractPlayer(e: Event): Player? {
             if (e !is InventoryOpenEvent) return null
             return e.player as Player
+        }
+
+        /**
+         * Get the player that is filling a bucket.
+         */
+        private fun getBucketFillPlayer(event: Event): Player? {
+            if (event !is PlayerBucketFillEvent) return null
+            return event.player
+        }
+
+        /**
+         * Get the location of the block the bucket is filling from.
+         */
+        private fun getBucketFillLocation(event: Event): Location? {
+            if (event !is PlayerBucketFillEvent) return null
+            return event.block.location
         }
     }
 }
