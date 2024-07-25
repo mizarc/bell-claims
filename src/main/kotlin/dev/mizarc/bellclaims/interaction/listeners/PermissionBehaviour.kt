@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
+import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
@@ -125,6 +126,9 @@ class PermissionBehaviour {
 
         // Used for using a bucket to pick up fluids
         val bucketFill = PermissionExecutor(PlayerBucketFillEvent::class.java, Companion::cancelEvent, Companion::getBucketFillLocation, Companion::getBucketFillPlayer)
+
+        // Used for shearing pumpkins
+        val pumpkinShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelPumpkinShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -383,6 +387,16 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of shearing a pumpkin.
+         */
+        private fun cancelPumpkinShear(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerShearBlockEvent) return false
+            if (event.block.type != Material.PUMPKIN) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
@@ -616,6 +630,16 @@ class PermissionBehaviour {
         private fun getBucketFillLocation(event: Event): Location? {
             if (event !is PlayerBucketFillEvent) return null
             return event.block.location
+        }
+
+        private fun getShearBlockLocation(event: Event): Location? {
+            if (event !is PlayerShearBlockEvent) return null
+            return event.block.location
+        }
+
+        private fun getShearBlockPlayer(event: Event): Player? {
+            if (event !is PlayerShearBlockEvent) return null
+            return event.player
         }
     }
 }
