@@ -8,6 +8,7 @@ import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
 import org.bukkit.block.data.type.Farmland
+import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
 import org.bukkit.event.Cancellable
@@ -76,6 +77,9 @@ class PermissionBehaviour {
 
         // Used for editing sign text
         val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent, Companion::getPlayerOpenSignLocation, Companion::getPlayerOpenSignPlayer)
+
+        // Used for putting dyes or glow ink on a sign
+        val signDyeing = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelSignDyeing, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for taking and placing armour from armour stand
         val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, Companion::cancelEvent, Companion::getArmorStandLocation, Companion::getArmorStandManipulator)
@@ -363,6 +367,18 @@ class PermissionBehaviour {
             if (event !is InventoryOpenEvent) return false
             val t = event.inventory.type
             if (t != InventoryType.MERCHANT) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of applying dye or glow ink to a sign.
+         */
+        private fun cancelSignDyeing(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val block = event.clickedBlock ?: return false
+            if (block.blockData !is Sign) return false
             event.isCancelled = true
             return true
         }
