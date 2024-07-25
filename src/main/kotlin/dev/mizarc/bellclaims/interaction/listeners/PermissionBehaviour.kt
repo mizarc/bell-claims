@@ -133,6 +133,9 @@ class PermissionBehaviour {
         // Used for shearing beehives
         val beehiveShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelBeehiveShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
 
+        // Used for bottling honey from beehives
+        val beehiveBottle = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBeehiveBottle, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -407,6 +410,20 @@ class PermissionBehaviour {
         private fun cancelBeehiveShear(listener: Listener, event: Event): Boolean {
             if (event !is PlayerShearBlockEvent) return false
             if (event.block.type != Material.BEEHIVE && event.block.type != Material.BEE_NEST) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action putting honey in a bottle from a beehive.
+         */
+        private fun cancelBeehiveBottle(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val block = event.clickedBlock ?: return false
+            if (block.type != Material.BEEHIVE && block.type != Material.BEE_NEST) return false
+            val item = event.item ?: return false
+            if (item.type != Material.GLASS_BOTTLE) return false
             event.isCancelled = true
             return true
         }
