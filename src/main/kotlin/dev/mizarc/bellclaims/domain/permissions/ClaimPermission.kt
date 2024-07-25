@@ -54,7 +54,9 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When the sign edit menu is opened.
      */
-    SignEdit(null, arrayOf(PermissionBehaviour.signEditing)),
+    SignEdit(null, arrayOf(
+        PermissionBehaviour.signEditing,
+        PermissionBehaviour.signDyeing)),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
