@@ -228,6 +228,7 @@ class PermissionBehaviour {
                 block.type != Material.GLOW_ITEM_FRAME &&
                 block.type != Material.CHISELED_BOOKSHELF &&
                 block.type != Material.JUKEBOX &&
+                block.type != Material.COMPOSTER &&
                 block.type != Material.CAULDRON &&
                 block.type != Material.WATER_CAULDRON &&
                 block.type != Material.LAVA_CAULDRON &&
