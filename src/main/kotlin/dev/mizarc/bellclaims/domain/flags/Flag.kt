@@ -22,7 +22,7 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      * When a mob destroys or otherwise changes blocks.
      */
     MobGriefing(arrayOf(
-        RuleBehaviour.mobGriefing,
+        RuleBehaviour.mobBlockChange,
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
         RuleBehaviour.creeperDamageHangingEntity
