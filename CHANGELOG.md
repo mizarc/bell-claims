@@ -23,6 +23,7 @@ Update to support MC version 1.21
 ### Fixed
 - Inability to break blocks in north or south direction of bell regardless of bell attachment.
 - Bees unable to produce honey since they were affected by the mob griefing filter.
+- Falling blocks not falling in claims (And potentially other non-monster entities that should be able to change state)
 
 ## [0.1.2]
 Update to support MC Version 1.20.6
