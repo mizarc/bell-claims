@@ -19,6 +19,7 @@ import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Painting
+import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -48,6 +49,8 @@ class RuleBehaviour {
             Companion::cancelEvent, Companion::fireSpreadInClaim)
         val mobBlockChange = RuleExecutor(EntityChangeBlockEvent::class.java,
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
+        val mobBreakDoor = RuleExecutor(EntityBreakDoorEvent::class.java,
+            Companion::cancelEntityBreakDoor, Companion::entityBreakDoorInClaim)
         val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
         val creeperDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
@@ -152,6 +155,26 @@ class RuleBehaviour {
             if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is Painting) return false
             event.isCancelled = true
             return true
+        }
+
+        private fun cancelEntityBreakDoor(event: Event, claimService: ClaimService,
+                                          partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityBreakDoorEvent) return false
+            if (event.entity !is Monster) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun entityBreakDoorInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+            if (event !is EntityBreakDoorEvent) return listOf()
+            val claimList = ArrayList<Claim>()
+            val partition = partitionService.getByLocation(event.entity.location)
+            if (partition != null) {
+                val claim = claimService.getById(partition.claimId) ?: return listOf()
+                claimList.add(claim)
+            }
+            return claimList.distinct()
         }
 
         private fun blockDamageInClaim(event: Event, claimService: ClaimService,
