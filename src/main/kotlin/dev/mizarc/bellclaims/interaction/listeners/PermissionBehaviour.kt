@@ -130,6 +130,9 @@ class PermissionBehaviour {
         // Used for shearing pumpkins
         val pumpkinShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelPumpkinShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
 
+        // Used for shearing beehives
+        val beehiveShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelBeehiveShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -393,6 +396,16 @@ class PermissionBehaviour {
         private fun cancelPumpkinShear(listener: Listener, event: Event): Boolean {
             if (event !is PlayerShearBlockEvent) return false
             if (event.block.type != Material.PUMPKIN) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of shearing a beehive.
+         */
+        private fun cancelBeehiveShear(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerShearBlockEvent) return false
+            if (event.block.type != Material.BEEHIVE && event.block.type != Material.BEE_NEST) return false
             event.isCancelled = true
             return true
         }
