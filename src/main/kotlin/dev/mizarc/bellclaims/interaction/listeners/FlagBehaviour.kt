@@ -15,11 +15,10 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.entity.ArmorStand
-import org.bukkit.entity.Bee
 import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
+import org.bukkit.entity.Monster
 import org.bukkit.entity.Painting
-import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -201,8 +200,7 @@ class RuleBehaviour {
         private fun cancelEntityBlockChange(event: Event, claimService: ClaimService,
                                             partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityChangeBlockEvent) return false
-            if (event.entity is Player) return false
-            if (event.entity is Bee) return false
+            if (event.entity !is Monster) return false
             event.isCancelled = true
             return true
         }
