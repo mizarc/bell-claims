@@ -13,6 +13,7 @@ Update to support MC version 1.21
 - Protection against fluid being picked up from the ground. Requires the build permission.
 - Protection against fluid being picked up from a cauldron. Requires the display manipulate permission.
 - Protection against signs being dyed or glowed. Requires the sign edit permission.
+- Protection against pumpkins being sheared. Requires the build permission.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
