@@ -46,7 +46,7 @@ class RuleBehaviour {
             Companion::cancelEvent, Companion::blockInClaim)
         val fireSpread = RuleExecutor(BlockSpreadEvent::class.java,
             Companion::cancelEvent, Companion::fireSpreadInClaim)
-        val mobGriefing = RuleExecutor(EntityChangeBlockEvent::class.java,
+        val mobBlockChange = RuleExecutor(EntityChangeBlockEvent::class.java,
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
         val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
