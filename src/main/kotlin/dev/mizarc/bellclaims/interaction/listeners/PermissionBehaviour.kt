@@ -50,7 +50,7 @@ class PermissionBehaviour {
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelEntityPlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
-        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getPlayerDamageSpecialLocation, Companion::getPlayerDamageSpecialPlayer)
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFluidPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
@@ -286,12 +286,9 @@ class PermissionBehaviour {
          */
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.entity is ArmorStand) {
-                event.isCancelled = true
-                return true
-            }
-
-            return false
+            if (event.entity !is ArmorStand) return false
+            event.isCancelled = true
+            return true
         }
 
         /**
@@ -310,7 +307,6 @@ class PermissionBehaviour {
          */
         private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Player) return false
             if (event.entity !is Animals && event.entity !is AbstractVillager) return false
             event.isCancelled = true
             return true
@@ -528,23 +524,6 @@ class PermissionBehaviour {
         /**
          * Get the location of an entity being placed.
          */
-        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
-            if (event !is EntityDamageByEntityEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
-            if (event !is EntityDamageByEntityEvent) return null
-            if (event.damager !is Player) return null
-            return event.damager as Player
-        }
-
-        /**
-         * Get the location of an entity being placed.
-         */
         private fun getEntityPlaceLocation(event: Event): Location? {
             if (event !is EntityPlaceEvent) return null
             return event.entity.location
@@ -620,18 +599,27 @@ class PermissionBehaviour {
         /**
          * Get the location of an entity being damaged by another entity.
          */
-        private fun getEntityDamageByEntityLocation(e: Event): Location? {
-            if (e !is EntityDamageByEntityEvent) return null
-            return e.entity.location
+        private fun getEntityDamageByEntityLocation(event: Event): Location? {
+            if (event !is EntityDamageByEntityEvent) return null
+            return event.entity.location
         }
 
         /**
          * Get the player that is damaging another entity.
          */
-        private fun getEntityDamageSourcePlayer(e: Event): Player? {
-            if (e !is EntityDamageByEntityEvent) return null
-            if (e.damager.type != EntityType.PLAYER) return null
-            return e.damager as Player
+        private fun getEntityDamageSourcePlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            val damagingEntity = event.damager
+            if (damagingEntity is Projectile) {
+                if (damagingEntity.shooter is Player) {
+                    println(damagingEntity.shooter)
+                    return damagingEntity.shooter as Player
+                }
+            }
+            if (damagingEntity is Player) {
+                return damagingEntity
+            }
+            return null
         }
 
         /**
