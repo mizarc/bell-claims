@@ -16,6 +16,7 @@ Update to support MC version 1.21
 - Protection against pumpkins being sheared. Requires the build permission.
 - Protection against the usage of composters. Requires the display manipulate permission.
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
+- Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
