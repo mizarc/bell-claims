@@ -136,6 +136,9 @@ class PermissionBehaviour {
         // Used for bottling honey from beehives
         val beehiveBottle = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBeehiveBottle, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
+        // Used for priming TNT by hand or burning arrow
+        val primeTNT = PermissionExecutor(TNTPrimeEvent::class.java, Companion::cancelTNTPrime, Companion::getTNTPrimeLocation, Companion::getTNTPrimePlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -428,6 +431,13 @@ class PermissionBehaviour {
             return true
         }
 
+        private fun cancelTNTPrime(listener: Listener, event: Event): Boolean {
+            if (event !is TNTPrimeEvent) return false
+            if (event.cause != TNTPrimeEvent.PrimeCause.PLAYER) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
@@ -671,6 +681,18 @@ class PermissionBehaviour {
         private fun getShearBlockPlayer(event: Event): Player? {
             if (event !is PlayerShearBlockEvent) return null
             return event.player
+        }
+
+        private fun getTNTPrimeLocation(event: Event): Location? {
+            if (event !is TNTPrimeEvent) return null
+            return event.block.location
+        }
+
+        private fun getTNTPrimePlayer(event: Event): Player? {
+            if (event !is TNTPrimeEvent) return null
+            val primingEntity = event.primingEntity ?: return null
+            if (primingEntity !is Player) return null
+            return primingEntity
         }
     }
 }

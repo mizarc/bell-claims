@@ -84,6 +84,13 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.takeLeadFromFence,
         PermissionBehaviour.beehiveShear,
         PermissionBehaviour.beehiveBottle
+    )),
+
+    /**
+     * When an explosive is detonated by a player.
+     */
+    Detonate(null, arrayOf(
+        PermissionBehaviour.primeTNT
     ));
 
     companion object {
