@@ -433,7 +433,6 @@ class PermissionBehaviour {
 
         private fun cancelTNTPrime(listener: Listener, event: Event): Boolean {
             if (event !is TNTPrimeEvent) return false
-            if (event.cause != TNTPrimeEvent.PrimeCause.PLAYER) return false
             event.isCancelled = true
             return true
         }
@@ -691,8 +690,15 @@ class PermissionBehaviour {
         private fun getTNTPrimePlayer(event: Event): Player? {
             if (event !is TNTPrimeEvent) return null
             val primingEntity = event.primingEntity ?: return null
-            if (primingEntity !is Player) return null
-            return primingEntity
+            if (primingEntity is Projectile) {
+                if (primingEntity.shooter is Player) {
+                    return primingEntity.shooter as Player
+                }
+            }
+            if (primingEntity is Player) {
+                return primingEntity
+            }
+            return null
         }
     }
 }
