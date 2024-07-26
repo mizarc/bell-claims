@@ -139,6 +139,9 @@ class PermissionBehaviour {
         // Used for priming TNT by hand or burning arrow
         val primeTNT = PermissionExecutor(TNTPrimeEvent::class.java, Companion::cancelTNTPrime, Companion::getTNTPrimeLocation, Companion::getTNTPrimePlayer)
 
+        // Used for detonating end crystals by causing damage to it
+        val detonateEndCrystal = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEndCrystalDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -433,6 +436,13 @@ class PermissionBehaviour {
 
         private fun cancelTNTPrime(listener: Listener, event: Event): Boolean {
             if (event !is TNTPrimeEvent) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelEndCrystalDamage(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.entity !is EnderCrystal) return false
             event.isCancelled = true
             return true
         }

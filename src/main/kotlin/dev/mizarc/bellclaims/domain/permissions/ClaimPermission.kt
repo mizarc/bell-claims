@@ -90,7 +90,8 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
      * When an explosive is detonated by a player.
      */
     Detonate(null, arrayOf(
-        PermissionBehaviour.primeTNT
+        PermissionBehaviour.primeTNT,
+        PermissionBehaviour.detonateEndCrystal
     ));
 
     companion object {
