@@ -1,8 +1,10 @@
 package dev.mizarc.bellclaims.utils
 
+import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import org.bukkit.entity.Item
 
 /**
  * Associates claim permissions with a specific in-game item.
@@ -20,6 +22,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
         ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
         ClaimPermission.Husbandry -> ItemStack(Material.LEAD)
+        ClaimPermission.Detonate -> ItemStack(Material.TNT)
     }
 }
 
@@ -39,6 +42,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.DoorOpen -> "Door Open"
         ClaimPermission.VillagerTrade -> "Villager Trade"
         ClaimPermission.Husbandry -> "Husbandry"
+        ClaimPermission.Detonate -> "Detonate"
     }
 }
 
@@ -58,5 +62,6 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
         ClaimPermission.Husbandry -> "Grants permission to interact with passive animals"
+        ClaimPermission.Detonate -> "Grants permission to directly set off explosives"
     }
 }
