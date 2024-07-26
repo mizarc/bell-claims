@@ -8,7 +8,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 Update to support MC version 1.21
 
 ### Added
-- Protection against players breeding animals. Requires the husbandry permission.
+- Protection against players breeding animals. Requires the new husbandry permission.
+- Protection against TNT being ignited by flint and steel or burning projectiles. Requires the new detonate permission.
+- Protection against end crystals being blown up. Requires the new detonate permission.
 - Protection against players right-clicking dragon eggs, causing it to teleport. Requires the build permission.
 - Protection against fluid being picked up from the ground. Requires the build permission.
 - Protection against fluid being picked up from a cauldron. Requires the display manipulate permission.
@@ -17,6 +19,7 @@ Update to support MC version 1.21
 - Protection against the usage of composters. Requires the display manipulate permission.
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
 - Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
+- Protection against projectile based weaponry, applied to any permission that protects entities.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
