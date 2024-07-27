@@ -16,12 +16,14 @@ import org.bukkit.block.data.type.RespawnAnchor
 import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
+import org.bukkit.entity.minecart.ExplosiveMinecart
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -151,6 +153,9 @@ class PermissionBehaviour {
 
         // Used for exploding respawn anchors outside of the nether
         val detonateRespawnAnchor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRespawnAnchorExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+
+        // Used for exploding TNT minecarts with a flaming projectile.
+        val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -483,6 +488,16 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of blowing up a TNT minecart with a projectile.
+         */
+        private fun cancelTNTMinecartExplode(listener: Listener, event: Event): Boolean {
+            if (event !is ProjectileHitEvent) return false
+            if (event.hitEntity !is ExplosiveMinecart) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
@@ -652,7 +667,6 @@ class PermissionBehaviour {
             val damagingEntity = event.damager
             if (damagingEntity is Projectile) {
                 if (damagingEntity.shooter is Player) {
-                    println(damagingEntity.shooter)
                     return damagingEntity.shooter as Player
                 }
             }
@@ -735,6 +749,20 @@ class PermissionBehaviour {
             }
             if (primingEntity is Player) {
                 return primingEntity
+            }
+            return null
+        }
+
+        private fun getProjectileHitLocation(event: Event): Location? {
+            if (event !is ProjectileHitEvent) return null
+            val hitEntity = event.hitEntity ?: return null
+            return hitEntity.location
+        }
+
+        private fun getProjectileHitPlayer(event: Event): Player? {
+            if (event !is ProjectileHitEvent) return null
+            if (event.entity.shooter is Player) {
+                return event.entity.shooter as Player
             }
             return null
         }
