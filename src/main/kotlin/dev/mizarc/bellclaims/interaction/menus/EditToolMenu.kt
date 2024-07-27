@@ -15,6 +15,7 @@ import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
+import org.bukkit.event.inventory.ClickType
 
 class EditToolMenu(private val claimService: ClaimService, private val partitionService: PartitionService,
                    private val playerStateService: PlayerStateService, private val player: Player,
@@ -22,6 +23,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
     fun openEditToolMenu() {
         val gui = ChestGui(1, "Claim Tool")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
@@ -122,6 +124,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         val gui = HopperGui("Delete Partition?")
         val pane = StaticPane(1, 0, 3, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
         gui.slotsComponent.addPane(pane)
 
         // Add no menu item

@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
+import org.bukkit.event.inventory.ClickType
 import kotlin.math.ceil
 
 class ClaimListMenu(private val claimService: ClaimService, private val player: Player) {
@@ -19,6 +20,7 @@ class ClaimListMenu(private val claimService: ClaimService, private val player: 
         val claims = claimService.getByPlayer(player)
         val gui = ChestGui(6, "Claims")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
