@@ -91,7 +91,9 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
      */
     Detonate(null, arrayOf(
         PermissionBehaviour.primeTNT,
-        PermissionBehaviour.detonateEndCrystal
+        PermissionBehaviour.detonateEndCrystal,
+        PermissionBehaviour.detonateBed,
+        PermissionBehaviour.detonateRespawnAnchor
     ));
 
     companion object {
