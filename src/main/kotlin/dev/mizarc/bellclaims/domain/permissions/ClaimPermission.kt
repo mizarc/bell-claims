@@ -93,7 +93,8 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.primeTNT,
         PermissionBehaviour.detonateEndCrystal,
         PermissionBehaviour.detonateBed,
-        PermissionBehaviour.detonateRespawnAnchor
+        PermissionBehaviour.detonateRespawnAnchor,
+        PermissionBehaviour.detonateTNTMinecart
     ));
 
     companion object {
