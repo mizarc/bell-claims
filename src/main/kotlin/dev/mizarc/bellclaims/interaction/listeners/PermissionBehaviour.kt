@@ -5,10 +5,14 @@ import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.World
+import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Bed
 import org.bukkit.block.data.type.Farmland
+import org.bukkit.block.data.type.RespawnAnchor
 import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
@@ -141,6 +145,12 @@ class PermissionBehaviour {
 
         // Used for detonating end crystals by causing damage to it
         val detonateEndCrystal = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEndCrystalDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+
+        // Used for exploding beds outside of the overworld
+        val detonateBed = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBedExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+
+        // Used for exploding respawn anchors outside of the nether
+        val detonateRespawnAnchor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRespawnAnchorExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -439,6 +449,24 @@ class PermissionBehaviour {
         private fun cancelEndCrystalDamage(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.entity !is EnderCrystal) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelBedExplode(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.blockData !is Bed) return false
+            if (clickedBlock.location.world.environment == Environment.NORMAL) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelRespawnAnchorExplode(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.blockData !is RespawnAnchor) return false
+            if (clickedBlock.location.world.environment == Environment.NETHER) return false
             event.isCancelled = true
             return true
         }
