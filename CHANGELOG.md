@@ -16,6 +16,7 @@ Update to support MC version 1.21
 - Protection against pumpkins being sheared. Requires the build permission.
 - Protection against the usage of composters. Requires the display manipulate permission.
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
+- Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
@@ -23,6 +24,7 @@ Update to support MC version 1.21
 ### Fixed
 - Inability to break blocks in north or south direction of bell regardless of bell attachment.
 - Bees unable to produce honey since they were affected by the mob griefing filter.
+- Falling blocks not falling in claims (And potentially other non-monster entities that should be able to change state)
 - Shift clicking items from inventory into menu, which you can't get back.
 
 ## [0.1.2]
