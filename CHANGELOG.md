@@ -10,6 +10,7 @@ Update to support MC version 1.21
 ### Added
 - Protection against players breeding animals. Requires the new husbandry permission.
 - Protection against TNT being ignited by flint and steel or burning projectiles. Requires the new detonate permission.
+- Protection against exploding beds and respawn anchors when used outside of their intended dimension. Requires the new detonate permission.
 - Protection against end crystals being blown up. Requires the new detonate permission.
 - Protection against players right-clicking dragon eggs, causing it to teleport. Requires the build permission.
 - Protection against fluid being picked up from the ground. Requires the build permission.
