@@ -440,12 +440,18 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of priming tnt with flint and steel or arrows.
+         */
         private fun cancelTNTPrime(listener: Listener, event: Event): Boolean {
             if (event !is TNTPrimeEvent) return false
             event.isCancelled = true
             return true
         }
 
+        /**
+         * Cancels the action of blowing up and end crystal by damaging it.
+         */
         private fun cancelEndCrystalDamage(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.entity !is EnderCrystal) return false
@@ -453,6 +459,9 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of blowing up a bed by interacting with it outside of the overworld.
+         */
         private fun cancelBedExplode(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             val clickedBlock = event.clickedBlock ?: return false
@@ -462,6 +471,9 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of blowing up a respawn anchor by interacting with it outside of the nether.
+         */
         private fun cancelRespawnAnchorExplode(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
             val clickedBlock = event.clickedBlock ?: return false
