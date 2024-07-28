@@ -8,7 +8,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 Update to support MC version 1.21
 
 ### Added
-- Protection against players breeding animals. Requires the husbandry permission.
+- Protection against players breeding animals. Requires the new husbandry permission.
+- Protection against TNT being ignited by flint and steel or burning projectiles. Requires the new detonate permission.
+- Protection against exploding beds and respawn anchors when used outside of their intended dimension. Requires the new detonate permission.
+- Protection against end crystals being blown up. Requires the new detonate permission.
 - Protection against players right-clicking dragon eggs, causing it to teleport. Requires the build permission.
 - Protection against fluid being picked up from the ground. Requires the build permission.
 - Protection against fluid being picked up from a cauldron. Requires the display manipulate permission.
@@ -16,6 +19,8 @@ Update to support MC version 1.21
 - Protection against pumpkins being sheared. Requires the build permission.
 - Protection against the usage of composters. Requires the display manipulate permission.
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
+- Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
+- Protection against projectile based weaponry, applied to any permission that protects entities.
 - Protection against eating cakes. Requires the display manipulate permission.
 
 ### Changed
@@ -24,6 +29,8 @@ Update to support MC version 1.21
 ### Fixed
 - Inability to break blocks in north or south direction of bell regardless of bell attachment.
 - Bees unable to produce honey since they were affected by the mob griefing filter.
+- Falling blocks not falling in claims (And potentially other non-monster entities that should be able to change state)
+- GUIs consuming items shift clicked into them.
 
 ## [0.1.2]
 Update to support MC Version 1.20.6
