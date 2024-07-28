@@ -130,8 +130,8 @@ data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
         fun getExtraBlockCount(): Int {
             return ((newArea.upperPosition2D.x - newArea.lowerPosition2D.x + 1) *
                     (newArea.upperPosition2D.z - newArea.lowerPosition2D.z + 1)).absoluteValue -
-                    ((partition.area.upperPosition2D.x - partition.area.upperPosition2D.x + 1) *
-                    (partition.area.upperPosition2D.z - partition.area.upperPosition2D.z+ 1)).absoluteValue
+                    ((partition.area.upperPosition2D.x - partition.area.lowerPosition2D.x + 1) *
+                    (partition.area.upperPosition2D.z - partition.area.lowerPosition2D.z + 1)).absoluteValue
         }
 
         /**
