@@ -21,6 +21,7 @@ Update to support MC version 1.21
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
 - Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
 - Protection against projectile based weaponry, applied to any permission that protects entities.
+- Protection against eating cakes. Requires the display manipulate permission.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
