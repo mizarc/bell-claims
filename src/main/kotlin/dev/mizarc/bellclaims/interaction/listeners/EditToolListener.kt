@@ -176,9 +176,9 @@ class EditToolListener(private val claims: ClaimRepository,
                 player.sendActionBar(Component.text("New partition has been added to " +
                         claims.getById(partition.claimId)!!.name)
                     .color(TextColor.color(255, 85, 85)))
-
-
-            PartitionCreationResult.NOT_CONNECTED -> TODO()
+            PartitionCreationResult.NOT_CONNECTED -> player.sendActionBar(Component.text("That selection is " +
+                    "not connected to your claim.")
+                .color(TextColor.color(255, 85, 85)))
         }
 
         // Update builders list and visualisation
