@@ -215,8 +215,10 @@ class EditToolListener(private val claims: ClaimRepository,
         }
 
         partitionResizers[player] = Partition.Resizer(partition, Position2D(location))
+        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
         player.sendActionBar(
-            Component.text("Claim corner selected. Select a different location to resize the claim.")
+            Component.text("Claim corner selected. Select a different location to resize. " +
+                    "You have $remainingClaimBlockCount blocks remaining.")
                 .color(TextColor.color(85, 255, 85)))
         return true
     }
@@ -257,7 +259,7 @@ class EditToolListener(private val claims: ClaimRepository,
             PartitionResizeResult.SUCCESS ->
                 player.sendActionBar(
                     Component.text("Claim partition successfully resized. " +
-                            "You have " + newRemainingClaimBlockCount + " blocks remaining.")
+                            "You have $newRemainingClaimBlockCount blocks remaining.")
                         .color(TextColor.color(85, 255, 85)))
         }
 
