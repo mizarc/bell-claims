@@ -36,6 +36,7 @@ As for being on the team to be able to contribute directly, contact me first and
 Branches are laid out in a pretty straightforward way.
 - `main` holds the lastest development release. Ensure that it is able to be run at all costs. Do not commit to this directly.
 - `feature/` prefix is for adding new or improving upon existing features.
+- `tweak/` prefix is for tweaking existing functionality values.
 - `fix/` prefix is for non-urgent bugs or bugs that may take an extended time to repair.
 - `hotfix/` prefix is for urgent bugs that should be worked on ASAP and sent to the next patch release.
 - `release/` prefix is for maintaining an older feature release, usually to send out bug fixes.
