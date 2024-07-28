@@ -9,6 +9,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.ClaimWorldService
+import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -24,14 +25,18 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.world.StructureGrowEvent
 
 class ClaimDestructionListener(val claimService: ClaimService,
-                               private val claimWorldService: ClaimWorldService): Listener {
+                               private val claimWorldService: ClaimWorldService,
+                               private val playerStateService: PlayerStateService
+): Listener {
     @EventHandler
     fun onClaimHubDestroy(event: BlockBreakEvent) {
         if (event.block.blockData !is Bell) return
         val claim = claimWorldService.getByLocation(event.block.location) ?: return
 
+        val playerState = playerStateService.getByPlayer(event.player)
+
         // No permission to break bell
-        if (event.player.uniqueId != claim.owner.uniqueId) {
+        if (event.player.uniqueId != claim.owner.uniqueId && playerState?.claimOverride != true) {
             event.player.sendActionBar(
                 Component.text("This claim belongs to ${claim.owner.name}")
                     .color(TextColor.color(255, 85, 85)))
