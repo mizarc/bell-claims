@@ -231,6 +231,7 @@ class EditToolListener(private val claims: ClaimRepository,
         val newPartition = partitionResizer.partition.copy()
         newPartition.area = partitionResizer.newArea
         val result = partitionService.resize(partitionResizer.partition, partitionResizer.newArea)
+        val newRemainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
         when (result) {
             PartitionResizeResult.OVERLAP ->
                 player.sendActionBar(Component.text("That selection overlaps an existing claim")
@@ -255,7 +256,8 @@ class EditToolListener(private val claims: ClaimRepository,
                     .color(TextColor.color(255, 85, 85)))
             PartitionResizeResult.SUCCESS ->
                 player.sendActionBar(
-                    Component.text("Claim partition successfully resized")
+                    Component.text("Claim partition successfully resized. " +
+                            "You have " + newRemainingClaimBlockCount + " blocks remaining.")
                         .color(TextColor.color(85, 255, 85)))
         }
 
