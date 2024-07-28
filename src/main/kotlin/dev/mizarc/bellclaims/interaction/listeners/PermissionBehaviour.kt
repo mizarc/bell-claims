@@ -5,19 +5,25 @@ import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.World
+import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
+import org.bukkit.block.data.type.Bed
 import org.bukkit.block.data.type.Farmland
+import org.bukkit.block.data.type.RespawnAnchor
 import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Switch
 import org.bukkit.entity.*
+import org.bukkit.entity.minecart.ExplosiveMinecart
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -50,7 +56,7 @@ class PermissionBehaviour {
         val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelEntityPlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
-        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getPlayerDamageSpecialLocation, Companion::getPlayerDamageSpecialPlayer)
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFluidPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
@@ -135,6 +141,21 @@ class PermissionBehaviour {
 
         // Used for bottling honey from beehives
         val beehiveBottle = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBeehiveBottle, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
+        // Used for priming TNT by hand or burning arrow
+        val primeTNT = PermissionExecutor(TNTPrimeEvent::class.java, Companion::cancelTNTPrime, Companion::getTNTPrimeLocation, Companion::getTNTPrimePlayer)
+
+        // Used for detonating end crystals by causing damage to it
+        val detonateEndCrystal = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEndCrystalDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+
+        // Used for exploding beds outside of the overworld
+        val detonateBed = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBedExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+
+        // Used for exploding respawn anchors outside of the nether
+        val detonateRespawnAnchor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRespawnAnchorExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+
+        // Used for exploding TNT minecarts with a flaming projectile.
+        val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -280,12 +301,9 @@ class PermissionBehaviour {
          */
         private fun cancelSpecialEntityEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.entity is ArmorStand) {
-                event.isCancelled = true
-                return true
-            }
-
-            return false
+            if (event.entity !is ArmorStand) return false
+            event.isCancelled = true
+            return true
         }
 
         /**
@@ -304,7 +322,6 @@ class PermissionBehaviour {
          */
         private fun cancelEntityDamageEvent(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Player) return false
             if (event.entity !is Animals && event.entity !is AbstractVillager) return false
             event.isCancelled = true
             return true
@@ -428,6 +445,59 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Cancels the action of priming tnt with flint and steel or arrows.
+         */
+        private fun cancelTNTPrime(listener: Listener, event: Event): Boolean {
+            if (event !is TNTPrimeEvent) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of blowing up and end crystal by damaging it.
+         */
+        private fun cancelEndCrystalDamage(listener: Listener, event: Event): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.entity !is EnderCrystal) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of blowing up a bed by interacting with it outside of the overworld.
+         */
+        private fun cancelBedExplode(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.blockData !is Bed) return false
+            if (clickedBlock.location.world.environment == Environment.NORMAL) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of blowing up a respawn anchor by interacting with it outside of the nether.
+         */
+        private fun cancelRespawnAnchorExplode(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            val clickedBlock = event.clickedBlock ?: return false
+            if (clickedBlock.blockData !is RespawnAnchor) return false
+            if (clickedBlock.location.world.environment == Environment.NETHER) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of blowing up a TNT minecart with a projectile.
+         */
+        private fun cancelTNTMinecartExplode(listener: Listener, event: Event): Boolean {
+            if (event !is ProjectileHitEvent) return false
+            if (event.hitEntity !is ExplosiveMinecart) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
@@ -509,23 +579,6 @@ class PermissionBehaviour {
         /**
          * Get the location of an entity being placed.
          */
-        private fun getPlayerDamageSpecialLocation(event: Event): Location? {
-            if (event !is EntityDamageByEntityEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getPlayerDamageSpecialPlayer(event: Event): Player? {
-            if (event !is EntityDamageByEntityEvent) return null
-            if (event.damager !is Player) return null
-            return event.damager as Player
-        }
-
-        /**
-         * Get the location of an entity being placed.
-         */
         private fun getEntityPlaceLocation(event: Event): Location? {
             if (event !is EntityPlaceEvent) return null
             return event.entity.location
@@ -601,18 +654,26 @@ class PermissionBehaviour {
         /**
          * Get the location of an entity being damaged by another entity.
          */
-        private fun getEntityDamageByEntityLocation(e: Event): Location? {
-            if (e !is EntityDamageByEntityEvent) return null
-            return e.entity.location
+        private fun getEntityDamageByEntityLocation(event: Event): Location? {
+            if (event !is EntityDamageByEntityEvent) return null
+            return event.entity.location
         }
 
         /**
          * Get the player that is damaging another entity.
          */
-        private fun getEntityDamageSourcePlayer(e: Event): Player? {
-            if (e !is EntityDamageByEntityEvent) return null
-            if (e.damager.type != EntityType.PLAYER) return null
-            return e.damager as Player
+        private fun getEntityDamageSourcePlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            val damagingEntity = event.damager
+            if (damagingEntity is Projectile) {
+                if (damagingEntity.shooter is Player) {
+                    return damagingEntity.shooter as Player
+                }
+            }
+            if (damagingEntity is Player) {
+                return damagingEntity
+            }
+            return null
         }
 
         /**
@@ -671,6 +732,39 @@ class PermissionBehaviour {
         private fun getShearBlockPlayer(event: Event): Player? {
             if (event !is PlayerShearBlockEvent) return null
             return event.player
+        }
+
+        private fun getTNTPrimeLocation(event: Event): Location? {
+            if (event !is TNTPrimeEvent) return null
+            return event.block.location
+        }
+
+        private fun getTNTPrimePlayer(event: Event): Player? {
+            if (event !is TNTPrimeEvent) return null
+            val primingEntity = event.primingEntity ?: return null
+            if (primingEntity is Projectile) {
+                if (primingEntity.shooter is Player) {
+                    return primingEntity.shooter as Player
+                }
+            }
+            if (primingEntity is Player) {
+                return primingEntity
+            }
+            return null
+        }
+
+        private fun getProjectileHitLocation(event: Event): Location? {
+            if (event !is ProjectileHitEvent) return null
+            val hitEntity = event.hitEntity ?: return null
+            return hitEntity.location
+        }
+
+        private fun getProjectileHitPlayer(event: Event): Player? {
+            if (event !is ProjectileHitEvent) return null
+            if (event.entity.shooter is Player) {
+                return event.entity.shooter as Player
+            }
+            return null
         }
     }
 }
