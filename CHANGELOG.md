@@ -8,6 +8,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 Update to support MC version 1.21
 
 ### Added
+- Amount of blocks remaining now displays when a corner resize action is started and finalised.
+- Warning message when partition creation would result in it not connected to the claim.
 - Protection against players breeding animals. Requires the new husbandry permission.
 - Protection against TNT being ignited by flint and steel or burning projectiles. Requires the new detonate permission.
 - Protection against exploding beds and respawn anchors when used outside of their intended dimension. Requires the new detonate permission.
@@ -32,6 +34,7 @@ Update to support MC version 1.21
 - Bees unable to produce honey since they were affected by the mob griefing filter.
 - Falling blocks not falling in claims (And potentially other non-monster entities that should be able to change state)
 - GUIs consuming items shift clicked into them.
+- Amount remaining on display incorrect when claim resize larger than the amount of blocks players have left.
 
 ## [0.1.2]
 Update to support MC Version 1.20.6
