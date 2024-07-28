@@ -253,7 +253,8 @@ class PermissionBehaviour {
                 block.type != Material.CAULDRON &&
                 block.type != Material.WATER_CAULDRON &&
                 block.type != Material.LAVA_CAULDRON &&
-                block.type != Material.POWDER_SNOW_CAULDRON) return false
+                block.type != Material.POWDER_SNOW_CAULDRON &&
+                block.type != Material.CAKE) return false
             event.isCancelled = true
             return true
         }
