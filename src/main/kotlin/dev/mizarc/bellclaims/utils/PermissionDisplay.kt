@@ -34,13 +34,13 @@ fun ClaimPermission.getIcon(): ItemStack {
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
         ClaimPermission.Build -> "Build"
-        ClaimPermission.ContainerInspect -> "Container Inspect"
-        ClaimPermission.DisplayManipulate -> "Display Manipulate"
-        ClaimPermission.VehicleDeploy -> "Vehicle Deploy"
-        ClaimPermission.SignEdit -> "Sign Edit"
-        ClaimPermission.RedstoneInteract -> "Redstone Interact"
-        ClaimPermission.DoorOpen -> "Door Open"
-        ClaimPermission.VillagerTrade -> "Villager Trade"
+        ClaimPermission.ContainerInspect -> "Inspect Containers"
+        ClaimPermission.DisplayManipulate -> "Manipulate"
+        ClaimPermission.VehicleDeploy -> "Deploy Vehicles"
+        ClaimPermission.SignEdit -> "Edit Signs"
+        ClaimPermission.RedstoneInteract -> "Trigger Redstone"
+        ClaimPermission.DoorOpen -> "Open Doors"
+        ClaimPermission.VillagerTrade -> "Trade Villagers"
         ClaimPermission.Husbandry -> "Husbandry"
         ClaimPermission.Detonate -> "Detonate"
     }
