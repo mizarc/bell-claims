@@ -10,6 +10,7 @@ Update to support MC version 1.21
 ### Added
 - Amount of blocks remaining now displays when a corner resize action is started and finalised.
 - Warning message when partition creation would result in it not connected to the claim.
+- Ability to break claim bells owned by other players using claim override.
 - Protection against players breeding animals. Requires the new husbandry permission.
 - Protection against TNT being ignited by flint and steel or burning projectiles. Requires the new detonate permission.
 - Protection against exploding beds and respawn anchors when used outside of their intended dimension. Requires the new detonate permission.
