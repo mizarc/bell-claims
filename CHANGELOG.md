@@ -14,17 +14,18 @@ Update to support MC version 1.21
 - Protection against end crystals being blown up. Requires the new detonate permission.
 - Protection against players right-clicking dragon eggs, causing it to teleport. Requires the build permission.
 - Protection against fluid being picked up from the ground. Requires the build permission.
-- Protection against fluid being picked up from a cauldron. Requires the display manipulate permission.
+- Protection against fluid being picked up from a cauldron. Requires the manipulate permission.
 - Protection against signs being dyed or glowed. Requires the sign edit permission.
 - Protection against pumpkins being sheared. Requires the build permission.
 - Protection against the usage of composters. Requires the display manipulate permission.
 - Protection against harvesting honey (bottling) and honeycombs (shearing) from beehives. Requires the husbandry permission.
 - Protection against zombies breaking down doors. Bypassed by the mob griefing flag.
 - Protection against projectile based weaponry, applied to any permission that protects entities.
-- Protection against eating cakes. Requires the display manipulate permission.
+- Protection against eating cakes. Requires the manipulate permission.
 
 ### Changed
 - Mob hurt/leash/shear claim permissions merged into the "Husbandry" permission.
+- Permissions have their display names modified to be verb before noun. Some names simplified such as "Display Manipulate" to just "Manipulate".
 
 ### Fixed
 - Inability to break blocks in north or south direction of bell regardless of bell attachment.
