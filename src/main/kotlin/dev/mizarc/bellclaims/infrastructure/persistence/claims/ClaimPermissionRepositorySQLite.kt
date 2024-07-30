@@ -86,8 +86,13 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
     private fun preload() {
         val results = storage.connection.getResults("SELECT * FROM claimPermissions")
         for (result in results) {
-            val permission = ClaimPermission.valueOf(result.getString("permission"))
-            permissions.getOrPut(UUID.fromString(result.getString("claimId"))) { mutableSetOf() }.add(permission)
+            try {
+                val permission = ClaimPermission.valueOf(result.getString("permission"))
+                permissions.getOrPut(UUID.fromString(result.getString("claimId"))) { mutableSetOf() }.add(permission)
+            }
+            catch (error: IllegalArgumentException) {
+                continue
+            }
         }
     }
 }
