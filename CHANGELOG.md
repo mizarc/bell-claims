@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.2.1]
+
+### Fixed
+- Existing permission enums that no longer exist but are present in database causing plugin to fail to load.
+
+Note for migrations from pre 0.2 versions: Players will need to add the new Husbandry permission in place of the old Mob permissions. There will be residue in the database as "MobHurt", "MobLeash", and "MobShear" permissions are no longer used. You are free to remove these.
+
 ## [0.2.0]
 Update to support MC version 1.21
 
