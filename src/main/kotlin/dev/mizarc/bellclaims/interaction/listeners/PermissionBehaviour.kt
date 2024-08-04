@@ -334,7 +334,6 @@ class PermissionBehaviour {
          */
         private fun cancelStaticEntityDamage(listener: Listener, event: Event): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Player) return false
             if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return false
             event.isCancelled = true
             return true
