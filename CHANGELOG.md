@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [Patch]
+
+### Fixed
+- Glow item frames can be placed in protected claims and items can also be placed in said frames, despite item removal affecting both normal and glow item frames.
+- Missed projectile protection for item frames.
+
 ## [0.2.1]
 
 ### Fixed
