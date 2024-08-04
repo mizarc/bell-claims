@@ -355,6 +355,7 @@ class PermissionBehaviour {
          */
         private fun cancelRedstoneInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEvent) return false
+            if (event.action == Action.LEFT_CLICK_BLOCK) return false
             val block = event.clickedBlock ?: return false
 
             // Block is of type switch, analogue powerable, or a powerable that isn't a door

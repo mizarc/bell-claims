@@ -7,6 +7,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Patch]
 
 ### Fixed
+- Inability to break redstone when player has the build permission but doesn't have the redstone permission.
 - Glow item frames can be placed in protected claims and items can also be placed in said frames, despite item removal affecting both normal and glow item frames.
 - Missed projectile protection for item frames.
 
