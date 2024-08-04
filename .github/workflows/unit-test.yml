@@ -3,10 +3,12 @@ name: Unit Test Gradle
 on:
   push:
     branches:
-      - '*'
+      - main
+      - staging
+      - release/*
   pull_request:
     branches:
-      - '*'
+      - '**'
 
 permissions:
   contents: read
