@@ -225,7 +225,8 @@ class PermissionBehaviour {
          */
         private fun cancelMiscEntityDisplayInteractions(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEntityEvent) return false
-            if (event.rightClicked.type != EntityType.ITEM_FRAME) return false
+            if (event.rightClicked.type != EntityType.ITEM_FRAME &&
+                event.rightClicked.type != EntityType.GLOW_ITEM_FRAME) return false
             event.isCancelled = true
             return true
         }
@@ -281,7 +282,7 @@ class PermissionBehaviour {
             if (event !is PlayerInteractEvent) return false
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
             val item = event.item ?: return false
-            if (item.type != Material.ITEM_FRAME) return false
+            if (item.type != Material.ITEM_FRAME && item.type != Material.GLOW_ITEM_FRAME) return false
             event.isCancelled = true
             return true
         }
