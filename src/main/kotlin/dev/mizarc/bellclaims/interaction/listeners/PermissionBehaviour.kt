@@ -28,6 +28,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
+import org.bukkit.event.raid.RaidTriggerEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
 
 /**
@@ -156,6 +157,9 @@ class PermissionBehaviour {
 
         // Used for exploding TNT minecarts with a flaming projectile.
         val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
+
+        // Used for events triggered by an omen status effect
+        val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent, Companion::getRaidTriggerLocation, Companion::getRaidTriggerPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -766,6 +770,16 @@ class PermissionBehaviour {
                 return event.entity.shooter as Player
             }
             return null
+        }
+
+        private fun getRaidTriggerLocation(event: Event): Location? {
+            if (event !is RaidTriggerEvent) return null
+            return event.raid.location
+        }
+
+        private fun getRaidTriggerPlayer(event: Event): Player? {
+            if (event !is RaidTriggerEvent) return null
+            return event.player
         }
     }
 }
