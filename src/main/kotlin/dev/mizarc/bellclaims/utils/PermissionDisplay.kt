@@ -23,6 +23,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
         ClaimPermission.Husbandry -> ItemStack(Material.LEAD)
         ClaimPermission.Detonate -> ItemStack(Material.TNT)
+        ClaimPermission.EventStart -> ItemStack(Material.OMINOUS_BOTTLE)
     }
 }
 
@@ -43,6 +44,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.VillagerTrade -> "Trade Villagers"
         ClaimPermission.Husbandry -> "Husbandry"
         ClaimPermission.Detonate -> "Detonate"
+        ClaimPermission.EventStart -> "Omen"
     }
 }
 
@@ -63,5 +65,6 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
         ClaimPermission.Husbandry -> "Grants permission to interact with passive animals"
         ClaimPermission.Detonate -> "Grants permission to directly set off explosives"
+        ClaimPermission.EventStart -> "Grants permission to start events such as raids and trials from an omen status effect"
     }
 }
