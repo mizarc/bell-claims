@@ -24,6 +24,7 @@ import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.entity.TrialSpawnerSpawnEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
