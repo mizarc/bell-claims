@@ -9,6 +9,20 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
 
+## [0.2.2]
+
+### Fixed
+- Inability to break redstone when player has the build permission but doesn't have the redstone permission.
+- Glow item frames can be placed in protected claims and items can also be placed in said frames, despite item removal affecting both normal and glow item frames.
+- Missed projectile protection for item frames.
+
+## [0.2.1]
+
+### Fixed
+- Existing permission enums that no longer exist but are present in database causing plugin to fail to load.
+
+Note for migrations from pre 0.2 versions: Players will need to add the new Husbandry permission in place of the old Mob permissions. There will be residue in the database as "MobHurt", "MobLeash", and "MobShear" permissions are no longer used. You are free to remove these.
+
 ## [0.2.0]
 Update to support MC version 1.21
 

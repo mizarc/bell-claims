@@ -34,7 +34,7 @@ name your claim. Once the claim is established, you will be presented with vario
 - bellclaims.command.claim.info - Allows use of the `claim info` command to view information about the claim the player is standing in.
 - bellclaims.command.claim.rename - Allows use of the `claim rename` command to rename the current claim.
 - bellclaims.command.claim.description - Allows use of the `claim description` command to change the description of the claim.
-- bellclaims.command.claim.partitions - Allows use of the `claim partitios` command to list the partitions that make up the claim.
+- bellclaims.command.claim.partitions - Allows use of the `claim partitions` command to list the partitions that make up the claim.
 - bellclaims.command.claim.addflag - Allows use of the `claim addflag` command for adding a claim flag to the current claim.
 - bellclaims.command.claim.removeflag - Allows use of the `claim removeflag` command to remove a flag from the current claim.
 - bellclaims.command.claim.trustlist - Allows use of the `claim trustlist` command to list the currently trusted players.

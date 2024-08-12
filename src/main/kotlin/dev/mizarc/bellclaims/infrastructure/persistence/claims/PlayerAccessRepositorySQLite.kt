@@ -92,10 +92,15 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         for (result in results) {
             val playerId = UUID.fromString(result.getString("playerId"))
             val claimId = UUID.fromString(result.getString("claimId"))
-            val permission = ClaimPermission.valueOf(result.getString("permission"))
-            val claimPlayers = playerAccess
-                .getOrPut(claimId) { mutableMapOf(playerId to mutableSetOf()) }
-            claimPlayers.getOrPut(playerId) { mutableSetOf() }.add(permission)
+            try {
+                val permission = ClaimPermission.valueOf(result.getString("permission"))
+                val claimPlayers = playerAccess
+                    .getOrPut(claimId) { mutableMapOf(playerId to mutableSetOf()) }
+                claimPlayers.getOrPut(playerId) { mutableSetOf() }.add(permission)
+            }
+            catch (error: IllegalArgumentException) {
+                continue
+            }
         }
     }
 }
