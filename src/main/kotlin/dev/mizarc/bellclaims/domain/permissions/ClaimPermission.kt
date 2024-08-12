@@ -95,6 +95,13 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.detonateBed,
         PermissionBehaviour.detonateRespawnAnchor,
         PermissionBehaviour.detonateTNTMinecart
+    )),
+
+    /**
+     * When an event is triggered by an omen effect.
+     */
+    EventStart(null, arrayOf(
+        PermissionBehaviour.triggerRaid
     ));
 
     companion object {
