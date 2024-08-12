@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [Latest]
+
+### Added
+- Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
+
 ## [0.2.0]
 Update to support MC version 1.21
 
