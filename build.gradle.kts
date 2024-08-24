@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.mizarc"
-version = "0.2.2"
+version = "0.2.3"
 
 repositories {
     mavenCentral()
@@ -38,7 +38,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.15")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.17")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 
