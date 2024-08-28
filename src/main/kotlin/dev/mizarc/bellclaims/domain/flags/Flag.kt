@@ -47,6 +47,13 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     Pistons(arrayOf(
         RuleBehaviour.pistonExtend,
         RuleBehaviour.pistonRetract
+    )),
+
+    /**
+     * When fluids flow into a claim
+     */
+    Fluids(arrayOf(
+        RuleBehaviour.fluidFlow
     ));
 
     companion object {
