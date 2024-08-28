@@ -32,7 +32,6 @@ fun Flag.getDisplayName(): String {
         Flag.Pistons -> "Pistons"
         Flag.Fluids -> "Fluid Flow"
     }
-    }
 }
 
 /**
