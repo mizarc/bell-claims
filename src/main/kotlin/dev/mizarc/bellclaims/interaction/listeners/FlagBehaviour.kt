@@ -73,6 +73,7 @@ class RuleBehaviour {
             Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
+        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -379,6 +380,16 @@ class RuleBehaviour {
                 claimList.add(claim)
             }
             return claimList.distinct()
+        }
+
+        private fun cancelFluidFlow(event: Event, claimService: ClaimService,
+                                    partitionService: PartitionService, flagService: FlagService): Boolean {
+            return true
+        }
+
+        private fun fluidFlowSourceInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+
         }
     }
 }
