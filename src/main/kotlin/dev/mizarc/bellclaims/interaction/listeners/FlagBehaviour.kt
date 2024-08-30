@@ -384,12 +384,19 @@ class RuleBehaviour {
 
         private fun cancelFluidFlow(event: Event, claimService: ClaimService,
                                     partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockFromToEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            if (partitionService.getByLocation(event.toBlock.location) == null) return false
+            event.isCancelled = true
             return true
         }
 
         private fun fluidFlowSourceInClaim(event: Event, claimService: ClaimService,
                                            partitionService: PartitionService): List<Claim> {
-
+            if (event !is BlockFromToEvent) return listOf()
+            val partition = partitionService.getByLocation(event.toBlock.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim).distinct()
         }
     }
 }
