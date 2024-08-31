@@ -1,11 +1,10 @@
-package dev.mizarc.bellclaims.interaction.listeners
+package dev.mizarc.bellclaims.interaction.behaviours
 
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.World
 import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
@@ -24,7 +23,6 @@ import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.ProjectileHitEvent
-import org.bukkit.event.entity.TrialSpawnerSpawnEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
