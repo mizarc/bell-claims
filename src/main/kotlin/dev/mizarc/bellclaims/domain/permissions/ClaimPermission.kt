@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.domain.permissions
 
-import dev.mizarc.bellclaims.interaction.listeners.PermissionBehaviour
-import dev.mizarc.bellclaims.interaction.listeners.PermissionExecutor
+import dev.mizarc.bellclaims.interaction.behaviours.PermissionBehaviour
+import dev.mizarc.bellclaims.interaction.behaviours.PermissionExecutor
 import org.bukkit.event.Event
 
 /**

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.listeners
+package dev.mizarc.bellclaims.interaction.behaviours
 
 import org.bukkit.Material
 import org.bukkit.World
