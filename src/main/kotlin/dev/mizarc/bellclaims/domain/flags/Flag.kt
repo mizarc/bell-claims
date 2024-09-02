@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.domain.flags
 
-import dev.mizarc.bellclaims.interaction.listeners.RuleBehaviour
-import dev.mizarc.bellclaims.interaction.listeners.RuleExecutor
+import dev.mizarc.bellclaims.interaction.behaviours.RuleBehaviour
+import dev.mizarc.bellclaims.interaction.behaviours.RuleExecutor
 import org.bukkit.event.Event
 
 /**
@@ -47,6 +47,13 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     Pistons(arrayOf(
         RuleBehaviour.pistonExtend,
         RuleBehaviour.pistonRetract
+    )),
+
+    /**
+     * When fluids flow into a claim
+     */
+    Fluids(arrayOf(
+        RuleBehaviour.fluidFlow
     ));
 
     companion object {

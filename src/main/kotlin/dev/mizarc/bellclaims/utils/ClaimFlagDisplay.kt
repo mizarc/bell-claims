@@ -15,6 +15,7 @@ fun Flag.getIcon(): ItemStack {
         Flag.FireSpread -> ItemStack(Material.FLINT_AND_STEEL)
         Flag.MobGriefing -> ItemStack(Material.CREEPER_HEAD)
         Flag.Pistons -> ItemStack(Material.PISTON)
+        Flag.Fluids -> ItemStack(Material.WATER_BUCKET)
     }
 }
 
@@ -29,6 +30,7 @@ fun Flag.getDisplayName(): String {
         Flag.FireSpread -> "Fire Spread"
         Flag.MobGriefing -> "Mob Griefing"
         Flag.Pistons -> "Pistons"
+        Flag.Fluids -> "Fluid Flow"
     }
 }
 
@@ -43,5 +45,6 @@ fun Flag.getDescription(): String {
         Flag.FireSpread -> "Allows fire to spread to other blocks"
         Flag.MobGriefing -> "Allows mobs to damage claim blocks"
         Flag.Pistons -> "Allows pistons to move claim blocks"
+        Flag.Fluids -> "Allows fluids to flow into the claim"
     }
 }

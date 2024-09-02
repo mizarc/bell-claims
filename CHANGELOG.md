@@ -8,6 +8,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
+- Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the fluid flow flag.
 
 ## [0.2.2]
 
