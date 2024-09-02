@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.listeners
+package dev.mizarc.bellclaims.interaction.behaviours
 
 import org.bukkit.Material
 import org.bukkit.World
@@ -73,6 +73,7 @@ class RuleBehaviour {
             Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
+        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -379,6 +380,23 @@ class RuleBehaviour {
                 claimList.add(claim)
             }
             return claimList.distinct()
+        }
+
+        private fun cancelFluidFlow(event: Event, claimService: ClaimService,
+                                    partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockFromToEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            if (partitionService.getByLocation(event.toBlock.location) == null) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun fluidFlowSourceInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+            if (event !is BlockFromToEvent) return listOf()
+            val partition = partitionService.getByLocation(event.toBlock.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim).distinct()
         }
     }
 }
