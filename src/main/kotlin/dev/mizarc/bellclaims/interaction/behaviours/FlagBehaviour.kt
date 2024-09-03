@@ -58,9 +58,9 @@ class RuleBehaviour {
         val creeperDamageHangingEntity = RuleExecutor(HangingBreakByEntityEvent::class.java,
             Companion::cancelCreeperHangingDamage, Companion::hangingBreakByEntityInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java,
-            Companion::cancelEvent, Companion::pistonExtendInClaim)
+            Companion::cancelPistonExtend, Companion::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java,
-            Companion::cancelEvent, Companion::pistonRetractInClaim)
+            Companion::cancelPistonRetract, Companion::pistonRetractInClaim)
         val entityExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::preventExplosionDamage, Companion::entityExplosionInClaim)
         val blockExplode = RuleExecutor(BlockExplodeEvent::class.java,
@@ -397,6 +397,20 @@ class RuleBehaviour {
             val partition = partitionService.getByLocation(event.toBlock.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
+        }
+
+        private fun cancelPistonRetract(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockPistonRetractEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            return true
+        }
+
+        private fun cancelPistonExtend(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockPistonRetractEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            return true
         }
     }
 }
