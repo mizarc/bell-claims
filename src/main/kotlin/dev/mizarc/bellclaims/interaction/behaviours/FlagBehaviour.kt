@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.util.Vector
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -416,10 +417,15 @@ class RuleBehaviour {
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonExtendEvent) return false
             if (partitionService.getByLocation(event.block.location) != null) return false
+            val direction = event.direction.direction
             var blockInClaim = false
             for (block in event.blocks) {
-                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+                val newBlockPosition = block.location.clone()
+                newBlockPosition.add(direction)
+                if (partitionService.getByLocation(block.location) != null ||
+                    partitionService.getByLocation(newBlockPosition) != null) blockInClaim = true
             }
+
             if (!blockInClaim) return false
             event.isCancelled = true
             return true
