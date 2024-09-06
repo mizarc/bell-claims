@@ -403,13 +403,25 @@ class RuleBehaviour {
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonRetractEvent) return false
             if (partitionService.getByLocation(event.block.location) != null) return false
+            var blockInClaim = false
+            for (block in event.blocks) {
+                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+            }
+            if (!blockInClaim) return false
+            event.isCancelled = true
             return true
         }
 
         private fun cancelPistonExtend(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
-            if (event !is BlockPistonRetractEvent) return false
+            if (event !is BlockPistonExtendEvent) return false
             if (partitionService.getByLocation(event.block.location) != null) return false
+            var blockInClaim = false
+            for (block in event.blocks) {
+                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+            }
+            if (!blockInClaim) return false
+            event.isCancelled = true
             return true
         }
     }
