@@ -13,6 +13,12 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Changed
 - Piston protection now only applies if the piston affecting the claim blocks is outside of the claim.
 
+## [0.2.3]
+Update to support MC version 1.21.1
+
+### Fixed
+- Inventory interactions not working in latest 1.21.1 version of MC.
+
 ## [0.2.2]
 
 ### Fixed
