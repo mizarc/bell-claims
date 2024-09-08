@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.util.Vector
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -58,9 +59,9 @@ class RuleBehaviour {
         val creeperDamageHangingEntity = RuleExecutor(HangingBreakByEntityEvent::class.java,
             Companion::cancelCreeperHangingDamage, Companion::hangingBreakByEntityInClaim)
         val pistonExtend = RuleExecutor(BlockPistonExtendEvent::class.java,
-            Companion::cancelEvent, Companion::pistonExtendInClaim)
+            Companion::cancelPistonExtend, Companion::pistonExtendInClaim)
         val pistonRetract = RuleExecutor(BlockPistonRetractEvent::class.java,
-            Companion::cancelEvent, Companion::pistonRetractInClaim)
+            Companion::cancelPistonRetract, Companion::pistonRetractInClaim)
         val entityExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::preventExplosionDamage, Companion::entityExplosionInClaim)
         val blockExplode = RuleExecutor(BlockExplodeEvent::class.java,
@@ -351,7 +352,7 @@ class RuleBehaviour {
         private fun pistonExtendInClaim(e: Event, claimService: ClaimService,
                                         partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonExtendEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
+            return getPistonClaims(e.block, e.blocks, e.direction, claimService, partitionService)
         }
 
         /**
@@ -360,20 +361,30 @@ class RuleBehaviour {
         private fun pistonRetractInClaim(e: Event, claimService: ClaimService,
                                          partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonRetractEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
+            return getPistonClaims(e.block, e.blocks, e.direction, claimService, partitionService)
         }
 
         /**
          * Get claims that this machine operates in, accounting for where the blocks will be if the piston event is
          * allowed to occur.
          */
-        private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
+        private fun getPistonClaims(pistonBlock: Block, blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
                                     partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             val checks: ArrayList<Block> = ArrayList()
             for (c in blocks) {
                 checks.add(c.getRelative(direction))
             }
+
+            // Check the piston head position
+            val extendPosition = pistonBlock.location.add(direction.direction)
+            partitionService.getByLocation(extendPosition)?.let { extendPartition ->
+                claimService.getById(extendPartition.claimId)?.let { claim ->
+                    claimList.add(claim)
+                }
+            }
+
+            // Check the blocks the piston will be moving
             for (block in checks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
@@ -397,6 +408,45 @@ class RuleBehaviour {
             val partition = partitionService.getByLocation(event.toBlock.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
+        }
+
+        private fun cancelPistonRetract(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockPistonRetractEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            var blockInClaim = false
+            for (block in event.blocks) {
+                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+            }
+            if (!blockInClaim) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelPistonExtend(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockPistonExtendEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
+            val direction = event.direction.direction
+
+            // Check the position of the piston head
+            if (partitionService.getByLocation(event.block.location.add(direction)) != null) {
+                event.isCancelled = true
+                return true
+            }
+
+            // Check the blocks that the piston is pushinga
+            var blockInClaim = false
+            for (block in event.blocks) {
+                val newBlockPosition = block.location.clone()
+                newBlockPosition.add(direction)
+                if (partitionService.getByLocation(block.location) != null ||
+                    partitionService.getByLocation(newBlockPosition) != null) blockInClaim = true
+            }
+
+            if (!blockInClaim) return false
+            event.isCancelled = true
+            return true
         }
     }
 }

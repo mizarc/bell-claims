@@ -44,7 +44,7 @@ fun Flag.getDescription(): String {
         Flag.Explosions -> "Allows TNT to damage claim blocks"
         Flag.FireSpread -> "Allows fire to spread to other blocks"
         Flag.MobGriefing -> "Allows mobs to damage claim blocks"
-        Flag.Pistons -> "Allows pistons to move claim blocks"
+        Flag.Pistons -> "Allows pistons placed outside the claim to move claim blocks"
         Flag.Fluids -> "Allows fluids to flow into the claim"
     }
 }
