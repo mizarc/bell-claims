@@ -11,7 +11,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the fluid flow flag.
 
 ### Changed
-- Piston protection now only applies if piston is outside of a claim moving blocks inside a claim.
+- Piston protection now only applies if the piston affecting the claim blocks is outside of the claim.
 
 ## [0.2.2]
 
