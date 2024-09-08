@@ -352,7 +352,7 @@ class RuleBehaviour {
         private fun pistonExtendInClaim(e: Event, claimService: ClaimService,
                                         partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonExtendEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
+            return getPistonClaims(e.block, e.blocks, e.direction, claimService, partitionService)
         }
 
         /**
@@ -361,20 +361,30 @@ class RuleBehaviour {
         private fun pistonRetractInClaim(e: Event, claimService: ClaimService,
                                          partitionService: PartitionService): List<Claim> {
             if (e !is BlockPistonRetractEvent) return listOf()
-            return getPistonClaims(e.blocks, e.direction, claimService, partitionService)
+            return getPistonClaims(e.block, e.blocks, e.direction, claimService, partitionService)
         }
 
         /**
          * Get claims that this machine operates in, accounting for where the blocks will be if the piston event is
          * allowed to occur.
          */
-        private fun getPistonClaims(blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
+        private fun getPistonClaims(pistonBlock: Block, blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
                                     partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
             val checks: ArrayList<Block> = ArrayList()
             for (c in blocks) {
                 checks.add(c.getRelative(direction))
             }
+
+            // Check the piston head position
+            val extendPosition = pistonBlock.location.add(direction.direction)
+            partitionService.getByLocation(extendPosition)?.let { extendPartition ->
+                claimService.getById(extendPartition.claimId)?.let { claim ->
+                    claimList.add(claim)
+                }
+            }
+
+            // Check the blocks the piston will be moving
             for (block in checks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
@@ -418,6 +428,14 @@ class RuleBehaviour {
             if (event !is BlockPistonExtendEvent) return false
             if (partitionService.getByLocation(event.block.location) != null) return false
             val direction = event.direction.direction
+
+            // Check the position of the piston head
+            if (partitionService.getByLocation(event.block.location.add(direction)) != null) {
+                event.isCancelled = true
+                return true
+            }
+
+            // Check the blocks that the piston is pushinga
             var blockInClaim = false
             for (block in event.blocks) {
                 val newBlockPosition = block.location.clone()
