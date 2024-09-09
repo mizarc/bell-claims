@@ -303,7 +303,7 @@ class PartitionServiceImplTest {
     @Test
     fun `append - when area is too small (less than 3x3) - return TOO_SMALL`() {
         // Given
-        val area = Area(Position2D(20, 40), Position2D(22, 42))
+        val area = Area(Position2D(20, 12), Position2D(21, 11))
         every { claimService.getById(claimOne.id) } returns claimOne
         every { claimService.getById(claimTwo.id) } returns claimTwo
         every { partitionRepo.getByChunk(any()) } returns
@@ -311,7 +311,7 @@ class PartitionServiceImplTest {
         every { config.distanceBetweenClaims } returns 3
 
         // When
-        val result = partitionService.append(area, claimTwo)
+        val result = partitionService.append(area, claimOne)
 
         // Then
         assertEquals(PartitionCreationResult.TOO_SMALL, result)
@@ -435,7 +435,7 @@ class PartitionServiceImplTest {
     @Test
     fun `resize - when the resize makes the partition too small - return TOO_SMALL`() {
         // Given
-        val area = Area(Position2D(13, 31), Position2D(14, 43))
+        val area = Area(Position2D(15, 37), Position2D(16, 43))
         every { claimService.getById(claimOne.id) } returns claimOne
         every { claimService.getById(claimTwo.id) } returns claimTwo
         every { partitionRepo.getByClaim(claimTwo) } returns partitionCollectionTwo.toSet()
