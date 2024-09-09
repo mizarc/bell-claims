@@ -9,6 +9,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against painting placement. Requires the build permission.
 
+### Changed
+- Minimum partition size is now 3x3 down from "5x5", which was actually 7x7 due to it not counting the border.
+
 ### Fixed
 - Placing bucket fluids by clicking through entities bypassing claim protections.
 

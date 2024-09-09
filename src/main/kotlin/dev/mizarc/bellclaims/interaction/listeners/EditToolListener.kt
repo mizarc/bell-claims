@@ -165,7 +165,7 @@ class EditToolListener(private val claims: ClaimRepository,
                 return player.sendActionBar(Component.text("That selection is too close to another claim")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.TOO_SMALL ->
-                return player.sendActionBar(Component.text("The claim must be at least 5x5 blocks")
+                return player.sendActionBar(Component.text("The claim must be at least 3x3 blocks")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.INSUFFICIENT_BLOCKS ->
                 return player.sendActionBar(Component.text("That selection would require an additional " +
@@ -246,7 +246,7 @@ class EditToolListener(private val claims: ClaimRepository,
                         "being outside the claim area")
                     .color(TextColor.color(255, 85, 85)))
             PartitionResizeResult.TOO_SMALL ->
-                player.sendActionBar(Component.text("The claim must be at least 5x5 blocks")
+                player.sendActionBar(Component.text("The claim must be at least 3x3 blocks")
                     .color(TextColor.color(255, 85, 85)))
             PartitionResizeResult.DISCONNECTED ->
                 player.sendActionBar(Component.text("Resizing to that size would result in a gap between " +
