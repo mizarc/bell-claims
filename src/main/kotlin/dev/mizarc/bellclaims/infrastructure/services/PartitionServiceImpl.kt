@@ -3,7 +3,6 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerLimitService
-import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
 import dev.mizarc.bellclaims.api.enums.PartitionResizeResult
@@ -11,7 +10,6 @@ import org.bukkit.Location
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.World
 import java.util.*
@@ -83,7 +81,7 @@ class PartitionServiceImpl(private val config: Config,
         if (isPartitionTooClose(partition)) return PartitionCreationResult.TOO_CLOSE
 
         // Check if claim meets minimum size
-        if (area.getXLength() < 5 || area.getZLength() < 5) return PartitionCreationResult.TOO_SMALL
+        if (area.getXLength() < 1 || area.getZLength() < 1) return PartitionCreationResult.TOO_SMALL
 
         // Check if selection is greater than the player's remaining claim blocks
         val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(claim.owner)
@@ -128,7 +126,7 @@ class PartitionServiceImpl(private val config: Config,
             return PartitionResizeResult.EXPOSED_CLAIM_HUB
 
         // Check if claim meets minimum size
-        if (newPartition.area.getXLength() < 5 || newPartition.area.getZLength() < 5)
+        if (newPartition.area.getXLength() < 1 || newPartition.area.getZLength() < 1)
             return PartitionResizeResult.TOO_SMALL
 
         // Check if claim takes too much space
