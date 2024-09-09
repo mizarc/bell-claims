@@ -8,8 +8,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Bell_Claims.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bell-claims.Bell_Claims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/bell-claims.Bell_Claims.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bell-claims.Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/bell-claims.Bell_Claims.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.mizarc.Bell_Claims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.mizarc.Bell_Claims.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.mizarc.Bell_Claims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.mizarc.Bell_Claims.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.mizarc.BellClaims.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.mizarc.BellClaims.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.mizarc.BellClaims.test.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.mizarc.BellClaims.test.iml" />
     </modules>
   </component>
 </project>
