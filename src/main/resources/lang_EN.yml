@@ -186,7 +186,8 @@ InvalidSpotForClaim: "That spot is neither next to nor a corner of any existing 
 
 ClaimBlockLimitReached: "You have already hit your claim block limit"
 
-NewClaimExtensionStarted: "New claim extension started. You have $remainingClaimBlockCount blocks remaining"
+NewClaimExtensionStarted1: "New claim extension started. You have "
+NewClaimExtensionStarted2: "blocks remaining."
 
 #--- ClaimTool.kt ---========================LANGUAGE BARIER=========
 

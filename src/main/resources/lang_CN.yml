@@ -186,7 +186,8 @@ InvalidSpotForClaim: "该位置既不在任何现有领地的旁边，也不是�
 
 ClaimBlockLimitReached: "您已经达到领地块的上限。"
 
-NewClaimExtensionStarted: "新的领地扩展已开始。您还有 $remainingClaimBlockCount 个块剩余。"
+NewClaimExtensionStarted1: "新的领地扩展已开始。您还有 "
+NewClaimExtensionStarted2: "个块剩余。"
 
 #--- ClaimTool.kt ---
 
