@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
-## [Latest]
+## [0.2.4]
 
-### Added
-- Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
+### Fixed
+- Placing bucket fluids by clicking through entities bypassing claim protections.
 
 ## [0.2.3]
 Update to support MC version 1.21.1
