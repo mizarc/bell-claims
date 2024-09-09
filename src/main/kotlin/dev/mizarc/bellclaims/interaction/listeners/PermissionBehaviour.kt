@@ -5,7 +5,6 @@ import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.World
 import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
@@ -59,7 +58,7 @@ class PermissionBehaviour {
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for placing fluids such as water and lava
-        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFluidPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val fluidPlace = PermissionExecutor(PlayerBucketEmptyEvent::class.java, Companion::cancelEvent, Companion::getBucketLocation, Companion::getBucketPlayer)
 
         // Used for placing fluids such as water and lava
         val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
@@ -256,21 +255,6 @@ class PermissionBehaviour {
                 block.type != Material.LAVA_CAULDRON &&
                 block.type != Material.POWDER_SNOW_CAULDRON &&
                 block.type != Material.CAKE) return false
-            event.isCancelled = true
-            return true
-        }
-
-        /**
-         * Cancels the action of placing water or lava buckets.
-         */
-        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
-            val clickedBlock = event.clickedBlock ?: return false
-            if (clickedBlock.type == Material.CAULDRON) return false
-            val item = event.item ?: return false
-            if (item.type != Material.WATER_BUCKET &&
-                item.type != Material.LAVA_BUCKET) return false
             event.isCancelled = true
             return true
         }
@@ -767,6 +751,16 @@ class PermissionBehaviour {
                 return event.entity.shooter as Player
             }
             return null
+        }
+
+        private fun getBucketLocation(event: Event): Location? {
+            if (event !is PlayerBucketEvent) return null
+            return event.block.location
+        }
+
+        private fun getBucketPlayer(event: Event): Player? {
+            if (event !is PlayerBucketEvent) return null
+            return event.player
         }
     }
 }
