@@ -6,6 +6,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [0.2.4]
 
+### Added
+- Protection against painting placement. Requires the build permission.
+
 ### Fixed
 - Placing bucket fluids by clicking through entities bypassing claim protections.
 
