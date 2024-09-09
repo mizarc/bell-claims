@@ -66,6 +66,9 @@ class PermissionBehaviour {
         // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
+        // Used for placing paintings
+        val paintingPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelPaintingPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
         // Used for breaking item frames and paintings
         val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEvent, Companion::getHangingBreakByEntityEventLocation, Companion::getHangingBreakByEntityEventPlayer)
 
@@ -267,6 +270,18 @@ class PermissionBehaviour {
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
             val item = event.item ?: return false
             if (item.type != Material.ITEM_FRAME && item.type != Material.GLOW_ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of placing down paintings.
+         */
+        private fun cancelPaintingPlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.PAINTING) return false
             event.isCancelled = true
             return true
         }
