@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - Placing bucket fluids by clicking through entities bypassing claim protections.
+- Incorrect text output colour for adding a partition to a claim.
 
 ## [0.2.3]
 Update to support MC version 1.21.1
