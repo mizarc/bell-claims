@@ -147,7 +147,7 @@ class EditToolListener(private val claims: ClaimRepository,
         // Start partition building
         partitionBuilders[player] = Partition.Builder(selectedClaim.id, Position2D(location))
         return player.sendActionBar(
-            Component.text(getLangText("NewClaimExtensionStarted"))
+            Component.text(getLangText("NewClaimExtensionStarted1") + "$remainingClaimBlockCount" + getLangText("NewClaimExtensionStarted2"))
                 .color(TextColor.color(85, 255, 85)))
     }
 

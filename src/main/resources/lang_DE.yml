@@ -186,7 +186,8 @@ InvalidSpotForClaim: "Dieser Ort liegt weder neben noch an einer Ecke eines best
 
 ClaimBlockLimitReached: "Sie haben bereits das Limit Ihrer Anspruchsblöcke erreicht."
 
-NewClaimExtensionStarted: "Neue Anspruchserweiterung gestartet. Sie haben $remainingClaimBlockCount Blöcke übrig."
+NewClaimExtensionStarted1: "Neue Anspruchserweiterung gestartet. Sie haben "
+NewClaimExtensionStarted2: "Blöcke übrig."
 
 #--- ClaimTool.kt ---
 

@@ -186,7 +186,8 @@ InvalidSpotForClaim: "Это место не рядом с другой прет
 
 ClaimBlockLimitReached: "Вы достигли предела блоков претензии."
 
-NewClaimExtensionStarted: "Начато расширение претензии. У вас осталось $remainingClaimBlockCount блоков."
+NewClaimExtensionStarted1: "Начато расширение претензии. У вас осталось "
+NewClaimExtensionStarted2: "блоков."
 
 #--- ClaimTool.kt ---========================LANGUAGE BARIER=========
 
