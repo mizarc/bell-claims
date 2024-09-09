@@ -26,6 +26,8 @@ import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import java.util.*
 
+import dev.mizarc.bellclaims.utils.getLangText
+
 /**
  * Actions based on utilising the claim tool.
  * @property claimContainer A reference to the claim containers to modify.
@@ -88,7 +90,7 @@ class EditToolListener(private val claims: ClaimRepository,
         if (partitionBuilder != null) {
             partitionBuilders.remove(event.player)
             event.player.sendActionBar(
-                Component.text("Claim tool unequipped. Claim building has been cancelled.")
+                Component.text(getLangText("ClaimToolUnequipped"))
                 .color(TextColor.color(255, 85, 85)))
             return
         }
@@ -98,7 +100,7 @@ class EditToolListener(private val claims: ClaimRepository,
         if (partitionResizer != null) {
             partitionResizers.remove(event.player)
             event.player.sendActionBar(
-                Component.text("Claim tool unequipped. Claim resizing has been cancelled.")
+                Component.text(getLangText("ClaimToolUnequippedResizingCancelled"))
                     .color(TextColor.color(255, 85, 85)))
         }
     }
@@ -129,7 +131,7 @@ class EditToolListener(private val claims: ClaimRepository,
         // Check if selection exists next to any of the player's owned claims
         if (selectedClaim == null) {
             return player.sendActionBar(
-                Component.text("That spot is neither next to nor a corner of any existing claim")
+                Component.text(getLangText("InvalidSpotForClaim"))
                     .color(TextColor.color(255, 85, 85)))
         }
 
@@ -138,15 +140,14 @@ class EditToolListener(private val claims: ClaimRepository,
         // Check if the player already hit claim block limit
         if (remainingClaimBlockCount < 1) {
             return player.sendActionBar(
-                Component.text("You have already hit your claim block limit")
+                Component.text(getLangText("ClaimBlockLimitReached"))
                     .color(TextColor.color(255, 85, 85)))
         }
 
         // Start partition building
         partitionBuilders[player] = Partition.Builder(selectedClaim.id, Position2D(location))
         return player.sendActionBar(
-            Component.text("New claim extension started. " +
-                    "You have $remainingClaimBlockCount blocks remaining")
+            Component.text(getLangText("NewClaimExtensionStarted"))
                 .color(TextColor.color(85, 255, 85)))
     }
 
