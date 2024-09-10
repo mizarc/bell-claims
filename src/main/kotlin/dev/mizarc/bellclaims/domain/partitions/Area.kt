@@ -36,7 +36,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
     /**
      * Checks if the specified position exists within the bounds of this area.
      *
-     * @param position2D The position to check
+     * @param position The position to check
      * @return True if in area.
      */
     fun isPositionInArea(position: Position): Boolean {
@@ -136,14 +136,14 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
      * @return The
      */
     fun getXLength(): Int {
-        return (upperPosition2D.x - lowerPosition2D.x).absoluteValue
+        return (upperPosition2D.x - lowerPosition2D.x + 1).absoluteValue
     }
 
     /**
      * Gets the length of the Z axis
      */
     fun getZLength(): Int {
-        return (upperPosition2D.z - lowerPosition2D.z).absoluteValue
+        return (upperPosition2D.z - lowerPosition2D.z + 1).absoluteValue
     }
 
     fun getCornerBlockPositions(): ArrayList<Position2D> {
