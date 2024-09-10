@@ -11,6 +11,8 @@ import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Partition
 
+import dev.mizarc.bellclaims.utils.getLangText
+
 open class ClaimCommand : BaseCommand() {
     @Dependency protected lateinit var claimService: ClaimService
     @Dependency protected lateinit var partitionService: PartitionService
@@ -24,12 +26,12 @@ open class ClaimCommand : BaseCommand() {
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {
-            player.sendMessage("§cYou already have the claim tool in your inventory.")
+            player.sendMessage(getLangText("AlreadyHaveClaimTool"))
             return
         }
 
         player.inventory.addItem(getClaimTool())
-        player.sendMessage("§aYou have been given the claim tool")
+        player.sendMessage(getLangText("ClaimToolGiven"))
     }
 
     /**
@@ -50,7 +52,7 @@ open class ClaimCommand : BaseCommand() {
     fun getPartitionAtPlayer(player: Player): Partition? {
         val claimPartition = partitionService.getByLocation(player.location)
         if (claimPartition == null) {
-            player.sendMessage("§cThere is no claim partition at your current location.")
+            player.sendMessage(getLangText("NoClaimPartitionHere"))
             return null
         }
         return claimPartition
@@ -60,7 +62,7 @@ open class ClaimCommand : BaseCommand() {
         // Check if player state exists
         val playerState = playerStateService.getById(player.uniqueId)
         if (playerState == null) {
-            player.sendMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
+            player.sendMessage(getLangText("PlayerDataMissing"))
             return false
         }
 
@@ -72,7 +74,7 @@ open class ClaimCommand : BaseCommand() {
         // Check if player owns claim
         val claim = claimService.getById(partition.claimId)!!
         if (player.uniqueId != claim.owner.uniqueId) {
-            player.sendMessage("§cYou don't have permission to modify this claim.")
+            player.sendMessage(getLangText("NoPermissionToModifyClaim"))
             return false
         }
 
