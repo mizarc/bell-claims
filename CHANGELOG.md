@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.2.5]
+
+### Fixed
+- Creation of 1 block wide partitions due to funky math error that only applied when the minimum limit was set to 3x3.
+
 ## [0.2.4]
 
 ### Added
