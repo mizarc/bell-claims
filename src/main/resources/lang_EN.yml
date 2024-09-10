@@ -1,0 +1,196 @@
+# --- ClaimFlagDisplay.kt ---
+
+NameFlagExplosions: "Explosions"
+NameFlagFireSpread: "Fire Spread"
+NameFlagMobGriefing: "Mob Griefing"
+NameFlagPistons: "Pistons"
+NameFlagFluids: "Fluid Flow"
+
+DescFlagExplosions: "Allows TNT to damage claim blocks"
+DescFlagFireSpread: "Allows fire to spread to other blocks"
+DescFlagMobGriefing: "Allows mobs to damage claim blocks"
+DescFlagPistons: "Allows pistons placed outside the claim to move claim blocks"
+DescFlagFluids: "Allows fluids to flow into the claim"
+
+# --- PermissionDisplay.kt ---
+
+NameClaimPermissionBuild: "Build"
+NameClaimPermissionContainerInspect: "Inspect Containers"
+NameClaimPermissionDisplayManipulate: "Manipulate"
+NameClaimPermissionVehicleDeploy: "Deploy Vehicles"
+NameClaimPermissionSignEdit: "Edit Signs"
+NameClaimPermissionRedstoneInteract: "Trigger Redstone"
+NameClaimPermissionDoorOpen: "Open Doors"
+NameClaimPermissionVillagerTrade: "Trade Villagers"
+NameClaimPermissionHusbandry: "Husbandry"
+NameClaimPermissionDetonate: "Detonate"
+NameClaimPermissionEventStart: "Raid"
+
+DescClaimPermissionBuild: "Grants permission to build"
+DescClaimPermissionContainerInspect: "Grants permission to open inventories (Chest, Furnace, Anvil)"
+DescClaimPermissionDisplayManipulate: "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
+DescClaimPermissionVehicleDeploy: "Grants permission to break and place vehicles (Boats, Minecarts)"
+DescClaimPermissionSignEdit: "Grants permission to edit signs"
+DescClaimPermissionRedstoneInteract: "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
+DescClaimPermissionDoorOpen: "Grants permission to open and close doors"
+DescClaimPermissionVillagerTrade: "Grants permission to trade with villagers"
+DescClaimPermissionHusbandry: "Grants permission to interact with passive animals"
+DescClaimPermissionDetonate: "Grants permission to directly set off explosives"
+DescClaimPermissionEventStart: "Grants permission to start a raid event"
+
+# --- ClaimManagementMenu.kt ---
+
+CannotCreateClaim1: "Cannot Create Claim"
+YouHaveRunOutOfClaims: "You have run out of claims."
+DeleteExistingClaim: "If you want to create a new claim, delete an existing one first."
+
+CannotCreateClaim2: "Cannot Create Claim"
+OverlapAnotherClaim: "The created claim would overlap another claim."
+PlaceBellElsewhere: "Place the bell somewhere else."
+
+CreateClaim: "Create Claim"
+AreaProtectedFromGriefing: "The area around this bell will be protected from griefing."
+RemainingClaims1: "You have " #number
+RemainingClaims2: "Claims remaining."
+
+AlreadyHaveClaimWithName: "You already have a claim with that name"
+
+Confirm1: "Confirm"
+
+ClaimTool: "Claim Tool"
+GivesYouClaimTool: "Gives you a copy of the claim tool"
+
+EditClaimIcon: "Edit Claim Icon"
+ChangesClaimIcon: "Changes the icon that shows up on the claim list"
+
+RenameClaim: "Rename Claim"
+RenamesThisClaim: "Renames this claim"
+
+TrustedPlayers: "Trusted Players:"
+
+ClaimFlags: "Claim Flags"
+
+MoveClaim: "Move Claim"
+PlaceItemToMoveClaim: "Place the provided item where you want to move the claim bell"
+
+SetWarpIcon: "Set Warp Icon"
+
+PlaceItemTopSlot: "Place an item in the top slot to set it as the icon"
+KeepItemMessage: "Don't worry, you'll keep it"
+
+Confirm2: "Confirm"
+
+RenamingClaim: "Renaming Claim"
+
+NameAlreadyTaken: "That name has already been taken"
+
+Confirm3: "Confirm"
+
+GoBack1: "Go Back"
+
+DeselectAll1: "Deselect All"
+
+SelectAll1: "Select All"
+
+DefaultPermissions: "Default Permissions"
+ConfiguresUntrustedPermissions: "Configures the permissions that untrusted players will have"
+
+HasPermissions1: "Has " #number
+HasPermissions2: "permissions"
+
+Default: "Default"
+
+Search: "Search"
+FindPlayerByName: "Find player by name, even if they aren't online"
+
+SearchForPlayer: "Search for Player"
+
+Player: "Player"
+
+PlayerDoesNotExist: "That player does not exist"
+PlayerMustHaveLoggedIn: "Only players who have logged in to the server at least once will appear."
+
+Confirm4: "Confirm"
+
+GoBack2: "Go Back"
+
+Prev: "Prev"
+
+PageInfo1: "Page "
+PageInfo2: " of "
+
+Next: "Next"
+
+DeselectAll2: "Deselect All"
+
+SelectAll2: "Select All"
+
+# --- EditToolMenu.kt ---
+
+ClaimTool2: "Claim Tool"
+
+ChangeMode: "Change Mode"
+
+ViewMode1: "> View Mode"
+EditMode: "Edit Mode"
+
+ViewMode2: "View Mode"
+ActiveEditMode: "> Edit Mode"
+
+NoClaimHere: "No Claim Here"
+SelectAreaForMoreOptions: "Select an area in a claim to see more options."
+
+NotYourClaim: "Not Your Claim"
+SelectYourClaimForMoreOptions: "Select an area in your claim to see more options."
+
+Claim: "Claim"
+Name: "Name: "
+Location: "Location: "
+Partitions: "Partitions: "
+ClaimBlocks: "Claim Blocks: "
+
+Partition: "Partition"
+PartitionLocation: "Location:  "
+PartitionBlocks: "Blocks: "
+
+CantDeletePartition: "Can't Delete Partition"
+FragmentedClaimWarning: "Deleting this would result in your claim being fragmented."
+
+DeletePartition: "Delete Partition"
+
+DeletePartitionQuestion: "Delete Partition?"
+
+No: "No"
+TakeMeBack: "Take me back"
+
+Yes: "Yes"
+PermanentActionWarning: "Warning, this is a permanent action"
+
+#--- ClaimCommand.kt ---
+
+AlreadyHaveClaimTool: "§cYou already have the claim tool in your inventory."
+
+ClaimToolGiven: "§aYou have been given the claim tool"
+
+NoClaimPartitionHere: "§cThere is no claim partition at your current location."
+
+PlayerDataMissing: "§cSomehow, your player data doesn't exist. Please contact an administrator."
+
+#--- EditToolListener.kt ---
+
+ClaimToolUnequipped: "Claim tool unequipped. Claim building has been cancelled."
+
+ClaimToolUnequippedResizingCancelled: "Claim tool unequipped. Claim resizing has been cancelled."
+
+InvalidSpotForClaim: "That spot is neither next to nor a corner of any existing claim"
+
+ClaimBlockLimitReached: "You have already hit your claim block limit"
+
+NewClaimExtensionStarted1: "New claim extension started. You have "
+NewClaimExtensionStarted2: "blocks remaining."
+
+#--- ClaimTool.kt ---========================LANGUAGE BARIER=========
+
+ClaimTool3: "§bClaim Tool"
+ClaimToolMainHand: "Use in main hand to edit claim borders"
+ClaimToolOffHand: "Use in offhand to open menu"

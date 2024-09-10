@@ -34,17 +34,17 @@ fun ClaimPermission.getIcon(): ItemStack {
  */
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
-        ClaimPermission.Build -> "Build"
-        ClaimPermission.ContainerInspect -> "Inspect Containers"
-        ClaimPermission.DisplayManipulate -> "Manipulate"
-        ClaimPermission.VehicleDeploy -> "Deploy Vehicles"
-        ClaimPermission.SignEdit -> "Edit Signs"
-        ClaimPermission.RedstoneInteract -> "Trigger Redstone"
-        ClaimPermission.DoorOpen -> "Open Doors"
-        ClaimPermission.VillagerTrade -> "Trade Villagers"
-        ClaimPermission.Husbandry -> "Husbandry"
-        ClaimPermission.Detonate -> "Detonate"
-        ClaimPermission.EventStart -> "Raid"
+        ClaimPermission.Build -> getLangText("NameClaimPermissionBuild")
+        ClaimPermission.ContainerInspect -> getLangText("NameClaimPermissionContainerInspect")
+        ClaimPermission.DisplayManipulate -> getLangText("NameClaimPermissionDisplayManipulate")
+        ClaimPermission.VehicleDeploy -> getLangText("NameClaimPermissionVehicleDeploy")
+        ClaimPermission.SignEdit -> getLangText("NameClaimPermissionSignEdit")
+        ClaimPermission.RedstoneInteract -> getLangText("NameClaimPermissionRedstoneInteract")
+        ClaimPermission.DoorOpen -> getLangText("NameClaimPermissionDoorOpen")
+        ClaimPermission.VillagerTrade -> getLangText("NameClaimPermissionVillagerTrade")
+        ClaimPermission.Husbandry -> getLangText("NameClaimPermissionHusbandry")
+        ClaimPermission.Detonate -> getLangText("NameClaimPermissionDetonate")
+        ClaimPermission.EventStart -> getLangText("NameClaimPermissionEventStart")
     }
 }
 
@@ -55,16 +55,16 @@ fun ClaimPermission.getDisplayName(): String {
  */
 fun ClaimPermission.getDescription(): String {
     return when (this) {
-        ClaimPermission.Build -> "Grants permission to build"
-        ClaimPermission.ContainerInspect -> "Grants permission to open inventories (Chest, Furnace, Anvil)"
-        ClaimPermission.DisplayManipulate -> "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
-        ClaimPermission.VehicleDeploy -> "Grants permission to break and place vehicles (Boats, Minecarts)"
-        ClaimPermission.SignEdit -> "Grants permission to edit signs"
-        ClaimPermission.RedstoneInteract -> "Grants permission to use redstone interactions (Buttons, Levers, Pressure Plates)"
-        ClaimPermission.DoorOpen -> "Grants permission to open and close doors"
-        ClaimPermission.VillagerTrade -> "Grants permission to trade with villagers"
-        ClaimPermission.Husbandry -> "Grants permission to interact with passive animals"
-        ClaimPermission.Detonate -> "Grants permission to directly set off explosives"
-        ClaimPermission.EventStart -> "Grants permission to start a raid event"
+        ClaimPermission.Build -> getLangText("DescClaimPermissionBuild")
+        ClaimPermission.ContainerInspect -> getLangText("DescClaimPermissionContainerInspect")
+        ClaimPermission.DisplayManipulate -> getLangText("DescClaimPermissionDisplayManipulate")
+        ClaimPermission.VehicleDeploy -> getLangText("DescClaimPermissionVehicleDeploy")
+        ClaimPermission.SignEdit -> getLangText("DescClaimPermissionSignEdit")
+        ClaimPermission.RedstoneInteract -> getLangText("DescClaimPermissionRedstoneInteract")
+        ClaimPermission.DoorOpen -> getLangText("DescClaimPermissionDoorOpen")
+        ClaimPermission.VillagerTrade -> getLangText("DescClaimPermissionVillagerTrade")
+        ClaimPermission.Husbandry -> getLangText("DescClaimPermissionHusbandry")
+        ClaimPermission.Detonate -> getLangText("DescClaimPermissionDetonate")
+        ClaimPermission.EventStart -> getLangText("DescClaimPermissionEventStart")
     }
 }
