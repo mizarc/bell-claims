@@ -6,6 +6,7 @@ So you'd like to contribute to the Bell Claims project? Well you're in luck beca
 There's no official team based communication right now, but you can contact me through either:
 - Mastodon [@mizarc@mastodon.gamedev.place](https://mastodon.gamedev.place/@mizarc)
 - Twitter (X) [@MizarcGames](https://twitter.com/MizarcGames)
+- Discord [@mizarc](https://discord.com/users/97295777734332416)
 
 If you need any help with Bukkit/Spigot/PaperMC development, try out the forums:
 https://forums.papermc.io/
