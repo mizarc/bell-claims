@@ -309,6 +309,9 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByChunk(any()) } returns
                 setOf(partitionCollectionOne[0], partitionCollectionOne[1], partitionCollectionTwo[0])
         every { config.distanceBetweenClaims } returns 3
+        every { playerLimitService.getRemainingClaimBlockCount(playerOne) } returns 10000
+        every { partitionRepo.add(any()) } returns Unit
+
 
         // When
         val result = partitionService.append(area, claimOne)
@@ -442,6 +445,7 @@ class PartitionServiceImplTest {
         every { partitionRepo.getByPosition(Position2D(21, 30)) } returns setOf(partitionCollectionTwo[0])
         every { partitionRepo.getByChunk(any()) } returns (partitionCollectionOne + partitionCollectionTwo).toSet()
         every { config.distanceBetweenClaims } returns 3
+        every {playerLimitService.getRemainingClaimBlockCount(playerOne)} returns 10000
 
         // When
         val result = partitionService.resize(partitionCollectionTwo[1], area)
