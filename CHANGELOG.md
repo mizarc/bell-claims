@@ -13,6 +13,23 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Changed
 - Piston protection now only applies if the piston affecting the claim blocks is outside of the claim.
 
+## [0.2.5]
+
+### Fixed
+- Creation of 1 block wide partitions due to funky math error that only applied when the minimum limit was set to 3x3.
+
+## [0.2.4]
+
+### Added
+- Protection against painting placement. Requires the build permission.
+
+### Changed
+- Minimum partition size is now 3x3 down from "5x5", which was actually 7x7 due to it not counting the border.
+
+### Fixed
+- Placing bucket fluids by clicking through entities bypassing claim protections.
+- Incorrect text output colour for adding a partition to a claim.
+
 ## [0.2.3]
 Update to support MC version 1.21.1
 
