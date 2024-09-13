@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.listeners
+package dev.mizarc.bellclaims.interaction.behaviours
 
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
@@ -159,6 +159,10 @@ class PermissionBehaviour {
 
         // Used for exploding TNT minecarts with a flaming projectile.
         val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
+
+        // Used for events triggered by an omen status effect
+        val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent, Companion::getRaidTriggerLocation, Companion::getRaidTriggerPlayer)
+
 
         /**
          * Cancels any cancellable event.
@@ -767,6 +771,26 @@ class PermissionBehaviour {
                 return event.entity.shooter as Player
             }
             return null
+        }
+
+        private fun getBucketLocation(event: Event): Location? {
+            if (event !is PlayerBucketEvent) return null
+            return event.block.location
+        }
+
+        private fun getBucketPlayer(event: Event): Player? {
+            if (event !is PlayerBucketEvent) return null
+            return event.player
+        }
+
+        private fun getRaidTriggerLocation(event: Event): Location? {
+            if (event !is RaidTriggerEvent) return null
+            return event.raid.location
+        }
+
+        private fun getRaidTriggerPlayer(event: Event): Player? {
+            if (event !is RaidTriggerEvent) return null
+            return event.player
         }
     }
 }
