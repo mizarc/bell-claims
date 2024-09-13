@@ -23,6 +23,8 @@ import org.bukkit.event.inventory.ClickType
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
+import dev.mizarc.bellclaims.utils.getLangText
+
 class ClaimManagementMenu(private val claimService: ClaimService,
                           private val claimWorldService: ClaimWorldService,
                           private val flagService: FlagService,
@@ -50,9 +52,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Check if player doesn't have enough claims
         if (playerLimitService.getRemainingClaimCount(claimBuilder.player) < 1) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name("Cannot Create Claim")
-                .lore("You have run out of claims. ")
-                .lore("If you want to create a new claim, delete an existing one first.")
+                .name(getLangText("CannotCreateClaim1"))
+                .lore(getLangText("YouHaveRunOutOfClaims"))
+                .lore(getLangText("DeleteExistingClaim"))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
             gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -62,9 +64,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Check if created claim area would overlap
         if (!claimWorldService.isNewLocationValid(claimBuilder.location)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name("Cannot Create Claim")
-                .lore("The created claim would overlap another claim.")
-                .lore("Place the bell somewhere else.")
+                .name(getLangText("CannotCreateClaim2"))
+                .lore(getLangText("OverlapAnotherClaim"))
+                .lore(getLangText("PlaceBellElsewhere"))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
             gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -73,9 +75,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add warp creation icon
         val iconEditorItem = ItemStack(Material.BELL)
-            .name("Create Claim")
-            .lore("The area around this bell will be protected from griefing.")
-            .lore("You have ${playerLimitService.getRemainingClaimCount(claimBuilder.player)} Claims remaining.")
+            .name(getLangText("CreateClaim"))
+            .lore(getLangText("ProtectedFromGriefing"))
+            .lore(getLangText("RemainingClaims1") + "${playerLimitService.getRemainingClaimCount(claimBuilder.player)}" + getLangText("RemainingClaims2"))
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -101,7 +103,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         if (existingName) {
             val secondPane = StaticPane(0, 0, 1, 1)
             val paperItem = ItemStack(Material.PAPER)
-                .name("You already have a claim with that name")
+                .name(getLangText("AlreadyHaveClaimWithName"))
             val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
             secondPane.addItem(guiPaperItem, 0, 0)
             gui.secondItemComponent.addPane(secondPane)
@@ -109,7 +111,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             claimBuilder.name = gui.renameText
             if (claimService.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
@@ -135,8 +137,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add claim tool button
         val claimToolItem = ItemStack(Material.STICK)
-            .name("Claim Tool")
-            .lore("Gives you a copy of the claim tool")
+            .name(getLangText("ClaimTool"))
+            .lore(getLangText("GivesYouClaimTool"))
             .enchantment(Enchantment.LUCK_OF_THE_SEA)
             .flag(ItemFlag.HIDE_ENCHANTS)
         val guiClaimToolItem = GuiItem(claimToolItem) { guiEvent ->
@@ -147,36 +149,36 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add icon editor button
         val iconEditorItem = ItemStack(claim.icon)
-            .name("Edit Claim Icon")
-            .lore("Changes the icon that shows up on the claim list")
+            .name(getLangText("EditClaimIcon"))
+            .lore(getLangText("ChangesClaimIcon"))
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimIconMenu(claim) }
         pane.addItem(guiIconEditorItem, 2, 0)
 
         // Add renaming icon
         val renamingItem = ItemStack(Material.NAME_TAG)
-            .name("Rename Claim")
-            .lore("Renames this claim")
+            .name(getLangText("RenameClaim"))
+            .lore(getLangText("RenamesThisClaim"))
         val guiRenamingItem = GuiItem(renamingItem) { openClaimRenamingMenu(claim) }
         pane.addItem(guiRenamingItem, 3, 0)
 
         // Add player trusts
         val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
-            .name("Trusted Players:")
+            .name(getLangText("TrustedPlayers"))
             .lore("${playerPermissionService.getByClaim(claim).count()}")
         val guiPlayerTrustItem = GuiItem(playerTrustItem) { openClaimTrustMenu(claim, 0) }
         pane.addItem(guiPlayerTrustItem, 5, 0)
 
         // Add claim flags
         val claimFlagsItem = ItemStack(Material.ACACIA_HANGING_SIGN)
-            .name("Claim Flags")
+            .name(getLangText("ClaimFlags"))
             .lore("${flagService.getByClaim(claim).count()}")
         val guiClaimFlagsItem = GuiItem(claimFlagsItem) { openClaimFlagMenu(claim) }
         pane.addItem(guiClaimFlagsItem, 6, 0)
 
         // Add warp delete icon
         val deleteItem = ItemStack(Material.PISTON)
-            .name("Move Claim")
-            .lore("Place the provided item where you want to move the claim bell")
+            .name(getLangText("MoveClaim"))
+            .lore(getLangText("PlaceItemToMoveClaim"))
         val guiDeleteItem = GuiItem(deleteItem) { guiEvent ->
             guiEvent.isCancelled = true
             givePlayerMoveTool(claimBuilder.player, claim)
@@ -207,15 +209,15 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     }
 
     fun openClaimIconMenu(claim: Claim) {
-        val gui = FurnaceGui("Set Warp Icon")
+        val gui = FurnaceGui(getLangText("SetWarpIcon"))
         val fuelPane = StaticPane(0, 0, 1, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
         // Add info paper menu item
         val paperItem = ItemStack(Material.PAPER)
-            .name("Place an item in the top slot to set it as the icon")
-            .lore("Don't worry, you'll keep it")
+            .name(getLangText("PlaceItemTopSlot"))
+            .lore(getLangText("KeepItemMessage"))
         val guiIconEditorItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
         fuelPane.addItem(guiIconEditorItem, 0, 0)
         gui.fuelComponent.addPane(fuelPane)
@@ -244,7 +246,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add confirm menu item
         val outputPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm2"))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             guiEvent.isCancelled = true
             val newIcon = gui.ingredientComponent.getItem(0, 0)
@@ -265,7 +267,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openClaimRenamingMenu(claim: Claim, existingName: Boolean = false) {
         // Create homes menu
-        val gui = AnvilGui("Renaming Claim")
+        val gui = AnvilGui(getLangText("RenamingClaim"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
@@ -283,7 +285,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         if (existingName) {
             val secondPane = StaticPane(0, 0, 1, 1)
             val paperItem = ItemStack(Material.PAPER)
-                .name("That name has already been taken")
+                .name(getLangText("NameAlreadyTaken"))
             val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
             secondPane.addItem(guiPaperItem, 0, 0)
             gui.secondItemComponent.addPane(secondPane)
@@ -291,7 +293,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm3"))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             // Go back to edit menu if the name hasn't changed
             if (gui.renameText == claim.name) {
@@ -326,13 +328,13 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
+            .name(getLangText("GoBack1"))
         val guiExitItem = GuiItem(exitItem) { openClaimEditMenu(claim) }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add deselect all button
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
-            .name("Deselect All")
+            .name(getLangText("DeselectAll1"))
         val guiDeselectItem = GuiItem(deselectItem) {
             flagService.removeAll(claim)
             openClaimFlagMenu(claim)
@@ -341,7 +343,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add select all button
         val selectItem = ItemStack(Material.SLIME_BLOCK)
-            .name("Select All")
+            .name(getLangText("SelectAll1"))
         val guiSelectItem = GuiItem(selectItem) {
             flagService.addAll(claim)
             openClaimFlagMenu(claim)
@@ -433,8 +435,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add default permissions button
         val defaultPermsItem = ItemStack(Material.LECTERN)
-            .name("Default Permissions")
-            .lore("Configures the permissions that untrusted players will have")
+            .name(getLangText("DefaultPermissions"))
+            .lore(getLangText("ConfiguresUntrustedPermissions"))
         val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermissionsMenu(claim) }
         controlsPane.addItem(guiDefaultPermsItem, 2, 0)
 
@@ -453,7 +455,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         for (trustedPlayer in trustedPlayers) {
             val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
                 .name("${Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId).name}")
-                .lore("Has ${trustedPlayer.value.count()} permissions")
+                .lore(getLangText("HasPermissions1") + "${trustedPlayer.value.count()}" + getLangText("HasPermissions2"))
             val guiWarpItem = GuiItem(warpItem) {
                 openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
             }
@@ -574,7 +576,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             openClaimPermissionsMenu(claim)
         }
 
-        addSelector(controlsPane, ItemStack(Material.BELL).name("Default"), deselectAction, selectAction)
+        addSelector(controlsPane, ItemStack(Material.BELL).name(getLangText("Default"))
+, deselectAction, selectAction)
 
         // Add horizontal divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
@@ -656,8 +659,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add player search item
         val playerSearchItem = ItemStack(Material.NAME_TAG)
-            .name("Search")
-            .lore("Find player by name, even if they aren't online")
+            .name(getLangText("Search"))
+            .lore(getLangText("FindPlayerByName"))
         val guiPlayerSearchItem = GuiItem(playerSearchItem) { openPlayerSearchMenu(claim, false) }
         controlsPane.addItem(guiPlayerSearchItem, 3, 0)
 
@@ -691,14 +694,14 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openPlayerSearchMenu(claim: Claim, playerDoesNotExist: Boolean = false) {
         // Create homes menu
-        val gui = AnvilGui("Search for Player")
+        val gui = AnvilGui(getLangText("SearchForPlayer"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
         val headItem = ItemStack(Material.PLAYER_HEAD)
-            .name("Player")
+            .name(getLangText("Player"))
         val guiHeadItem = GuiItem(headItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiHeadItem, 0, 0)
         gui.firstItemComponent.addPane(firstPane)
@@ -707,8 +710,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         if (playerDoesNotExist) {
             val secondPane = StaticPane(0, 0, 1, 1)
             val paperItem = ItemStack(Material.PAPER)
-                .name("That player does not exist")
-                .lore("Only players who have logged in to the server at least once will appear.")
+                .name(getLangText("PlayerDoesNotExist"))
+                .lore(getLangText("PlayerMustHaveLoggedIn"))
+
             val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
             secondPane.addItem(guiPaperItem, 0, 0)
             gui.secondItemComponent.addPane(secondPane)
@@ -716,7 +720,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm4"))
         val confirmGuiItem = GuiItem(confirmItem) { _ ->
             val player = Bukkit.getOfflinePlayer(gui.renameText)
             if (!player.hasPlayedBefore()) {
@@ -746,7 +750,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name("Go Back")
+            .name(getLangText("GoBack2"))
+
         val guiExitItem = GuiItem(exitItem) { backButtonAction() }
         controlsPane.addItem(guiExitItem, 0, 0)
         return controlsPane
@@ -754,17 +759,17 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     private fun addPaginator(controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
         // Add prev item
-        val prevItem = ItemStack(Material.ARROW).name("Prev")
+        val prevItem = ItemStack(Material.ARROW).name(getLangText("Prev"))
         val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPrevItem, 6, 0)
 
         // Add page item
-        val pageItem = ItemStack(Material.PAPER).name("Page $currentPage of $totalPages")
+        val pageItem = ItemStack(Material.PAPER).name(getLangText("PageInfo1") + "$currentPage" + getLangText("PageInfo2") + "$totalPages")
         val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPageItem, 7, 0)
 
         // Add next item
-        val nextItem = ItemStack(Material.ARROW).name("Next")
+        val nextItem = ItemStack(Material.ARROW).name(getLangText("Next"))
         val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiNextItem, 8, 0)
     }
@@ -776,12 +781,12 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         controlsPane.addItem(guiDisplayItem, 4, 0)
 
         // Add deselect all button
-        val deselectItem = ItemStack(Material.HONEY_BLOCK).name("Deselect All")
+        val deselectItem = ItemStack(Material.HONEY_BLOCK).name(getLangText("DeselectAll2"))
         val guiDeselectItem = GuiItem(deselectItem) { deselectAction() }
         controlsPane.addItem(guiDeselectItem, 2, 0)
 
         // Add select all button
-        val selectItem = ItemStack(Material.SLIME_BLOCK).name("Select All")
+        val selectItem = ItemStack(Material.SLIME_BLOCK).name(getLangText("SelectAll2"))
         val guiSelectItem = GuiItem(selectItem) { selectAction() }
         controlsPane.addItem(guiSelectItem, 6, 0)
     }

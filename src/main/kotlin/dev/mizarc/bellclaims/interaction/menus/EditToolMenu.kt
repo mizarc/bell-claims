@@ -17,11 +17,13 @@ import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.event.inventory.ClickType
 
+import dev.mizarc.bellclaims.utils.getLangText
+
 class EditToolMenu(private val claimService: ClaimService, private val partitionService: PartitionService,
                    private val playerStateService: PlayerStateService, private val player: Player,
                    private val visualiser: Visualiser, private val partition: Partition? = null) {
     fun openEditToolMenu() {
-        val gui = ChestGui(1, "Claim Tool")
+        val gui = ChestGui(1, getLangText("ClaimTool2"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
 
@@ -30,13 +32,14 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         // Add mode switch icon
         val modeSwitchItem = ItemStack(Material.SPYGLASS)
-            .name("Change Mode")
+            .name(getLangText("ChangeMode"))
 
         val playerState = playerStateService.getByPlayer(player) ?: return
         val guiModeSwitchItem: GuiItem
         if (playerState.claimToolMode == 0) {
-            modeSwitchItem.lore("> View Mode")
-            modeSwitchItem.lore("Edit Mode")
+            modeSwitchItem.lore(getLangText("ViewMode1"))
+            modeSwitchItem.lore(getLangText("EditMode"))
+
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 1
                 visualiser.refresh(player)
@@ -44,8 +47,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             }
         }
         else {
-            modeSwitchItem.lore("View Mode")
-            modeSwitchItem.lore("> Edit Mode")
+            modeSwitchItem.lore(getLangText("ViewMode2"))
+            modeSwitchItem.lore(getLangText("ActiveEditMode"))
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
                 playerState.claimToolMode = 0
                 visualiser.refresh(player)
@@ -63,8 +66,9 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         // Add message item if selection is out of any claim
         if (partition == null) {
             val messageItem = ItemStack(Material.COAL)
-                .name("No Claim Here")
-                .lore("Select an area in a claim to see more options.")
+                .name(getLangText("NoClaimHere"))
+                .lore(getLangText("SelectAreaForMoreOptions"))
+
             val guiMessageItem = GuiItem(messageItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiMessageItem, 5, 0)
             gui.show(player)
@@ -75,8 +79,9 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         val claim = claimService.getById(partition.claimId) ?: return
         if (claim.owner.uniqueId != player.uniqueId) {
             val messageItem = ItemStack(Material.COAL)
-                .name("Not Your Claim")
-                .lore("Select an area in your claim to see more options.")
+                .name(getLangText("NotYourClaim"))
+                .lore(getLangText("SelectYourClaimForMoreOptions"))
+
             val guiMessageItem = GuiItem(messageItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiMessageItem, 5, 0)
             gui.show(player)
@@ -85,19 +90,19 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         val partitions = partitionService.getByClaim(claim)
         val claimItem = ItemStack(Material.BELL)
-            .name("Claim")
-            .lore("Name: ${claim.name}")
-            .lore("Location: ${claim.position.x}, ${claim.position.y}, ${claim.position.z}")
-            .lore("Partitions: ${partitions.count()}")
-            .lore("Claim Blocks: ${claimService.getBlockCount(claim)}")
+            .name(getLangText("Claim"))
+            .lore(getLangText("Name") + "${claim.name}")
+            .lore(getLangText("Location") + "${claim.position.x}, ${claim.position.y}, ${claim.position.z}")
+            .lore(getLangText("Partitions") + "${partitions.count()}")
+            .lore(getLangText("ClaimBlocks") + "${claimService.getBlockCount(claim)}")
         val guiClaimItem = GuiItem(claimItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiClaimItem, 3, 0)
 
         val partitionItem = ItemStack(Material.PAPER)
-            .name("Partition")
-            .lore("Location: ${partition.area.lowerPosition2D.x}, ${partition.area.lowerPosition2D.z} / " +
+            .name(getLangText("Partition"))
+            .lore(getLangText("PartitionLocation") + "${partition.area.lowerPosition2D.x}, ${partition.area.lowerPosition2D.z} / " +
                     "${partition.area.upperPosition2D.x}, ${partition.area.upperPosition2D.z}")
-            .lore("Blocks: ${partition.area.getBlockCount()}")
+            .lore(getLangText("PartitionBlocks") + "${partition.area.getBlockCount()}")
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiPartitionItem, 5, 0)
 
@@ -105,14 +110,15 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         if (partitionService.isRemoveAllowed(partition) ||
                 partition.id == primaryPartition.id) {
             val deleteItem = ItemStack(Material.GUNPOWDER)
-                .name("Can't Delete Partition")
-                .lore("Deleting this would result in your claim being fragmented.")
+                .name(getLangText("CantDeletePartition"))
+                .lore(getLangText("FragmentedClaimWarning"))
+
             val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiDeleteItem, 7, 0)
         }
         else {
             val deleteItem = ItemStack(Material.REDSTONE)
-                .name("Delete Partition")
+                .name(getLangText("DeletePartition"))
             val guiDeleteItem = GuiItem(deleteItem) { openDeleteMenu(partition) }
             pane.addItem(guiDeleteItem, 7, 0)
         }
@@ -121,7 +127,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
     }
 
     fun openDeleteMenu(partition: Partition) {
-        val gui = HopperGui("Delete Partition?")
+        val gui = HopperGui(getLangText("DeletePartitionQuestion"))
         val pane = StaticPane(1, 0, 3, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
@@ -129,8 +135,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         // Add no menu item
         val noItem = ItemStack(Material.RED_CONCRETE)
-            .name("No")
-            .lore("Take me back")
+            .name(getLangText("No"))
+            .lore(getLangText("TakeMeBack"))
         val guiNoItem = GuiItem(noItem) { guiEvent ->
             guiEvent.isCancelled = true
             openEditToolMenu()
@@ -139,8 +145,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         // Add yes menu item
         val yesItem = ItemStack(Material.GREEN_CONCRETE)
-            .name("Yes")
-            .lore("Warning, this is a permanent action")
+            .name(getLangText("Yes"))
+            .lore(getLangText("PermanentActionWarning"))
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
             partitionService.delete(partition)
