@@ -49,3 +49,7 @@ java {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.shadowJar {
+    archiveClassifier = null
+}
