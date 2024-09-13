@@ -27,6 +27,10 @@ import dev.mizarc.bellclaims.interaction.listeners.*
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import org.bukkit.Bukkit
 
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
+
 /**
  * The entry point for the Bell Claims plugin.
  */
@@ -55,6 +59,12 @@ class BellClaims : JavaPlugin() {
 
     private lateinit var visualiser: Visualiser
 
+    companion object {
+        lateinit var instance: BellClaims
+    }
+    private lateinit var langConfig: FileConfiguration
+    private lateinit var langFile: File
+
     override fun onEnable() {
         initialiseVaultDependency()
         initialiseRepositories()
@@ -66,8 +76,49 @@ class BellClaims : JavaPlugin() {
         registerCommands()
         registerEvents()
 
+//NOTE: new language functions
+//I don't know where to put them
+        InitLangConfig()
+        loadLangConfig()
+
         logger.info("Bell Claims has been Enabled")
     }
+    
+//---Maybe Put It Somewhere else?---//
+
+    /**
+     * Initializes lang system.
+     */
+    fun InitLangConfig() {
+        instance = this
+        saveDefaultConfig()
+        var selectedLanguage = config.pluginLanguage
+        val langFileName = "lang_${selectedLanguage}.yml"
+        langFile = File(dataFolder, langFileName)
+        if (!langFile.exists()) {
+            saveResource(langFileName, false)
+        }
+    }
+
+    /**
+     * Load lang config.
+     */
+    fun loadLangConfig() {
+        try {
+            langConfig = YamlConfiguration.loadConfiguration(langFile)
+        } catch (e: IllegalArgumentException) {
+            langConfig = YamlConfiguration()
+        }
+    }
+
+    /**
+     * apiFunction for getLangText() in utils.
+     */
+    fun getText(key: String): String {
+    return langConfig.getString(key, "String key not found") ?: "String key not found"
+    }
+
+//---------------------------------------
 
     override fun onDisable() {
         logger.info("Bell Claims has been Disabled")
