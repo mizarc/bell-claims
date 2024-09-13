@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.behaviours
+package dev.mizarc.bellclaims.interaction.listeners
 
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
@@ -59,13 +59,16 @@ class PermissionBehaviour {
         val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
 
         // Used for placing fluids such as water and lava
-        val fluidPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFluidPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val fluidPlace = PermissionExecutor(PlayerBucketEmptyEvent::class.java, Companion::cancelEvent, Companion::getBucketLocation, Companion::getBucketPlayer)
 
         // Used for placing fluids such as water and lava
         val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
+        // Used for placing paintings
+        val paintingPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelPaintingPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
 
         // Used for breaking item frames and paintings
         val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEvent, Companion::getHangingBreakByEntityEventLocation, Companion::getHangingBreakByEntityEventPlayer)
@@ -156,9 +159,6 @@ class PermissionBehaviour {
 
         // Used for exploding TNT minecarts with a flaming projectile.
         val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
-
-        // Used for events triggered by an omen status effect
-        val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent, Companion::getRaidTriggerLocation, Companion::getRaidTriggerPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -264,21 +264,6 @@ class PermissionBehaviour {
         }
 
         /**
-         * Cancels the action of placing water or lava buckets.
-         */
-        private fun cancelFluidPlace(listener: Listener, event: Event): Boolean {
-            if (event !is PlayerInteractEvent) return false
-            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
-            val clickedBlock = event.clickedBlock ?: return false
-            if (clickedBlock.type == Material.CAULDRON) return false
-            val item = event.item ?: return false
-            if (item.type != Material.WATER_BUCKET &&
-                item.type != Material.LAVA_BUCKET) return false
-            event.isCancelled = true
-            return true
-        }
-
-        /**
          * Cancels the action of placing down item frames.
          */
         private fun cancelItemFramePlace(listener: Listener, event: Event): Boolean {
@@ -286,6 +271,18 @@ class PermissionBehaviour {
             if (event.action != Action.RIGHT_CLICK_BLOCK) return false
             val item = event.item ?: return false
             if (item.type != Material.ITEM_FRAME && item.type != Material.GLOW_ITEM_FRAME) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of placing down paintings.
+         */
+        private fun cancelPaintingPlace(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerInteractEvent) return false
+            if (event.action != Action.RIGHT_CLICK_BLOCK) return false
+            val item = event.item ?: return false
+            if (item.type != Material.PAINTING) return false
             event.isCancelled = true
             return true
         }
@@ -770,16 +767,6 @@ class PermissionBehaviour {
                 return event.entity.shooter as Player
             }
             return null
-        }
-
-        private fun getRaidTriggerLocation(event: Event): Location? {
-            if (event !is RaidTriggerEvent) return null
-            return event.raid.location
-        }
-
-        private fun getRaidTriggerPlayer(event: Event): Player? {
-            if (event !is RaidTriggerEvent) return null
-            return event.player
         }
     }
 }
