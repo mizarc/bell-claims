@@ -15,10 +15,13 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.Arrow
 import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Painting
+import org.bukkit.entity.Projectile
+import org.bukkit.entity.Skeleton
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -52,6 +55,10 @@ class RuleBehaviour {
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
         val mobBreakDoor = RuleExecutor(EntityBreakDoorEvent::class.java,
             Companion::cancelEntityBreakDoor, Companion::entityBreakDoorInClaim)
+        val skeletonDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelSkeletonArrowDamage, Companion::entityDamageInClaim)
+        val skeletonHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java,
+            Companion::cancelSkeletonArrowHangingDamage, Companion::hangingBreakByEntityInClaim)
         val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
         val creeperDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
@@ -71,7 +78,7 @@ class RuleBehaviour {
         val blockExplodeDamage = RuleExecutor(EntityDamageByBlockEvent::class.java,
             Companion::cancelBlockExplosionDamage, Companion::blockDamageInClaim)
         val entityExplodeHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java,
-            Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
+            Companion::cancelCreeperExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
         val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
@@ -88,7 +95,17 @@ class RuleBehaviour {
             return false
         }
 
-        private fun cancelEntityExplosionHangingDamage(event: Event, claimService: ClaimService,
+        private fun cancelSkeletonArrowHangingDamage(event: Event, claimService: ClaimService,
+                                                       partitionService: PartitionService,
+                                                       flagService: FlagService): Boolean {
+            if (event !is HangingBreakByEntityEvent) return false
+            if (event.remover !is Skeleton) return false
+            if (event.entity !is ItemFrame && event.entity !is Painting) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelCreeperExplosionHangingDamage(event: Event, claimService: ClaimService,
                                                        partitionService: PartitionService,
                                                        flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
@@ -208,6 +225,15 @@ class RuleBehaviour {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Creeper) return false
             if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is Painting) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelSkeletonArrowDamage(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Arrow) return false
+            if (event.cause != EntityDamageEvent.DamageCause.PROJECTILE) return false
             event.isCancelled = true
             return true
         }

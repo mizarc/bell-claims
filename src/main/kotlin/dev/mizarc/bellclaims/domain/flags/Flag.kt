@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.domain.flags
 import dev.mizarc.bellclaims.interaction.behaviours.RuleBehaviour
 import dev.mizarc.bellclaims.interaction.behaviours.RuleExecutor
 import org.bukkit.event.Event
+import org.junit.Rule
 
 /**
  * Represents the expected behaviour of certain events in claims that do not pertain to players.
@@ -24,6 +25,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     MobGriefing(arrayOf(
         RuleBehaviour.mobBlockChange,
         RuleBehaviour.mobBreakDoor,
+        RuleBehaviour.skeletonHangingDamage,
+        RuleBehaviour.skeletonDamageStaticEntity,
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
         RuleBehaviour.creeperDamageHangingEntity
