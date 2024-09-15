@@ -25,8 +25,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     MobGriefing(arrayOf(
         RuleBehaviour.mobBlockChange,
         RuleBehaviour.mobBreakDoor,
-        RuleBehaviour.skeletonHangingDamage,
-        RuleBehaviour.skeletonDamageStaticEntity,
+        RuleBehaviour.mobHangingDamage,
+        RuleBehaviour.mobDamageStaticEntity,
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
         RuleBehaviour.creeperDamageHangingEntity
