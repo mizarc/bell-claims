@@ -92,7 +92,7 @@ class RuleBehaviour {
                                                        partitionService: PartitionService,
                                                        flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
-            if (event.remover !is Skeleton && event.remover !is Blaze) return false
+            if (event.remover !is Skeleton && event.remover !is Blaze && event.remover !is Ghast) return false
             if (event.entity !is ItemFrame && event.entity !is Painting) return false
             event.isCancelled = true
             return true
