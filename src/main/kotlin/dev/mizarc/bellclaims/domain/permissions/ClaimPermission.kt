@@ -23,6 +23,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
         PermissionBehaviour.hangingEntityBreak,
         PermissionBehaviour.fertilize,
         PermissionBehaviour.farmlandStep,
+        PermissionBehaviour.mountFarmlandStep,
         PermissionBehaviour.dragonEggTeleport,
         PermissionBehaviour.bucketFill,
         PermissionBehaviour.pumpkinShear
