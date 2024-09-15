@@ -230,7 +230,6 @@ class BellClaims : JavaPlugin() {
             playerStateService), this)
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
-        server.pluginManager.registerEvents(MiscPreventionsListener(claimService, partitionService), this)
         server.pluginManager.registerEvents(
             Visualiser(this, claimService, partitionService,
                 playerStateService, visualisationService), this)
