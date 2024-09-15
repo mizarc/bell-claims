@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.util.Vector
 
 /**
@@ -74,7 +75,10 @@ class RuleBehaviour {
             Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
-        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
+        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow,
+            Companion::fluidFlowSourceInClaim)
+        val treeGrowth = RuleExecutor(StructureGrowEvent::class.java, Companion::cancelTreeGrowth,
+            Companion::treeGrowthInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -447,6 +451,47 @@ class RuleBehaviour {
             if (!blockInClaim) return false
             event.isCancelled = true
             return true
+        }
+
+        private fun cancelTreeGrowth(event: Event, claimService: ClaimService,
+                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is StructureGrowEvent) return false
+            if (partitionService.getByLocation(event.location) != null) {
+                val partition = partitionService.getByLocation(event.location) ?: return false
+                val claim = claimService.getById(partition.claimId) ?: return false
+                for (block in event.blocks) {
+                    if (partitionService.getByLocation(block.location) != null) {
+                        val otherPartition = partitionService.getByLocation(block.location) ?: continue
+                        val otherClaim = claimService.getById(otherPartition.claimId) ?: continue
+                        if (claim.id != otherClaim.id) {
+                            partitionService.getByLocation(block.location) ?: continue
+                            event.isCancelled = true
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+
+            for (block in event.blocks) {
+                if (partitionService.getByLocation(block.location) != null) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun treeGrowthInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+            if (event !is StructureGrowEvent) return listOf()
+            val claims = mutableListOf<Claim>()
+            for (block in event.blocks) {
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = claimService.getById(partition.claimId) ?: continue
+                claims.add(claim)
+            }
+            return claims.distinct()
         }
     }
 }

@@ -54,6 +54,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      */
     Fluids(arrayOf(
         RuleBehaviour.fluidFlow
+    )),
+
+    Trees(arrayOf(
+        RuleBehaviour.treeGrowth
     ));
 
     companion object {
