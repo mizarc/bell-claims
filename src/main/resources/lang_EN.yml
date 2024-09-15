@@ -5,12 +5,16 @@ NameFlagFireSpread: "Fire Spread"
 NameFlagMobGriefing: "Mob Griefing"
 NameFlagPistons: "Pistons"
 NameFlagFluids: "Fluid Flow"
+NameFlagTrees: "Tree Growth"
+NameFlagSculk: "Sculk Spread"
 
 DescFlagExplosions: "Allows TNT to damage claim blocks"
 DescFlagFireSpread: "Allows fire to spread to other blocks"
 DescFlagMobGriefing: "Allows mobs to damage claim blocks"
 DescFlagPistons: "Allows pistons placed outside the claim to move claim blocks"
 DescFlagFluids: "Allows fluids to flow into the claim"
+DescFlagTrees: "Allows trees planted outside to grow into the claim"
+DescFlagSculk: "Allows sculk catalysts placed outside to grow into the claim"
 
 # --- PermissionDisplay.kt ---
 
