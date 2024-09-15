@@ -96,7 +96,8 @@ class RuleBehaviour {
                 && event.remover !is Blaze
                 && event.remover !is Ghast
                 && event.remover !is Snowman
-                && event.remover !is Pillager) return false
+                && event.remover !is Pillager
+                && event.remover !is Wither) return false
             if (event.entity !is ItemFrame && event.entity !is Painting) return false
             event.isCancelled = true
             return true
