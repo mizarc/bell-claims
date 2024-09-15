@@ -92,7 +92,7 @@ class RuleBehaviour {
                                                        partitionService: PartitionService,
                                                        flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
-            if (event.remover !is Skeleton && event.remover !is Blaze && event.remover !is Ghast) return false
+            if (event.remover !is Skeleton && event.remover !is Blaze && event.remover !is Ghast && event.remover !is Snowman) return false
             if (event.entity !is ItemFrame && event.entity !is Painting) return false
             event.isCancelled = true
             return true
@@ -225,7 +225,7 @@ class RuleBehaviour {
         private fun cancelMobEntityDamage(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityDamageByEntityEvent) return false
-            if (event.damager !is Arrow && event.damager !is Fireball) return false
+            if (event.damager !is Arrow && event.damager !is Fireball && event.damager !is Snowball) return false
             if (event.cause != EntityDamageEvent.DamageCause.PROJECTILE) return false
             event.isCancelled = true
             return true
