@@ -21,6 +21,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -61,8 +62,11 @@ class PermissionBehaviour {
         // Used for placing fluids such as water and lava
         val fluidPlace = PermissionExecutor(PlayerBucketEmptyEvent::class.java, Companion::cancelEvent, Companion::getBucketLocation, Companion::getBucketPlayer)
 
-        // Used for placing fluids such as water and lava
+        // Used for breaking farmland
         val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+
+        // Used for breaking farmland with a mountable animal
+        val mountFarmlandStep = PermissionExecutor(EntityInteractEvent::class.java, Companion::cancelMountFarmlandStep, Companion::getEntityInteractEventLocation, Companion::getInteractEventEntityPassengerPlayer)
 
         // Used for placing item frames
         val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
@@ -203,6 +207,16 @@ class PermissionBehaviour {
             if (event.action != Action.PHYSICAL) return false
             val block = event.clickedBlock ?: return false
             if (block.blockData !is Farmland) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of breaking farmland from stepping on with a mountable animal like a horse.
+         */
+        private fun cancelMountFarmlandStep(listener: Listener, event: Event): Boolean {
+            if (event !is EntityInteractEvent) return false
+            if (event.block.type != Material.FARMLAND) return false
             event.isCancelled = true
             return true
         }
@@ -575,11 +589,31 @@ class PermissionBehaviour {
         }
 
         /**
+         * Get the location of an entity interact block
+         */
+        private fun getEntityInteractEventLocation(event: Event): Location? {
+            if (event !is EntityInteractEvent) return null
+            val block = event.block ?: return null
+            return block.location
+        }
+
+        /**
          * Get the player that placed the entity.
          */
         private fun getInteractEventPlayer(event: Event): Player? {
             if (event !is PlayerInteractEvent) return null
             return event.player
+        }
+
+        /**
+         * Get the player that placed the entity.
+         */
+        private fun getInteractEventEntityPassengerPlayer(event: Event): Player? {
+            if (event !is EntityInteractEvent) return null
+            if (event.entity.passengers.isEmpty()) return null
+            if (event.entity.passengers.size > 1) return null
+            if (event.entity.passengers[0].type != EntityType.PLAYER) return null
+            return event.entity.passengers[0] as Player?
         }
 
         /**
