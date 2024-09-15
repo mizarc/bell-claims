@@ -19,6 +19,7 @@ import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Painting
+import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -79,6 +80,8 @@ class RuleBehaviour {
             Companion::fluidFlowSourceInClaim)
         val treeGrowth = RuleExecutor(StructureGrowEvent::class.java, Companion::cancelTreeGrowth,
             Companion::treeGrowthInClaim)
+        val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
+            Companion::sculkSpreadInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -492,6 +495,35 @@ class RuleBehaviour {
                 claims.add(claim)
             }
             return claims.distinct()
+        }
+
+        @EventHandler
+        fun cancelSculkSpread(event: Event, claimService: ClaimService,
+                              partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockSpreadEvent) return false
+            if (event.source.type == Material.SCULK_CATALYST) {
+                val partition = partitionService.getByLocation(event.block.location)
+                val sourcePartition = partitionService.getByLocation(event.source.location)
+
+                if (sourcePartition == partition) {
+                    return false
+                }
+
+                if (sourcePartition == null) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
+        }
+
+
+        private fun sculkSpreadInClaim(event: Event, claimService: ClaimService,
+                                      partitionService: PartitionService): List<Claim> {
+            if (event !is BlockSpreadEvent) return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
         }
     }
 }

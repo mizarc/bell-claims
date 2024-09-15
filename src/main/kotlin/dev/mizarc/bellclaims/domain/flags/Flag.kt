@@ -58,6 +58,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Trees(arrayOf(
         RuleBehaviour.treeGrowth
+    )),
+
+    Sculk(arrayOf(
+        RuleBehaviour.sculkSpread
     ));
 
     companion object {
