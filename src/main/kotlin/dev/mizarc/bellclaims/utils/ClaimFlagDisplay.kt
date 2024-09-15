@@ -18,6 +18,7 @@ fun Flag.getIcon(): ItemStack {
         Flag.MobGriefing -> ItemStack(Material.CREEPER_HEAD)
         Flag.Pistons -> ItemStack(Material.PISTON)
         Flag.Fluids -> ItemStack(Material.WATER_BUCKET)
+        Flag.Trees -> ItemStack(Material.OAK_SAPLING)
     }
 }
 
@@ -33,6 +34,7 @@ fun Flag.getDisplayName(): String {
         Flag.MobGriefing -> getLangText("NameFlagMobGriefing")
         Flag.Pistons -> getLangText("NameFlagPistons")
         Flag.Fluids -> getLangText("NameFlagFluids")
+        Flag.Trees -> getLangText("NameFlagTrees")
     }
 }
 
@@ -48,5 +50,6 @@ fun Flag.getDescription(): String {
         Flag.MobGriefing -> getLangText("DescFlagMobGriefing")
         Flag.Pistons -> getLangText("DescFlagPistons")
         Flag.Fluids -> getLangText("DescFlagFluids")
+        Flag.Trees -> getLangText("DescFlagTrees")
     }
 }
