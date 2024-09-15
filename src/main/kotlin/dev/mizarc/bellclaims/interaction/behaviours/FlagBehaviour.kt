@@ -78,7 +78,7 @@ class RuleBehaviour {
         val blockExplodeDamage = RuleExecutor(EntityDamageByBlockEvent::class.java,
             Companion::cancelBlockExplosionDamage, Companion::blockDamageInClaim)
         val entityExplodeHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java,
-            Companion::cancelCreeperExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
+            Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
         val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
@@ -105,7 +105,7 @@ class RuleBehaviour {
             return true
         }
 
-        private fun cancelCreeperExplosionHangingDamage(event: Event, claimService: ClaimService,
+        private fun cancelEntityExplosionHangingDamage(event: Event, claimService: ClaimService,
                                                        partitionService: PartitionService,
                                                        flagService: FlagService): Boolean {
             if (event !is HangingBreakByEntityEvent) return false
