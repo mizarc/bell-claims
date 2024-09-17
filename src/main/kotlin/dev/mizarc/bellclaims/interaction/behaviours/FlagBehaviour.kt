@@ -14,11 +14,7 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
-import org.bukkit.entity.ArmorStand
-import org.bukkit.entity.Creeper
-import org.bukkit.entity.ItemFrame
-import org.bukkit.entity.Monster
-import org.bukkit.entity.Painting
+import org.bukkit.entity.*
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -52,6 +48,10 @@ class RuleBehaviour {
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
         val mobBreakDoor = RuleExecutor(EntityBreakDoorEvent::class.java,
             Companion::cancelEntityBreakDoor, Companion::entityBreakDoorInClaim)
+        val mobDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelMobEntityDamage, Companion::entityDamageInClaim)
+        val mobHangingDamage = RuleExecutor(HangingBreakByEntityEvent::class.java,
+            Companion::cancelMobHangingDamage, Companion::hangingBreakByEntityInClaim)
         val creeperExplode = RuleExecutor(EntityExplodeEvent::class.java,
             Companion::cancelCreeperExplode, Companion::entityExplosionInClaim)
         val creeperDamageStaticEntity = RuleExecutor(EntityDamageByEntityEvent::class.java,
@@ -91,6 +91,21 @@ class RuleBehaviour {
                 return true
             }
             return false
+        }
+
+        private fun cancelMobHangingDamage(event: Event, claimService: ClaimService,
+                                                       partitionService: PartitionService,
+                                                       flagService: FlagService): Boolean {
+            if (event !is HangingBreakByEntityEvent) return false
+            if (event.remover !is Skeleton
+                && event.remover !is Blaze
+                && event.remover !is Ghast
+                && event.remover !is Snowman
+                && event.remover !is Pillager
+                && event.remover !is Wither) return false
+            if (event.entity !is ItemFrame && event.entity !is Painting) return false
+            event.isCancelled = true
+            return true
         }
 
         private fun cancelEntityExplosionHangingDamage(event: Event, claimService: ClaimService,
@@ -213,6 +228,15 @@ class RuleBehaviour {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Creeper) return false
             if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is Painting) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelMobEntityDamage(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityDamageByEntityEvent) return false
+            if (event.damager !is Arrow && event.damager !is Fireball && event.damager !is Snowball) return false
+            if (event.cause != EntityDamageEvent.DamageCause.PROJECTILE) return false
             event.isCancelled = true
             return true
         }
