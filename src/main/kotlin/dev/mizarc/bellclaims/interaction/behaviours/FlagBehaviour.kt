@@ -21,7 +21,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
-import org.bukkit.util.Vector
+import org.bukkit.event.world.StructureGrowEvent
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -43,7 +43,7 @@ class RuleBehaviour {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java,
             Companion::cancelEvent, Companion::blockInClaim)
         val fireSpread = RuleExecutor(BlockSpreadEvent::class.java,
-            Companion::cancelEvent, Companion::fireSpreadInClaim)
+            Companion::cancelFireSpread, Companion::blockSpreadInClaim)
         val mobBlockChange = RuleExecutor(EntityChangeBlockEvent::class.java,
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
         val mobBreakDoor = RuleExecutor(EntityBreakDoorEvent::class.java,
@@ -74,7 +74,12 @@ class RuleBehaviour {
             Companion::cancelEntityExplosionHangingDamage, Companion::hangingBreakByEntityInClaim)
         val blockExplodeHangingDamage = RuleExecutor(HangingBreakEvent::class.java,
             Companion::cancelBlockExplosionHangingDamage, Companion::hangingBreakByBlockInClaim)
-        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow, Companion::fluidFlowSourceInClaim)
+        val fluidFlow = RuleExecutor(BlockFromToEvent::class.java, Companion::cancelFluidFlow,
+            Companion::fluidFlowSourceInClaim)
+        val treeGrowth = RuleExecutor(StructureGrowEvent::class.java, Companion::cancelTreeGrowth,
+            Companion::treeGrowthInClaim)
+        val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
+            Companion::blockSpreadInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -318,10 +323,9 @@ class RuleBehaviour {
             return listOf(claim ?: return listOf()).distinct()
         }
 
-        private fun fireSpreadInClaim(event: Event, claimService: ClaimService,
+        private fun blockSpreadInClaim(event: Event, claimService: ClaimService,
                                       partitionService: PartitionService): List<Claim> {
             if (event !is BlockSpreadEvent) return listOf()
-            if (event.source.type != Material.FIRE) return listOf()
             val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
@@ -469,6 +473,74 @@ class RuleBehaviour {
             }
 
             if (!blockInClaim) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelTreeGrowth(event: Event, claimService: ClaimService,
+                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is StructureGrowEvent) return false
+            if (partitionService.getByLocation(event.location) != null) {
+                val partition = partitionService.getByLocation(event.location) ?: return false
+                val claim = claimService.getById(partition.claimId) ?: return false
+                for (block in event.blocks) {
+                    if (partitionService.getByLocation(block.location) != null) {
+                        val otherPartition = partitionService.getByLocation(block.location) ?: continue
+                        val otherClaim = claimService.getById(otherPartition.claimId) ?: continue
+                        if (claim.id != otherClaim.id) {
+                            partitionService.getByLocation(block.location) ?: continue
+                            event.isCancelled = true
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+
+            for (block in event.blocks) {
+                if (partitionService.getByLocation(block.location) != null) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun treeGrowthInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+            if (event !is StructureGrowEvent) return listOf()
+            val claims = mutableListOf<Claim>()
+            for (block in event.blocks) {
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = claimService.getById(partition.claimId) ?: continue
+                claims.add(claim)
+            }
+            return claims.distinct()
+        }
+
+        private fun cancelSculkSpread(event: Event, claimService: ClaimService,
+                              partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockSpreadEvent) return false
+            if (event.source.type == Material.SCULK_CATALYST) {
+                val partition = partitionService.getByLocation(event.block.location)
+                val sourcePartition = partitionService.getByLocation(event.source.location)
+
+                if (sourcePartition == partition) {
+                    return false
+                }
+
+                if (sourcePartition == null) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun cancelFireSpread(event: Event, claimService: ClaimService,
+                                      partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockSpreadEvent) return false
+            if (event.source.type != Material.FIRE) return false
             event.isCancelled = true
             return true
         }

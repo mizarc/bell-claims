@@ -57,6 +57,14 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      */
     Fluids(arrayOf(
         RuleBehaviour.fluidFlow
+    )),
+
+    Trees(arrayOf(
+        RuleBehaviour.treeGrowth
+    )),
+
+    Sculk(arrayOf(
+        RuleBehaviour.sculkSpread
     ));
 
     companion object {
