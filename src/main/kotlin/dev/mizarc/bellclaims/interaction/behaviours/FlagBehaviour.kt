@@ -19,7 +19,6 @@ import org.bukkit.entity.Creeper
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Monster
 import org.bukkit.entity.Painting
-import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -27,7 +26,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.world.StructureGrowEvent
-import org.bukkit.util.Vector
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -49,7 +47,7 @@ class RuleBehaviour {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java,
             Companion::cancelEvent, Companion::blockInClaim)
         val fireSpread = RuleExecutor(BlockSpreadEvent::class.java,
-            Companion::cancelEvent, Companion::fireSpreadInClaim)
+            Companion::cancelFireSpread, Companion::blockSpreadInClaim)
         val mobBlockChange = RuleExecutor(EntityChangeBlockEvent::class.java,
             Companion::cancelEntityBlockChange, Companion::entityGriefInClaim)
         val mobBreakDoor = RuleExecutor(EntityBreakDoorEvent::class.java,
@@ -81,7 +79,7 @@ class RuleBehaviour {
         val treeGrowth = RuleExecutor(StructureGrowEvent::class.java, Companion::cancelTreeGrowth,
             Companion::treeGrowthInClaim)
         val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
-            Companion::sculkSpreadInClaim)
+            Companion::blockSpreadInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -301,10 +299,9 @@ class RuleBehaviour {
             return listOf(claim ?: return listOf()).distinct()
         }
 
-        private fun fireSpreadInClaim(event: Event, claimService: ClaimService,
+        private fun blockSpreadInClaim(event: Event, claimService: ClaimService,
                                       partitionService: PartitionService): List<Claim> {
             if (event !is BlockSpreadEvent) return listOf()
-            if (event.source.type != Material.FIRE) return listOf()
             val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim).distinct()
@@ -497,8 +494,7 @@ class RuleBehaviour {
             return claims.distinct()
         }
 
-        @EventHandler
-        fun cancelSculkSpread(event: Event, claimService: ClaimService,
+        private fun cancelSculkSpread(event: Event, claimService: ClaimService,
                               partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockSpreadEvent) return false
             if (event.source.type == Material.SCULK_CATALYST) {
@@ -517,13 +513,12 @@ class RuleBehaviour {
             return false
         }
 
-
-        private fun sculkSpreadInClaim(event: Event, claimService: ClaimService,
-                                      partitionService: PartitionService): List<Claim> {
-            if (event !is BlockSpreadEvent) return listOf()
-            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
-            val claim = claimService.getById(partition.claimId) ?: return listOf()
-            return listOf(claim)
+        private fun cancelFireSpread(event: Event, claimService: ClaimService,
+                                      partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockSpreadEvent) return false
+            if (event.source.type != Material.FIRE) return false
+            event.isCancelled = true
+            return true
         }
     }
 }
