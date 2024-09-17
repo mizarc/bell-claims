@@ -7,11 +7,11 @@ import org.bukkit.event.Event
 /**
  * Represents the expected behaviour of certain events in claims and the hierarchy of one permission to any others.
  */
-enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<PermissionExecutor>) {
+enum class ClaimPermission(val events: Array<PermissionExecutor>) {
     /**
      * When a block is broken/placed by a player.
      */
-    Build(null, arrayOf(
+    Build(arrayOf(
         PermissionBehaviour.blockBreak,
         PermissionBehaviour.blockPlace,
         PermissionBehaviour.blockMultiPlace,
@@ -32,12 +32,12 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a container is opened by a player.
      */
-    ContainerInspect(null, arrayOf(PermissionBehaviour.openInventory)),
+    ContainerInspect(arrayOf(PermissionBehaviour.openInventory)),
 
     /**
      * When an item is taken or put in display blocks.
      */
-    DisplayManipulate(null, arrayOf(
+    DisplayManipulate(arrayOf(
         PermissionBehaviour.armorStandManipulate,
         PermissionBehaviour.takeLecternBook,
         PermissionBehaviour.flowerPotManipulate,
@@ -49,7 +49,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When a vehicle is placed or destroyed.
      */
-    VehicleDeploy(null, arrayOf(
+    VehicleDeploy(arrayOf(
         PermissionBehaviour.vehiclePlace,
         PermissionBehaviour.vehicleDestroy
     )),
@@ -57,29 +57,29 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When the sign edit menu is opened.
      */
-    SignEdit(null, arrayOf(
+    SignEdit(arrayOf(
         PermissionBehaviour.signEditing,
         PermissionBehaviour.signDyeing)),
 
     /**
      * When a device used to activate redstone is interacted with by a player.
      */
-    RedstoneInteract(null, arrayOf(PermissionBehaviour.redstoneInteract)),
+    RedstoneInteract(arrayOf(PermissionBehaviour.redstoneInteract)),
 
     /**
      * When a door is opened by a player.
      */
-    DoorOpen(null, arrayOf(PermissionBehaviour.openDoor)),
+    DoorOpen(arrayOf(PermissionBehaviour.openDoor)),
 
     /**
      * When a villager or travelling merchant is traded with by a player.
      */
-    VillagerTrade(null, arrayOf(PermissionBehaviour.villagerTrade)),
+    VillagerTrade(arrayOf(PermissionBehaviour.villagerTrade)),
 
     /**
      * When a passive mob is interacted with.
      */
-    Husbandry(null, arrayOf(
+    Husbandry(arrayOf(
         PermissionBehaviour.playerDamageEntity,
         PermissionBehaviour.interactAnimals,
         PermissionBehaviour.fishingRod,
@@ -91,7 +91,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an explosive is detonated by a player.
      */
-    Detonate(null, arrayOf(
+    Detonate(arrayOf(
         PermissionBehaviour.primeTNT,
         PermissionBehaviour.detonateEndCrystal,
         PermissionBehaviour.detonateBed,
@@ -102,7 +102,7 @@ enum class ClaimPermission(val parent: ClaimPermission?, val events: Array<Permi
     /**
      * When an event is triggered by an omen effect.
      */
-    EventStart(null, arrayOf(
+    EventStart(arrayOf(
         PermissionBehaviour.triggerRaid
     ));
 
