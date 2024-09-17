@@ -25,12 +25,12 @@ class ClaimInteractListener(private var plugin: BellClaims,
                             private val playerPermissionService: PlayerPermissionService,
                             private val playerStateService: PlayerStateService) : Listener {
     init {
-        for (perm in ClaimPermission.values()) {
+        for (perm in ClaimPermission.entries) {
             for (e in perm.events) {
                 registerEvent(e.eventClass, ::handleClaimPermission)
             }
         }
-        for (rule in Flag.values()) {
+        for (rule in Flag.entries) {
             for (r in rule.rules) {
                 registerEvent(r.eventClass, ::handleClaimRule)
             }
@@ -108,32 +108,18 @@ class ClaimInteractListener(private var plugin: BellClaims,
 
         var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
 
-        // Determine if the claim permissions contains any of the parent permissions to this one
-        fun checkPermissionParents(permission: ClaimPermission): Boolean {
-            var permissionRef: ClaimPermission? = permission
-            while (permissionRef?.parent != null) {
-                if (playerPermissions.contains(permissionRef.parent)) {
-                    return true
-                }
-                permissionRef = permissionRef.parent
-            }
-            return false
-        }
-
         // Determine the highest priority permission for the event and sets the executor to the one found, if any
         for (e in eventPerms) {
-            if (!checkPermissionParents(e)) { // First check if claimPerms does not contain the parent of this permission
-                if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
-                    for (ee in e.events) { // If so, determine the executor to use
-                        if (ee.eventClass == event::class.java) {
-                            executor = ee.handler
-                            // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
-                            if (executor.invoke(listener, event)) {
-                                player.sendActionBar(
-                                    Component.text("You can't do that in ${claim.owner.name}'s claim!")
-                                        .color(TextColor.color(255, 85, 85)))
-                                break
-                            }
+            if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
+                for (ee in e.events) { // If so, determine the executor to use
+                    if (ee.eventClass == event::class.java) {
+                        executor = ee.handler
+                        // If nothing was executed then the player has permissions to enact this event, so do not send a warning.
+                        if (executor.invoke(listener, event)) {
+                            player.sendActionBar(
+                                Component.text("You can't do that in ${claim.owner.name}'s claim!")
+                                    .color(TextColor.color(255, 85, 85)))
+                            break
                         }
                     }
                 }
