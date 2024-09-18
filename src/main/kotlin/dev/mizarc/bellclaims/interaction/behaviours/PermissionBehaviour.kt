@@ -570,38 +570,56 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Gets the affected locations of the VehicleDestroyEvent.
+         */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
             if (event !is VehicleDestroyEvent) return listOf()
             return listOf(event.vehicle.location)
         }
 
+        /**
+         * Gets the affected locations of the RaidTriggerEvent.
+         */
         private fun getRaidTriggerLocations(event: Event): List<Location> {
             if (event !is RaidTriggerEvent) return listOf()
             return listOf(event.raid.location)
         }
 
+        /**
+         * Gets the affected locations of the PlayerOpenSignEvent.
+         */
         private fun getPlayerOpenSignLocations(event: Event): List<Location> {
             if (event !is PlayerOpenSignEvent) return listOf()
             return listOf(event.sign.location)
         }
 
+        /**
+         * Gets the affected locations of the HangingBreakByEntityEvent.
+         */
         private fun getHangingBreakByEntityEventLocations(event: Event): List<Location> {
             if (event !is HangingBreakByEntityEvent) return listOf()
             return listOf(event.entity.location)
         }
 
+        /**
+         * Gets the affected locations of the PlayerInteractEntityEvent.
+         */
         private fun getPlayerInteractEntityLocations(event: Event): List<Location> {
             if (event !is PlayerInteractEntityEvent) return listOf()
             return listOf(event.rightClicked.location)
         }
 
+        /**
+         * Gets the affected locations of the PlayerFlowerPotManipulateEvent.
+         */
         private fun getPlayerFlowerPotManipulateLocations(event: Event): List<Location> {
             if (event !is PlayerFlowerPotManipulateEvent) return listOf()
             return listOf(event.flowerpot.location)
         }
 
         /**
-         * Get the location of an entity being placed.
+         * Gets the affected locations of the PlayerInteractEvent.
          */
         private fun getPlayerInteractLocations(event: Event): List<Location> {
             if (event !is PlayerInteractEvent) return listOf()
@@ -610,7 +628,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an entity interact block
+         * Gets the affected locations of the EntityInteractEvent.
          */
         private fun getEntityInteractLocations(event: Event): List<Location> {
             if (event !is EntityInteractEvent) return listOf()
@@ -618,39 +636,48 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an entity being placed.
+         * Gets the affected locations of the EntityPlaceEvent.
          */
         private fun getEntityPlaceLocations(event: Event): List<Location> {
             if (event !is EntityPlaceEvent) return listOf()
             return listOf(event.entity.location)
         }
 
+        /**
+         * Gets the affected locations of the PlayerFishEvent.
+         */
         private fun getPlayerFishLocations(event: Event): List<Location> {
             if (event !is PlayerFishEvent) return listOf()
             val caught = event.caught ?: return listOf()
             return listOf(caught.location)
         }
 
+        /**
+         * Get the affected locations of the PlayerBucketEvent.
+         */
         private fun getPlayerBucketLocations(event: Event): List<Location> {
             if (event !is PlayerBucketEvent) return listOf()
             return listOf(event.block.location)
         }
 
         /**
-         * Get the location of a block involved in a block event.
+         * Gets the affected locations of the BlockEvent.
          */
         private fun getBlockLocations(event: Event): List<Location> {
             if (event !is BlockEvent) return listOf()
             return listOf(event.block.location)
         }
 
+        /**
+         * Gets the affected locations of the BlockMultiPlaceEvent.
+         */
         private fun getBlockMultiPlaceLocations(event: Event): List<Location> {
             if (event !is BlockMultiPlaceEvent) return listOf()
             return event.replacedBlockStates.map { it.location }.distinct()
         }
 
         /**
-         * Get the location of a lectern that is being interacted with.
+         * Gets the affected locations of the PlayerTakeLecternBookEvent.
          */
         private fun getPlayerTakeLecternBookLocations(event: Event): List<Location> {
             if (event !is PlayerTakeLecternBookEvent) return listOf()
@@ -658,7 +685,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an armor stand being manipulated.
+         * Gets the affected locations of the PlayerArmorStandManipulateEvent.
          */
         private fun getPlayerArmorStandManipulateLocations(event: Event): List<Location> {
             if (event !is PlayerArmorStandManipulateEvent) return listOf()
@@ -666,7 +693,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an entity being damaged by another entity.
+         * Gets the affected locations of the EntityDamageByEntityEvent.
          */
         private fun getEntityDamageByEntityLocations(event: Event): List<Location> {
             if (event !is EntityDamageByEntityEvent) return listOf()
@@ -674,7 +701,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an inventory that was opened.
+         * Gets the affected locations of the InventoryOpenEvent.
          */
         private fun getInventoryOpenLocations(event: Event): List<Location> {
             if (event !is InventoryOpenEvent) return listOf()
@@ -683,29 +710,41 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of the block the bucket is filling from.
+         * Gets the affected locations of the PlayerBucketFillEvent.
          */
         private fun getPlayerBucketFillLocations(event: Event): List<Location> {
             if (event !is PlayerBucketFillEvent) return listOf()
             return listOf(event.block.location)
         }
 
+        /**
+         * Gets the affected locations of the PlayerShearBlockEvent.
+         */
         private fun getPlayerShearBlockLocations(event: Event): List<Location> {
             if (event !is PlayerShearBlockEvent) return listOf()
             return listOf(event.block.location)
         }
 
+        /**
+         * Gets the affected locations of the TNTPrimeEvent.
+         */
         private fun getTNTPrimeLocations(event: Event): List<Location> {
             if (event !is TNTPrimeEvent) return listOf()
             return listOf(event.block.location)
         }
 
+        /**
+         * Gets the affected locations of the ProjectileHitEvent.
+         */
         private fun getProjectileHitLocations(event: Event): List<Location> {
             if (event !is ProjectileHitEvent) return listOf()
             val hitEntity = event.hitEntity ?: return listOf()
             return listOf(hitEntity.location)
         }
 
+        /**
+         * Gets the player that is triggering the ProjectileHitEvent.
+         */
         private fun getProjectileHitPlayer(event: Event): Player? {
             if (event !is ProjectileHitEvent) return null
             if (event.entity.shooter is Player) {
@@ -714,39 +753,57 @@ class PermissionBehaviour {
             return null
         }
 
+        /**
+         * Gets the player that is triggering the PlayerBucketEvent.
+         */
         private fun getBucketPlayer(event: Event): Player? {
             if (event !is PlayerBucketEvent) return null
             return event.player
         }
 
+        /**
+         * Gets the player that is triggering the RaidTriggerEvent.
+         */
         private fun getRaidTriggerPlayer(event: Event): Player? {
             if (event !is RaidTriggerEvent) return null
             return event.player
         }
 
+        /**
+         * Gets the player that is triggering the VehicleDestroyEvent.
+         */
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
             return event.attacker as Player
         }
 
+        /**
+         * Gets the player that is triggering the PlayerOpenSignEvent.
+         */
         private fun getPlayerOpenSignPlayer(event: Event): Player? {
             if (event !is PlayerOpenSignEvent) return null
             return event.player
         }
 
+        /**
+         * Gets the player that is triggering the HangingBreakByEntityEvent.
+         */
         private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
             if (event !is HangingBreakByEntityEvent) return null
-            return event.remover as? Player ?: return null
+            return event.remover as? Player
         }
 
+        /**
+         * Gets the player that is triggering the PlayerInteractEntityEvent.
+         */
         private fun getPlayerInteractEntityPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
         }
 
         /**
-         * Get the player that is fertilizing a block.
+         * Gets the player that is triggering the BlockFertilizeEvent.
          */
         private fun getBlockFertilizeEventPlayer(e: Event): Player? {
             if (e !is BlockFertilizeEvent) return null
@@ -754,25 +811,31 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that placed the entity.
+         * Gets the player that is triggering the EntityPlaceEvent.
          */
         private fun getEntityPlacePlayer(event: Event): Player? {
             if (event !is EntityPlaceEvent) return null
             return event.player
         }
 
+        /**
+         * Gets the player that is triggering the PlayerInteractEntityEvent.
+         */
         private fun getAnimalInteractPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
         }
 
+        /**
+         * Gets the player that is triggering the PlayerFlowerPotManipulateEvent.
+         */
         private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
             if (event !is PlayerFlowerPotManipulateEvent) return null
             return event.player
         }
 
         /**
-         * Get the player that placed the entity.
+         * Gets the player that is triggering the PlayerInteractEvent.
          */
         private fun getInteractEventPlayer(event: Event): Player? {
             if (event !is PlayerInteractEvent) return null
@@ -780,7 +843,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that placed the entity.
+         * Gets the player that is triggering the EntityInteractEvent.
          */
         private fun getInteractEventEntityPassengerPlayer(event: Event): Player? {
             if (event !is EntityInteractEvent) return null
@@ -790,19 +853,25 @@ class PermissionBehaviour {
             return event.entity.passengers[0] as Player?
         }
 
+        /**
+         * Gets the player that is triggering the PlayerFishEvent.
+         */
         private fun getFishingPlayer(event: Event): Player? {
             if (event !is PlayerFishEvent) return null
             return event.player
         }
 
         /**
-         * Get the player taking a book from a lectern.
+         * Gets the player that is triggering the PlayerTakeLecternBookEvent.
          */
         private fun getLecternPlayer(e: Event): Player? {
             if (e !is PlayerTakeLecternBookEvent) return null
             return e.player
         }
 
+        /**
+         * Gets the player that is triggering the TNTPrimeEvent.
+         */
         private fun getTNTPrimePlayer(event: Event): Player? {
             if (event !is TNTPrimeEvent) return null
             val primingEntity = event.primingEntity ?: return null
@@ -818,20 +887,23 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that is manipulating an armor stand.
+         * Gets the player that is triggering the PlayerArmorStandManipulateEvent.
          */
         private fun getArmorStandManipulator(e: Event): Player? {
             if (e !is PlayerArmorStandManipulateEvent) return null
             return e.player
         }
 
+        /**
+         * Gets the player that is triggering the PlayerShearBlockEvent.
+         */
         private fun getShearBlockPlayer(event: Event): Player? {
             if (event !is PlayerShearBlockEvent) return null
             return event.player
         }
 
         /**
-         * Get the player that is opening an inventory.
+         * Gets the player that is triggering the InventoryOpenEvent.
          */
         private fun getInventoryInteractPlayer(e: Event): Player? {
             if (e !is InventoryOpenEvent) return null
@@ -839,7 +911,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that is filling a bucket.
+         * Gets the player that is triggering the PlayerBucketFillEvent.
          */
         private fun getBucketFillPlayer(event: Event): Player? {
             if (event !is PlayerBucketFillEvent) return null
@@ -847,7 +919,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that placed a block.
+         * Gets the player that is triggering the BlockPlaceEvent.
          */
         private fun getBlockMultiPlacePlayer(e: Event): Player? {
             if (e !is BlockPlaceEvent) return null
@@ -855,7 +927,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that broke a block.
+         * Gets the player that is triggering the BlockBreakEvent.
          */
         private fun getBlockBreaker(e: Event): Player? {
             if (e !is BlockBreakEvent) return null
@@ -863,7 +935,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that is damaging another entity.
+         * Gets the player that is triggering the EntityDamageByEntityEvent.
          */
         private fun getEntityDamageSourcePlayer(event: Event): Player? {
             if (event !is EntityDamageByEntityEvent) return null
