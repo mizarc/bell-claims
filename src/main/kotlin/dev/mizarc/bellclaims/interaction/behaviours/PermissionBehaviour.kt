@@ -46,7 +46,7 @@ data class PermissionExecutor(val eventClass: Class<out Event>,
  * origin does not have the permission to perform such actions.
  */
 class PermissionBehaviour {
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("unused")
     companion object {
         // Any block breaking
         val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, Companion::cancelEvent,
@@ -284,7 +284,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Cancels the action of animal interactions such as leadingk, shearing or feeding.
+         * Cancels the action of animal interactions such as leading, shearing or feeding.
          */
         private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEntityEvent) return false
