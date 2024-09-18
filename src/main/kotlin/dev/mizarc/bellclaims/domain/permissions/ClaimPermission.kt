@@ -135,17 +135,5 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
             }
             return null
         }
-
-        /**
-         * Get all children of this permission
-         */
-        fun getAllPermissionChildren(perm: ClaimPermission): Array<ClaimPermission> {
-            val children = ArrayList<ClaimPermission>()
-            for (v in values()) {
-                if (v == perm) continue
-                if (v.parent == perm || children.contains(v.parent)) children.add(v)
-            }
-            return children.toTypedArray()
-        }
     }
 }
