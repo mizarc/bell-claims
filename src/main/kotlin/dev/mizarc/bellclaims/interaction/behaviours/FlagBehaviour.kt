@@ -237,6 +237,7 @@ class RuleBehaviour {
             if (event !is EntityDamageByEntityEvent) return false
             if (event.damager !is Arrow && event.damager !is Fireball && event.damager !is Snowball) return false
             if (event.cause != EntityDamageEvent.DamageCause.PROJECTILE) return false
+            if (event.entity !is ItemFrame) return false
             event.isCancelled = true
             return true
         }
