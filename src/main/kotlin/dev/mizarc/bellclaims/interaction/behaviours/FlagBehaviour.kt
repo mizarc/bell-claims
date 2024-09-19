@@ -238,7 +238,7 @@ class RuleBehaviour {
             if (event.damager !is Monster && event.damager !is Arrow &&
                 event.damager !is Fireball && event.damager !is Snowball) return false
             if (event.damageSource.causingEntity is Player) return false
-            if (event.entity is Player) return false
+            if (event.entity is Player || event.entity is Monster) return false
             event.isCancelled = true
             return true
         }
