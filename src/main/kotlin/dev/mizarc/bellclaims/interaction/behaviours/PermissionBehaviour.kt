@@ -32,141 +32,193 @@ import org.bukkit.event.raid.RaidTriggerEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
 
 /**
- * A data structure that contains the type of event [eventClass], the function to handle the result of the event [handler],
- * a method to obtain the location of the event [location], and a method to obtain the player causing the event [source].
+ * A data structure that contains the type of event [eventClass], the function to handle the result of the event
+ * [handler], a method to obtain the locations this event occurs in [locations], and a method to obtain the player
+ * causing the event [source].
  */
-data class PermissionExecutor(val eventClass: Class<out Event>, val handler: (l: Listener, e: Event) -> Boolean, val location: (e: Event) -> Location?, val source: (e: Event) -> Player?)
+data class PermissionExecutor(val eventClass: Class<out Event>,
+                              val handler: (listener: Listener, event: Event) -> Boolean,
+                              val locations: (event: Event) -> List<Location>,
+                              val source: (e: Event) -> Player?)
 
 /**
  * A static class object to define the behaviour of event handling for events that occur within claims where the
  * origin does not have the permission to perform such actions.
  */
 class PermissionBehaviour {
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("unused")
     companion object {
         // Any block breaking
-        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockBreaker)
+        val blockBreak = PermissionExecutor(BlockBreakEvent::class.java, Companion::cancelEvent,
+            Companion::getBlockLocations, Companion::getBlockBreaker)
 
         // Any block placing
-        val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockPlacer)
+        val blockPlace = PermissionExecutor(BlockPlaceEvent::class.java, Companion::cancelEvent,
+            Companion::getBlockLocations, Companion::getBlockMultiPlacePlayer)
 
         // Multi block placing (Beds are the only thing known to go under this)
-        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockPlacer)
+        val blockMultiPlace = PermissionExecutor(BlockMultiPlaceEvent::class.java, Companion::cancelEvent,
+            Companion::getBlockMultiPlaceLocations, Companion::getBlockMultiPlacePlayer)
 
         // Any entity placing
-        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelEntityPlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
+        val entityPlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelEntityPlace,
+            Companion::getEntityPlaceLocations, Companion::getEntityPlacePlayer)
 
         // Used for damaging static entities such as armor stands and item frames
-        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+        val specialEntityDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelSpecialEntityEvent, Companion::getEntityDamageByEntityLocations,
+            Companion::getEntityDamageSourcePlayer)
 
         // Used for placing fluids such as water and lava
-        val fluidPlace = PermissionExecutor(PlayerBucketEmptyEvent::class.java, Companion::cancelEvent, Companion::getBucketLocation, Companion::getBucketPlayer)
+        val fluidPlace = PermissionExecutor(PlayerBucketEmptyEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerBucketLocations, Companion::getBucketPlayer)
 
         // Used for breaking farmland
-        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val farmlandStep = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelFarmlandStep,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for breaking farmland with a mountable animal
-        val mountFarmlandStep = PermissionExecutor(EntityInteractEvent::class.java, Companion::cancelMountFarmlandStep, Companion::getEntityInteractEventLocation, Companion::getInteractEventEntityPassengerPlayer)
+        val mountFarmlandStep = PermissionExecutor(EntityInteractEvent::class.java, Companion::cancelMountFarmlandStep,
+            Companion::getEntityInteractLocations, Companion::getInteractEventEntityPassengerPlayer)
 
         // Used for placing item frames
-        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val itemFramePlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelItemFramePlace,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for placing paintings
-        val paintingPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelPaintingPlace, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val paintingPlace = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelPaintingPlace,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for breaking item frames and paintings
-        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEvent, Companion::getHangingBreakByEntityEventLocation, Companion::getHangingBreakByEntityEventPlayer)
+        val hangingEntityBreak = PermissionExecutor(HangingBreakByEntityEvent::class.java, Companion::cancelEvent,
+            Companion::getHangingBreakByEntityEventLocations, Companion::getHangingBreakByEntityEventPlayer)
 
-        // Used for plant fertilisation with bonemeal
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelEvent, Companion::getBlockLocation, Companion::getBlockFertilizer)
+        // Used for plant fertilisation with bone meal
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelEvent,
+            Companion::getBlockLocations, Companion::getBlockFertilizeEventPlayer)
 
         // Used for inventories that either store something or will have an effect in the world from being used
-        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelOpenInventory, Companion::getInventoryLocation, Companion::getInventoryInteractPlayer)
+        val openInventory = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelOpenInventory,
+            Companion::getInventoryOpenLocations, Companion::getInventoryInteractPlayer)
 
         // Used for villager trades
-        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelVillagerOpen, Companion::getInventoryLocation, Companion::getInventoryInteractPlayer)
+        val villagerTrade = PermissionExecutor(InventoryOpenEvent::class.java, Companion::cancelVillagerOpen,
+            Companion::getInventoryOpenLocations, Companion::getInventoryInteractPlayer)
 
         // Used for damaging passive mobs
-        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEntityDamageEvent, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+        val playerDamageEntity = PermissionExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelEntityDamageEvent, Companion::getEntityDamageByEntityLocations,
+            Companion::getEntityDamageSourcePlayer)
 
         // Used for editing sign text
-        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent, Companion::getPlayerOpenSignLocation, Companion::getPlayerOpenSignPlayer)
+        val signEditing = PermissionExecutor(PlayerOpenSignEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerOpenSignLocations, Companion::getPlayerOpenSignPlayer)
 
         // Used for putting dyes or glow ink on a sign
-        val signDyeing = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelSignDyeing, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val signDyeing = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelSignDyeing,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for taking and placing armour from armour stand
-        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java, Companion::cancelEvent, Companion::getArmorStandLocation, Companion::getArmorStandManipulator)
+        val armorStandManipulate = PermissionExecutor(PlayerArmorStandManipulateEvent::class.java,
+            Companion::cancelEvent, Companion::getPlayerArmorStandManipulateLocations, Companion::getArmorStandManipulator)
 
         // Used to change the contents of a flower pot
-        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java, Companion::cancelFlowerPotInteract, Companion::getPlayerFlowerPotManipulateLocation, Companion::getPlayerFlowerPotManipulatePlayer)
+        val flowerPotManipulate = PermissionExecutor(PlayerFlowerPotManipulateEvent::class.java,
+            Companion::cancelFlowerPotInteract, Companion::getPlayerFlowerPotManipulateLocations,
+            Companion::getPlayerFlowerPotManipulatePlayer)
 
         // Used for putting and taking items from display blocks such as flower pots and chiseled bookshelves
-        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelMiscDisplayInteractions, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val miscDisplayInteractions = PermissionExecutor(PlayerInteractEvent::class.java,
+            Companion::cancelMiscDisplayInteractions, Companion::getPlayerInteractLocations,
+            Companion::getInteractEventPlayer)
 
         // Used for putting items into entity based holders such as item frames
-        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+        val miscEntityDisplayInteractions = PermissionExecutor(PlayerInteractEntityEvent::class.java,
+            Companion::cancelMiscEntityDisplayInteractions, Companion::getPlayerInteractEntityLocations,
+            Companion::getPlayerInteractEntityPlayer)
 
         // Used for breeding passive mobs with food
-        val interactAnimals = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelAnimalInteract, Companion::getAnimalInteractLocation, Companion::getAnimalInteractPlayer)
+        val interactAnimals = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelAnimalInteract,
+            Companion::getPlayerInteractEntityLocations, Companion::getAnimalInteractPlayer)
 
         // Used for taking items out of entities by damaging them such as with item frames
-        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+        val miscEntityDisplayDamage = PermissionExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelStaticEntityDamage, Companion::getEntityDamageByEntityLocations,
+            Companion::getEntityDamageSourcePlayer)
 
         // Used for taking the book out of lecterns
-        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, Companion::cancelEvent, Companion::getLecternLocation, Companion::getLecternPlayer)
+        val takeLecternBook = PermissionExecutor(PlayerTakeLecternBookEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerTakeLecternBookLocations, Companion::getLecternPlayer)
 
         // Used for opening doors and other openable blocks
-        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDoorOpen, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val openDoor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDoorOpen,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for blocks that can activate redstone such as buttons and levers
-        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRedstoneInteract, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val redstoneInteract = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRedstoneInteract,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for grabbing mobs with a fishing rod
-        val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, Companion::cancelFishingEvent, Companion::getFishingLocation, Companion::getFishingPlayer)
+        val fishingRod = PermissionExecutor(PlayerFishEvent::class.java, Companion::cancelFishingEvent,
+            Companion::getPlayerFishLocations, Companion::getFishingPlayer)
 
         // Used for taking the lead off fences
-        val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelLeadRemoval, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+        val takeLeadFromFence = PermissionExecutor(PlayerInteractEntityEvent::class.java, Companion::cancelLeadRemoval,
+            Companion::getPlayerInteractEntityLocations, Companion::getPlayerInteractEntityPlayer)
 
         // Used for breaking vehicles
-        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, Companion::cancelEvent, Companion::getVehicleDestroyLocation, Companion::getVehicleDestroyPlayer)
+        val vehicleDestroy = PermissionExecutor(VehicleDestroyEvent::class.java, Companion::cancelEvent,
+            Companion::getVehicleDestroyLocations, Companion::getVehicleDestroyPlayer)
 
         // Used for placing vehicles
-        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelVehiclePlace, Companion::getEntityPlaceLocation, Companion::getEntityPlacePlayer)
+        val vehiclePlace = PermissionExecutor(EntityPlaceEvent::class.java, Companion::cancelVehiclePlace,
+            Companion::getEntityPlaceLocations, Companion::getEntityPlacePlayer)
 
         // Used for dragon egg teleports
-        val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val dragonEggTeleport = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelDragonEggTeleport,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for using a bucket to pick up fluids
-        val bucketFill = PermissionExecutor(PlayerBucketFillEvent::class.java, Companion::cancelEvent, Companion::getBucketFillLocation, Companion::getBucketFillPlayer)
+        val bucketFill = PermissionExecutor(PlayerBucketFillEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerBucketFillLocations, Companion::getBucketFillPlayer)
 
         // Used for shearing pumpkins
-        val pumpkinShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelPumpkinShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
+        val pumpkinShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelPumpkinShear,
+            Companion::getPlayerShearBlockLocations, Companion::getShearBlockPlayer)
 
         // Used for shearing beehives
-        val beehiveShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelBeehiveShear, Companion::getShearBlockLocation, Companion::getShearBlockPlayer)
+        val beehiveShear = PermissionExecutor(PlayerShearBlockEvent::class.java, Companion::cancelBeehiveShear,
+            Companion::getPlayerShearBlockLocations, Companion::getShearBlockPlayer)
 
         // Used for bottling honey from beehives
-        val beehiveBottle = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBeehiveBottle, Companion::getInteractEventLocation, Companion::getInteractEventPlayer)
+        val beehiveBottle = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBeehiveBottle,
+            Companion::getPlayerInteractLocations, Companion::getInteractEventPlayer)
 
         // Used for priming TNT by hand or burning arrow
-        val primeTNT = PermissionExecutor(TNTPrimeEvent::class.java, Companion::cancelTNTPrime, Companion::getTNTPrimeLocation, Companion::getTNTPrimePlayer)
+        val primeTNT = PermissionExecutor(TNTPrimeEvent::class.java, Companion::cancelTNTPrime,
+            Companion::getTNTPrimeLocations, Companion::getTNTPrimePlayer)
 
         // Used for detonating end crystals by causing damage to it
-        val detonateEndCrystal = PermissionExecutor(EntityDamageByEntityEvent::class.java, Companion::cancelEndCrystalDamage, Companion::getEntityDamageByEntityLocation, Companion::getEntityDamageSourcePlayer)
+        val detonateEndCrystal = PermissionExecutor(EntityDamageByEntityEvent::class.java,
+            Companion::cancelEndCrystalDamage, Companion::getEntityDamageByEntityLocations,
+            Companion::getEntityDamageSourcePlayer)
 
         // Used for exploding beds outside of the overworld
-        val detonateBed = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBedExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+        val detonateBed = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelBedExplode,
+            Companion::getPlayerInteractEntityLocations, Companion::getPlayerInteractEntityPlayer)
 
         // Used for exploding respawn anchors outside of the nether
-        val detonateRespawnAnchor = PermissionExecutor(PlayerInteractEvent::class.java, Companion::cancelRespawnAnchorExplode, Companion::getPlayerInteractEntityLocation, Companion::getPlayerInteractEntityPlayer)
+        val detonateRespawnAnchor = PermissionExecutor(PlayerInteractEvent::class.java,
+            Companion::cancelRespawnAnchorExplode, Companion::getPlayerInteractEntityLocations,
+            Companion::getPlayerInteractEntityPlayer)
 
         // Used for exploding TNT minecarts with a flaming projectile.
-        val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java, Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocation, Companion::getProjectileHitPlayer)
+        val detonateTNTMinecart = PermissionExecutor(ProjectileHitEvent::class.java,
+            Companion::cancelTNTMinecartExplode, Companion::getProjectileHitLocations, Companion::getProjectileHitPlayer)
 
         // Used for events triggered by an omen status effect
-        val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent, Companion::getRaidTriggerLocation, Companion::getRaidTriggerPlayer)
-
+        val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent,
+            Companion::getRaidTriggerLocations, Companion::getRaidTriggerPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -232,7 +284,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Cancels the action of animal interactions such as leadingk, shearing or feeding.
+         * Cancels the action of animal interactions such as leading, shearing or feeding.
          */
         private fun cancelAnimalInteract(listener: Listener, event: Event): Boolean {
             if (event !is PlayerInteractEntityEvent) return false
@@ -518,87 +570,272 @@ class PermissionBehaviour {
             return true
         }
 
+        /**
+         * Gets the affected locations of the VehicleDestroyEvent.
+         */
+        private fun getVehicleDestroyLocations(event: Event): List<Location> {
+            if (event !is VehicleDestroyEvent) return listOf()
+            return listOf(event.vehicle.location)
+        }
+
+        /**
+         * Gets the affected locations of the RaidTriggerEvent.
+         */
+        private fun getRaidTriggerLocations(event: Event): List<Location> {
+            if (event !is RaidTriggerEvent) return listOf()
+            return listOf(event.raid.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerOpenSignEvent.
+         */
+        private fun getPlayerOpenSignLocations(event: Event): List<Location> {
+            if (event !is PlayerOpenSignEvent) return listOf()
+            return listOf(event.sign.location)
+        }
+
+        /**
+         * Gets the affected locations of the HangingBreakByEntityEvent.
+         */
+        private fun getHangingBreakByEntityEventLocations(event: Event): List<Location> {
+            if (event !is HangingBreakByEntityEvent) return listOf()
+            return listOf(event.entity.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerInteractEntityEvent.
+         */
+        private fun getPlayerInteractEntityLocations(event: Event): List<Location> {
+            if (event !is PlayerInteractEntityEvent) return listOf()
+            return listOf(event.rightClicked.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerFlowerPotManipulateEvent.
+         */
+        private fun getPlayerFlowerPotManipulateLocations(event: Event): List<Location> {
+            if (event !is PlayerFlowerPotManipulateEvent) return listOf()
+            return listOf(event.flowerpot.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerInteractEvent.
+         */
+        private fun getPlayerInteractLocations(event: Event): List<Location> {
+            if (event !is PlayerInteractEvent) return listOf()
+            val block = event.clickedBlock ?: return listOf()
+            return listOf(block.location)
+        }
+
+        /**
+         * Gets the affected locations of the EntityInteractEvent.
+         */
+        private fun getEntityInteractLocations(event: Event): List<Location> {
+            if (event !is EntityInteractEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the EntityPlaceEvent.
+         */
+        private fun getEntityPlaceLocations(event: Event): List<Location> {
+            if (event !is EntityPlaceEvent) return listOf()
+            return listOf(event.entity.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerFishEvent.
+         */
+        private fun getPlayerFishLocations(event: Event): List<Location> {
+            if (event !is PlayerFishEvent) return listOf()
+            val caught = event.caught ?: return listOf()
+            return listOf(caught.location)
+        }
+
+        /**
+         * Get the affected locations of the PlayerBucketEvent.
+         */
+        private fun getPlayerBucketLocations(event: Event): List<Location> {
+            if (event !is PlayerBucketEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the BlockEvent.
+         */
+        private fun getBlockLocations(event: Event): List<Location> {
+            if (event !is BlockEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the BlockMultiPlaceEvent.
+         */
+        private fun getBlockMultiPlaceLocations(event: Event): List<Location> {
+            if (event !is BlockMultiPlaceEvent) return listOf()
+            return event.replacedBlockStates.map { it.location }.distinct()
+        }
+
+        /**
+         * Gets the affected locations of the PlayerTakeLecternBookEvent.
+         */
+        private fun getPlayerTakeLecternBookLocations(event: Event): List<Location> {
+            if (event !is PlayerTakeLecternBookEvent) return listOf()
+            return listOf(event.lectern.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerArmorStandManipulateEvent.
+         */
+        private fun getPlayerArmorStandManipulateLocations(event: Event): List<Location> {
+            if (event !is PlayerArmorStandManipulateEvent) return listOf()
+            return listOf(event.rightClicked.location)
+        }
+
+        /**
+         * Gets the affected locations of the EntityDamageByEntityEvent.
+         */
+        private fun getEntityDamageByEntityLocations(event: Event): List<Location> {
+            if (event !is EntityDamageByEntityEvent) return listOf()
+            return listOf(event.entity.location)
+        }
+
+        /**
+         * Gets the affected locations of the InventoryOpenEvent.
+         */
+        private fun getInventoryOpenLocations(event: Event): List<Location> {
+            if (event !is InventoryOpenEvent) return listOf()
+            val location = event.inventory.location ?: return listOf()
+            return listOf(location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerBucketFillEvent.
+         */
+        private fun getPlayerBucketFillLocations(event: Event): List<Location> {
+            if (event !is PlayerBucketFillEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerShearBlockEvent.
+         */
+        private fun getPlayerShearBlockLocations(event: Event): List<Location> {
+            if (event !is PlayerShearBlockEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the TNTPrimeEvent.
+         */
+        private fun getTNTPrimeLocations(event: Event): List<Location> {
+            if (event !is TNTPrimeEvent) return listOf()
+            return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the ProjectileHitEvent.
+         */
+        private fun getProjectileHitLocations(event: Event): List<Location> {
+            if (event !is ProjectileHitEvent) return listOf()
+            val hitEntity = event.hitEntity ?: return listOf()
+            return listOf(hitEntity.location)
+        }
+
+        /**
+         * Gets the player that is triggering the ProjectileHitEvent.
+         */
+        private fun getProjectileHitPlayer(event: Event): Player? {
+            if (event !is ProjectileHitEvent) return null
+            if (event.entity.shooter is Player) {
+                return event.entity.shooter as Player
+            }
+            return null
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerBucketEvent.
+         */
+        private fun getBucketPlayer(event: Event): Player? {
+            if (event !is PlayerBucketEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the RaidTriggerEvent.
+         */
+        private fun getRaidTriggerPlayer(event: Event): Player? {
+            if (event !is RaidTriggerEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the VehicleDestroyEvent.
+         */
         private fun getVehicleDestroyPlayer(event: Event): Player? {
             if (event !is VehicleDestroyEvent) return null
             if (event.attacker !is Player) return null
             return event.attacker as Player
         }
 
-        private fun getVehicleDestroyLocation(event: Event): Location? {
-            if (event !is VehicleDestroyEvent) return null
-            return event.vehicle.location
-        }
-
+        /**
+         * Gets the player that is triggering the PlayerOpenSignEvent.
+         */
         private fun getPlayerOpenSignPlayer(event: Event): Player? {
             if (event !is PlayerOpenSignEvent) return null
             return event.player
         }
 
-        private fun getPlayerOpenSignLocation(event: Event): Location? {
-            if (event !is PlayerOpenSignEvent) return null
-            return event.sign.location
-        }
-
+        /**
+         * Gets the player that is triggering the HangingBreakByEntityEvent.
+         */
         private fun getHangingBreakByEntityEventPlayer(event: Event): Player? {
             if (event !is HangingBreakByEntityEvent) return null
-            return event.remover as? Player ?: return null
+            return event.remover as? Player
         }
 
-        private fun getHangingBreakByEntityEventLocation(event: Event): Location? {
-            if (event !is HangingBreakByEntityEvent) return null
-            return event.entity.location
-        }
-
+        /**
+         * Gets the player that is triggering the PlayerInteractEntityEvent.
+         */
         private fun getPlayerInteractEntityPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
         }
 
-        private fun getAnimalInteractLocation(event: Event): Location? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.rightClicked.location
+        /**
+         * Gets the player that is triggering the BlockFertilizeEvent.
+         */
+        private fun getBlockFertilizeEventPlayer(e: Event): Player? {
+            if (e !is BlockFertilizeEvent) return null
+            return e.player
         }
 
+        /**
+         * Gets the player that is triggering the EntityPlaceEvent.
+         */
+        private fun getEntityPlacePlayer(event: Event): Player? {
+            if (event !is EntityPlaceEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerInteractEntityEvent.
+         */
         private fun getAnimalInteractPlayer(event: Event): Player? {
             if (event !is PlayerInteractEntityEvent) return null
             return event.player
         }
 
-        private fun getPlayerInteractEntityLocation(event: Event): Location? {
-            if (event !is PlayerInteractEntityEvent) return null
-            return event.rightClicked.location
-        }
-
+        /**
+         * Gets the player that is triggering the PlayerFlowerPotManipulateEvent.
+         */
         private fun getPlayerFlowerPotManipulatePlayer(event: Event): Player? {
             if (event !is PlayerFlowerPotManipulateEvent) return null
             return event.player
         }
 
-        private fun getPlayerFlowerPotManipulateLocation(event: Event): Location? {
-            if (event !is PlayerFlowerPotManipulateEvent) return null
-            return event.flowerpot.location
-        }
-
         /**
-         * Get the location of an entity being placed.
-         */
-        private fun getInteractEventLocation(event: Event): Location? {
-            if (event !is PlayerInteractEvent) return null
-            val block = event.clickedBlock ?: return null
-            return block.location
-        }
-
-        /**
-         * Get the location of an entity interact block
-         */
-        private fun getEntityInteractEventLocation(event: Event): Location? {
-            if (event !is EntityInteractEvent) return null
-            val block = event.block ?: return null
-            return block.location
-        }
-
-        /**
-         * Get the player that placed the entity.
+         * Gets the player that is triggering the PlayerInteractEvent.
          */
         private fun getInteractEventPlayer(event: Event): Player? {
             if (event !is PlayerInteractEvent) return null
@@ -606,7 +843,7 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the player that placed the entity.
+         * Gets the player that is triggering the EntityInteractEvent.
          */
         private fun getInteractEventEntityPassengerPlayer(event: Event): Player? {
             if (event !is EntityInteractEvent) return null
@@ -617,58 +854,15 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an entity being placed.
+         * Gets the player that is triggering the PlayerFishEvent.
          */
-        private fun getEntityPlaceLocation(event: Event): Location? {
-            if (event !is EntityPlaceEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that placed the entity.
-         */
-        private fun getEntityPlacePlayer(event: Event): Player? {
-            if (event !is EntityPlaceEvent) return null
-            return event.player
-        }
-
-        private fun getFishingLocation(event: Event): Location? {
-            if (event !is PlayerFishEvent) return null
-            val caught = event.caught ?: return null
-            return caught.location
-        }
-
         private fun getFishingPlayer(event: Event): Player? {
             if (event !is PlayerFishEvent) return null
             return event.player
         }
 
         /**
-         * Get the location of a block involved in a block event.
-         */
-        private fun getBlockLocation(e: Event): Location? {
-            if (e !is BlockEvent) return null
-            return e.block.location
-        }
-
-        /**
-         * Get the player that is fertilizing a block.
-         */
-        private fun getBlockFertilizer(e: Event): Player? {
-            if (e !is BlockFertilizeEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of a lectern that is being interacted with.
-         */
-        private fun getLecternLocation(e: Event): Location? {
-            if (e !is PlayerTakeLecternBookEvent) return null
-            return e.lectern.location
-        }
-
-        /**
-         * Get the player taking a book from a lectern.
+         * Gets the player that is triggering the PlayerTakeLecternBookEvent.
          */
         private fun getLecternPlayer(e: Event): Player? {
             if (e !is PlayerTakeLecternBookEvent) return null
@@ -676,109 +870,8 @@ class PermissionBehaviour {
         }
 
         /**
-         * Get the location of an armor stand being manipulated.
+         * Gets the player that is triggering the TNTPrimeEvent.
          */
-        private fun getArmorStandLocation(e: Event): Location? {
-            if (e !is PlayerArmorStandManipulateEvent) return null
-            return e.rightClicked.location
-        }
-
-        /**
-         * Get the player that is manipulating an armor stand.
-         */
-        private fun getArmorStandManipulator(e: Event): Player? {
-            if (e !is PlayerArmorStandManipulateEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of an entity being damaged by another entity.
-         */
-        private fun getEntityDamageByEntityLocation(event: Event): Location? {
-            if (event !is EntityDamageByEntityEvent) return null
-            return event.entity.location
-        }
-
-        /**
-         * Get the player that is damaging another entity.
-         */
-        private fun getEntityDamageSourcePlayer(event: Event): Player? {
-            if (event !is EntityDamageByEntityEvent) return null
-            val damagingEntity = event.damager
-            if (damagingEntity is Projectile) {
-                if (damagingEntity.shooter is Player) {
-                    return damagingEntity.shooter as Player
-                }
-            }
-            if (damagingEntity is Player) {
-                return damagingEntity
-            }
-            return null
-        }
-
-        /**
-         * Get the player that placed a block.
-         */
-        private fun getBlockPlacer(e: Event): Player? {
-            if (e !is BlockPlaceEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the player that broke a block.
-         */
-        private fun getBlockBreaker(e: Event): Player? {
-            if (e !is BlockBreakEvent) return null
-            return e.player
-        }
-
-        /**
-         * Get the location of an inventory that was opened.
-         */
-        private fun getInventoryLocation(e: Event): Location? {
-            if (e !is InventoryOpenEvent) return null
-            return e.inventory.location
-        }
-
-        /**
-         * Get the player that is opening an inventory.
-         */
-        private fun getInventoryInteractPlayer(e: Event): Player? {
-            if (e !is InventoryOpenEvent) return null
-            return e.player as Player
-        }
-
-        /**
-         * Get the player that is filling a bucket.
-         */
-        private fun getBucketFillPlayer(event: Event): Player? {
-            if (event !is PlayerBucketFillEvent) return null
-            return event.player
-        }
-
-        /**
-         * Get the location of the block the bucket is filling from.
-         */
-        private fun getBucketFillLocation(event: Event): Location? {
-            if (event !is PlayerBucketFillEvent) return null
-            return event.block.location
-        }
-
-        private fun getShearBlockLocation(event: Event): Location? {
-            if (event !is PlayerShearBlockEvent) return null
-            return event.block.location
-        }
-
-        private fun getShearBlockPlayer(event: Event): Player? {
-            if (event !is PlayerShearBlockEvent) return null
-            return event.player
-        }
-
-        private fun getTNTPrimeLocation(event: Event): Location? {
-            if (event !is TNTPrimeEvent) return null
-            return event.block.location
-        }
-
         private fun getTNTPrimePlayer(event: Event): Player? {
             if (event !is TNTPrimeEvent) return null
             val primingEntity = event.primingEntity ?: return null
@@ -793,38 +886,69 @@ class PermissionBehaviour {
             return null
         }
 
-        private fun getProjectileHitLocation(event: Event): Location? {
-            if (event !is ProjectileHitEvent) return null
-            val hitEntity = event.hitEntity ?: return null
-            return hitEntity.location
+        /**
+         * Gets the player that is triggering the PlayerArmorStandManipulateEvent.
+         */
+        private fun getArmorStandManipulator(e: Event): Player? {
+            if (e !is PlayerArmorStandManipulateEvent) return null
+            return e.player
         }
 
-        private fun getProjectileHitPlayer(event: Event): Player? {
-            if (event !is ProjectileHitEvent) return null
-            if (event.entity.shooter is Player) {
-                return event.entity.shooter as Player
+        /**
+         * Gets the player that is triggering the PlayerShearBlockEvent.
+         */
+        private fun getShearBlockPlayer(event: Event): Player? {
+            if (event !is PlayerShearBlockEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the InventoryOpenEvent.
+         */
+        private fun getInventoryInteractPlayer(e: Event): Player? {
+            if (e !is InventoryOpenEvent) return null
+            return e.player as Player
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerBucketFillEvent.
+         */
+        private fun getBucketFillPlayer(event: Event): Player? {
+            if (event !is PlayerBucketFillEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the BlockPlaceEvent.
+         */
+        private fun getBlockMultiPlacePlayer(e: Event): Player? {
+            if (e !is BlockPlaceEvent) return null
+            return e.player
+        }
+
+        /**
+         * Gets the player that is triggering the BlockBreakEvent.
+         */
+        private fun getBlockBreaker(e: Event): Player? {
+            if (e !is BlockBreakEvent) return null
+            return e.player
+        }
+
+        /**
+         * Gets the player that is triggering the EntityDamageByEntityEvent.
+         */
+        private fun getEntityDamageSourcePlayer(event: Event): Player? {
+            if (event !is EntityDamageByEntityEvent) return null
+            val damagingEntity = event.damager
+            if (damagingEntity is Projectile) {
+                if (damagingEntity.shooter is Player) {
+                    return damagingEntity.shooter as Player
+                }
+            }
+            if (damagingEntity is Player) {
+                return damagingEntity
             }
             return null
-        }
-
-        private fun getBucketLocation(event: Event): Location? {
-            if (event !is PlayerBucketEvent) return null
-            return event.block.location
-        }
-
-        private fun getBucketPlayer(event: Event): Player? {
-            if (event !is PlayerBucketEvent) return null
-            return event.player
-        }
-
-        private fun getRaidTriggerLocation(event: Event): Location? {
-            if (event !is RaidTriggerEvent) return null
-            return event.raid.location
-        }
-
-        private fun getRaidTriggerPlayer(event: Event): Player? {
-            if (event !is RaidTriggerEvent) return null
-            return event.player
         }
     }
 }

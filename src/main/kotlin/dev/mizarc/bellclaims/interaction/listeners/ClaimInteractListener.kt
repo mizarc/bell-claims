@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.api.*
+import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import net.kyori.adventure.text.Component
@@ -25,12 +26,12 @@ class ClaimInteractListener(private var plugin: BellClaims,
                             private val playerPermissionService: PlayerPermissionService,
                             private val playerStateService: PlayerStateService) : Listener {
     init {
-        for (perm in ClaimPermission.values()) {
+        for (perm in ClaimPermission.entries) {
             for (e in perm.events) {
                 registerEvent(e.eventClass, ::handleClaimPermission)
             }
         }
-        for (rule in Flag.values()) {
+        for (rule in Flag.entries) {
             for (r in rule.rules) {
                 registerEvent(r.eventClass, ::handleClaimRule)
             }
@@ -80,49 +81,43 @@ class ClaimInteractListener(private var plugin: BellClaims,
         // for location and player as any other for this event would
         val tempExecutor = ClaimPermission.getPermissionExecutorForEvent(event::class.java) ?: return
 
-        val player: Player = tempExecutor.source.invoke(event) ?: return // The player that caused this event, if any
-        val location: Location = tempExecutor.location.invoke(event) ?: return // If no location was found, do nothing
+        // The player that caused this event, if any
+        val player: Player = tempExecutor.source.invoke(event) ?: return
 
-        // Determine if this event happened inside a claim's boundaries
-        val partition = partitionService.getByLocation(location) ?: return
-        val claim = claimService.getById(partition.claimId) ?: return
+        // Get all claims that this event affects
+        val locations = tempExecutor.locations(event)
+        val affectedClaims = mutableListOf<Claim>()
+        for (location in locations) {
+            val partition = partitionService.getByLocation(location) ?: continue
+            val claim = claimService.getById(partition.claimId) ?: continue
+            affectedClaims.add(claim)
+        }
+        val claims = affectedClaims.distinct()
 
-        // If player has override, do nothing.
+        // If player has override, do nothing
         val playerState = playerStateService.getByPlayer(player)
         if (playerState!!.claimOverride) {
             return
         }
 
-        // If player is owner, do nothing.
-        if (player.uniqueId == claim.owner.uniqueId) {
-            return
-        }
-
-        // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
-        var playerPermissions = playerPermissionService.getByPlayer(claim, player)
-        if (playerPermissions.isEmpty()) {
-            playerPermissions = defaultPermissionService.getByClaim(claim)
-        }
-
-        eventPerms.removeAll(playerPermissions)
-
-        var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
-
-        // Determine if the claim permissions contains any of the parent permissions to this one
-        fun checkPermissionParents(permission: ClaimPermission): Boolean {
-            var permissionRef: ClaimPermission? = permission
-            while (permissionRef?.parent != null) {
-                if (playerPermissions.contains(permissionRef.parent)) {
-                    return true
-                }
-                permissionRef = permissionRef.parent
+        for (claim in claims) {
+            // If player is owner, do nothing.
+            if (player.uniqueId == claim.owner.uniqueId) {
+                return
             }
-            return false
-        }
 
-        // Determine the highest priority permission for the event and sets the executor to the one found, if any
-        for (e in eventPerms) {
-            if (!checkPermissionParents(e)) { // First check if claimPerms does not contain the parent of this permission
+            // Get the claim permissions to use, whether it's the trustee's individual permissions, or the claim's default permissions
+            var playerPermissions = playerPermissionService.getByPlayer(claim, player)
+            if (playerPermissions.isEmpty()) {
+                playerPermissions = defaultPermissionService.getByClaim(claim)
+            }
+
+            eventPerms.removeAll(playerPermissions)
+
+            var executor: ((l: Listener, e: Event) -> Boolean)? = null // The function that handles the result of this event
+
+            // Determine the highest priority permission for the event and sets the executor to the one found, if any
+            for (e in eventPerms) {
                 if (!playerPermissions.contains(e)) { // If not, check if it does not contain this permission
                     for (ee in e.events) { // If so, determine the executor to use
                         if (ee.eventClass == event::class.java) {
@@ -145,6 +140,6 @@ class ClaimInteractListener(private var plugin: BellClaims,
      * An alias to the PluginManager.registerEvent() function that handles some parameters automatically.
      */
     private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) =
-        plugin.server.pluginManager.registerEvent(event, this, EventPriority.NORMAL, executor,
+        plugin.server.pluginManager.registerEvent(event, this, EventPriority.LOWEST, executor,
             plugin, true)
 }
