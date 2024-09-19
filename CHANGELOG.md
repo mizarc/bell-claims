@@ -21,6 +21,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Changed
 - Piston protection now only applies if the piston affecting the claim blocks is outside of the claim.
 
+### Fixed
+- Multi-blocks bypassing protections when the source is placed outside of the claim.
+- Protection event priority changed to "LOWEST" in order to override other plugins being able to bypass protections.
+
 ## [0.2.5]
 
 ### Fixed
