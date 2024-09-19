@@ -140,6 +140,6 @@ class ClaimInteractListener(private var plugin: BellClaims,
      * An alias to the PluginManager.registerEvent() function that handles some parameters automatically.
      */
     private fun registerEvent(event: Class<out Event>, executor: (l: Listener, e: Event) -> Unit) =
-        plugin.server.pluginManager.registerEvent(event, this, EventPriority.NORMAL, executor,
+        plugin.server.pluginManager.registerEvent(event, this, EventPriority.LOWEST, executor,
             plugin, true)
 }
