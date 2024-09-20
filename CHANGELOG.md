@@ -24,6 +24,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Fixed
 - Multi-blocks bypassing protections when the source is placed outside of the claim.
 - Protection event priority changed to "LOWEST" in order to override other plugins being able to bypass protections.
+- Shift + right clicking an item in the player's own inventory inside a menu moves it and becomes irretrievable.
 
 ## [0.2.5]
 
