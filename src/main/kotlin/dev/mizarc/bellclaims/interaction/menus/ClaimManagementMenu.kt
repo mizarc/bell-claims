@@ -46,7 +46,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val gui = ChestGui(1, "Claim Creation")
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.addPane(pane)
 
         // Check if player doesn't have enough claims
@@ -87,7 +88,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create homes menu
         val gui = AnvilGui("Naming Claim")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
@@ -132,7 +134,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val gui = ChestGui(1, "Claim '${claim.name}'")
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.addPane(pane)
 
         // Add claim tool button
@@ -212,7 +215,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val gui = FurnaceGui(getLangText("SetWarpIcon"))
         val fuelPane = StaticPane(0, 0, 1, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add info paper menu item
         val paperItem = ItemStack(Material.PAPER)
@@ -269,7 +273,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create homes menu
         val gui = AnvilGui(getLangText("RenamingClaim"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
@@ -320,7 +325,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create claim flags menu
         val gui = ChestGui(4, "Claim Flags")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
@@ -427,7 +433,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create trust menu
         val gui = ChestGui(6, "Trusted Players")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = addControlsSection(gui) { openClaimEditMenu(claim) }
@@ -476,7 +483,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create player permissions menu
         val gui = ChestGui(6, "${player.name}'s Permissions")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
@@ -561,7 +569,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create player permissions menu
         val gui = ChestGui(6, "Default Claim Permissions")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls
         val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
@@ -651,7 +660,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create trust menu
         val gui = ChestGui(6, "All Players")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls
         val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
@@ -696,7 +706,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Create homes menu
         val gui = AnvilGui(getLangText("SearchForPlayer"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)

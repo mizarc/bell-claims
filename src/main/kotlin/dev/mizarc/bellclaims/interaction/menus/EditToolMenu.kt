@@ -25,7 +25,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
     fun openEditToolMenu() {
         val gui = ChestGui(1, getLangText("ClaimTool2"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
@@ -130,7 +131,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         val gui = HopperGui(getLangText("DeletePartitionQuestion"))
         val pane = StaticPane(1, 0, 3, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.slotsComponent.addPane(pane)
 
         // Add no menu item
