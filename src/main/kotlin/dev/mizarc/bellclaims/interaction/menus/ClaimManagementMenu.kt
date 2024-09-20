@@ -501,6 +501,16 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         addSelector(controlsPane, createHead(player).name("${player.name}"), deselectAction, selectAction)
 
+        // Add give claim option
+        val transferClaimAction: () -> Unit = {
+            // TODO
+        }
+
+        val transferClaimItem = ItemStack(Material.BELL).name("§4Transfer claim").lore("This will transfer the current claim to ${player.name}!")
+        val guiSelectItem = GuiItem(transferClaimItem) { transferClaimAction() }
+        controlsPane.addItem(guiSelectItem, 8, 0)
+
+
         // Add vertical divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
         val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
