@@ -20,7 +20,8 @@ class ClaimListMenu(private val claimService: ClaimService, private val player: 
         val claims = claimService.getByPlayer(player)
         val gui = ChestGui(6, "Claims")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT) guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls pane
         val controlsPane = StaticPane(0, 0, 9, 1)
