@@ -65,6 +65,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Sculk(arrayOf(
         RuleBehaviour.sculkSpread
+    )),
+
+    Dispensers(arrayOf(
+        RuleBehaviour.dispense
     ));
 
     companion object {
