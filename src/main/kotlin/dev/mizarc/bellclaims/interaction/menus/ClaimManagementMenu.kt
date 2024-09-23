@@ -376,7 +376,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val disabledRules = Flag.entries.toTypedArray().subtract(enabledRules)
 
         // Add list of disabled permissions
-        val disabledPermissionsPane = StaticPane(0, 2, 4, 2)
+        val disabledPermissionsPane = StaticPane(0, 2, 4, 3)
         gui.addPane(disabledPermissionsPane)
         var xSlot = 0
         var ySlot = 0
@@ -400,7 +400,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             }
         }
 
-        val enabledPermissionsPane = StaticPane(5, 2, 4, 2)
+        val enabledPermissionsPane = StaticPane(5, 2, 4, 3)
         gui.addPane(enabledPermissionsPane)
         xSlot = 0
         ySlot = 0

@@ -69,6 +69,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Dispensers(arrayOf(
         RuleBehaviour.dispense
+    )),
+
+    Sponge(arrayOf(
+        RuleBehaviour.spongeAbsorb
     ));
 
     companion object {
