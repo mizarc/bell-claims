@@ -39,7 +39,7 @@ data class RuleExecutor(val eventClass: Class<out Event>,
  * rules that allow them to.
  */
 class RuleBehaviour {
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("unused")
     companion object {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java,
             Companion::cancelEvent, Companion::blockInClaim)
