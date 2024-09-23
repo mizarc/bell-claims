@@ -578,6 +578,7 @@ class RuleBehaviour {
         private fun cancelSpongeAbsorbEvent(event: Event, claimService: ClaimService,
                                      partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is SpongeAbsorbEvent) return false
+            if (partitionService.getByLocation(event.block.location) != null) return false
             val cancelledBlocks: MutableList<BlockState> = mutableListOf()
             for (block in event.blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
