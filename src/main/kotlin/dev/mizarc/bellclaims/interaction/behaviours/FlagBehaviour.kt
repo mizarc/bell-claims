@@ -81,7 +81,7 @@ class RuleBehaviour {
             Companion::treeGrowthInClaim)
         val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
             Companion::blockSpreadInClaim)
-        val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelBlockDispenseEvent,
+        val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelEvent,
             Companion::blockDispenseInClaim)
 
         /**
@@ -558,13 +558,6 @@ class RuleBehaviour {
             val partition = partitionService.getByLocation(placeLocation) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim)
-        }
-
-        private fun cancelBlockDispenseEvent(event: Event, claimService: ClaimService,
-                                             partitionService: PartitionService, flagService: FlagService): Boolean {
-            if (event !is BlockDispenseEvent) return false
-            event.isCancelled = true
-            return true
         }
     }
 }
