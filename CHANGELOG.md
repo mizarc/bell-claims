@@ -8,10 +8,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
-- Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the fluid flow flag.
+- Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the new fluid flow flag.
 - Individual flags to allow the claim owner to control the existing tree growth and sculk spread protections.
 - Protection against mobs breaking static entities such as item frames and paintings. Bypassed by the mob griefing flag.
 - Protection against trampling using rideable mobs. Requires the build permission.
+- Protection against dispensers placed on the outer edge of the claim being used to grief with fluids or entities such as boats and armor stands. Bypassed by the new dispense flag.
 - Language file support, with all known instances of display text moved to a language file resource.
 - English language complete.
 - Chinese language machine translated. (Temporary, for demonstration)

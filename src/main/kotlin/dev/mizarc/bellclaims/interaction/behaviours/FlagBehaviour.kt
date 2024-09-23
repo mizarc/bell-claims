@@ -14,6 +14,7 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
+import org.bukkit.block.data.Directional
 import org.bukkit.entity.*
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
@@ -38,7 +39,7 @@ data class RuleExecutor(val eventClass: Class<out Event>,
  * rules that allow them to.
  */
 class RuleBehaviour {
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("unused")
     companion object {
         val fireBurn = RuleExecutor(BlockBurnEvent::class.java,
             Companion::cancelEvent, Companion::blockInClaim)
@@ -80,6 +81,8 @@ class RuleBehaviour {
             Companion::treeGrowthInClaim)
         val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
             Companion::blockSpreadInClaim)
+        val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelEvent,
+            Companion::blockDispenseInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -545,6 +548,16 @@ class RuleBehaviour {
             if (event.source.type != Material.FIRE) return false
             event.isCancelled = true
             return true
+        }
+
+        private fun blockDispenseInClaim(event: Event, claimService: ClaimService,
+                                         partitionService: PartitionService): List<Claim> {
+            if (event !is BlockDispenseEvent) return listOf()
+            val directionalBlock = event.block.blockData as Directional
+            val placeLocation = event.block.location.add(directionalBlock.facing.direction)
+            val partition = partitionService.getByLocation(placeLocation) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
         }
     }
 }

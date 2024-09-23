@@ -7,6 +7,7 @@ NameFlagPistons: "Pistons"
 NameFlagFluids: "Fluid Flow"
 NameFlagTrees: "Tree Growth"
 NameFlagSculk: "Sculk Spread"
+NameFlagDispenser: "Dispense"
 
 DescFlagExplosions: "Allows TNT to damage claim blocks"
 DescFlagFireSpread: "Allows fire to spread to other blocks"
@@ -15,6 +16,7 @@ DescFlagPistons: "Allows pistons placed outside the claim to move claim blocks"
 DescFlagFluids: "Allows fluids to flow into the claim"
 DescFlagTrees: "Allows trees planted outside to grow into the claim"
 DescFlagSculk: "Allows sculk catalysts placed outside to grow into the claim"
+DescFlagDispenser: "Allows dispensers placed outside to dispense into the claim"
 
 # --- PermissionDisplay.kt ---
 
