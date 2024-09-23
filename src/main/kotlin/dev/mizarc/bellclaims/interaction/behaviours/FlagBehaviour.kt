@@ -14,6 +14,7 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
+import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
 import org.bukkit.entity.*
 import org.bukkit.event.entity.EntityBreakDoorEvent
@@ -83,6 +84,8 @@ class RuleBehaviour {
             Companion::blockSpreadInClaim)
         val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelEvent,
             Companion::blockDispenseInClaim)
+        val spongeAbsorb = RuleExecutor(SpongeAbsorbEvent::class.java, Companion::cancelSpongeAbsorbEvent,
+            Companion::spongeAbsorbInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -558,6 +561,33 @@ class RuleBehaviour {
             val partition = partitionService.getByLocation(placeLocation) ?: return listOf()
             val claim = claimService.getById(partition.claimId) ?: return listOf()
             return listOf(claim)
+        }
+
+        private fun spongeAbsorbInClaim(event: Event, claimService: ClaimService,
+                                         partitionService: PartitionService): List<Claim> {
+            if (event !is SpongeAbsorbEvent) return listOf()
+            val claims = mutableListOf<Claim>()
+            for (block in event.blocks) {
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = claimService.getById(partition.claimId) ?: continue
+                claims.add(claim)
+            }
+            return claims.distinct()
+        }
+
+        private fun cancelSpongeAbsorbEvent(event: Event, claimService: ClaimService,
+                                     partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is SpongeAbsorbEvent) return false
+            val cancelledBlocks: MutableList<BlockState> = mutableListOf()
+            for (block in event.blocks) {
+                val partition = partitionService.getByLocation(block.location) ?: continue
+                val claim = claimService.getById(partition.claimId) ?: continue
+                if (!flagService.doesClaimHaveFlag(claim, Flag.Explosions)) {
+                    cancelledBlocks.add(block)
+                }
+            }
+            event.blocks.removeAll(cancelledBlocks)
+            return true
         }
     }
 }
