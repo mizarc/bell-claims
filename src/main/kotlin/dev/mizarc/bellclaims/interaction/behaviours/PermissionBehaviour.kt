@@ -222,7 +222,7 @@ class PermissionBehaviour {
             Companion::getRaidTriggerLocations, Companion::getRaidTriggerPlayer)
 
         // Used to prevent lightning strikes from tridents causing damage in claims
-        val tridentLightningStrike = PermissionExecutor(LightningStrikeEvent::class.java,
+        val tridentLightningDamage = PermissionExecutor(LightningStrikeEvent::class.java,
             Companion::cancelLightningEvent, Companion::getLightningStrikeLocations,
             Companion::getLightningStrikePlayer)
 
@@ -574,6 +574,20 @@ class PermissionBehaviour {
             if (event.hitEntity !is ExplosiveMinecart) return false
             event.isCancelled = true
             return true
+        }
+
+        /**
+         * Cancels the action of lightning attacks using a trident.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throw their trident, which still does projectile damage.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelLightningEvent(listener: Listener, event: Event): Boolean {
+            if (event !is LightningStrikeEvent) return false
+            event.lightning.flashCount = 0
+            event.lightning.lifeTicks = 0
+            return false
         }
 
         /**
