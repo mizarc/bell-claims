@@ -16,6 +16,7 @@ import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
+import org.bukkit.block.data.type.Light
 import org.bukkit.entity.*
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
@@ -23,6 +24,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
 
 /**
@@ -86,6 +88,8 @@ class RuleBehaviour {
             Companion::blockDispenseInClaim)
         val spongeAbsorb = RuleExecutor(SpongeAbsorbEvent::class.java, Companion::cancelSpongeAbsorbEvent,
             Companion::spongeAbsorbInClaim)
+        val lightningDamage = RuleExecutor(LightningStrikeEvent::class.java, Companion::cancelLightningStrikeEvent,
+            Companion::lightningStrikeInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -564,7 +568,7 @@ class RuleBehaviour {
         }
 
         private fun spongeAbsorbInClaim(event: Event, claimService: ClaimService,
-                                         partitionService: PartitionService): List<Claim> {
+                                        partitionService: PartitionService): List<Claim> {
             if (event !is SpongeAbsorbEvent) return listOf()
             val claims = mutableListOf<Claim>()
             for (block in event.blocks) {
@@ -576,7 +580,7 @@ class RuleBehaviour {
         }
 
         private fun cancelSpongeAbsorbEvent(event: Event, claimService: ClaimService,
-                                     partitionService: PartitionService, flagService: FlagService): Boolean {
+                                            partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is SpongeAbsorbEvent) return false
             if (partitionService.getByLocation(event.block.location) != null) return false
             val cancelledBlocks: MutableList<BlockState> = mutableListOf()
@@ -588,6 +592,23 @@ class RuleBehaviour {
                 }
             }
             event.blocks.removeAll(cancelledBlocks)
+            return true
+        }
+
+        private fun lightningStrikeInClaim(event: Event, claimService: ClaimService,
+                                           partitionService: PartitionService): List<Claim> {
+            if (event !is LightningStrikeEvent) return listOf()
+            val partition = partitionService.getByLocation(event.lightning.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
+        }
+
+        private fun cancelLightningStrikeEvent(event: Event, claimService: ClaimService,
+                                            partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is LightningStrikeEvent) return false
+            if (event.cause == LightningStrikeEvent.Cause.TRIDENT) return false
+            event.lightning.lifeTicks = 0
+            event.lightning.flashCount = 0
             return true
         }
     }

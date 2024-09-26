@@ -73,6 +73,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Sponge(arrayOf(
         RuleBehaviour.spongeAbsorb
+    )),
+
+    Lightning(arrayOf(
+        RuleBehaviour.lightningDamage
     ));
 
     companion object {
