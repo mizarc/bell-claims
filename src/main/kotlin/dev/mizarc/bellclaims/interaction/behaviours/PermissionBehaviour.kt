@@ -30,6 +30,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
 import org.bukkit.event.raid.RaidTriggerEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
+import org.bukkit.event.weather.LightningStrikeEvent
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -219,6 +220,11 @@ class PermissionBehaviour {
         // Used for events triggered by an omen status effect
         val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent,
             Companion::getRaidTriggerLocations, Companion::getRaidTriggerPlayer)
+
+        // Used to prevent lightning strikes from tridents causing damage in claims
+        val tridentLightningDamage = PermissionExecutor(LightningStrikeEvent::class.java,
+            Companion::cancelLightningEvent, Companion::getLightningStrikeLocations,
+            Companion::getLightningStrikePlayer)
 
         /**
          * Cancels any cancellable event.
@@ -571,6 +577,20 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the action of lightning attacks using a trident.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throw their trident, which still does projectile damage.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelLightningEvent(listener: Listener, event: Event): Boolean {
+            if (event !is LightningStrikeEvent) return false
+            event.lightning.flashCount = 0
+            event.lightning.lifeTicks = 0
+            return false
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -740,6 +760,14 @@ class PermissionBehaviour {
             if (event !is ProjectileHitEvent) return listOf()
             val hitEntity = event.hitEntity ?: return listOf()
             return listOf(hitEntity.location)
+        }
+
+        /**
+         * Gets the affected locations of the LightningStrikeEvent.
+         */
+        private fun getLightningStrikeLocations(event: Event): List<Location> {
+            if (event !is LightningStrikeEvent) return listOf()
+            return listOf(event.lightning.location)
         }
 
         /**
@@ -949,6 +977,14 @@ class PermissionBehaviour {
                 return damagingEntity
             }
             return null
+        }
+
+        /**
+         * Gets the player that is triggering the LightningStrikeEvent.
+         */
+        private fun getLightningStrikePlayer(event: Event): Player? {
+            if (event !is LightningStrikeEvent) return null
+            return event.lightning.causingPlayer
         }
     }
 }

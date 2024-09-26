@@ -22,6 +22,7 @@ fun Flag.getIcon(): ItemStack {
         Flag.Sculk -> ItemStack(Material.SCULK_CATALYST)
         Flag.Dispensers -> ItemStack(Material.DISPENSER)
         Flag.Sponge -> ItemStack(Material.SPONGE)
+        Flag.Lightning -> ItemStack(Material.LIGHTNING_ROD)
     }
 }
 
@@ -41,6 +42,7 @@ fun Flag.getDisplayName(): String {
         Flag.Sculk -> getLangText("NameFlagSculk")
         Flag.Dispensers -> getLangText("NameFlagDispensers")
         Flag.Sponge -> getLangText("NameFlagSponge")
+        Flag.Lightning -> getLangText("NameFlagLightning")
     }
 }
 
@@ -60,5 +62,6 @@ fun Flag.getDescription(): String {
         Flag.Sculk -> getLangText("DescFlagSculk")
         Flag.Dispensers -> getLangText("DescFlagDispensers")
         Flag.Sponge -> getLangText("DescFlagSponge")
+        Flag.Lightning -> getLangText("DescFlagLightning")
     }
 }
