@@ -27,6 +27,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 
 /**
@@ -627,22 +628,26 @@ class RuleBehaviour {
         private fun cancelBlockFall(event: Event, claimService: ClaimService,
                                     partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityChangeBlockEvent) return false
-            if (event.entity !is FallingBlock) return false
+            val fallingBlock = event.entity
+            if (fallingBlock !is FallingBlock) return false
             if (event.to == Material.AIR) return false
             val partition = partitionService.getByLocation(event.block.location) ?: return false
             val claim = claimService.getById(partition.claimId) ?: return false
-            val originLocation = event.entity.getMetadata("origin_location")[0].value()
+            val originLocation = fallingBlock.getMetadata("origin_location")[0].value()
             if (originLocation !is Location) return false
 
             // If originated from outside, cancel event
             val originPartition = partitionService.getByLocation(originLocation)
+            val itemStack = ItemStack(fallingBlock.blockData.material, 1)
             if (originPartition == null) {
                 event.isCancelled = true
+                event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
                 return true
             }
             val originClaim = claimService.getById(originPartition.claimId)
             if (originClaim == null || originClaim != claim) {
                 event.isCancelled = true
+                event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
                 return true
             }
             return false
