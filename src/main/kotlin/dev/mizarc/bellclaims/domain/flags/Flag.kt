@@ -77,6 +77,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Lightning(arrayOf(
         RuleBehaviour.lightningDamage
+    )),
+
+    FallingBlock(arrayOf(
+        RuleBehaviour.blockFall
     ));
 
     companion object {
