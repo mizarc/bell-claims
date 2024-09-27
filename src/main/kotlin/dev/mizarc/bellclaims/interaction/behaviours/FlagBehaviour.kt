@@ -14,6 +14,7 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
+import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
 import org.bukkit.block.data.type.Light
@@ -26,6 +27,8 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
+import org.bukkit.inventory.ItemStack
+import org.bukkit.metadata.FixedMetadataValue
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -90,6 +93,8 @@ class RuleBehaviour {
             Companion::spongeAbsorbInClaim)
         val lightningDamage = RuleExecutor(LightningStrikeEvent::class.java, Companion::cancelLightningStrikeEvent,
             Companion::lightningStrikeInClaim)
+        val blockFall = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelBlockFall,
+            Companion::entityChangeBlockInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -609,6 +614,35 @@ class RuleBehaviour {
             if (event.cause == LightningStrikeEvent.Cause.TRIDENT) return false
             event.lightning.lifeTicks = 0
             event.lightning.flashCount = 0
+            return true
+        }
+
+        private fun entityChangeBlockInClaim(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService): List<Claim> {
+            if (event !is EntityChangeBlockEvent) return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
+        }
+
+        private fun cancelBlockFall(event: Event, claimService: ClaimService,
+                                    partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityChangeBlockEvent) return false
+            val fallingBlock = event.entity as? FallingBlock ?: return false
+            if (event.to == Material.AIR) return false
+            val partition = partitionService.getByLocation(event.block.location) ?: return false
+            val claim = claimService.getById(partition.claimId) ?: return false
+            val originLocation = fallingBlock.getMetadata("origin_location")
+                .firstOrNull()?.value() as? Location ?: return false
+
+            // If originated from outside, cancel event
+            val originPartition = partitionService.getByLocation(originLocation)
+            if (originPartition != null && claimService.getById(originPartition.claimId) == claim) {
+                return false
+            }
+            val itemStack = ItemStack(fallingBlock.blockData.material, 1)
+            event.isCancelled = true
+            event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
             return true
         }
     }
