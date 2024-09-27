@@ -628,29 +628,22 @@ class RuleBehaviour {
         private fun cancelBlockFall(event: Event, claimService: ClaimService,
                                     partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityChangeBlockEvent) return false
-            val fallingBlock = event.entity
-            if (fallingBlock !is FallingBlock) return false
+            val fallingBlock = event.entity as? FallingBlock ?: return false
             if (event.to == Material.AIR) return false
             val partition = partitionService.getByLocation(event.block.location) ?: return false
             val claim = claimService.getById(partition.claimId) ?: return false
-            val originLocation = fallingBlock.getMetadata("origin_location")[0].value()
-            if (originLocation !is Location) return false
+            val originLocation = fallingBlock.getMetadata("origin_location")
+                .firstOrNull()?.value() as? Location ?: return false
 
             // If originated from outside, cancel event
             val originPartition = partitionService.getByLocation(originLocation)
+            if (originPartition != null && claimService.getById(originPartition.claimId) == claim) {
+                return false
+            }
             val itemStack = ItemStack(fallingBlock.blockData.material, 1)
-            if (originPartition == null) {
-                event.isCancelled = true
-                event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
-                return true
-            }
-            val originClaim = claimService.getById(originPartition.claimId)
-            if (originClaim == null || originClaim != claim) {
-                event.isCancelled = true
-                event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
-                return true
-            }
-            return false
+            event.isCancelled = true
+            event.block.world.dropItemNaturally(fallingBlock.location, itemStack)
+            return true
         }
     }
 }
