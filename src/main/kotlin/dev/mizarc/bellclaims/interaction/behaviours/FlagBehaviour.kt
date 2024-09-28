@@ -17,7 +17,6 @@ import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
-import org.bukkit.block.data.type.Light
 import org.bukkit.entity.*
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
@@ -28,7 +27,6 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.metadata.FixedMetadataValue
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
