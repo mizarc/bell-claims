@@ -23,6 +23,7 @@ import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
+import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -225,6 +226,9 @@ class PermissionBehaviour {
         val tridentLightningDamage = PermissionExecutor(LightningStrikeEvent::class.java,
             Companion::cancelLightningEvent, Companion::getLightningStrikeLocations,
             Companion::getLightningStrikePlayer)
+
+        val potionSplash = PermissionExecutor(PotionSplashEvent::class.java, Companion::cancelAnimalSplashPotionEffect,
+            Companion::getPotionSplashLocations, Companion::getPotionSplashPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -591,6 +595,23 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the effect of splash potions on passive mobs such as animals and villagers.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throws a potion at a group of mixed mobs.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelAnimalSplashPotionEffect(listener: Listener, event: Event): Boolean {
+            if (event !is PotionSplashEvent) return false
+            for (entity in event.affectedEntities) {
+                if (entity !is Monster && entity !is Player) {
+                    event.setIntensity(entity, 0.0)
+                }
+            }
+            return false
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -768,6 +789,18 @@ class PermissionBehaviour {
         private fun getLightningStrikeLocations(event: Event): List<Location> {
             if (event !is LightningStrikeEvent) return listOf()
             return listOf(event.lightning.location)
+        }
+
+        /**
+         * Gets the affected locations of the PotionSplashEvent.
+         */
+        private fun getPotionSplashLocations(event: Event): List<Location> {
+            if (event !is PotionSplashEvent) return listOf()
+            val affectedLocations = mutableListOf<Location>()
+            for (entity in event.affectedEntities) {
+                affectedLocations.add(entity.location)
+            }
+            return affectedLocations
         }
 
         /**
@@ -985,6 +1018,14 @@ class PermissionBehaviour {
         private fun getLightningStrikePlayer(event: Event): Player? {
             if (event !is LightningStrikeEvent) return null
             return event.lightning.causingPlayer
+        }
+
+        /**
+         * Gets the player that is triggering the PotionSplashEvent.
+         */
+        private fun getPotionSplashPlayer(event: Event): Player? {
+            if (event !is PotionSplashEvent) return null
+            return event.potion.shooter as? Player
         }
     }
 }
