@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
+import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
@@ -20,9 +21,11 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
+import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
+import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -30,6 +33,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
 import org.bukkit.event.raid.RaidTriggerEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
+import org.bukkit.event.weather.LightningStrikeEvent
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -219,6 +223,28 @@ class PermissionBehaviour {
         // Used for events triggered by an omen status effect
         val triggerRaid = PermissionExecutor(RaidTriggerEvent::class.java, Companion::cancelEvent,
             Companion::getRaidTriggerLocations, Companion::getRaidTriggerPlayer)
+
+        // Used to prevent lightning strikes from tridents causing damage in claims
+        val tridentLightningDamage = PermissionExecutor(LightningStrikeEvent::class.java,
+            Companion::cancelLightningEvent, Companion::getLightningStrikeLocations,
+            Companion::getLightningStrikePlayer)
+
+        // Used to prevent splash potions from affecting passive mobs
+        val potionSplash = PermissionExecutor(PotionSplashEvent::class.java, Companion::cancelAnimalSplashPotionEffect,
+            Companion::getPotionSplashLocations, Companion::getPotionSplashPlayer)
+
+        // Used to prevent lingering potions from affecting passive mobs
+        val potionLinger = PermissionExecutor(AreaEffectCloudApplyEvent::class.java,
+            Companion::cancelAnimalLingeringPotionEffect, Companion::getAreaEffectCloudApplyLocations,
+            Companion::getAreaEffectCloudApplyPlayer)
+
+        // Used to prevent players from sleeping in beds
+        val bedSleep = PermissionExecutor(PlayerBedEnterEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerBedEnterLocations, Companion::getPlayerBedEnterPlayer)
+
+        // Used to prevent players from setting spawn in bed or respawn anchors
+        val respawnSet = PermissionExecutor(PlayerSetSpawnEvent::class.java, Companion::cancelSetSpawnEvent,
+            Companion::getPlayerSetSpawnLocations, Companion::getPlayerSetSpawnPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -571,6 +597,60 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the action of lightning attacks using a trident.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throw their trident, which still does projectile damage.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelLightningEvent(listener: Listener, event: Event): Boolean {
+            if (event !is LightningStrikeEvent) return false
+            event.lightning.flashCount = 0
+            event.lightning.lifeTicks = 0
+            return false
+        }
+
+        /**
+         * Cancels the effect of splash potions on passive mobs such as animals and villagers.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throws a potion at a group of mixed mobs.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelAnimalSplashPotionEffect(listener: Listener, event: Event): Boolean {
+            if (event !is PotionSplashEvent) return false
+            for (entity in event.affectedEntities) {
+                if (entity !is Monster && entity !is Player) {
+                    event.setIntensity(entity, 0.0)
+                }
+            }
+            return false
+        }
+
+        /**
+         * Cancels the effect of lingering potions on passive mobs such as animals and villagers.
+         *
+         * This does not output an alert to the player when the action is performed as it could get annoying for the
+         * alert to appear every time the player throws a potion at a group of mixed mobs.
+         */
+        @Suppress("SameReturnValue")
+        private fun cancelAnimalLingeringPotionEffect(listener: Listener, event: Event): Boolean {
+            if (event !is AreaEffectCloudApplyEvent) return false
+            event.affectedEntities.removeAll { it !is Monster && it !is Player }
+            return false
+        }
+
+        private fun cancelSetSpawnEvent(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerSetSpawnEvent) return false
+            if (event.cause != PlayerSetSpawnEvent.Cause.BED &&
+                event.cause != PlayerSetSpawnEvent.Cause.RESPAWN_ANCHOR) {
+                return false
+            }
+            event.isCancelled = true
+            return true
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -740,6 +820,55 @@ class PermissionBehaviour {
             if (event !is ProjectileHitEvent) return listOf()
             val hitEntity = event.hitEntity ?: return listOf()
             return listOf(hitEntity.location)
+        }
+
+        /**
+         * Gets the affected locations of the LightningStrikeEvent.
+         */
+        private fun getLightningStrikeLocations(event: Event): List<Location> {
+            if (event !is LightningStrikeEvent) return listOf()
+            return listOf(event.lightning.location)
+        }
+
+        /**
+         * Gets the affected locations of the PotionSplashEvent.
+         */
+        private fun getPotionSplashLocations(event: Event): List<Location> {
+            if (event !is PotionSplashEvent) return listOf()
+            val affectedLocations = mutableListOf<Location>()
+            for (entity in event.affectedEntities) {
+                affectedLocations.add(entity.location)
+            }
+            return affectedLocations
+        }
+
+        /**
+         * Gets the affected locations of the AreaEffectCloudApplyEvent.
+         */
+        private fun getAreaEffectCloudApplyLocations(event: Event): List<Location> {
+            if (event !is AreaEffectCloudApplyEvent) return listOf()
+            val affectedLocations = mutableListOf<Location>()
+            for (entity in event.affectedEntities) {
+                affectedLocations.add(entity.location)
+            }
+            return affectedLocations
+        }
+
+        /**
+         * Gets the affected locations of the PlayerBedEnterEvent.
+         */
+        private fun getPlayerBedEnterLocations(event: Event): List<Location> {
+            if (event !is PlayerBedEnterEvent) return listOf()
+            return listOf(event.bed.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerSetSpawnEvent.
+         */
+        private fun getPlayerSetSpawnLocations(event: Event): List<Location> {
+            if (event !is PlayerSetSpawnEvent) return listOf()
+            val location = event.location ?: return listOf()
+            return listOf(location)
         }
 
         /**
@@ -949,6 +1078,47 @@ class PermissionBehaviour {
                 return damagingEntity
             }
             return null
+        }
+
+        /**
+         * Gets the player that is triggering the LightningStrikeEvent.
+         */
+        private fun getLightningStrikePlayer(event: Event): Player? {
+            if (event !is LightningStrikeEvent) return null
+            return event.lightning.causingPlayer
+        }
+
+        /**
+         * Gets the player that is triggering the PotionSplashEvent.
+         */
+        private fun getPotionSplashPlayer(event: Event): Player? {
+            if (event !is PotionSplashEvent) return null
+            return event.potion.shooter as? Player
+        }
+
+        /**
+         * Gets the player that is triggering the AreaEffectCloudApplyEvent.
+         */
+        private fun getAreaEffectCloudApplyPlayer(event: Event): Player? {
+            if (event !is AreaEffectCloudApplyEvent) return null
+            val source = event.entity.source as? Player ?: return null
+            return source
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerBedSleepEvent.
+         */
+        private fun getPlayerBedEnterPlayer(event: Event): Player? {
+            if (event !is PlayerBedEnterEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerSetSpawnEvent.
+         */
+        private fun getPlayerSetSpawnPlayer(event: Event): Player? {
+            if (event !is PlayerSetSpawnEvent) return null
+            return event.player
         }
     }
 }

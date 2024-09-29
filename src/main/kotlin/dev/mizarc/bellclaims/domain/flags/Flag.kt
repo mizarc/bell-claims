@@ -65,6 +65,24 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     Sculk(arrayOf(
         RuleBehaviour.sculkSpread
+    )),
+
+    Dispensers(arrayOf(
+        RuleBehaviour.dispense,
+        RuleBehaviour.dispensedSplashPotion,
+        RuleBehaviour.dispensedLingeringPotion
+    )),
+
+    Sponge(arrayOf(
+        RuleBehaviour.spongeAbsorb
+    )),
+
+    Lightning(arrayOf(
+        RuleBehaviour.lightningDamage
+    )),
+
+    FallingBlock(arrayOf(
+        RuleBehaviour.blockFall
     ));
 
     companion object {
