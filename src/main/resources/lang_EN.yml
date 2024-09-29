@@ -37,6 +37,7 @@ NameClaimPermissionVillagerTrade: "Trade Villagers"
 NameClaimPermissionHusbandry: "Husbandry"
 NameClaimPermissionDetonate: "Detonate"
 NameClaimPermissionEventStart: "Raid"
+NameClaimPermissionSleep: "Sleep"
 
 DescClaimPermissionBuild: "Grants permission to build"
 DescClaimPermissionContainerInspect: "Grants permission to open inventories (Chest, Furnace, Anvil)"
@@ -49,6 +50,7 @@ DescClaimPermissionVillagerTrade: "Grants permission to trade with villagers"
 DescClaimPermissionHusbandry: "Grants permission to interact with passive animals"
 DescClaimPermissionDetonate: "Grants permission to directly set off explosives"
 DescClaimPermissionEventStart: "Grants permission to start a raid event"
+DescClaimPermissionSleep: "Grants permission to sleep and set respawn points at a respawn anchor."
 
 # --- ClaimManagementMenu.kt ---
 
