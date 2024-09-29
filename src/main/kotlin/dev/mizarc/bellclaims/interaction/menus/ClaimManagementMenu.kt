@@ -739,7 +739,9 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             // Close current owners inventory to kick him from menu if he was in it
             claim.owner.player?.closeInventory();
 
-            //TODO: Actually rename the claim
+            // Rename claim name
+            claim.name = claimBuilder.name
+
             claimService.transferClaim(claim, claimBuilder.player)
 
             openClaimEditMenu(claim)

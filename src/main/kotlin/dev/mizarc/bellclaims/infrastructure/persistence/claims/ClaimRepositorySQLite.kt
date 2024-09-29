@@ -85,7 +85,7 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         claims[claim.id] = claim
 
         try {
-            storage.connection.executeUpdate("UPDATE claims SET ownerId=? WHERE id=?;", player.uniqueId, claim.id)
+            storage.connection.executeUpdate("UPDATE claims SET ownerId=?, name=? WHERE id=?;", player.uniqueId, claim.name, claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
