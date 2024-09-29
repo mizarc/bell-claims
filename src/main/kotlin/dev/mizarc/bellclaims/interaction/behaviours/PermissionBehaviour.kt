@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
+import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
@@ -236,6 +237,14 @@ class PermissionBehaviour {
         val potionLinger = PermissionExecutor(AreaEffectCloudApplyEvent::class.java,
             Companion::cancelAnimalLingeringPotionEffect, Companion::getAreaEffectCloudApplyLocations,
             Companion::getAreaEffectCloudApplyPlayer)
+
+        // Used to prevent players from sleeping in beds
+        val bedSleep = PermissionExecutor(PlayerBedEnterEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerBedEnterLocations, Companion::getPlayerBedEnterPlayer)
+
+        // Used to prevent players from setting spawn in bed or respawn anchors
+        val respawnSet = PermissionExecutor(PlayerSetSpawnEvent::class.java, Companion::cancelSetSpawnEvent,
+            Companion::getPlayerSetSpawnLocations, Companion::getPlayerSetSpawnPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -631,6 +640,16 @@ class PermissionBehaviour {
             return false
         }
 
+        private fun cancelSetSpawnEvent(listener: Listener, event: Event): Boolean {
+            if (event !is PlayerSetSpawnEvent) return false
+            if (event.cause != PlayerSetSpawnEvent.Cause.BED &&
+                event.cause != PlayerSetSpawnEvent.Cause.RESPAWN_ANCHOR) {
+                return false
+            }
+            event.isCancelled = true
+            return true
+        }
+
         /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
@@ -833,6 +852,23 @@ class PermissionBehaviour {
                 affectedLocations.add(entity.location)
             }
             return affectedLocations
+        }
+
+        /**
+         * Gets the affected locations of the PlayerBedEnterEvent.
+         */
+        private fun getPlayerBedEnterLocations(event: Event): List<Location> {
+            if (event !is PlayerBedEnterEvent) return listOf()
+            return listOf(event.bed.location)
+        }
+
+        /**
+         * Gets the affected locations of the PlayerSetSpawnEvent.
+         */
+        private fun getPlayerSetSpawnLocations(event: Event): List<Location> {
+            if (event !is PlayerSetSpawnEvent) return listOf()
+            val location = event.location ?: return listOf()
+            return listOf(location)
         }
 
         /**
@@ -1067,6 +1103,22 @@ class PermissionBehaviour {
             if (event !is AreaEffectCloudApplyEvent) return null
             val source = event.entity.source as? Player ?: return null
             return source
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerBedSleepEvent.
+         */
+        private fun getPlayerBedEnterPlayer(event: Event): Player? {
+            if (event !is PlayerBedEnterEvent) return null
+            return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerSetSpawnEvent.
+         */
+        private fun getPlayerSetSpawnPlayer(event: Event): Player? {
+            if (event !is PlayerSetSpawnEvent) return null
+            return event.player
         }
     }
 }
