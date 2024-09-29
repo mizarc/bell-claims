@@ -19,6 +19,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Protection against splash and lingering potions affecting passive mobs. Requires the husbandry permission.
 - Protection against dispensed potions affecting players and passive mobs. Bypassed by the dispenser flag.
 - Protection against sleeping in beds and setting respawn points at respawn anchors. Requires the new sleep permission.
+- Config value for setting the initial claim size.
+- Config value for setting the minimum partition size.
 - Language file support, with all known instances of display text moved to a language file resource.
 - English language complete.
 - Chinese language machine translated. (Temporary, for demonstration)
@@ -27,6 +29,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Changed
 - Piston protection now only applies if the piston affecting the claim blocks is outside of the claim.
+- Config keys are no longer auto added and have a fixed structure, default values are applied when values are missing.
 
 ### Fixed
 - Multi-blocks bypassing protections when the source is placed outside of the claim.
