@@ -540,12 +540,24 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
             val playerClaimLimitReached = playerLimitService.getRemainingClaimCount(player) < 1;
 
+            val playerClaimMaxBlockCount = playerLimitService.getTotalClaimBlockCount(player)
+            val playerClaimedBlocksCount = playerLimitService.getUsedClaimBlockCount(player)
+            val claimBlockCount = claimService.getBlockCount(claim);
+
+            val playerBlockLimitReached = (playerClaimMaxBlockCount - playerClaimedBlocksCount - claimBlockCount) < 0;
+
             val guiSelectItem: GuiItem
             if (playerClaimLimitReached) {
                 // Player cannot receive transfer
                 val transferClaimItem = ItemStack(Material.MAGMA_CREAM)
                     .name("§4${getLangText("CannotTransferClaim")}")
                     .lore(getLangText("PlayerHasRunOutOfClaims"))
+                guiSelectItem = GuiItem(transferClaimItem) { };
+            } else if (playerBlockLimitReached) {
+                // Player cannot receive transfer
+                val transferClaimItem = ItemStack(Material.MAGMA_CREAM)
+                    .name("§4${getLangText("CannotTransferClaim")}")
+                    .lore(getLangText("PlayerClaimBlockLimit"))
                 guiSelectItem = GuiItem(transferClaimItem) { };
             } else {
                 val transferClaimItem = ItemStack(Material.BELL)
@@ -639,7 +651,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         openConfirmationMenu(claimBuilder.player, parameters)
     }
 
-    fun openTransferNamingMenu(claim: Claim, existingName: Boolean = false, claimLimitReached: Boolean = false) {
+    fun openTransferNamingMenu(claim: Claim, existingName: Boolean = false, claimLimitReached: Boolean = false, blockLimitReached: Boolean = false) {
         // Create homes menu
         val gui = AnvilGui("Naming Claim")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
@@ -676,6 +688,16 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             gui.secondItemComponent.addPane(secondPane)
         }
 
+        // Add message menu item if claim block limit was reached
+        if (blockLimitReached) {
+            val secondPane = StaticPane(0, 0, 1, 1)
+            val paperItem = ItemStack(Material.MAGMA_CREAM)
+                .name(getLangText("YouHaveRunOutOfClaimBlocks"))
+            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+            secondPane.addItem(guiPaperItem, 0, 0)
+            gui.secondItemComponent.addPane(secondPane)
+        }
+
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
         val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
@@ -692,6 +714,18 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                 return@GuiItem
             }
 
+            // Do last claim block size check
+            val playerClaimMaxBlockCount = playerLimitService.getTotalClaimBlockCount(claimBuilder.player)
+            val playerClaimedBlocksCount = playerLimitService.getUsedClaimBlockCount(claimBuilder.player)
+            val claimBlockCount = claimService.getBlockCount(claim);
+
+            val playerBlockLimitReached = (playerClaimMaxBlockCount - playerClaimedBlocksCount - claimBlockCount) < 0;
+
+            if (playerBlockLimitReached) {
+                openTransferNamingMenu(claim, blockLimitReached = true)
+                return@GuiItem
+            }
+
             // Do final check for claim transfer request
             if (!claimService.playerHasTransferRequest(claim, claimBuilder.player)) {
                 claimBuilder.player.closeInventory()
@@ -705,6 +739,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             // Close current owners inventory to kick him from menu if he was in it
             claim.owner.player?.closeInventory();
 
+            //TODO: Actually rename the claim
             claimService.transferClaim(claim, claimBuilder.player)
 
             openClaimEditMenu(claim)
