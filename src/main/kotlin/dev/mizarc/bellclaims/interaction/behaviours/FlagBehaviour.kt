@@ -87,7 +87,7 @@ class RuleBehaviour {
             Companion::treeGrowthInClaim)
         val sculkSpread = RuleExecutor(BlockSpreadEvent::class.java, Companion::cancelSculkSpread,
             Companion::blockSpreadInClaim)
-        val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelEvent,
+        val dispense = RuleExecutor(BlockDispenseEvent::class.java, Companion::cancelBlockDispenseEvent,
             Companion::blockDispenseInClaim)
         val dispensedSplashPotion = RuleExecutor(PotionSplashEvent::class.java,
             Companion::cancelSplashPotionEffect, Companion::potionSplashInClaim)
@@ -690,6 +690,28 @@ class RuleBehaviour {
             if (event !is AreaEffectCloudApplyEvent) return false
             event.affectedEntities.removeAll { it !is Monster }
             return false
+        }
+
+        private fun cancelBlockDispenseEvent(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockDispenseEvent) return false
+            val directionalBlock = event.block.blockData as Directional
+            val placeLocation = event.block.location.add(directionalBlock.facing.direction)
+            val placePartition = partitionService.getByLocation(placeLocation) ?: return false
+            val placeClaim = claimService.getById(placePartition.claimId) ?: return false
+
+            val partition = partitionService.getByLocation(event.block.location)
+            if (partition == null) {
+                event.isCancelled = true
+                return true
+            }
+
+            val claim = claimService.getById(partition.claimId)
+            if (claim == placeClaim) {
+                return false
+            }
+            event.isCancelled = true
+            return true
         }
     }
 }
