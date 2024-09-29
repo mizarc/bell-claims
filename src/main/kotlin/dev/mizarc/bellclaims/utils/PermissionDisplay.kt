@@ -24,6 +24,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.Husbandry -> ItemStack(Material.LEAD)
         ClaimPermission.Detonate -> ItemStack(Material.TNT)
         ClaimPermission.EventStart -> ItemStack(Material.OMINOUS_BOTTLE)
+        ClaimPermission.Sleep -> ItemStack(Material.RED_BED)
     }
 }
 
@@ -45,6 +46,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.Husbandry -> getLangText("NameClaimPermissionHusbandry")
         ClaimPermission.Detonate -> getLangText("NameClaimPermissionDetonate")
         ClaimPermission.EventStart -> getLangText("NameClaimPermissionEventStart")
+        ClaimPermission.Sleep -> getLangText("NameClaimPermissionSleep")
     }
 }
 
@@ -66,5 +68,6 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.Husbandry -> getLangText("DescClaimPermissionHusbandry")
         ClaimPermission.Detonate -> getLangText("DescClaimPermissionDetonate")
         ClaimPermission.EventStart -> getLangText("DescClaimPermissionEventStart")
+        ClaimPermission.Sleep -> getLangText("DescClaimPermissionSleep")
     }
 }
