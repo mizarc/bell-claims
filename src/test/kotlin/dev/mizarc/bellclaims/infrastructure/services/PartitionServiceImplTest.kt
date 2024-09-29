@@ -44,6 +44,12 @@ class PartitionServiceImplTest {
     @BeforeEach
     fun setup() {
         config = mockk()
+        every { config.minimumPartitionSize } returns 3
+        every { config.distanceBetweenClaims } returns 1
+        every { config.initialClaimSize } returns 7
+        every { config.claimLimit } returns 3
+        every { config.claimBlockLimit } returns 50000
+
         partitionRepo = mockk()
         claimService = mockk()
         playerLimitService = mockk()

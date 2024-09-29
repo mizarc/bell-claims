@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
+import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerLimitService
@@ -13,6 +14,7 @@ import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import io.mockk.*
 import org.bukkit.Location
 import org.bukkit.Material
@@ -29,6 +31,7 @@ class ClaimWorldServiceImplTest {
     private lateinit var partitionService: PartitionService
     private lateinit var playerLimitService: PlayerLimitService
     private lateinit var claimWorldService: ClaimWorldService
+    private lateinit var config: Config
 
     private lateinit var playerOne: OfflinePlayer
     private lateinit var playerTwo: OfflinePlayer
@@ -42,10 +45,17 @@ class ClaimWorldServiceImplTest {
 
     @BeforeEach
     fun setup() {
+        config = mockk()
+        every { config.minimumPartitionSize } returns 3
+        every { config.distanceBetweenClaims } returns 1
+        every { config.initialClaimSize } returns 7
+        every { config.claimLimit } returns 3
+        every { config.claimBlockLimit } returns 50000
+
         claimRepo = mockk()
         partitionService = mockk()
         playerLimitService = mockk()
-        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerLimitService)
+        claimWorldService = ClaimWorldServiceImpl(claimRepo, partitionService, playerLimitService, config)
 
         playerOne = mockk<OfflinePlayer>()
         playerTwo = mockk<OfflinePlayer>()
@@ -60,6 +70,8 @@ class ClaimWorldServiceImplTest {
         partitionCollectionTwo = arrayOf(
             Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(17, 29), Position2D(23, 39))),
             Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(11, 37), Position2D(16, 43))))
+
+
     }
 
     @Test
@@ -185,11 +197,8 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 48.5, 75.0, 32.3)
-        val defaultClaimArea = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
-        every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns false
+        every { partitionService.isAreaValid(any(), location.world) } returns false
 
         // When
         val result = claimWorldService.create("New", location, playerThree)
@@ -204,11 +213,8 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 48.5, 75.0, 32.3)
-        val defaultClaimArea = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
-        every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
+        every { partitionService.isAreaValid(any(), location.world) } returns true
         every { playerLimitService.getRemainingClaimCount(playerThree) } returns 0
 
         // When
@@ -223,11 +229,8 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 48.5, 75.0, 32.3)
-        val defaultClaimArea = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
-        every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
+        every { partitionService.isAreaValid(any(), location.world) } returns true
         every { playerLimitService.getRemainingClaimCount(playerThree) } returns 0
 
         // When
@@ -242,11 +245,8 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 48.5, 75.0, 32.3)
-        val defaultClaimArea = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
-        every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
+        every { partitionService.isAreaValid(any(), location.world) } returns true
         every { playerLimitService.getRemainingClaimCount(playerThree) } returns 1
         every { playerLimitService.getRemainingClaimBlockCount(playerThree) } returns 12
 
@@ -262,11 +262,8 @@ class ClaimWorldServiceImplTest {
         // Given
         val world = mockk<World>()
         val location = Location(world, 48.5, 75.0, 32.3)
-        val defaultClaimArea = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
         every { location.block.type } returns Material.BELL
-        every { partitionService.isAreaValid(defaultClaimArea, location.world) } returns true
+        every { partitionService.isAreaValid(any(), location.world) } returns true
         every { playerLimitService.getRemainingClaimCount(playerThree) } returns 1
         every { playerLimitService.getRemainingClaimBlockCount(playerThree) } returns 121
         every { world.uid } returns UUID.randomUUID()
