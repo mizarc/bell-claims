@@ -7,15 +7,17 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Latest]
 
 ### Added
+- Individual flags to allow the claim owner to control the existing tree growth and sculk spread protections.
 - Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
 - Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the new fluid flow flag.
-- Individual flags to allow the claim owner to control the existing tree growth and sculk spread protections.
 - Protection against mobs damaging animals and breaking static entities such as item frames and paintings. Bypassed by the mob griefing flag.
 - Protection against trampling using rideable mobs. Requires the build permission.
 - Protection against dispensers placed on the outer edge of the claim being used to grief with fluids or entities such as boats and armor stands. Bypassed by the new dispense flag.
 - Protection against natural lightning causing damage and setting claim blocks alight. Bypassed by the new lightning damage flag.
 - Protection against lightning damage created by a trident enchanted with channeling. Requires the husbandry permission.
 - Protection against falling blocks being launched into the claim. Bypassed by the block launch flag.
+- Protection against splash and lingering potions affecting passive mobs. Requires the husbandry permission.
+- Protection against dispensed potions affecting players and passive mobs. Bypassed by the dispenser flag.
 - Language file support, with all known instances of display text moved to a language file resource.
 - English language complete.
 - Chinese language machine translated. (Temporary, for demonstration)

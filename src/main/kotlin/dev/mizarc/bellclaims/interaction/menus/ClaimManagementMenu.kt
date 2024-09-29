@@ -323,7 +323,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openClaimFlagMenu(claim: Claim) {
         // Create claim flags menu
-        val gui = ChestGui(5, "Claim Flags")
+        val gui = ChestGui(6, "Claim Flags")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -368,7 +368,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Add vertical divider
         val verticalDividerPane = StaticPane(4, 2, 1, 6)
         gui.addPane(verticalDividerPane)
-        for (slot in 0..2) {
+        for (slot in 0..3) {
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
