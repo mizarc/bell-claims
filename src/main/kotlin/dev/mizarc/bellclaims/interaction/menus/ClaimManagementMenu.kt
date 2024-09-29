@@ -18,12 +18,15 @@ import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.interaction.menus.ConfirmationMenu.Companion.openConfirmationMenu
 import dev.mizarc.bellclaims.utils.*
 import org.bukkit.event.inventory.ClickType
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
 import dev.mizarc.bellclaims.utils.getLangText
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 
 class ClaimManagementMenu(private val claimService: ClaimService,
                           private val claimWorldService: ClaimWorldService,
@@ -501,15 +504,58 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
         addSelector(controlsPane, createHead(player).name("${player.name}"), deselectAction, selectAction)
 
-        // Add give claim option
-        val transferClaimAction: () -> Unit = {
-            // TODO
+        if (claimService.playerHasTransferRequest(claim, player)) {
+            // Transfer requests for player, show cancel button
+            val cancelTransferClaimAction: () -> Unit = {
+                claimService.deleteTransferRequest(claim, player)
+                openPlayerPermissionsMenu(claim, player)
+            }
+
+            val transferClaimItem = ItemStack(Material.BARRIER)
+                .name("§4${getLangText("CancelTransferClaim")}")
+                .lore(getLangText("CancelTransferClaimDescription"))
+            val guiSelectItem = GuiItem(transferClaimItem) { cancelTransferClaimAction() };
+
+            controlsPane.addItem(guiSelectItem, 8, 0)
+        } else {
+            // No transfer request exists for player
+            val transferClaimAction: () -> Unit = {
+                val cancelAction: () -> Unit = {
+                    openPlayerPermissionsMenu(claim, player)
+                }
+
+                val confirmAction: () -> Unit = {
+                    claimService.addTransferRequest(claim, player)
+                    openPlayerPermissionsMenu(claim, player)
+                }
+
+                val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
+                    getLangText("TransferClaimQuestion"),
+                    cancelAction,
+                    confirmAction
+                )
+
+                openConfirmationMenu(claimBuilder.player, parameters)
+            }
+
+            val playerClaimLimitReached = playerLimitService.getRemainingClaimCount(player) < 1;
+
+            val guiSelectItem: GuiItem
+            if (playerClaimLimitReached) {
+                // Player cannot receive transfer
+                val transferClaimItem = ItemStack(Material.MAGMA_CREAM)
+                    .name("§4${getLangText("CannotTransferClaim")}")
+                    .lore(getLangText("PlayerHasRunOutOfClaims"))
+                guiSelectItem = GuiItem(transferClaimItem) { };
+            } else {
+                val transferClaimItem = ItemStack(Material.BELL)
+                    .name("§4${getLangText("TransferClaim")}")
+                    .lore("This will transfer the current claim to ${player.name}!")
+                guiSelectItem = GuiItem(transferClaimItem) { transferClaimAction() };
+            }
+
+            controlsPane.addItem(guiSelectItem, 8, 0)
         }
-
-        val transferClaimItem = ItemStack(Material.BELL).name("§4Transfer claim").lore("This will transfer the current claim to ${player.name}!")
-        val guiSelectItem = GuiItem(transferClaimItem) { transferClaimAction() }
-        controlsPane.addItem(guiSelectItem, 8, 0)
-
 
         // Add vertical divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
@@ -572,6 +618,100 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             }
         }
 
+        gui.show(claimBuilder.player)
+    }
+
+    fun openTransferOfferMenu(claim: Claim, player: Player) {
+        val cancelAction: () -> Unit = {
+            player.closeInventory()
+        }
+
+        val confirmAction: () -> Unit = {
+            openTransferNamingMenu(claim)
+        }
+
+        val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
+            getLangText("AcceptTransferClaim"),
+            cancelAction,
+            confirmAction
+        )
+
+        openConfirmationMenu(claimBuilder.player, parameters)
+    }
+
+    fun openTransferNamingMenu(claim: Claim, existingName: Boolean = false, claimLimitReached: Boolean = false) {
+        // Create homes menu
+        val gui = AnvilGui("Naming Claim")
+        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
+        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
+            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
+
+        // Add lodestone menu item
+        val firstPane = StaticPane(0, 0, 1, 1)
+        val lodestoneItem = ItemStack(Material.BELL)
+            .name(claimBuilder.name)
+            .lore("${claimBuilder.location.blockX}, ${claimBuilder.location.blockY}, " +
+                    "${claimBuilder.location.blockZ}")
+        val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
+        firstPane.addItem(guiItem, 0, 0)
+        gui.firstItemComponent.addPane(firstPane)
+
+        // Add message menu item if name is already taken
+        if (existingName) {
+            val secondPane = StaticPane(0, 0, 1, 1)
+            val paperItem = ItemStack(Material.PAPER)
+                .name(getLangText("AlreadyHaveClaimWithName"))
+            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+            secondPane.addItem(guiPaperItem, 0, 0)
+            gui.secondItemComponent.addPane(secondPane)
+        }
+
+        // Add message menu item if claim limit was reached
+        if (claimLimitReached) {
+            val secondPane = StaticPane(0, 0, 1, 1)
+            val paperItem = ItemStack(Material.MAGMA_CREAM)
+                .name(getLangText("YouHaveRunOutOfClaims"))
+            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
+            secondPane.addItem(guiPaperItem, 0, 0)
+            gui.secondItemComponent.addPane(secondPane)
+        }
+
+        // Add confirm menu item.
+        val thirdPane = StaticPane(0, 0, 1, 1)
+        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
+        val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
+            claimBuilder.name = gui.renameText
+            if (claimService.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
+                openTransferNamingMenu(claim, existingName = true)
+                return@GuiItem
+            }
+
+            // Do last claim limit check
+            if (playerLimitService.getRemainingClaimCount(claimBuilder.player) < 1) {
+                openTransferNamingMenu(claim, claimLimitReached = true)
+                return@GuiItem
+            }
+
+            // Do final check for claim transfer request
+            if (!claimService.playerHasTransferRequest(claim, claimBuilder.player)) {
+                claimBuilder.player.closeInventory()
+                claimBuilder.player.sendActionBar(
+                    Component.text("The claim transfer request was cancelled")
+                    .color(TextColor.color(255, 85, 85)))
+
+                return@GuiItem
+            }
+
+            // Close current owners inventory to kick him from menu if he was in it
+            claim.owner.player?.closeInventory();
+
+            claimService.transferClaim(claim, claimBuilder.player)
+
+            openClaimEditMenu(claim)
+            guiEvent.isCancelled = true
+        }
+        thirdPane.addItem(confirmGuiItem, 0, 0)
+        gui.resultComponent.addPane(thirdPane)
         gui.show(claimBuilder.player)
     }
 

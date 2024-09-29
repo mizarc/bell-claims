@@ -164,10 +164,21 @@ DeletePartition: "Delete Partition"
 
 DeletePartitionQuestion: "Delete Partition?"
 
-No: "No"
+TransferClaim: "Transfer Claim"
+
+TransferClaimQuestion: "Transfer Claim?"
+AcceptTransferClaim: "Accept Claim Transfer?"
+
+CannotTransferClaim: "Cannot Transfer Claim"
+PlayerHasRunOutOfClaims: "Player has ran out of claims."
+
+CancelTransferClaim: "Cancel Transfer Request"
+CancelTransferClaimDescription: "This will cancel the transfer request for this player"
+
+QuestionNo: "No"
 TakeMeBack: "Take me back"
 
-Yes: "Yes"
+QuestionYes: "Yes"
 PermanentActionWarning: "Warning, this is a permanent action"
 
 #--- ClaimCommand.kt ---
