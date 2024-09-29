@@ -85,7 +85,10 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
         PermissionBehaviour.fishingRod,
         PermissionBehaviour.takeLeadFromFence,
         PermissionBehaviour.beehiveShear,
-        PermissionBehaviour.beehiveBottle
+        PermissionBehaviour.beehiveBottle,
+        PermissionBehaviour.tridentLightningDamage,
+        PermissionBehaviour.potionSplash,
+        PermissionBehaviour.potionLinger
     )),
 
     /**
@@ -104,6 +107,14 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
      */
     EventStart(arrayOf(
         PermissionBehaviour.triggerRaid
+    )),
+
+    /**
+     * When a player sleeps in a bed or uses a respawn anchor.
+     */
+    Sleep(arrayOf(
+        PermissionBehaviour.bedSleep,
+        PermissionBehaviour.respawnSet
     ));
 
     companion object {

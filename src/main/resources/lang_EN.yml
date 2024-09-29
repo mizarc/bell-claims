@@ -7,6 +7,10 @@ NameFlagPistons: "Pistons"
 NameFlagFluids: "Fluid Flow"
 NameFlagTrees: "Tree Growth"
 NameFlagSculk: "Sculk Spread"
+NameFlagDispensers: "Dispense"
+NameFlagSponge: "Sponge Absorb"
+NameFlagLightning: "Lightning Damage"
+NameFlagFallingBlock: "Block Launching"
 
 DescFlagExplosions: "Allows TNT to damage claim blocks"
 DescFlagFireSpread: "Allows fire to spread to other blocks"
@@ -15,6 +19,10 @@ DescFlagPistons: "Allows pistons placed outside the claim to move claim blocks"
 DescFlagFluids: "Allows fluids to flow into the claim"
 DescFlagTrees: "Allows trees planted outside to grow into the claim"
 DescFlagSculk: "Allows sculk catalysts placed outside to grow into the claim"
+DescFlagDispensers: "Allows dispensers placed outside to dispense into the claim"
+DescFlagSponge: "Allows sponges placed outside to drain fluids in the claim"
+DescFlagLightning: "Allows lightning to cause damage and set the ground alight"
+DescFlagFallingBlock: "Allows blocks such as sand and anvils to be launched into the claim"
 
 # --- PermissionDisplay.kt ---
 
@@ -29,6 +37,7 @@ NameClaimPermissionVillagerTrade: "Trade Villagers"
 NameClaimPermissionHusbandry: "Husbandry"
 NameClaimPermissionDetonate: "Detonate"
 NameClaimPermissionEventStart: "Raid"
+NameClaimPermissionSleep: "Sleep"
 
 DescClaimPermissionBuild: "Grants permission to build"
 DescClaimPermissionContainerInspect: "Grants permission to open inventories (Chest, Furnace, Anvil)"
@@ -41,6 +50,7 @@ DescClaimPermissionVillagerTrade: "Grants permission to trade with villagers"
 DescClaimPermissionHusbandry: "Grants permission to interact with passive animals"
 DescClaimPermissionDetonate: "Grants permission to directly set off explosives"
 DescClaimPermissionEventStart: "Grants permission to start a raid event"
+DescClaimPermissionSleep: "Grants permission to sleep and set respawn points at a respawn anchor."
 
 # --- ClaimManagementMenu.kt ---
 

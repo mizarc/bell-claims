@@ -326,7 +326,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openClaimFlagMenu(claim: Claim) {
         // Create claim flags menu
-        val gui = ChestGui(4, "Claim Flags")
+        val gui = ChestGui(6, "Claim Flags")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -371,7 +371,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         // Add vertical divider
         val verticalDividerPane = StaticPane(4, 2, 1, 6)
         gui.addPane(verticalDividerPane)
-        for (slot in 0..1) {
+        for (slot in 0..3) {
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
@@ -379,7 +379,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val disabledRules = Flag.entries.toTypedArray().subtract(enabledRules)
 
         // Add list of disabled permissions
-        val disabledPermissionsPane = StaticPane(0, 2, 4, 2)
+        val disabledPermissionsPane = StaticPane(0, 2, 4, 3)
         gui.addPane(disabledPermissionsPane)
         var xSlot = 0
         var ySlot = 0
@@ -403,7 +403,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             }
         }
 
-        val enabledPermissionsPane = StaticPane(5, 2, 4, 2)
+        val enabledPermissionsPane = StaticPane(5, 2, 4, 3)
         gui.addPane(enabledPermissionsPane)
         xSlot = 0
         ySlot = 0

@@ -20,6 +20,10 @@ fun Flag.getIcon(): ItemStack {
         Flag.Fluids -> ItemStack(Material.WATER_BUCKET)
         Flag.Trees -> ItemStack(Material.OAK_SAPLING)
         Flag.Sculk -> ItemStack(Material.SCULK_CATALYST)
+        Flag.Dispensers -> ItemStack(Material.DISPENSER)
+        Flag.Sponge -> ItemStack(Material.SPONGE)
+        Flag.Lightning -> ItemStack(Material.LIGHTNING_ROD)
+        Flag.FallingBlock -> ItemStack(Material.ANVIL)
     }
 }
 
@@ -37,6 +41,10 @@ fun Flag.getDisplayName(): String {
         Flag.Fluids -> getLangText("NameFlagFluids")
         Flag.Trees -> getLangText("NameFlagTrees")
         Flag.Sculk -> getLangText("NameFlagSculk")
+        Flag.Dispensers -> getLangText("NameFlagDispensers")
+        Flag.Sponge -> getLangText("NameFlagSponge")
+        Flag.Lightning -> getLangText("NameFlagLightning")
+        Flag.FallingBlock -> getLangText("NameFlagFallingBlock")
     }
 }
 
@@ -54,5 +62,9 @@ fun Flag.getDescription(): String {
         Flag.Fluids -> getLangText("DescFlagFluids")
         Flag.Trees -> getLangText("DescFlagTrees")
         Flag.Sculk -> getLangText("DescFlagSculk")
+        Flag.Dispensers -> getLangText("DescFlagDispensers")
+        Flag.Sponge -> getLangText("DescFlagSponge")
+        Flag.Lightning -> getLangText("DescFlagLightning")
+        Flag.FallingBlock -> getLangText("DescFlagFallingBlock")
     }
 }
