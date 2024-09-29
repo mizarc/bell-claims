@@ -33,6 +33,17 @@ class MoveToolListener(private val claimRepo: ClaimRepository,
             return
         }
 
+        if (claim.owner != event.player) {
+            event.player.sendActionBar(
+                Component.text("You cannot move this claim bell")
+                    .color(TextColor.color(255, 85, 85)))
+
+            event.player.inventory.setItemInMainHand(ItemStack.empty())
+
+            event.isCancelled = true
+            return
+        }
+
         val existingLocation = Location(claim.getWorld(),
             claim.position.x.toDouble(), claim.position.y.toDouble(), claim.position.z.toDouble())
         val existingBlock = existingLocation.block
