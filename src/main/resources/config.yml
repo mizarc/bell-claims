@@ -1,6 +1,7 @@
 claim_limit: 3
 claim_block_limit: 5000
-minimum_partition_size: 5
+initial_claim_size: 5
+minimum_partition_size: 3
 distance_between_claims: 3
 plugin_language: EN
 

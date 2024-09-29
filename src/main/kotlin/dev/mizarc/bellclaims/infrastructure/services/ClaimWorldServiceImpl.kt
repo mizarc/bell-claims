@@ -11,13 +11,17 @@ import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
                             private val partitionService: PartitionService,
-                            private val playerLimitService: PlayerLimitService): ClaimWorldService {
+                            private val playerLimitService: PlayerLimitService,
+                            private val config: Config): ClaimWorldService {
     override fun isNewLocationValid(location: Location): Boolean {
         val area = Area(
             Position2D(location.blockX - 5, location.blockZ - 5),
@@ -36,8 +40,10 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
 
     override fun create(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult {
         val area = Area(
-            Position2D(location.blockX - 5, location.blockZ - 5),
-            Position2D(location.blockX + 5, location.blockZ + 5))
+            Position2D(location.blockX - floor(config.initialClaimSize.toFloat() / 2).toInt(),
+                location.blockZ - floor(config.initialClaimSize.toFloat() / 2).toInt()),
+            Position2D(location.blockX + ceil(config.initialClaimSize.toFloat() / 2).toInt(),
+                location.blockZ + ceil(config.initialClaimSize.toFloat() / 2).toInt()))
 
         // Handle failure types
         if (location.block.type != Material.BELL) return ClaimCreationResult.NOT_A_BELL
