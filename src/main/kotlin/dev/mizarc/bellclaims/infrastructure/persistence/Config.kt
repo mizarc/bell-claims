@@ -8,6 +8,7 @@ class Config(val plugin: Plugin) {
 
     var claimLimit = 0
     var claimBlockLimit = 0
+    var initialClaimSize = 0
     var minimumPartitionSize = 0
     var distanceBetweenClaims = 0
     var pluginLanguage = "EN"
@@ -20,6 +21,7 @@ class Config(val plugin: Plugin) {
     fun loadConfig() {
         claimLimit = configFile.getInt("claim_limit")
         claimBlockLimit = configFile.getInt("claim_block_limit")
+        initialClaimSize = configFile.getInt("initial_claim_size")
         minimumPartitionSize = configFile.getInt("minimum_partition_size")
         distanceBetweenClaims = configFile.getInt("distance_between_claims")
         pluginLanguage = configFile.getString("plugin_language") ?: "EN"
@@ -31,18 +33,5 @@ class Config(val plugin: Plugin) {
         if (!configFile.exists()) {
             plugin.saveResource("config.yml", false)
         }
-
-        //disabled for comments in config.yml
-        /*
-        plugin.config.addDefault("claim_limit", 3)
-        plugin.config.addDefault("claim_block_limit", 5000)
-        plugin.config.addDefault("minimum_claim_size", 5)
-        plugin.config.addDefault("distance_between_claims", 3)
-        plugin.config.addDefault("plugin_language", "EN")
-
-        plugin.config.options().copyDefaults(true)
-        plugin.saveConfig()
-        */
-
     }
 }
