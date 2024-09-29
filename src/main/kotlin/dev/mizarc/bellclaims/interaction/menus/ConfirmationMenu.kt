@@ -11,12 +11,15 @@ import org.bukkit.event.inventory.ClickType
 
 import dev.mizarc.bellclaims.utils.getLangText
 import org.bukkit.entity.Player
+import org.hamcrest.Description
 
 class ConfirmationMenu {
     companion object {
         data class ConfirmationMenuParameters(val menuTitle: String,
                                               val cancelAction: () -> Unit,
-                                              val confirmAction: () -> Unit)
+                                              val cancelActionDescription: String = getLangText("TakeMeBack"),
+                                              val confirmAction: () -> Unit,
+                                              val confirmActionDescription: String = getLangText("PermanentActionWarning"))
 
 
         // Generic confirmation menu which takes cancel and confirm functions as argument
@@ -32,7 +35,7 @@ class ConfirmationMenu {
             // Add no menu item
             val noItem = ItemStack(Material.RED_CONCRETE)
                 .name(getLangText("QuestionNo"))
-                .lore(getLangText("TakeMeBack"))
+                .lore(parameters.cancelActionDescription)
 
             val guiNoItem = GuiItem(noItem) { guiEvent ->
                 guiEvent.isCancelled = true
@@ -43,7 +46,7 @@ class ConfirmationMenu {
             // Add yes menu item
             val yesItem = ItemStack(Material.GREEN_CONCRETE)
                 .name(getLangText("QuestionYes"))
-                .lore(getLangText("PermanentActionWarning"))
+                .lore(parameters.confirmActionDescription)
             val guiYesItem = GuiItem(yesItem) { guiEvent ->
                 guiEvent.isCancelled = true
                 parameters.confirmAction.invoke()

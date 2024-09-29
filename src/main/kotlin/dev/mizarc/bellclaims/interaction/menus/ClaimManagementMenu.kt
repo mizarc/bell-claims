@@ -530,9 +530,10 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                 }
 
                 val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
-                    getLangText("TransferClaimQuestion"),
-                    cancelAction,
-                    confirmAction
+                    menuTitle = getLangText("TransferClaimQuestion"),
+                    cancelAction = cancelAction,
+                    confirmAction = confirmAction,
+                    confirmActionDescription = getLangText("TransferClaimConfirmQuestionDescription")
                 )
 
                 openConfirmationMenu(claimBuilder.player, parameters)
@@ -643,9 +644,10 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
 
         val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
-            getLangText("AcceptTransferClaim"),
-            cancelAction,
-            confirmAction
+            menuTitle = getLangText("AcceptTransferClaim"),
+            cancelAction = cancelAction,
+            confirmAction = confirmAction,
+            confirmActionDescription = getLangText("AcceptTransferClaimConfirmDescription")
         )
 
         openConfirmationMenu(claimBuilder.player, parameters)

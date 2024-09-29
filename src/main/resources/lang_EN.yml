@@ -178,7 +178,10 @@ DeletePartitionQuestion: "Delete Partition?"
 TransferClaim: "Transfer Claim"
 
 TransferClaimQuestion: "Transfer Claim?"
+TransferClaimConfirmQuestionDescription: "Player will have to accept request by clicking the bell"
+
 AcceptTransferClaim: "Accept Claim Transfer?"
+AcceptTransferClaimConfirmDescription: "This will first require you to rename the claim"
 
 CannotTransferClaim: "Cannot Transfer Claim"
 PlayerHasRunOutOfClaims: "Player has ran out of claims."
