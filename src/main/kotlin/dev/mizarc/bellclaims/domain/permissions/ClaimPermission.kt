@@ -107,6 +107,14 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
      */
     EventStart(arrayOf(
         PermissionBehaviour.triggerRaid
+    )),
+
+    /**
+     * When a player sleeps in a bed or uses a respawn anchor.
+     */
+    Sleep(arrayOf(
+        PermissionBehaviour.bedSleep,
+        PermissionBehaviour.respawnSet
     ));
 
     companion object {
