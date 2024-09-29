@@ -8,7 +8,7 @@ class Config(val plugin: Plugin) {
 
     var claimLimit = 0
     var claimBlockLimit = 0
-    var minimumClaimSize = 0
+    var minimumPartitionSize = 0
     var distanceBetweenClaims = 0
     var pluginLanguage = "EN"
 
@@ -20,7 +20,7 @@ class Config(val plugin: Plugin) {
     fun loadConfig() {
         claimLimit = configFile.getInt("claim_limit")
         claimBlockLimit = configFile.getInt("claim_block_limit")
-        minimumClaimSize = configFile.getInt("minimum_claim_size")
+        minimumPartitionSize = configFile.getInt("minimum_partition_size")
         distanceBetweenClaims = configFile.getInt("distance_between_claims")
         pluginLanguage = configFile.getString("plugin_language") ?: "EN"
     }
