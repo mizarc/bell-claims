@@ -39,11 +39,10 @@ class ClaimWorldServiceImpl(private val claimRepo: ClaimRepository,
     }
 
     override fun create(name: String, location: Location, player: OfflinePlayer): ClaimCreationResult {
+        val halfSize = (config.initialClaimSize.toFloat() - 1) / 2
         val area = Area(
-            Position2D(location.blockX - floor(config.initialClaimSize.toFloat() / 2).toInt(),
-                location.blockZ - floor(config.initialClaimSize.toFloat() / 2).toInt()),
-            Position2D(location.blockX + ceil(config.initialClaimSize.toFloat() / 2).toInt(),
-                location.blockZ + ceil(config.initialClaimSize.toFloat() / 2).toInt()))
+            Position2D((location.blockX - floor(halfSize)).toInt(), (location.blockZ - floor(halfSize)).toInt()),
+            Position2D((location.blockX + ceil(halfSize)).toInt(),(location.blockZ + ceil(halfSize)).toInt()))
 
         // Handle failure types
         if (location.block.type != Material.BELL) return ClaimCreationResult.NOT_A_BELL

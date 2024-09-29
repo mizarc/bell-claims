@@ -23,7 +23,7 @@ class Config(val plugin: Plugin) {
         claimBlockLimit = configFile.getInt("claim_block_limit")
         initialClaimSize = maxOf(3,configFile.getInt("initial_claim_size"))
         minimumPartitionSize = maxOf(3, configFile.getInt("minimum_partition_size"))
-        distanceBetweenClaims = maxOf(3, configFile.getInt("distance_between_claims"))
+        distanceBetweenClaims = configFile.getInt("distance_between_claims")
         pluginLanguage = configFile.getString("plugin_language") ?: "EN"
     }
 
