@@ -34,6 +34,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                           private val defaultPermissionService: DefaultPermissionService,
                           private val playerPermissionService: PlayerPermissionService,
                           private val playerLimitService: PlayerLimitService,
+                          private val playerState: PlayerStateService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimWorldService.getByLocation(claimBuilder.location)
@@ -190,6 +191,12 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             givePlayerMoveTool(claimBuilder.player, claim)
         }
         pane.addItem(guiDeleteItem, 8, 0)
+
+        // Set player state that user is in claim management menu
+        val playerState = playerState.getByPlayer(claimBuilder.player)
+        if (playerState != null) {
+            playerState.isInClaimMenu = claim
+        }
 
         gui.show(claimBuilder.player)
     }
@@ -739,7 +746,16 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             }
 
             // Close current owners inventory to kick him from menu if he was in it
-            claim.owner.player?.closeInventory();
+            val playerState = playerState.getByPlayer(claim.owner)
+            if (playerState != null && playerState.isInClaimMenu == claim) {
+                playerState.isInClaimMenu = null
+
+                claim.owner.player?.closeInventory();
+
+                claim.owner.player?.sendActionBar(
+                    Component.text(getLangText("ClaimHasBeenTransferred"))
+                        .color(TextColor.color(255, 85, 85)))
+            }
 
             // Rename claim name
             claim.name = claimBuilder.name

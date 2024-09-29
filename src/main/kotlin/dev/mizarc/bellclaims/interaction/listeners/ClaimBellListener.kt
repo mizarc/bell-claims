@@ -16,7 +16,8 @@ class ClaimBellListener(private val claimService: ClaimService,
                         private val flagService: FlagService,
                         private val defaultPermissionService: DefaultPermissionService,
                         private val playerPermissionService: PlayerPermissionService,
-                        private val playerLimitService: PlayerLimitService): Listener {
+                        private val playerLimitService: PlayerLimitService,
+                        private val playerStateService: PlayerStateService): Listener {
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
@@ -39,7 +40,7 @@ class ClaimBellListener(private val claimService: ClaimService,
         // Open the menu
         val claimBuilder = Claim.Builder(event.player, event.clickedBlock!!.location)
         val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
-            playerPermissionService, playerLimitService, claimBuilder)
+            playerPermissionService, playerLimitService, playerStateService, claimBuilder)
 
         if (claim != null && playerHasTransferRequest) {
             claimManagementMenu.openTransferOfferMenu(claim, event.player)

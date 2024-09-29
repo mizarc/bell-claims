@@ -190,6 +190,8 @@ PlayerClaimBlockLimit: "Player has ran out of claim blocks."
 CancelTransferClaim: "Cancel Transfer Request"
 CancelTransferClaimDescription: "This will cancel the transfer request for this player"
 
+ClaimHasBeenTransferred: "This claim has been transferred"
+
 QuestionNo: "No"
 TakeMeBack: "Take me back"
 
