@@ -81,7 +81,8 @@ class PartitionServiceImpl(private val config: Config,
         if (isPartitionTooClose(partition)) return PartitionCreationResult.TOO_CLOSE
 
         // Check if claim meets minimum size
-        if (area.getXLength() < 3 || area.getZLength() < 3) return PartitionCreationResult.TOO_SMALL
+        if (area.getXLength() < config.minimumPartitionSize ||
+                area.getZLength() < config.minimumPartitionSize) return PartitionCreationResult.TOO_SMALL
 
         // Check if selection is greater than the player's remaining claim blocks
         val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(claim.owner)
@@ -126,7 +127,8 @@ class PartitionServiceImpl(private val config: Config,
             return PartitionResizeResult.EXPOSED_CLAIM_HUB
 
         // Check if claim meets minimum size
-        if (newPartition.area.getXLength() < 3 || newPartition.area.getZLength() < 3)
+        if (newPartition.area.getXLength() < config.minimumPartitionSize ||
+                newPartition.area.getZLength() < config.minimumPartitionSize)
             return PartitionResizeResult.TOO_SMALL
 
         // Check if claim takes too much space

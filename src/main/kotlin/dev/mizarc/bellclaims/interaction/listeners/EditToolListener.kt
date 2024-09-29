@@ -23,6 +23,7 @@ import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.interaction.menus.EditToolMenu
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import java.util.*
 
@@ -37,7 +38,8 @@ class EditToolListener(private val claims: ClaimRepository,
                        private val playerLimitService: PlayerLimitService,
                        private val playerStateService: PlayerStateService,
                        private val claimService: ClaimService,
-                       private val visualiser: Visualiser) : Listener {
+                       private val visualiser: Visualiser,
+                       private val config: Config) : Listener {
     private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
     private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
 
@@ -166,7 +168,8 @@ class EditToolListener(private val claims: ClaimRepository,
                 return player.sendActionBar(Component.text("That selection is too close to another claim")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.TOO_SMALL ->
-                return player.sendActionBar(Component.text("The claim must be at least 3x3 blocks")
+                return player.sendActionBar(Component.text("The selection must be at least " +
+                        "${config.minimumPartitionSize}x${config.minimumPartitionSize} blocks")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.INSUFFICIENT_BLOCKS ->
                 return player.sendActionBar(Component.text("That selection would require an additional " +
@@ -247,7 +250,8 @@ class EditToolListener(private val claims: ClaimRepository,
                         "being outside the claim area")
                     .color(TextColor.color(255, 85, 85)))
             PartitionResizeResult.TOO_SMALL ->
-                player.sendActionBar(Component.text("The claim must be at least 3x3 blocks")
+                player.sendActionBar(Component.text("The selection must be at least " +
+                        "${config.minimumPartitionSize}x${config.minimumPartitionSize} blocks")
                     .color(TextColor.color(255, 85, 85)))
             PartitionResizeResult.DISCONNECTED ->
                 player.sendActionBar(Component.text("Resizing to that size would result in a gap between " +
