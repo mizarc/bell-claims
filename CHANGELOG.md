@@ -17,6 +17,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Protection against lightning damage created by a trident enchanted with channeling. Requires the husbandry permission.
 - Protection against falling blocks being launched into the claim. Bypassed by the block launch flag.
 - Protection against splash and lingering potions affecting passive mobs. Requires the husbandry permission.
+- Protection against dispensed potions affecting players and passive mobs. Bypassed by the dispenser flag.
 - Language file support, with all known instances of display text moved to a language file resource.
 - English language complete.
 - Chinese language machine translated. (Temporary, for demonstration)
