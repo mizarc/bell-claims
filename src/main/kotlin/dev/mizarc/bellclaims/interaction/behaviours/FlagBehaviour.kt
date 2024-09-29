@@ -666,7 +666,7 @@ class RuleBehaviour {
                                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is PotionSplashEvent) return false
             for (entity in event.affectedEntities) {
-                if (entity !is Monster && entity !is Player) {
+                if (entity !is Monster) {
                     event.setIntensity(entity, 0.0)
                 }
             }
@@ -688,7 +688,7 @@ class RuleBehaviour {
         private fun cancelLingeringPotionEffect(event: Event, claimService: ClaimService,
                                                 partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is AreaEffectCloudApplyEvent) return false
-            event.affectedEntities.removeAll { it !is Monster && it !is Player }
+            event.affectedEntities.removeAll { it !is Monster }
             return false
         }
     }
