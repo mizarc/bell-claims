@@ -7,6 +7,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Latest]
 
 ### Added
+- Ability to transfer claims to another player via a transfer request system. Player that is receiving the request must accept by interacting with the bell.
 - Individual flags to allow the claim owner to control the existing tree growth and sculk spread protections.
 - Protection against players triggering a raid through a bad omen effect. Requires the new raid permission.
 - Protection against fluid flow griefing, with players able to place fluids outside of the claim and having it flow into a claim. Bypassed by the new fluid flow flag.
