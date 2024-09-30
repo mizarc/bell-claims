@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
-## [Latest]
+## [0.3.0]
 
 ### Added
 - Ability to transfer claims to another player via a transfer request system. Player that is receiving the request must accept by interacting with the bell.
