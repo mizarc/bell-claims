@@ -82,7 +82,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val iconEditorItem = ItemStack(Material.BELL)
             .name(getLangText("CreateClaim"))
             .lore(getLangText("ProtectedFromGriefing"))
-            .lore(getLangText("RemainingClaims1") + "${playerLimitService.getRemainingClaimCount(claimBuilder.player)}" + getLangText("RemainingClaims2"))
+            .lore(getLangText("RemainingClaims1") + "${playerLimitService.getRemainingClaimCount(claimBuilder.player)} " + getLangText("RemainingClaims2"))
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
         gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
@@ -472,7 +472,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         for (trustedPlayer in trustedPlayers) {
             val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
                 .name("${Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId).name}")
-                .lore(getLangText("HasPermissions1") + "${trustedPlayer.value.count()}" + getLangText("HasPermissions2"))
+                .lore(getLangText("HasPermissions1") + "${trustedPlayer.value.count()} "
+                        + getLangText("HasPermissions2"))
             val guiWarpItem = GuiItem(warpItem) {
                 openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
             }
