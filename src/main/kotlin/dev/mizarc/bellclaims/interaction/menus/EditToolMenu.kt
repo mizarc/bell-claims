@@ -138,7 +138,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         // Add no menu item
         val noItem = ItemStack(Material.RED_CONCRETE)
-            .name(getLangText("No"))
+            .name(getLangText("QuestionNo"))
             .lore(getLangText("TakeMeBack"))
         val guiNoItem = GuiItem(noItem) { guiEvent ->
             guiEvent.isCancelled = true
@@ -148,7 +148,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         // Add yes menu item
         val yesItem = ItemStack(Material.GREEN_CONCRETE)
-            .name(getLangText("Yes"))
+            .name(getLangText("QuestionYes"))
             .lore(getLangText("PermanentActionWarning"))
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
