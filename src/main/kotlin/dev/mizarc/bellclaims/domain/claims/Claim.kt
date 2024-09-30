@@ -32,6 +32,10 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
     private val defaultBreakCount = 3
     private var breakPeriod = false
 
+    // Key: UUID of player which transfer request is sent to
+    // Value: expiry time of the transfer request (Default request timestamp + 5 minutes)
+    var transferRequests: HashMap<UUID, Int> = HashMap()
+
     /**
      * Compiles a new claim based on the minimum details required.
      *
