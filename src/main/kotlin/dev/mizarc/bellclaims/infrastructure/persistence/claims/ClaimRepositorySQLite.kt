@@ -1,7 +1,5 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
-import co.aikar.idb.DbStatement
-import co.aikar.idb.TransactionCallback
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.Bukkit
@@ -75,17 +73,6 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
                     "description=?, positionX=?, positionY=?, positionZ=?, icon=? WHERE id=?;",
                 claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
                 claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
-        } catch (error: SQLException) {
-            error.printStackTrace()
-        }
-    }
-
-    override fun transfer(claim: Claim, player: OfflinePlayer) {
-        claims.remove(claim.id)
-        claims[claim.id] = claim
-
-        try {
-            storage.connection.executeUpdate("UPDATE claims SET ownerId=?, name=? WHERE id=?;", player.uniqueId, claim.name, claim.id)
         } catch (error: SQLException) {
             error.printStackTrace()
         }
