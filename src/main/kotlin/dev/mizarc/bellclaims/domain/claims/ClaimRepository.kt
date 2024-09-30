@@ -55,15 +55,6 @@ interface ClaimRepository {
     fun update(claim: Claim)
 
     /**
-     * Transfer the claim to another player
-     *
-     * @param claim The claim to update.
-     * @param player Player which will receive the claim.
-     * @return True if claim was transferred
-     */
-    fun transfer(claim: Claim, player: OfflinePlayer)
-
-    /**
      * Removes an existing claim.
      *
      * @param claim The claim to remove.

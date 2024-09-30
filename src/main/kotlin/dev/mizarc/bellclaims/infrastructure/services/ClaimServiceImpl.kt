@@ -56,7 +56,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         claim.owner = player
         claim.transferRequests = HashMap()
 
-        claimRepo.transfer(claim, player)
+        claimRepo.update(claim)
         playerPermissionRepo.removeByPlayer(claim, player)
     }
 
