@@ -124,6 +124,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             pane.addItem(guiDeleteItem, 7, 0)
         }
 
+        playerState.isInClaimMenu = claim
         gui.show(player)
     }
 

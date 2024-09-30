@@ -34,7 +34,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                           private val defaultPermissionService: DefaultPermissionService,
                           private val playerPermissionService: PlayerPermissionService,
                           private val playerLimitService: PlayerLimitService,
-                          private val playerState: PlayerStateService,
+                          private val playerStateService: PlayerStateService,
                           private val claimBuilder: Claim.Builder) {
     fun openClaimManagementMenu() {
         val existingClaim = claimWorldService.getByLocation(claimBuilder.location)
@@ -193,7 +193,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         pane.addItem(guiDeleteItem, 8, 0)
 
         // Set player state that user is in claim management menu
-        val playerState = playerState.getByPlayer(claimBuilder.player)
+        val playerState = playerStateService.getByPlayer(claimBuilder.player)
         if (playerState != null) {
             playerState.isInClaimMenu = claim
         }
@@ -745,8 +745,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                 return@GuiItem
             }
 
-            // Close current owners inventory to kick him from menu if he was in it
-            val playerState = playerState.getByPlayer(claim.owner)
+            // Close current owners inventory to kick them from menu if they were in it
+            val playerState = playerStateService.getByPlayer(claim.owner)
             if (playerState != null && playerState.isInClaimMenu == claim) {
                 playerState.isInClaimMenu = null
 
