@@ -16,7 +16,8 @@ class ClaimBellListener(private val claimService: ClaimService,
                         private val flagService: FlagService,
                         private val defaultPermissionService: DefaultPermissionService,
                         private val playerPermissionService: PlayerPermissionService,
-                        private val playerLimitService: PlayerLimitService): Listener {
+                        private val playerLimitService: PlayerLimitService,
+                        private val playerStateService: PlayerStateService): Listener {
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
@@ -27,7 +28,10 @@ class ClaimBellListener(private val claimService: ClaimService,
 
         // Check for permission to open bell menu
         val claim = claimWorldService.getByLocation(clickedBlock.location)
-        if (claim != null && claim.owner.uniqueId != event.player.uniqueId) {
+
+        val playerHasTransferRequest = if (claim != null) claimService.playerHasTransferRequest(claim, event.player) else false
+
+        if (claim != null && claim.owner.uniqueId != event.player.uniqueId && !playerHasTransferRequest) {
             event.player.sendActionBar(Component.text("This claim bell is owned by ${claim.owner.name}")
                 .color(TextColor.color(255, 85, 85)))
             return
@@ -35,7 +39,14 @@ class ClaimBellListener(private val claimService: ClaimService,
 
         // Open the menu
         val claimBuilder = Claim.Builder(event.player, event.clickedBlock!!.location)
-        ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
-            playerPermissionService, playerLimitService, claimBuilder).openClaimManagementMenu()
+        val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
+            playerPermissionService, playerLimitService, playerStateService, claimBuilder)
+
+        if (claim != null && playerHasTransferRequest) {
+            claimManagementMenu.openTransferOfferMenu(claim, event.player)
+            return
+        }
+
+        claimManagementMenu.openClaimManagementMenu()
     }
 }

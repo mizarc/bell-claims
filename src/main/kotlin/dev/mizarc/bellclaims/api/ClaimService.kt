@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.api
 import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
+import java.util.HashMap
 import java.util.UUID
 
 /**
@@ -64,6 +65,43 @@ interface ClaimService {
      * @param material The material to use.
      */
     fun changeIcon(claim: Claim, material: Material)
+
+    /**
+     * Transfer claim to player
+     *
+     * @param claim The target claim.
+     * @param player The player which will receive the claim
+     */
+    fun transferClaim(claim: Claim, player: OfflinePlayer)
+
+    /**
+     * Add transfer request for player
+     *
+     * @param claim The target claim.
+     * @param player The player which will receive the claim
+     */
+    fun addTransferRequest(claim: Claim, player: OfflinePlayer)
+
+    /**
+     * Get transfer requests for claim
+     *
+     * @param claim The target claim.
+     */
+    fun getTransferRequests(claim: Claim): HashMap<UUID, Int>
+
+    /**
+     * Check if transfer request exists for player
+     *
+     * @param claim The target claim.
+     */
+    fun playerHasTransferRequest(claim: Claim, player: OfflinePlayer): Boolean
+
+    /**
+     * Get transfer requests for claim
+     *
+     * @param claim The target claim.
+     */
+    fun deleteTransferRequest(claim: Claim, player: OfflinePlayer)
 
     /**
      * Deletes a claim and all its associated data.

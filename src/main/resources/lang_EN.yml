@@ -56,6 +56,7 @@ DescClaimPermissionSleep: "Grants permission to sleep and set respawn points at 
 
 CannotCreateClaim1: "Cannot Create Claim"
 YouHaveRunOutOfClaims: "You have run out of claims."
+YouHaveRunOutOfClaimBlocks: "You have run out of claim blocks."
 DeleteExistingClaim: "If you want to create a new claim, delete an existing one first."
 
 CannotCreateClaim2: "Cannot Create Claim"
@@ -174,10 +175,27 @@ DeletePartition: "Delete Partition"
 
 DeletePartitionQuestion: "Delete Partition?"
 
-No: "No"
+TransferClaim: "Transfer Claim"
+
+TransferClaimQuestion: "Transfer Claim?"
+TransferClaimConfirmQuestionDescription: "Player will have to accept request by clicking the bell"
+
+AcceptTransferClaim: "Accept Claim Transfer?"
+AcceptTransferClaimConfirmDescription: "This will first require you to rename the claim"
+
+CannotTransferClaim: "Cannot Transfer Claim"
+PlayerHasRunOutOfClaims: "Player has ran out of claims."
+PlayerClaimBlockLimit: "Player has ran out of claim blocks."
+
+CancelTransferClaim: "Cancel Transfer Request"
+CancelTransferClaimDescription: "This will cancel the transfer request for this player"
+
+ClaimHasBeenTransferred: "This claim has been transferred"
+
+QuestionNo: "No"
 TakeMeBack: "Take me back"
 
-Yes: "Yes"
+QuestionYes: "Yes"
 PermanentActionWarning: "Warning, this is a permanent action"
 
 #--- ClaimCommand.kt ---

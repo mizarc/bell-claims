@@ -8,6 +8,7 @@ import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
 import org.bukkit.Material
+import java.util.HashMap
 import java.util.UUID
 
 class ClaimServiceImpl(private val claimRepo: ClaimRepository,
@@ -49,6 +50,47 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
     override fun changeIcon(claim: Claim, material: Material) {
         claim.icon = material
         claimRepo.update(claim)
+    }
+
+    override fun transferClaim(claim: Claim, player: OfflinePlayer) {
+        claim.owner = player
+        claim.transferRequests = HashMap()
+
+        claimRepo.update(claim)
+        playerPermissionRepo.removeByPlayer(claim, player)
+    }
+
+    override fun addTransferRequest(claim: Claim, player: OfflinePlayer) {
+        val currentTimestamp: Int = (System.currentTimeMillis() / 1000).toInt()
+        val requestExpireTimestamp = currentTimestamp + (5 * 60)
+
+        claim.transferRequests[player.uniqueId] = requestExpireTimestamp
+    }
+
+    override fun getTransferRequests(claim: Claim): HashMap<UUID, Int> {
+        removeExpiredTransferRequests(claim)
+
+        return claim.transferRequests
+    }
+
+    override fun playerHasTransferRequest(claim: Claim, player: OfflinePlayer): Boolean {
+        removeExpiredTransferRequests(claim)
+
+        return claim.transferRequests.containsKey(player.uniqueId);
+    }
+
+    private fun removeExpiredTransferRequests(claim: Claim) {
+        val currentTimestamp: Int = (System.currentTimeMillis() / 1000).toInt()
+
+        claim.transferRequests.forEach{ entry ->
+            if (entry.value < currentTimestamp) {
+                claim.transferRequests.remove(entry.key)
+            }
+        }
+    }
+
+    override fun deleteTransferRequest(claim: Claim, player: OfflinePlayer) {
+        claim.transferRequests.remove(player.uniqueId)
     }
 
     override fun destroy(claim: Claim) {
