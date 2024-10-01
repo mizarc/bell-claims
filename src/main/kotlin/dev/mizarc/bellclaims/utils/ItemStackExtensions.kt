@@ -18,14 +18,14 @@ fun ItemStack.amount(amount: Int): ItemStack {
 
 fun ItemStack.name(name: String): ItemStack {
     val meta = itemMeta
-    meta!!.setDisplayName(name)
+    meta.setDisplayName(name)
     itemMeta = meta
     return this
 }
 
 fun ItemStack.lore(text: String): ItemStack {
     val meta = itemMeta
-    var lore: MutableList<String>? = meta!!.lore
+    var lore: MutableList<String>? = meta.lore
     if (lore == null) {
         lore = ArrayList()
     }
@@ -72,7 +72,7 @@ fun ItemStack.type(material: Material): ItemStack {
 
 fun ItemStack.clearLore(): ItemStack {
     val meta = itemMeta
-    meta!!.lore = ArrayList()
+    meta.lore = ArrayList()
     itemMeta = meta
     return this
 }
@@ -99,7 +99,7 @@ fun ItemStack.color(color: Color): ItemStack {
 
 fun ItemStack.flag(vararg flag: ItemFlag): ItemStack {
     val meta = itemMeta
-    meta!!.addItemFlags(*flag)
+    meta.addItemFlags(*flag)
     itemMeta = meta
     return this
 }

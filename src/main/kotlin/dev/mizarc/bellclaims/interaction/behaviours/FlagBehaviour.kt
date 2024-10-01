@@ -267,7 +267,7 @@ class RuleBehaviour {
             if (event !is EntityExplodeEvent) return false
             if (event.entity !is Creeper) return false
             val blocks = getCreeperExplosionBlocks(
-                 event.blockList(), event.location.world!!, claimService, partitionService, flagService)
+                 event.blockList(), event.location.world, claimService, partitionService, flagService)
             event.blockList().removeAll(blocks)
             return true
         }
@@ -288,7 +288,7 @@ class RuleBehaviour {
             val blocks: List<Block>
             if (event is EntityExplodeEvent) {
                 if (event.entity is Creeper) return false
-                blocks = getExplosionBlocks(event.blockList(), event.location.world!!, claimService,
+                blocks = getExplosionBlocks(event.blockList(), event.location.world, claimService,
                     partitionService, flagService)
                 event.blockList().removeAll(blocks)
                 return true

@@ -95,10 +95,11 @@ class ClaimInteractListener(private var plugin: BellClaims,
         val claims = affectedClaims.distinct()
 
         // If player has override, do nothing
-        val playerState = playerStateService.getByPlayer(player)
-        if (playerState!!.claimOverride) {
-            return
+        val playerState = playerStateService.getByPlayer(player) ?: run {
+            playerStateService.registerPlayer(player)
+            playerStateService.getByPlayer(player)
         }
+        if (playerState?.claimOverride == true) return
 
         for (claim in claims) {
             // If player is owner, do nothing.

@@ -62,7 +62,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                 .lore(getLangText("DeleteExistingClaim"))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
-            gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+            Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
             return
         }
 
@@ -74,7 +74,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                 .lore(getLangText("PlaceBellElsewhere"))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
-            gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+            Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
             return
         }
 
@@ -85,7 +85,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             .lore(getLangText("RemainingClaims1") + "${playerLimitService.getRemainingClaimCount(claimBuilder.player)} " + getLangText("RemainingClaims2"))
         val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
         pane.addItem(guiIconEditorItem, 4, 0)
-        gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+        Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
     }
 
     fun openClaimNamingMenu(existingName: Boolean = false) {
@@ -202,7 +202,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     }
 
     private fun givePlayerTool(player: Player) {
-        for (item in player.inventory.contents!!) {
+        for (item in player.inventory.contents) {
             if (item == null) continue
             if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
                 return
@@ -212,7 +212,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
     }
 
     private fun givePlayerMoveTool(player: Player, claim: Claim) {
-        for (item in player.inventory.contents!!) {
+        for (item in player.inventory.contents) {
             if (item == null) continue
             if (item.itemMeta != null && item.itemMeta == getClaimMoveTool(claim).itemMeta) {
                 return
@@ -276,7 +276,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
         outputPane.addItem(confirmGuiItem, 0, 0)
         gui.outputComponent.addPane(outputPane)
-        gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+        Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
     }
 
     fun openClaimRenamingMenu(claim: Claim, existingName: Boolean = false) {
@@ -328,7 +328,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         }
         thirdPane.addItem(confirmGuiItem, 0, 0)
         gui.resultComponent.addPane(thirdPane)
-        gui.show(Bukkit.getPlayer(claimBuilder.player.uniqueId)!!)
+        Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
     }
 
     fun openClaimFlagMenu(claim: Claim) {

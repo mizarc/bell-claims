@@ -40,7 +40,7 @@ open class ClaimCommand : BaseCommand() {
      * @return True if the item exists in the inventory
      */
     fun isItemInInventory(inventory: PlayerInventory) : Boolean {
-        for (item in inventory.contents!!) {
+        for (item in inventory.contents) {
             if (item == null) continue
             if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
                 return true
@@ -72,7 +72,7 @@ open class ClaimCommand : BaseCommand() {
         }
 
         // Check if player owns claim
-        val claim = claimService.getById(partition.claimId)!!
+        val claim = claimService.getById(partition.claimId) ?: return false
         if (player.uniqueId != claim.owner.uniqueId) {
             player.sendMessage(getLangText("NoPermissionToModifyClaim"))
             return false
