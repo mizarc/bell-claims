@@ -156,7 +156,7 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
                     if (chunkPartitions[chunk] == null) {
                         chunkPartitions[chunk] = ArrayList()
                     }
-                    chunkPartitions[chunk]!!.add(partition.id)
+                    chunkPartitions[chunk]?.add(partition.id)
                 }
             }
         } catch (error: SQLException) {
