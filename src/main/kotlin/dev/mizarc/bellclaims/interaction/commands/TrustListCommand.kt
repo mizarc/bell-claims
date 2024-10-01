@@ -16,7 +16,7 @@ class TrustListCommand : ClaimCommand() {
     @CommandPermission("bellclaims.command.claim.trustlist")
     fun onTrustList(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
-        val claim = claimService.getById(partition.claimId)!!
+        val claim = claimService.getById(partition.claimId) ?: return
         val trustedPlayers = playerPermissionService.getByClaim(claim).toSortedMap(compareBy { it.uniqueId })
 
         // Check if claim has no trusted players

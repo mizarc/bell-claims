@@ -243,10 +243,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
         var secondPosition: Position2D? = null
 
         fun build(): Area? {
-            if (secondPosition == null) {
-                return null
-            }
-            return Area(firstPosition, secondPosition!!)
+            return secondPosition?.let { Area(firstPosition, it) }
         }
     }
 }

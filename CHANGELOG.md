@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.1]
+
+### Fixed
+- Player state unable to be retrieved if the player somehow bypassed the login player state creation.
+- Other potential null-based issues based on invalid item, partition, or claim retrievals.
+
 ## [0.3.0]
 
 ### Added

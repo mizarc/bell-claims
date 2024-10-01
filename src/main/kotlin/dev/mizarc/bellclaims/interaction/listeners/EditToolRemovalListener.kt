@@ -36,7 +36,7 @@ class EditToolRemovalListener : Listener {
 
         // Cancel if item meta doesn't exist
         val itemStack = event.cursor
-        val itemMeta = itemStack!!.itemMeta ?: return
+        val itemMeta = itemStack.itemMeta ?: return
 
         // Check if item is trying to be placed in top slot
         if (itemMeta == getClaimTool().itemMeta) {
