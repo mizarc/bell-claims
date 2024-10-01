@@ -46,8 +46,9 @@ class EditToolListener(private val claims: ClaimRepository,
     @EventHandler
     fun onUseClaimTool(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
-        if (event.item == null) return
-        if (event.item!!.itemMeta != getClaimTool().itemMeta) return
+        val item = event.item ?: return
+        val clickedBlock = event.clickedBlock ?: return
+        if (item.itemMeta != getClaimTool().itemMeta) return
 
         // Open menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
@@ -63,24 +64,24 @@ class EditToolListener(private val claims: ClaimRepository,
         // Resizes an existing partition
         val partitionResizer = partitionResizers[event.player]
         if (partitionResizer != null) {
-            resizePartition(event.player, event.clickedBlock!!.location, partitionResizer)
+            resizePartition(event.player, clickedBlock.location, partitionResizer)
             return
         }
 
         // Creates a new partition
         val partitionBuilder = partitionBuilders[event.player]
         if (partitionBuilder != null) {
-            createPartition(event.player, event.clickedBlock!!.location, partitionBuilder)
+            createPartition(event.player, clickedBlock.location, partitionBuilder)
             return
         }
 
         // Select corner of existing claim
-        if (selectExistingCorner(event.player, event.clickedBlock!!.location)) {
+        if (selectExistingCorner(event.player, clickedBlock.location)) {
             return
         }
 
         // Selects a fresh location to start a new claim
-        selectNewCorner(event.player, event.clickedBlock!!.location)
+        selectNewCorner(event.player, clickedBlock.location)
     }
 
     @EventHandler
@@ -177,8 +178,7 @@ class EditToolListener(private val claims: ClaimRepository,
                         "claim blocks.")
                     .color(TextColor.color(255, 85, 85)))
             PartitionCreationResult.SUCCESS ->
-                player.sendActionBar(Component.text("New partition has been added to " +
-                        claims.getById(partition.claimId)!!.name)
+                player.sendActionBar(Component.text("New partition has been added to " + claim.name)
                     .color(TextColor.color(85, 255, 85)))
             PartitionCreationResult.NOT_CONNECTED -> player.sendActionBar(Component.text("That selection is " +
                     "not connected to your claim.")

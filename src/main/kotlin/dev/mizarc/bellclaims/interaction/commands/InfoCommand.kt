@@ -18,8 +18,7 @@ class InfoCommand : ClaimCommand() {
     @CommandPermission("bellclaims.command.claim.info")
     fun onClaimInfo(player: Player) {
         val partition = getPartitionAtPlayer(player) ?: return
-
-        val claim = claimService.getById(partition.claimId)!!
+        val claim = claimService.getById(partition.claimId) ?: return
         val claimPartitions = partitionService.getByClaim(claim)
         val blockCount = claimService.getBlockCount(claim)
 

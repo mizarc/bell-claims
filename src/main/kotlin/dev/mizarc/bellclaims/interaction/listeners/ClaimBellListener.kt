@@ -38,7 +38,7 @@ class ClaimBellListener(private val claimService: ClaimService,
         }
 
         // Open the menu
-        val claimBuilder = Claim.Builder(event.player, event.clickedBlock!!.location)
+        val claimBuilder = Claim.Builder(event.player, clickedBlock.location)
         val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
             playerPermissionService, playerLimitService, playerStateService, claimBuilder)
 

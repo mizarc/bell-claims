@@ -126,9 +126,7 @@ class BellClaims : JavaPlugin() {
 
     private fun initialiseVaultDependency() {
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-            val serviceProvider: RegisteredServiceProvider<Chat> = server.servicesManager
-                .getRegistration(Chat::class.java)!!
-            metadata = serviceProvider.provider
+            server.servicesManager.getRegistration(Chat::class.java)?.let { metadata = it.provider }
             logger.info(Chat::class.java.toString())
         }
     }

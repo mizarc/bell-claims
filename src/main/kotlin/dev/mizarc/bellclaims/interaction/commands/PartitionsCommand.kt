@@ -14,10 +14,10 @@ class PartitionsCommand : ClaimCommand() {
     @CommandPermission("bellclaims.command.claim.partitions")
     fun onPartitions(player: Player, @Default("1") page: Int) {
         val partition = getPartitionAtPlayer(player) ?: return
+        val claim = claimService.getById(partition.claimId) ?: return
+        val claimPartitions = partitionService.getByClaim(claim).toList()
 
         // Check if page is empty
-        val claim = claimService.getById(partition.claimId)!!
-        val claimPartitions = partitionService.getByClaim(claim).toList()
         if (page * 10 - 9 > claimPartitions.count() || page < 1) {
             player.sendMessage("§cInvalid page specified.")
             return
