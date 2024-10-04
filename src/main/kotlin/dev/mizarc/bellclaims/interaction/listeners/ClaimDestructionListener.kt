@@ -62,9 +62,11 @@ class ClaimDestructionListener(val claimService: ClaimService,
         claimService.destroy(claim)
 
         for (item in event.player.inventory) {
+            if (item == null) continue
             val itemMeta = item.itemMeta ?: continue
-            val claimId = UUID.fromString(itemMeta.persistentDataContainer.get(
-                NamespacedKey("bellclaims","claim"), PersistentDataType.STRING)) ?: continue
+            val claimText = itemMeta.persistentDataContainer.get(
+                NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: continue
+            val claimId = UUID.fromString(claimText) ?: continue
             if (claimId == claim.id) {
                 event.player.inventory.remove(item)
             }
