@@ -11,6 +11,8 @@ import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.utils.getStringMeta
+import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Bisected
@@ -23,6 +25,8 @@ import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.world.StructureGrowEvent
+import org.bukkit.persistence.PersistentDataType
+import java.util.UUID
 
 class ClaimDestructionListener(val claimService: ClaimService,
                                private val claimWorldService: ClaimWorldService,
@@ -56,6 +60,16 @@ class ClaimDestructionListener(val claimService: ClaimService,
         }
 
         claimService.destroy(claim)
+
+        for (item in event.player.inventory) {
+            val itemMeta = item.itemMeta ?: continue
+            val claimId = UUID.fromString(itemMeta.persistentDataContainer.get(
+                NamespacedKey("bellclaims","claim"), PersistentDataType.STRING)) ?: continue
+            if (claimId == claim.id) {
+                event.player.inventory.remove(item)
+            }
+        }
+
         event.player.sendActionBar(
             Component.text("Claim '${claim.name}' has been destroyed")
             .color(TextColor.color(85, 255, 85)))
