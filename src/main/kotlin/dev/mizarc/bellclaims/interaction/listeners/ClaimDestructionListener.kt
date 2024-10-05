@@ -12,6 +12,7 @@ import dev.mizarc.bellclaims.api.ClaimWorldService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.utils.getStringMeta
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -25,6 +26,7 @@ import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.world.StructureGrowEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.UUID
 
@@ -61,14 +63,20 @@ class ClaimDestructionListener(val claimService: ClaimService,
 
         claimService.destroy(claim)
 
-        for (item in event.player.inventory) {
+        for ((index, item) in event.player.inventory.withIndex()) {
+            println(item)
             if (item == null) continue
             val itemMeta = item.itemMeta ?: continue
             val claimText = itemMeta.persistentDataContainer.get(
                 NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: continue
             val claimId = UUID.fromString(claimText) ?: continue
             if (claimId == claim.id) {
-                event.player.inventory.remove(item)
+                if (index == 40) {
+                    event.player.inventory.setItemInOffHand(ItemStack(Material.AIR))
+                }
+                else {
+                    event.player.inventory.remove(item)
+                }
             }
         }
 
