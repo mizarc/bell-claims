@@ -7,6 +7,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [0.3.1]
 
 ### Fixed
+- Bell duplication when breaking a bell claim with a move item in your inventory.
 - Player state unable to be retrieved if the player somehow bypassed the login player state creation.
 - Other potential null-based issues based on invalid item, partition, or claim retrievals.
 
