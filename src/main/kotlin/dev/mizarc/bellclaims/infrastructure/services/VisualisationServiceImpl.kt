@@ -25,13 +25,11 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
     override fun getOuterBorders(claim: Claim): Set<Position2D> {
         val borders = getPartitionedBorders(claim).values.flatten().toMutableList()
         val partitionAreas = partitionService.getByClaim(claim).map { it.area }
-        println("aaa!")
 
         // Get starting position by finding the position with the largest x coordinate.
         // Could be the largest or smallest any coordinate, this is personal choice.
         var startingPosition = borders[0]
         for (border in borders) {
-            println("wge")
             if (border.x > startingPosition.x) {
                 startingPosition = border
             }
@@ -46,7 +44,6 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
         val resultingBorder: ArrayList<Position2D> = arrayListOf()
         var previousPosition: Position2D = startingPosition
         do {
-            println("ghetiolj")
             val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
                 Direction.North -> {
                     borders.firstOrNull { it.x == currentPosition.x - 1 && it.z == currentPosition.z }
@@ -72,18 +69,14 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
                         ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
                 }
             }
-            println("ndsf")
 
-            println("cvb")
             resultingBorder.add(nextPosition)
             borders.remove(nextPosition)
             previousPosition = currentPosition
             currentPosition = nextPosition
-            println("bh")
         } while (previousPosition != startingPosition)
 
         // Find outer borders that are completely surrounded by partitions
-        println("oof?")
         for (border in borders) {
             val neighbors = listOf(
                 Position2D(border.x - 1, border.z), // West
@@ -92,15 +85,11 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
                 Position2D(border.x, border.z + 1) // South
             )
             for (position in neighbors) {
-                println("test")
                 for (area in partitionAreas) {
-                    println("okay")
                     if (!area.isPositionInArea(position)) {
                         // Get second position by getting block either in front or to the right in a clockwise direction
-                        println("why")
                         var currentPosition = borders.firstOrNull { it.z == startingPosition.z - 1 && it.x == startingPosition.x }
                             ?: borders.first { it.x == startingPosition.x + 1 && it.z == startingPosition.z }
-                        println("sure")
 
                         // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
                         // until back to the starting position.
@@ -132,17 +121,14 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
                                         ?: borders.first { it.z == currentPosition.z - 1 && it.x == currentPosition.x }
                                 }
                             }
-                            println("br")
                             innerBorder.add(nextPosition)
                             borders.remove(nextPosition)
                             previousPosition = currentPosition
                             currentPosition = nextPosition
                         } while (previousPosition != startingPosition)
-                        println("as")
                         resultingBorder.addAll(innerBorder)
                     }
                     borders.remove(border)
-                    println("gher")
                 }
             }
         }
