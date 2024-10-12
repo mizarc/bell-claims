@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.2]
+
+### Fixed
+- Inability to add a new partition when the partition to attach to is on a chunk border
+
 ## [0.3.1]
 
 ### Fixed

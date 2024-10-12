@@ -308,8 +308,17 @@ class PartitionServiceImpl(private val config: Config,
     private fun getAdjacent(partition: Partition): ArrayList<Partition> {
         // Find all partitions within the chunks of the partition
         val claim = claimService.getById(partition.claimId) ?: return ArrayList()
+        val partitionChunks = partition.getChunks().toSet()
+
+        // Add chunk as well as surrounding chunks to get partitions on chunk edges
+        val chunks = mutableSetOf<Position2D>()
+        for (chunk in partitionChunks) {
+            chunks.add(chunk)
+            chunks.addAll(getSurroundingPositions(chunk, 1))
+        }
+
+        // Fetch all partitions
         val chunkPartitions = ArrayList<Partition>()
-        val chunks = partition.getChunks()
         for (chunk in chunks) {
             chunkPartitions.addAll(getByChunk(claim.worldId, chunk))
         }
