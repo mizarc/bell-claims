@@ -171,7 +171,7 @@ class BellClaims : JavaPlugin() {
      */
     private fun initialiseInteractions() {
         visualiser = Visualiser(this, claimService, partitionService, playerStateService,
-            visualisationService, scheduler)
+            visualisationService, config)
     }
 
     /**
@@ -223,7 +223,7 @@ class BellClaims : JavaPlugin() {
             EditToolListener(claimRepo, partitionService, playerLimitService, playerStateService, claimService,
                 visualiser, config), this)
         server.pluginManager.registerEvents(
-            EditToolVisualisingListener(this, playerStateService, visualiser), this)
+            EditToolVisualisingListener(this, playerStateService, visualiser, config), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
         server.pluginManager.registerEvents(PlayerStateListener(playerStateService), this)
         server.pluginManager.registerEvents(EditToolRemovalListener(), this)
@@ -235,7 +235,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
         server.pluginManager.registerEvents(
             Visualiser(this, claimService, partitionService,
-                playerStateService, visualisationService, scheduler), this)
+                playerStateService, visualisationService, config), this)
         server.pluginManager.registerEvents(
             PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)

@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.interaction.listeners
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -18,7 +19,8 @@ import kotlin.concurrent.thread
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin,
                                   private val playerStateService: PlayerStateService,
-                                  private val visualiser: Visualiser): Listener {
+                                  private val visualiser: Visualiser,
+                                  private val config: Config): Listener {
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) })
@@ -67,8 +69,24 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin,
         // Visualise if player isn't already holding the claim tool (e.g. swapping hands)
         val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
         if (!holdingClaimTool || !playerState.isHoldingClaimTool) {
-            visualiser.hide(player)
-            if (holdingClaimTool) visualiser.show(player)
+            if (config.visualiserDelayPeriod > 0) {
+                if (holdingClaimTool) {
+                    val scheduledVisualiserHide = playerState.scheduledVisualiserHide
+                    if (scheduledVisualiserHide != null && !scheduledVisualiserHide.isCancelled) {
+                        scheduledVisualiserHide.cancel()
+                        playerState.scheduledVisualiserHide = null
+                    } else {
+                        visualiser.show(player)
+                    }
+
+                } else {
+                    visualiser.delayedVisualiserHide(player)
+                }
+            }
+            else {
+                visualiser.hide(player)
+                if (holdingClaimTool) visualiser.show(player)
+            }
         }
         playerState.isHoldingClaimTool = holdingClaimTool
     }
