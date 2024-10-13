@@ -6,19 +6,15 @@ import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.utils.carpetBlocks
-import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
-import org.bukkit.scheduler.BukkitScheduler
 
 
 class Visualiser(private val plugin: JavaPlugin,
@@ -26,7 +22,7 @@ class Visualiser(private val plugin: JavaPlugin,
                  private val partitionService: PartitionService,
                  private val playerStateService: PlayerStateService,
                  private val visualisationService: VisualisationService,
-                 private val scheduler: BukkitScheduler) : Listener {
+                 private val config: Config) : Listener {
     /**
      * Display claim visualisation to target player
      */
@@ -87,12 +83,13 @@ class Visualiser(private val plugin: JavaPlugin,
         class VisualiserHideRunnable : BukkitRunnable() {
             override fun run() {
                 hide(player)
+                cancel()
             }
         }
 
         playerState.scheduledVisualiserHide = VisualiserHideRunnable()
         val scheduledVisualiserHide = playerState.scheduledVisualiserHide
-        scheduledVisualiserHide?.runTaskLater(plugin, 20)
+        scheduledVisualiserHide?.runTaskLater(plugin, (20 * config.visualiserDelayPeriod).toLong())
     }
 
     /**
