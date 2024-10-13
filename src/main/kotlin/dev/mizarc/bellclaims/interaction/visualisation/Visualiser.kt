@@ -5,32 +5,28 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
-import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.utils.carpetBlocks
+import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityPickupItemEvent
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
-import kotlin.concurrent.thread
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.scheduler.BukkitScheduler
+
 
 class Visualiser(private val plugin: JavaPlugin,
                  private val claimService: ClaimService,
                  private val partitionService: PartitionService,
                  private val playerStateService: PlayerStateService,
-                 private val visualisationService: VisualisationService) : Listener {
+                 private val visualisationService: VisualisationService,
+                 private val scheduler: BukkitScheduler) : Listener {
     /**
      * Display claim visualisation to target player
      */
@@ -80,6 +76,23 @@ class Visualiser(private val plugin: JavaPlugin,
         revertVisualisedBlocks(player)
         playerState.visualisedBlockPositions.clear()
         playerState.isVisualisingClaims = false
+    }
+
+    /**
+     * Hide claim visualiser for target player after a config specified time
+     */
+    fun delayedVisualiserHide(player: Player) {
+        val playerState = playerStateService.getByPlayer(player) ?: return
+
+        class VisualiserHideRunnable : BukkitRunnable() {
+            override fun run() {
+                hide(player)
+            }
+        }
+
+        playerState.scheduledVisualiserHide = VisualiserHideRunnable()
+        val scheduledVisualiserHide = playerState.scheduledVisualiserHide
+        scheduledVisualiserHide?.runTaskLater(plugin, 20)
     }
 
     /**

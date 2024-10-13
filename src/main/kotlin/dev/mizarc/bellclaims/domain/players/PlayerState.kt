@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import org.bukkit.scheduler.BukkitRunnable
 
 /**
  * Holds temporary player state data mainly pertaining to claim editing.
@@ -18,6 +19,7 @@ class PlayerState(val player: OfflinePlayer) {
     var isVisualisingClaims = false
     var visualisedBlockPositions: MutableMap<Claim, Set<Position3D>> = mutableMapOf()
     var isInClaimMenu: Claim? = null
+    var scheduledVisualiserHide: BukkitRunnable? = null
 
     /**
      * Gets the online version of the player instance.
