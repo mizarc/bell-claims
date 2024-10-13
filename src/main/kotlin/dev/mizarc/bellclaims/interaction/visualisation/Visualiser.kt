@@ -92,7 +92,7 @@ class Visualiser(private val plugin: JavaPlugin,
 
         playerState.scheduledVisualiserHide = VisualiserHideRunnable()
         val scheduledVisualiserHide = playerState.scheduledVisualiserHide
-        scheduledVisualiserHide?.runTaskLater(plugin, (20 * config.visualiserDelayPeriod).toLong())
+        scheduledVisualiserHide?.runTaskLater(plugin, (20 * config.visualiserHideDelayPeriod).toLong())
     }
 
     /**

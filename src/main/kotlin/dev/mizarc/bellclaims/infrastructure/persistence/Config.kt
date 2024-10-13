@@ -11,7 +11,7 @@ class Config(val plugin: Plugin) {
     var initialClaimSize = 0
     var minimumPartitionSize = 0
     var distanceBetweenClaims = 0
-    var visualiserDelayPeriod = 0
+    var visualiserHideDelayPeriod = 0
     var visualisationRefreshPeriod = 0
     var pluginLanguage = "EN"
 
@@ -26,7 +26,7 @@ class Config(val plugin: Plugin) {
         initialClaimSize = maxOf(3,configFile.getInt("initial_claim_size"))
         minimumPartitionSize = maxOf(3, configFile.getInt("minimum_partition_size"))
         distanceBetweenClaims = configFile.getInt("distance_between_claims")
-        visualiserDelayPeriod = configFile.getInt("visualiser_delay_period")
+        visualiserHideDelayPeriod = configFile.getInt("visualiser_hide_delay_period")
         visualisationRefreshPeriod = configFile.getInt("visualisation_refresh_period")
         pluginLanguage = configFile.getString("plugin_language") ?: "EN"
     }

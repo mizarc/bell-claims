@@ -70,7 +70,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin,
         // Visualise if player isn't already holding the claim tool (e.g. swapping hands)
         val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
         if (!holdingClaimTool || !playerState.isHoldingClaimTool) {
-            if (config.visualiserDelayPeriod > 0) {
+            if (config.visualiserHideDelayPeriod > 0) {
                 runDelayedVisualisation(holdingClaimTool, playerState, player)
             }
             else {
