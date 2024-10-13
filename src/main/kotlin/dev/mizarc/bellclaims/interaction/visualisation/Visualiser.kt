@@ -15,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
+import java.time.Instant
 
 
 class Visualiser(private val plugin: JavaPlugin,
@@ -42,6 +43,7 @@ class Visualiser(private val plugin: JavaPlugin,
         // Set visualisation in player state
         playerState.visualisedBlockPositions = borders
         playerState.isVisualisingClaims = true
+        playerState.lastVisualisationTime = Instant.now()
         return borders
     }
 
@@ -61,6 +63,7 @@ class Visualiser(private val plugin: JavaPlugin,
         // Set visualisation in player state
         playerState.visualisedBlockPositions[claim] = borders
         playerState.isVisualisingClaims = true
+        playerState.lastVisualisationTime = Instant.now()
         return borders
     }
 
@@ -97,6 +100,10 @@ class Visualiser(private val plugin: JavaPlugin,
      */
     fun refresh(player: Player) {
         val playerState = playerStateService.getByPlayer(player) ?: return
+        val lastVisualisationTime = playerState.lastVisualisationTime ?: return
+        if (Instant.now() < lastVisualisationTime.plusSeconds(config.visualisationRefreshPeriod.toLong())) {
+            return
+        }
 
         // Get all currently visualised blocks
         val currentVisualised = playerState.visualisedBlockPositions.values.flatten().toMutableSet()
