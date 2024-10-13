@@ -3,7 +3,7 @@ claim_block_limit: 5000
 initial_claim_size: 7 # Minimum value of 3
 minimum_partition_size: 3 # Minimum value of 3
 distance_between_claims: 1
-visualiser_delay_period: 2
+visualiser_hide_delay_period: 2
 visualiser_refresh_period: 1
 plugin_language: EN
 
