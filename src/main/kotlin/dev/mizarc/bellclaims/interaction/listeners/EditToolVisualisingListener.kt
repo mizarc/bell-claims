@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.players.PlayerState
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
@@ -70,18 +71,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin,
         val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
         if (!holdingClaimTool || !playerState.isHoldingClaimTool) {
             if (config.visualiserDelayPeriod > 0) {
-                if (holdingClaimTool) {
-                    val scheduledVisualiserHide = playerState.scheduledVisualiserHide
-                    if (scheduledVisualiserHide != null && !scheduledVisualiserHide.isCancelled) {
-                        scheduledVisualiserHide.cancel()
-                        playerState.scheduledVisualiserHide = null
-                    } else {
-                        visualiser.show(player)
-                    }
-
-                } else {
-                    visualiser.delayedVisualiserHide(player)
-                }
+                runDelayedVisualisation(holdingClaimTool, playerState, player)
             }
             else {
                 visualiser.hide(player)
@@ -89,5 +79,20 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin,
             }
         }
         playerState.isHoldingClaimTool = holdingClaimTool
+    }
+
+    private fun runDelayedVisualisation(holdingClaimTool: Boolean, playerState: PlayerState, player: Player) {
+        if (holdingClaimTool) {
+            val scheduledVisualiserHide = playerState.scheduledVisualiserHide
+            if (scheduledVisualiserHide != null && !scheduledVisualiserHide.isCancelled) {
+                scheduledVisualiserHide.cancel()
+                playerState.scheduledVisualiserHide = null
+            } else {
+                visualiser.show(player)
+            }
+
+        } else {
+            visualiser.delayedVisualiserHide(player)
+        }
     }
 }
