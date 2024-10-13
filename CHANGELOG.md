@@ -6,6 +6,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [0.3.2]
 
+### Added
+- Configurable delay on visualiser hide to reduce lag on servers with high claim counts
+
 ### Fixed
 - Inability to add a new partition when the partition to attach to is on a chunk border
 
