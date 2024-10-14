@@ -101,15 +101,9 @@ class Visualiser(private val plugin: JavaPlugin,
     fun refresh(player: Player) {
         val playerState = playerStateService.getByPlayer(player) ?: return
         val lastVisualisationTime = playerState.lastVisualisationTime ?: return
-        println("what")
-        println(Instant.now())
-        println(lastVisualisationTime)
-        println(lastVisualisationTime.plusSeconds(config.visualiserRefreshPeriod.toLong()))
         if (Instant.now() < lastVisualisationTime.plusSeconds(config.visualiserRefreshPeriod.toLong())) {
-            println("bruh")
             return
         }
-        println("hm")
 
         // Get all currently visualised blocks
         val currentVisualised = playerState.visualisedBlockPositions.values.flatten().toMutableSet()
