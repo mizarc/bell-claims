@@ -64,7 +64,6 @@ class ClaimDestructionListener(val claimService: ClaimService,
         claimService.destroy(claim)
 
         for ((index, item) in event.player.inventory.withIndex()) {
-            println(item)
             if (item == null) continue
             val itemMeta = item.itemMeta ?: continue
             val claimText = itemMeta.persistentDataContainer.get(
