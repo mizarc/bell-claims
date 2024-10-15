@@ -360,7 +360,8 @@ class PermissionBehaviour {
                 block.type != Material.WATER_CAULDRON &&
                 block.type != Material.LAVA_CAULDRON &&
                 block.type != Material.POWDER_SNOW_CAULDRON &&
-                block.type != Material.CAKE) return false
+                block.type != Material.CAKE &&
+                block.type != Material.DECORATED_POT) return false
             event.isCancelled = true
             return true
         }
