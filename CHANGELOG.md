@@ -6,6 +6,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [0.3.3]
 
+### Added
+- Protection against players breaking pots with projectiles. Requires the build permission.
+- Protection against mobs breaking pots with projectiles. Bypassed by the mob griefing flag.
+
 ### Fixed
 - Tools being placed in pots which can be used to duplicate these items
 - Residual comments spamming the console
