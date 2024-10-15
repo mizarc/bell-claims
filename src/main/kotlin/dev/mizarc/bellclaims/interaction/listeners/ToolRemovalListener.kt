@@ -11,35 +11,31 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.utils.getStringMeta
+import org.bukkit.block.data.type.DecoratedPot
+import org.bukkit.event.player.PlayerInteractEvent
 
 
-class EditToolRemovalListener : Listener {
+class ToolRemovalListener : Listener {
+
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
         val itemStack = event.itemDrop.itemStack
-        val itemMeta = itemStack.itemMeta
-        if (itemMeta == getClaimTool().itemMeta) {
+        if (isKeyItem(itemStack)) {
             event.itemDrop.remove()
         }
     }
 
     @EventHandler
     fun onMoveToInventory(event: InventoryClickEvent) {
-        if (event.cursor == null) {
-            return
-        }
-
         // Cancel if item is in bottom
         if (event.clickedInventory === event.view.bottomInventory) {
             return
         }
 
-        // Cancel if item meta doesn't exist
-        val itemStack = event.cursor
-        val itemMeta = itemStack.itemMeta ?: return
-
         // Check if item is trying to be placed in top slot
-        if (itemMeta == getClaimTool().itemMeta) {
+        val itemStack = event.cursor
+        if (isKeyItem(itemStack)) {
             event.isCancelled = true
         }
     }
@@ -58,8 +54,7 @@ class EditToolRemovalListener : Listener {
 
         // Cancel if no item in slot
         val itemStack = event.currentItem ?: return
-        val itemMeta = itemStack.itemMeta
-        if (itemMeta == getClaimTool().itemMeta) {
+        if (isKeyItem(itemStack)) {
             event.isCancelled = true
         }
     }
@@ -77,7 +72,8 @@ class EditToolRemovalListener : Listener {
         }
 
         // Cancel if no item in slot
-        if (event.whoClicked.inventory.getItem(event.hotbarButton)?.itemMeta == getClaimTool().itemMeta) {
+        val item = event.whoClicked.inventory.getItem(event.hotbarButton) ?: return
+        if (isKeyItem(item)) {
             event.isCancelled = true
         }
     }
@@ -85,9 +81,8 @@ class EditToolRemovalListener : Listener {
     @EventHandler
     fun onDragToInventory(event: InventoryDragEvent) {
         val itemStack = event.oldCursor
-        val itemMeta = itemStack.itemMeta
         val otherInv = event.view.topInventory
-        if (itemMeta == getClaimTool().itemMeta && otherInv == event.inventory) {
+        if (isKeyItem(itemStack) && otherInv == event.inventory) {
             event.isCancelled = true
         }
     }
@@ -101,19 +96,27 @@ class EditToolRemovalListener : Listener {
         val offHandItem = event.player.inventory.itemInOffHand
 
         // Cancel event if main hand has item
-        val mainHandItemMeta = mainHandItem.itemMeta
-        if (mainHandItemMeta != null) {
-            if (mainHandItemMeta == getClaimTool().itemMeta) {
-                event.isCancelled = true
-            }
+        if (isKeyItem(mainHandItem)) {
+            event.isCancelled = true
         }
 
         // Cancel event if offhand has item and main hand is empty
-        val offHandItemMeta = offHandItem.itemMeta
-        if (offHandItemMeta != null) {
-            if (mainHandItemMeta == getClaimTool().itemMeta && mainHandItem.type == Material.AIR) {
-                event.isCancelled = true
-            }
+        if (isKeyItem(offHandItem) && mainHandItem.type == Material.AIR) {
+            event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    fun onPotUse(event: PlayerInteractEvent) {
+        val block = event.clickedBlock ?: return
+        if (block.blockData !is DecoratedPot) {
+            return
+        }
+
+        // Cancel event if main hand has item
+        val item = event.item ?: return
+        if (isKeyItem(item)) {
+            event.isCancelled = true
         }
     }
 
@@ -122,14 +125,18 @@ class EditToolRemovalListener : Listener {
         val droppedItems = event.drops
         val itemsToRemove = arrayListOf<ItemStack>()
         for (droppedItem in droppedItems) {
-            val itemMeta = droppedItem.itemMeta
-            if (itemMeta == getClaimTool().itemMeta) {
+            if (isKeyItem(droppedItem)) {
                 itemsToRemove.add(droppedItem)
             }
         }
+    }
 
-        for (item in itemsToRemove) {
-            droppedItems.remove(item)
+    private fun isKeyItem(itemStack: ItemStack): Boolean {
+        if (itemStack.getStringMeta("claim") != null) {
+            return true
         }
+
+        val itemMeta = itemStack.itemMeta
+        return itemMeta == getClaimTool().itemMeta
     }
 }
