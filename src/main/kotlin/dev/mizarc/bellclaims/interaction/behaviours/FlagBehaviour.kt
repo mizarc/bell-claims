@@ -17,6 +17,7 @@ import dev.mizarc.bellclaims.domain.flags.Flag
 import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
+import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.entity.*
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.EntityBreakDoorEvent
@@ -98,6 +99,8 @@ class RuleBehaviour {
         val lightningDamage = RuleExecutor(LightningStrikeEvent::class.java, Companion::cancelLightningStrikeEvent,
             Companion::lightningStrikeInClaim)
         val blockFall = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelBlockFall,
+            Companion::entityChangeBlockInClaim)
+        val potBreak = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
             Companion::entityChangeBlockInClaim)
 
         /**
@@ -276,6 +279,15 @@ class RuleBehaviour {
                                             partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is EntityChangeBlockEvent) return false
             if (event.entity !is Monster) return false
+            event.isCancelled = true
+            return true
+        }
+
+        private fun cancelProjectilePotBreak(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityChangeBlockEvent) return false
+            if (event.entity is Player) return false
+            if (event.block.blockData !is DecoratedPot) return false
             event.isCancelled = true
             return true
         }
