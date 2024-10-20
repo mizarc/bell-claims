@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
@@ -22,7 +23,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
     }
 
     override fun getOuterBorders(claim: Claim): Set<Position2D> {
-        val borders = getPartitionedBorders(claim).values.flatten()
+        val borders = getPartitionedBorders(claim).values.flatten().toMutableList()
 
         // Get starting position by finding the position with the largest x coordinate.
         // Could be the largest or smallest any coordinate, this is personal choice.
@@ -39,7 +40,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
 
         // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
         // until back to the starting position.
-        val resultingBorder: ArrayList<Position2D> = arrayListOf()
+        val resultingBorder: MutableSet<Position2D> = mutableSetOf()
         var previousPosition: Position2D = startingPosition
         do {
             val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
@@ -70,7 +71,77 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
             resultingBorder.add(nextPosition)
             previousPosition = currentPosition
             currentPosition = nextPosition
+            borders.remove(currentPosition)
         } while (previousPosition != startingPosition)
+
+
+        val partitions = partitionService.getByClaim(claim)
+        while (!borders.isEmpty()) {
+            val border = borders[0]
+
+            // If on the edge, find the next block to navigate towards
+            val startingPosition = border
+            var currentPosition: Position2D? = null
+            if (!isPositionInPartitions(Position2D(border.x, border.z - 1), partitions)) { // North
+                currentPosition = borders.firstOrNull { it.x == startingPosition.x - 1 && it.z == startingPosition.z }
+                    ?: borders.firstOrNull { it.x == startingPosition.x && it.z == startingPosition.z + 1}
+            }
+            else if (!isPositionInPartitions(Position2D(border.x, border.z + 1), partitions)) { // South
+                currentPosition = borders.firstOrNull { it.x == startingPosition.x + 1 && it.z == startingPosition.z }
+                    ?: borders.firstOrNull { it.x == startingPosition.x && it.z == startingPosition.z - 1}
+            }
+            else if (!isPositionInPartitions(Position2D(border.x - 1, border.z), partitions)) { // West
+                currentPosition = borders.firstOrNull { it.x == startingPosition.x && it.z == startingPosition.z + 1}
+                    ?: borders.firstOrNull { it.x == startingPosition.x + 1 && it.z == startingPosition.z}
+            }
+            else if (!isPositionInPartitions(Position2D(border.x + 1, border.z), partitions)) { // East
+                currentPosition = borders.firstOrNull { it.x == startingPosition.x && it.z == startingPosition.z - 1}
+                    ?: borders.firstOrNull { it.x == startingPosition.x - 1 && it.z == startingPosition.z}
+            }
+
+            // Stop this iteration if not on an edge
+            var validCurrentPosition: Position2D
+            if (currentPosition == null) {
+                borders.remove(borders[0])
+                continue
+            }
+
+            previousPosition = startingPosition
+            validCurrentPosition = currentPosition
+            do {
+                val nextPosition: Position2D = when (getTravelDirection(previousPosition, validCurrentPosition)) {
+                    Direction.North -> {
+                        borders.firstOrNull { it.x == validCurrentPosition.x + 1 && it.z == validCurrentPosition.z}
+                            ?: borders.firstOrNull { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z - 1}
+                            ?: borders.first { it.x == validCurrentPosition.x - 1 && it.z == validCurrentPosition.z }
+                    }
+
+                    Direction.East -> {
+                        borders.firstOrNull { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z + 1}
+                            ?: borders.firstOrNull { it.x == validCurrentPosition.x + 1 && it.z == validCurrentPosition.z}
+                            ?: borders.first { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z - 1}
+                    }
+
+                    Direction.South -> {
+                        borders.firstOrNull { it.x == validCurrentPosition.x - 1&& it.z == validCurrentPosition.z}
+                            ?: borders.firstOrNull { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z + 1}
+                            ?: borders.first { it.x == validCurrentPosition.x + 1 && it.z == validCurrentPosition.z}
+                    }
+
+                    else -> {
+                        borders.firstOrNull { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z - 1}
+                            ?: borders.firstOrNull { it.x == validCurrentPosition.x - 1 && it.z == validCurrentPosition.z}
+                            ?: borders.first { it.x == validCurrentPosition.x && it.z == validCurrentPosition.z + 1}
+                    }
+                }
+
+                resultingBorder.add(nextPosition)
+                previousPosition = validCurrentPosition
+                validCurrentPosition = nextPosition
+                borders.remove(validCurrentPosition)
+            } while (previousPosition != startingPosition)
+        }
+
         return resultingBorder.toSet()
     }
 
@@ -189,5 +260,14 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
             return Position3D(blockLocation)
         }
         return null
+    }
+
+    private fun isPositionInPartitions(position: Position2D, partitions: Set<Partition>): Boolean {
+        for (partition in partitions) {
+            if (partition.isPositionInPartition(position)) {
+                return true
+            }
+        }
+        return false
     }
 }
