@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.4]
+
+### Fixed
+- No visible inner border visualisation when set to view mode on claims that are donut shaped.
+
 ## [0.3.3]
 
 ### Added
