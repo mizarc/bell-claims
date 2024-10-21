@@ -25,43 +25,19 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
 
     override fun getOuterBorders(claim: Claim): Set<Position2D> {
         val borders = getPartitionedBorders(claim).values.flatten().toMutableList()
+        val resultingBorder = mutableSetOf<Position2D>()
 
-        // Get starting position by finding the position with the largest x coordinate.
-        // Could be the largest or smallest any coordinate, this is personal choice.
-        var startingPosition = borders[0]
-        for (border in borders) {
-            if (border.x > startingPosition.x) {
-                startingPosition = border
-            }
+        // Trace outer border
+        val outerBorder = traceOuterBorder(borders)
+        resultingBorder.addAll(outerBorder)
+        borders.removeAll(outerBorder)
+
+        // Trace all inner borders
+        while (!borders.isEmpty()) {
+            val innerBorder = traceInnerBorder(borders, claim)
+            resultingBorder.addAll(innerBorder.first)
+            borders.removeAll(innerBorder.second)
         }
-
-        // Get second position by getting block either in front or to the right in a clockwise direction
-        var currentPosition = findNextPosition(startingPosition, borders, Position2D(0, 1), Position2D(-1, 0))
-            ?: return setOf()
-
-        // Loop through edges by first checking left, then front, then right side. Traverse whichever is found first
-        // until back to the starting position.
-        val resultingBorder: MutableSet<Position2D> = mutableSetOf()
-        var previousPosition: Position2D = startingPosition
-        do {
-            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
-                Direction.North -> findNextPosition(currentPosition, borders,
-                    Position2D(-1, 0), Position2D(0, -1), Position2D(1, 0))
-                Direction.East -> findNextPosition(currentPosition, borders,
-                    Position2D(0, -1), Position2D(1, 0), Position2D(0, 1))
-                Direction.South -> findNextPosition(currentPosition, borders,
-                    Position2D(1, 0), Position2D(0, 1), Position2D(-1, 0))
-                else -> findNextPosition(currentPosition, borders,
-                    Position2D(0, 1), Position2D(-1, 0), Position2D(0, -1))
-            } ?: continue
-
-            resultingBorder.add(nextPosition)
-            previousPosition = currentPosition
-            currentPosition = nextPosition
-            borders.remove(currentPosition)
-        } while (previousPosition != startingPosition)
-
-        resultingBorder.addAll(traceInnerBorder(borders, claim))
         return resultingBorder.toSet()
     }
 
@@ -198,22 +174,52 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
     }
 
     /**
-     * Trace the inner border of a claim, given a border
+     * Trace the outer border of a claim.
      *
-     *
+     * @param borders The list of border block positions.
+     * @return The set of positions making up the outermost border of the claim.
      */
-    private fun traceInnerBorder(borders: MutableList<Position2D>, claim: Claim): Set<Position2D> {
+    private fun traceOuterBorder(borders: MutableList<Position2D>): Set<Position2D> {
+        // Get starting position by finding the position with the largest x coordinate.
+        var startingPosition = borders[0]
+        for (border in borders) {
+            if (border.x > startingPosition.x) {
+                startingPosition = border
+            }
+        }
+
+        // Get second position by getting block either in front or to the right in a clockwise direction
+        var currentPosition = findNextPosition(startingPosition, borders, Position2D(0, 1), Position2D(-1, 0))
+            ?: return setOf()
+
+        return traceBorder(startingPosition, currentPosition, borders)
+    }
+
+    /**
+     * Trace the inner border of a claim, given a border that already omits the outer border.
+     *
+     * The outer border must be omitted by running the outer border trace first and modifying the border list, otherwise
+     * it will be included by this inner border function and cause potential issues.
+     * @param borders The list of border block positions.
+     * @param claim The claim to check against.
+     * @return A pair of sets, the first being the resulting border, the second being all the blocks checked.
+     */
+    private fun traceInnerBorder(borders: MutableList<Position2D>, claim: Claim):
+            Pair<Set<Position2D>, Set<Position2D>> {
         val partitions = partitionService.getByClaim(claim)
-        val resultingBorder = mutableListOf<Position2D>()
+        val resultingBorder = mutableSetOf<Position2D>()
+        val checkedPositions = mutableSetOf<Position2D>()
 
         // Perform check for each border block
         while (!borders.isEmpty()) {
             val startingPosition = borders[0]
-            val directions = mapOf( // North, South, West, East
-                Position2D(startingPosition.x, startingPosition.z - 1) to listOf(Position2D(-1, 0), Position2D(0, 1)),
-                Position2D(startingPosition.x, startingPosition.z + 1) to listOf(Position2D(1, 0), Position2D(0, -1)),
-                Position2D(startingPosition.x - 1, startingPosition.z) to listOf(Position2D(0, 1), Position2D(1, 0)),
-                Position2D(startingPosition.x + 1, startingPosition.z) to listOf(Position2D(0, -1), Position2D(-1, 0))
+
+            // A map of directions to move to depending on found direction (North, South, West, East)
+            val directions = mapOf(
+                Position2D(startingPosition.x, startingPosition.z - 1) to listOf(Position2D(1, 0), Position2D(0, 1)),
+                Position2D(startingPosition.x, startingPosition.z + 1) to listOf(Position2D(-1, 0), Position2D(0, -1)),
+                Position2D(startingPosition.x - 1, startingPosition.z) to listOf(Position2D(0, -1), Position2D(1, 0)),
+                Position2D(startingPosition.x + 1, startingPosition.z) to listOf(Position2D(0, 1), Position2D(-1, 0))
             )
 
             // If on the edge, find the first block to navigate towards
@@ -228,30 +234,48 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
             // Stop this iteration if no navigation is found
             if (currentPosition == startingPosition) {
                 borders.removeAt(0)
+                checkedPositions.add(startingPosition)
                 continue
             }
 
-            // Trace the remaining border blocks by checking right, forward, then left until starting block is found
-            var previousPosition = startingPosition
-            do {
-                val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
-                    Direction.North -> findNextPosition(currentPosition, borders,
-                        Position2D(1, 0), Position2D(0, -1), Position2D(-1, 0))
-                    Direction.East -> findNextPosition(currentPosition, borders,
-                        Position2D(0, 1), Position2D(1, 0), Position2D(0, -1))
-                    Direction.South -> findNextPosition(currentPosition, borders,
-                        Position2D(-1, 0), Position2D(0, 1), Position2D(1, 0))
-                    else -> findNextPosition(currentPosition, borders,
-                        Position2D(0, -1), Position2D(-1, 0), Position2D(0, 1))
-                } ?: continue
-
-                resultingBorder.add(nextPosition)
-                previousPosition = currentPosition
-                currentPosition = nextPosition
-                borders.remove(currentPosition)
-            } while (previousPosition != startingPosition)
+            // Trace using the found edge
+            val innerBorder = traceBorder(startingPosition, currentPosition, borders)
+            resultingBorder.addAll(innerBorder)
+            checkedPositions.addAll(innerBorder)
+            break
         }
-        return resultingBorder.toSet()
+        return Pair(resultingBorder, checkedPositions)
+    }
+
+    /**
+     * Trace outer/inner border perimeter by rotating until the starting position is found.
+     * @param startingPosition The starting position on the border.
+     * @param nextPosition The following position on the border to move to.
+     * @param borders The entire border structure to trace on.
+     * @return The set of positions that make up the entire traced border.
+     */
+    private fun traceBorder(startingPosition: Position2D, nextPosition: Position2D,
+                            borders: MutableList<Position2D>): Set<Position2D> {
+        val resultingBorder = mutableSetOf<Position2D>()
+        var previousPosition = startingPosition
+        var currentPosition = nextPosition
+        do {
+            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+                Direction.North -> findNextPosition(currentPosition, borders,
+                    Position2D(-1, 0), Position2D(0, -1), Position2D(1, 0))
+                Direction.East -> findNextPosition(currentPosition, borders,
+                    Position2D(0, -1), Position2D(1, 0), Position2D(0, 1))
+                Direction.South -> findNextPosition(currentPosition, borders,
+                    Position2D(1, 0), Position2D(0, 1), Position2D(-1, 0))
+                else -> findNextPosition(currentPosition, borders,
+                    Position2D(0, 1), Position2D(-1, 0), Position2D(0, -1))
+            } ?: continue
+
+            resultingBorder.add(nextPosition)
+            previousPosition = currentPosition
+            currentPosition = nextPosition
+        } while (previousPosition != startingPosition)
+        return resultingBorder
     }
 
     /**
