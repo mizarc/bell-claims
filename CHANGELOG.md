@@ -8,6 +8,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - No visible inner border visualisation when set to view mode on claims that are donut shaped.
+- Using bell while holding an item causing the item to be used, resulting in major issues like trident duplication.
 
 ## [0.3.3]
 
