@@ -496,7 +496,7 @@ class RuleBehaviour {
                 return true
             }
 
-            // Check the blocks that the piston is pushinga
+            // Check the blocks that the piston is pushing
             var blockInClaim = false
             for (block in event.blocks) {
                 val newBlockPosition = block.location.clone()
@@ -603,12 +603,13 @@ class RuleBehaviour {
         private fun cancelSpongeAbsorbEvent(event: Event, claimService: ClaimService,
                                             partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is SpongeAbsorbEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
+            val spongeClaim = partitionService.getByLocation(event.block.location)?.let { claimService.getById(it.claimId) }
             val cancelledBlocks: MutableList<BlockState> = mutableListOf()
             for (block in event.blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!flagService.doesClaimHaveFlag(claim, Flag.Explosions)) {
+                if (spongeClaim == claim) continue
+                if (!flagService.doesClaimHaveFlag(claim, Flag.Sponge)) {
                     cancelledBlocks.add(block)
                 }
             }
