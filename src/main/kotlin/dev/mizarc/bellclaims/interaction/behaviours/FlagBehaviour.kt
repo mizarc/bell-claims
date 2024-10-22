@@ -459,8 +459,11 @@ class RuleBehaviour {
         private fun cancelFluidFlow(event: Event, claimService: ClaimService,
                                     partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockFromToEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
-            if (partitionService.getByLocation(event.toBlock.location) == null) return false
+            val sourceClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId) }
+            val moveClaim = partitionService.getByLocation(event.toBlock.location)?.
+                let { claimService.getById(it.claimId) }
+            if (sourceClaim == moveClaim) return false
             event.isCancelled = true
             return true
         }
