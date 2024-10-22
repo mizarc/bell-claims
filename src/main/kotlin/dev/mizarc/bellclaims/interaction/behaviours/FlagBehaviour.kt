@@ -572,11 +572,7 @@ class RuleBehaviour {
                 val partition = partitionService.getByLocation(event.block.location)
                 val sourcePartition = partitionService.getByLocation(event.source.location)
 
-                if (sourcePartition == partition) {
-                    return false
-                }
-
-                if (sourcePartition == null) {
+                if (sourcePartition != partition) {
                     event.isCancelled = true
                     return true
                 }
