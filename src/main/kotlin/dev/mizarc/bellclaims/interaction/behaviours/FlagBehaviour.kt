@@ -14,6 +14,7 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.partitions.Position2D
 import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
@@ -432,9 +433,10 @@ class RuleBehaviour {
         private fun getPistonClaims(pistonBlock: Block, blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
                                     partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
-            val checks: ArrayList<Block> = ArrayList()
-            for (c in blocks) {
-                checks.add(c.getRelative(direction))
+            val checks = mutableSetOf<Block>()
+            for (block in blocks) {
+                checks.add(block)
+                checks.add(block.getRelative(direction))
             }
 
             // Check the piston head position
@@ -474,40 +476,49 @@ class RuleBehaviour {
         private fun cancelPistonRetract(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonRetractEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
-            var blockInClaim = false
+            val pistonClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId)}
+
+            // Perform checks to see if in claim, and if the claim has piston flag
             for (block in event.blocks) {
-                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+                val blockClaim = partitionService.getByLocation(block.location)?.let { claimService.getById(it.claimId)}
+                if (blockClaim == pistonClaim) continue
+                if (blockClaim != null && !flagService.doesClaimHaveFlag(blockClaim, Flag.Pistons)) {
+                    event.isCancelled = true
+                    return true
+                }
             }
-            if (!blockInClaim) return false
-            event.isCancelled = true
-            return true
+            return false
         }
 
         private fun cancelPistonExtend(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonExtendEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
+            val affectedLocations = mutableSetOf<Location>()
             val direction = event.direction.direction
+            val pistonClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId)}
 
-            // Check the position of the piston head
-            if (partitionService.getByLocation(event.block.location.add(direction)) != null) {
-                event.isCancelled = true
-                return true
-            }
+            // Get position of the piston head
+            affectedLocations.add(event.block.location.add(direction))
 
-            // Check the blocks that the piston is pushing
-            var blockInClaim = false
+            // Get locations of all the blocks the piston will affect
             for (block in event.blocks) {
                 val newBlockPosition = block.location.clone()
                 newBlockPosition.add(direction)
-                if (partitionService.getByLocation(block.location) != null ||
-                    partitionService.getByLocation(newBlockPosition) != null) blockInClaim = true
+                affectedLocations.add(newBlockPosition)
             }
 
-            if (!blockInClaim) return false
-            event.isCancelled = true
-            return true
+            // Perform checks to see if in claim, and if the claim has piston flag
+            for (location in affectedLocations) {
+                val blockClaim = partitionService.getByLocation(location)?.let { claimService.getById(it.claimId)}
+                if (blockClaim == pistonClaim) continue
+                if (blockClaim != null && !flagService.doesClaimHaveFlag(blockClaim, Flag.Pistons)) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
         }
 
         private fun cancelTreeGrowth(event: Event, claimService: ClaimService,
