@@ -527,25 +527,14 @@ class RuleBehaviour {
         private fun cancelTreeGrowth(event: Event, claimService: ClaimService,
                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is StructureGrowEvent) return false
-            if (partitionService.getByLocation(event.location) != null) {
-                val partition = partitionService.getByLocation(event.location) ?: return false
-                val claim = claimService.getById(partition.claimId) ?: return false
-                for (block in event.blocks) {
-                    if (partitionService.getByLocation(block.location) != null) {
-                        val otherPartition = partitionService.getByLocation(block.location) ?: continue
-                        val otherClaim = claimService.getById(otherPartition.claimId) ?: continue
-                        if (claim.id != otherClaim.id) {
-                            partitionService.getByLocation(block.location) ?: continue
-                            event.isCancelled = true
-                            return true
-                        }
-                    }
-                }
-                return false
-            }
+            val sourceClaim = partitionService.getByLocation(event.location) ?.
+                let { claimService.getById(it.claimId) }
 
             for (block in event.blocks) {
-                if (partitionService.getByLocation(block.location) != null) {
+                val growthClaim = partitionService.getByLocation(block.location) ?.
+                    let { claimService.getById(it.claimId) }
+                if (sourceClaim == growthClaim) continue
+                if (growthClaim != null && !flagService.doesClaimHaveFlag(growthClaim, Flag.Trees)) {
                     event.isCancelled = true
                     return true
                 }
