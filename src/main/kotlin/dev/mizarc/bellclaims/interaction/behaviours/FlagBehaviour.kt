@@ -750,8 +750,8 @@ class RuleBehaviour {
             val directions = setOf(Position2D(1, 0), Position2D(-1, 0),
                 Position2D(0, 1), Position2D(0, -1))
 
-            // Concrete protection
-            if (event.block.type in MaterialTags.CONCRETE_POWDER.values) {
+            // Concrete & lavaprotection
+            if (event.block.type in MaterialTags.CONCRETE_POWDER.values || event.block.type == Material.LAVA) {
                 for (direction in directions) {
                     // Check if adjacent block is water
                     val checkPosition = Position3D(formPosition.x + direction.x, formPosition.y,
@@ -759,7 +759,7 @@ class RuleBehaviour {
                     val checkBlock = event.block.world.getBlockAt(checkPosition.x, checkPosition.y, checkPosition.z)
                     if (checkBlock.type != Material.WATER) continue
 
-                    // Check if water is in same claim as concrete powder
+                    // Check if water is in same claim as the block it is forming
                     val checkClaim = partitionService.getByLocation(checkPosition.toLocation(event.block.world))?.
                         let { claimService.getById(it.claimId) }
                     if (formClaim == checkClaim) return false
