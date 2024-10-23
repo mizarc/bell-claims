@@ -34,7 +34,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
 
         // Trace all inner borders
         while (!borders.isEmpty()) {
-            val innerBorder = traceInnerBorder(borders, claim)
+            val innerBorder = traceInnerBorder(borders, outerBorder, claim)
             resultingBorder.addAll(innerBorder.first)
             borders.removeAll(innerBorder.second)
         }
@@ -200,11 +200,12 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
      *
      * The outer border must be omitted by running the outer border trace first and modifying the border list, otherwise
      * it will be included by this inner border function and cause potential issues.
-     * @param borders The list of border block positions.
+     * @param borders The list of border block positions excluding the outer border.
+     * @param outerBorder The list of border block positions of the outer border.
      * @param claim The claim to check against.
      * @return A pair of sets, the first being the resulting border, the second being all the blocks checked.
      */
-    private fun traceInnerBorder(borders: MutableList<Position2D>, claim: Claim):
+    private fun traceInnerBorder(borders: MutableList<Position2D>, outerBorder: Set<Position2D>, claim: Claim):
             Pair<Set<Position2D>, Set<Position2D>> {
         val partitions = partitionService.getByClaim(claim)
         val resultingBorder = mutableSetOf<Position2D>()
@@ -239,7 +240,9 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
             }
 
             // Trace using the found edge
-            val innerBorder = traceBorder(startingPosition, currentPosition, borders)
+            val mergedBorder = borders.toMutableList()
+            mergedBorder.addAll(outerBorder)
+            val innerBorder = traceBorder(startingPosition, currentPosition, mergedBorder)
             resultingBorder.addAll(innerBorder)
             checkedPositions.addAll(innerBorder)
             break
@@ -260,7 +263,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
         var previousPosition = startingPosition
         var currentPosition = nextPosition
         do {
-            val nextPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
+            val newPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
                 Direction.North -> findNextPosition(currentPosition, borders,
                     Position2D(-1, 0), Position2D(0, -1), Position2D(1, 0))
                 Direction.East -> findNextPosition(currentPosition, borders,
@@ -271,9 +274,9 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
                     Position2D(0, 1), Position2D(-1, 0), Position2D(0, -1))
             } ?: continue
 
-            resultingBorder.add(nextPosition)
+            resultingBorder.add(newPosition)
             previousPosition = currentPosition
-            currentPosition = nextPosition
+            currentPosition = newPosition
         } while (previousPosition != startingPosition)
         return resultingBorder
     }
