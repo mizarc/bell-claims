@@ -1,5 +1,7 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
+import com.destroystokyo.paper.MaterialSetTag
+import com.destroystokyo.paper.MaterialTags
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
@@ -14,9 +16,14 @@ import dev.mizarc.bellclaims.api.FlagService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.partitions.Position2D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.Location
 import org.bukkit.block.BlockState
+import org.bukkit.block.BlockType
+import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
+import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.entity.*
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.EntityBreakDoorEvent
@@ -99,6 +106,10 @@ class RuleBehaviour {
             Companion::lightningStrikeInClaim)
         val blockFall = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelBlockFall,
             Companion::entityChangeBlockInClaim)
+        val potBreak = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
+            Companion::entityChangeBlockInClaim)
+        val fluidBlockForm = RuleExecutor(BlockFormEvent::class.java, Companion::cancelFluidBlockForm,
+            Companion::blockFormInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -280,6 +291,15 @@ class RuleBehaviour {
             return true
         }
 
+        private fun cancelProjectilePotBreak(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is EntityChangeBlockEvent) return false
+            if (event.entity is Player) return false
+            if (event.block.blockData !is DecoratedPot) return false
+            event.isCancelled = true
+            return true
+        }
+
         /**
          * Allow explosions to occur, but prevent them from destroying blocks in claims that do not explicitly allow it.
          */
@@ -420,9 +440,10 @@ class RuleBehaviour {
         private fun getPistonClaims(pistonBlock: Block, blocks: List<Block>, direction: BlockFace, claimService: ClaimService,
                                     partitionService: PartitionService): List<Claim> {
             val claimList = ArrayList<Claim>()
-            val checks: ArrayList<Block> = ArrayList()
-            for (c in blocks) {
-                checks.add(c.getRelative(direction))
+            val checks = mutableSetOf<Block>()
+            for (block in blocks) {
+                checks.add(block)
+                checks.add(block.getRelative(direction))
             }
 
             // Check the piston head position
@@ -445,8 +466,11 @@ class RuleBehaviour {
         private fun cancelFluidFlow(event: Event, claimService: ClaimService,
                                     partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockFromToEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
-            if (partitionService.getByLocation(event.toBlock.location) == null) return false
+            val sourceClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId) }
+            val moveClaim = partitionService.getByLocation(event.toBlock.location)?.
+                let { claimService.getById(it.claimId) }
+            if (sourceClaim == moveClaim) return false
             event.isCancelled = true
             return true
         }
@@ -462,64 +486,62 @@ class RuleBehaviour {
         private fun cancelPistonRetract(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonRetractEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
-            var blockInClaim = false
+            val pistonClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId)}
+
+            // Perform checks to see if in claim, and if the claim has piston flag
             for (block in event.blocks) {
-                if (partitionService.getByLocation(block.location) != null) blockInClaim = true
+                val blockClaim = partitionService.getByLocation(block.location)?.let { claimService.getById(it.claimId)}
+                if (blockClaim == pistonClaim) continue
+                if (blockClaim != null && !flagService.doesClaimHaveFlag(blockClaim, Flag.Pistons)) {
+                    event.isCancelled = true
+                    return true
+                }
             }
-            if (!blockInClaim) return false
-            event.isCancelled = true
-            return true
+            return false
         }
 
         private fun cancelPistonExtend(event: Event, claimService: ClaimService,
                                         partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is BlockPistonExtendEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
+            val affectedLocations = mutableSetOf<Location>()
             val direction = event.direction.direction
+            val pistonClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId)}
 
-            // Check the position of the piston head
-            if (partitionService.getByLocation(event.block.location.add(direction)) != null) {
-                event.isCancelled = true
-                return true
-            }
+            // Get position of the piston head
+            affectedLocations.add(event.block.location.add(direction))
 
-            // Check the blocks that the piston is pushinga
-            var blockInClaim = false
+            // Get locations of all the blocks the piston will affect
             for (block in event.blocks) {
                 val newBlockPosition = block.location.clone()
                 newBlockPosition.add(direction)
-                if (partitionService.getByLocation(block.location) != null ||
-                    partitionService.getByLocation(newBlockPosition) != null) blockInClaim = true
+                affectedLocations.add(newBlockPosition)
             }
 
-            if (!blockInClaim) return false
-            event.isCancelled = true
-            return true
+            // Perform checks to see if in claim, and if the claim has piston flag
+            for (location in affectedLocations) {
+                val blockClaim = partitionService.getByLocation(location)?.let { claimService.getById(it.claimId)}
+                if (blockClaim == pistonClaim) continue
+                if (blockClaim != null && !flagService.doesClaimHaveFlag(blockClaim, Flag.Pistons)) {
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
         }
 
         private fun cancelTreeGrowth(event: Event, claimService: ClaimService,
                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is StructureGrowEvent) return false
-            if (partitionService.getByLocation(event.location) != null) {
-                val partition = partitionService.getByLocation(event.location) ?: return false
-                val claim = claimService.getById(partition.claimId) ?: return false
-                for (block in event.blocks) {
-                    if (partitionService.getByLocation(block.location) != null) {
-                        val otherPartition = partitionService.getByLocation(block.location) ?: continue
-                        val otherClaim = claimService.getById(otherPartition.claimId) ?: continue
-                        if (claim.id != otherClaim.id) {
-                            partitionService.getByLocation(block.location) ?: continue
-                            event.isCancelled = true
-                            return true
-                        }
-                    }
-                }
-                return false
-            }
+            val sourceClaim = partitionService.getByLocation(event.location) ?.
+                let { claimService.getById(it.claimId) }
 
             for (block in event.blocks) {
-                if (partitionService.getByLocation(block.location) != null) {
+                val growthClaim = partitionService.getByLocation(block.location) ?.
+                    let { claimService.getById(it.claimId) }
+                if (sourceClaim == growthClaim) continue
+                if (growthClaim != null && !flagService.doesClaimHaveFlag(growthClaim, Flag.Trees)) {
                     event.isCancelled = true
                     return true
                 }
@@ -546,11 +568,7 @@ class RuleBehaviour {
                 val partition = partitionService.getByLocation(event.block.location)
                 val sourcePartition = partitionService.getByLocation(event.source.location)
 
-                if (sourcePartition == partition) {
-                    return false
-                }
-
-                if (sourcePartition == null) {
+                if (sourcePartition != partition) {
                     event.isCancelled = true
                     return true
                 }
@@ -591,12 +609,13 @@ class RuleBehaviour {
         private fun cancelSpongeAbsorbEvent(event: Event, claimService: ClaimService,
                                             partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is SpongeAbsorbEvent) return false
-            if (partitionService.getByLocation(event.block.location) != null) return false
+            val spongeClaim = partitionService.getByLocation(event.block.location)?.let { claimService.getById(it.claimId) }
             val cancelledBlocks: MutableList<BlockState> = mutableListOf()
             for (block in event.blocks) {
                 val partition = partitionService.getByLocation(block.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
-                if (!flagService.doesClaimHaveFlag(claim, Flag.Explosions)) {
+                if (spongeClaim == claim) continue
+                if (!flagService.doesClaimHaveFlag(claim, Flag.Sponge)) {
                     cancelledBlocks.add(block)
                 }
             }
@@ -712,6 +731,43 @@ class RuleBehaviour {
             }
             event.isCancelled = true
             return true
+        }
+
+        private fun blockFormInClaim(event: Event, claimService: ClaimService,
+                                                partitionService: PartitionService): List<Claim> {
+            if (event !is BlockFormEvent) return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
+        }
+
+        private fun cancelFluidBlockForm(event: Event, claimService: ClaimService,
+                                                partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockFormEvent) return false
+            val formPosition = Position3D(event.block.location)
+            val formClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId) }
+            val directions = setOf(Position2D(1, 0), Position2D(-1, 0),
+                Position2D(0, 1), Position2D(0, -1))
+
+            // Concrete & lavaprotection
+            if (event.block.type in MaterialTags.CONCRETE_POWDER.values || event.block.type == Material.LAVA) {
+                for (direction in directions) {
+                    // Check if adjacent block is water
+                    val checkPosition = Position3D(formPosition.x + direction.x, formPosition.y,
+                        formPosition.z + direction.z)
+                    val checkBlock = event.block.world.getBlockAt(checkPosition.x, checkPosition.y, checkPosition.z)
+                    if (checkBlock.type != Material.WATER) continue
+
+                    // Check if water is in same claim as the block it is forming
+                    val checkClaim = partitionService.getByLocation(checkPosition.toLocation(event.block.world))?.
+                        let { claimService.getById(it.claimId) }
+                    if (formClaim == checkClaim) return false
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
         }
     }
 }

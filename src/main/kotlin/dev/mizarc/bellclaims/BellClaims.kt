@@ -3,33 +3,33 @@ package dev.mizarc.bellclaims
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.api.*
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
+import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
-import net.milkbowl.vault.chat.Chat
-import org.bukkit.plugin.RegisteredServiceProvider
-import org.bukkit.plugin.java.JavaPlugin
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
+import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
-import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
-import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.services.*
 import dev.mizarc.bellclaims.infrastructure.services.playerlimit.SimplePlayerLimitServiceImpl
 import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
-
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitScheduler
 import java.io.File
+
 
 /**
  * The entry point for the Bell Claims plugin.
@@ -39,6 +39,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
     val storage = SQLiteStorage(this)
+    private lateinit var scheduler: BukkitScheduler
 
     private lateinit var claimRepo: ClaimRepository
     private lateinit var partitionRepo: PartitionRepository
@@ -66,6 +67,8 @@ class BellClaims : JavaPlugin() {
     private lateinit var langFile: File
 
     override fun onEnable() {
+        scheduler = server.scheduler
+
         initialiseVaultDependency()
         initialiseRepositories()
         initialiseServices()
@@ -167,7 +170,8 @@ class BellClaims : JavaPlugin() {
      * Initialises all special interactions.
      */
     private fun initialiseInteractions() {
-        visualiser = Visualiser(this, claimService, partitionService, playerStateService, visualisationService)
+        visualiser = Visualiser(this, claimService, partitionService, playerStateService,
+            visualisationService, config)
     }
 
     /**
@@ -219,19 +223,18 @@ class BellClaims : JavaPlugin() {
             EditToolListener(claimRepo, partitionService, playerLimitService, playerStateService, claimService,
                 visualiser, config), this)
         server.pluginManager.registerEvents(
-            EditToolVisualisingListener(this, playerStateService, visualiser), this)
+            EditToolVisualisingListener(this, playerStateService, visualiser, config), this)
         server.pluginManager.registerEvents(PlayerRegistrationListener(playerStateService), this)
         server.pluginManager.registerEvents(PlayerStateListener(playerStateService), this)
-        server.pluginManager.registerEvents(EditToolRemovalListener(), this)
+        server.pluginManager.registerEvents(ToolRemovalListener(), this)
         server.pluginManager.registerEvents(ClaimBellListener(claimService, claimWorldService, flagService,
             defaultPermissionService, playerPermissionService, playerLimitService, playerStateService), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService,
             playerStateService), this)
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
-        server.pluginManager.registerEvents(MoveToolRemovalListener(), this)
         server.pluginManager.registerEvents(
             Visualiser(this, claimService, partitionService,
-                playerStateService, visualisationService), this)
+                playerStateService, visualisationService, config), this)
         server.pluginManager.registerEvents(
             PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)
