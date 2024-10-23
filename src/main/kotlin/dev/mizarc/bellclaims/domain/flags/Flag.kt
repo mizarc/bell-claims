@@ -57,7 +57,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      * When fluids flow into a claim
      */
     Fluids(arrayOf(
-        RuleBehaviour.fluidFlow
+        RuleBehaviour.fluidFlow,
+        RuleBehaviour.fluidBlockForm
     )),
 
     Trees(arrayOf(
