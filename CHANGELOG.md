@@ -8,7 +8,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Protecction against water placed on the edge of a claim turning concrete powder into concrete and lava into obsidian. Bypassed by the fluid flow flag.
-- 
+
 ### Fixed
 - Server crashing due to math error when certain claim partition configurations are attempting to be visualised.
 
