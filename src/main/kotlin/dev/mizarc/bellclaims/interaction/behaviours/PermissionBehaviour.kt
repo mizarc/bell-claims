@@ -11,6 +11,7 @@ import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
 import org.bukkit.block.data.type.Bed
+import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.block.data.type.Farmland
 import org.bukkit.block.data.type.RespawnAnchor
 import org.bukkit.block.data.type.Sign
@@ -22,6 +23,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
@@ -246,6 +248,10 @@ class PermissionBehaviour {
         val respawnSet = PermissionExecutor(PlayerSetSpawnEvent::class.java, Companion::cancelSetSpawnEvent,
             Companion::getPlayerSetSpawnLocations, Companion::getPlayerSetSpawnPlayer)
 
+        // Used to prevent players from breaking pots with projectiles
+        val potBreak = PermissionExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
+            Companion::getEntityChangeBlockLocations, Companion::getEntityChangeBlockPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -354,7 +360,8 @@ class PermissionBehaviour {
                 block.type != Material.WATER_CAULDRON &&
                 block.type != Material.LAVA_CAULDRON &&
                 block.type != Material.POWDER_SNOW_CAULDRON &&
-                block.type != Material.CAKE) return false
+                block.type != Material.CAKE &&
+                block.type != Material.DECORATED_POT) return false
             event.isCancelled = true
             return true
         }
@@ -651,6 +658,16 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the action of breaking a pot with a projectile.
+         */
+        private fun cancelProjectilePotBreak(listener: Listener, event: Event): Boolean {
+            if (event !is EntityChangeBlockEvent) return false
+            if (event.block.blockData !is DecoratedPot) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -869,6 +886,11 @@ class PermissionBehaviour {
             if (event !is PlayerSetSpawnEvent) return listOf()
             val location = event.location ?: return listOf()
             return listOf(location)
+        }
+
+        private fun getEntityChangeBlockLocations(event: Event): List<Location> {
+            if (event !is EntityChangeBlockEvent) return listOf()
+            return listOf(event.block.location)
         }
 
         /**
@@ -1119,6 +1141,19 @@ class PermissionBehaviour {
         private fun getPlayerSetSpawnPlayer(event: Event): Player? {
             if (event !is PlayerSetSpawnEvent) return null
             return event.player
+        }
+
+        /**
+         * Gets the player that is triggering the EntityChangeBlockEvent.
+         */
+        private fun getEntityChangeBlockPlayer(event: Event): Player? {
+            if (event !is EntityChangeBlockEvent) return null
+            if (event.entity is Player) return event.entity as Player
+            if (event.entity is Projectile) {
+                val projectile = event.entity as Projectile
+                if (projectile.shooter is Player) return projectile.shooter as Player
+            }
+            return null
         }
     }
 }

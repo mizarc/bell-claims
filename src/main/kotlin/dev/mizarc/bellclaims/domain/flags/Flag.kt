@@ -29,7 +29,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
         RuleBehaviour.mobDamageStaticEntity,
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
-        RuleBehaviour.creeperDamageHangingEntity
+        RuleBehaviour.creeperDamageHangingEntity,
+        RuleBehaviour.potBreak
     )),
 
     /**
@@ -56,7 +57,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      * When fluids flow into a claim
      */
     Fluids(arrayOf(
-        RuleBehaviour.fluidFlow
+        RuleBehaviour.fluidFlow,
+        RuleBehaviour.fluidBlockForm
     )),
 
     Trees(arrayOf(

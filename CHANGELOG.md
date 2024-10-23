@@ -4,6 +4,43 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.5]
+
+### Added
+- Protection against water placed on the edge of a claim turning concrete powder into concrete and lava into obsidian. Bypassed by the fluid flow flag.
+
+### Fixed
+- Server crashing due to math error when certain claim partition configurations are attempting to be visualised.
+
+
+## [0.3.4]
+
+### Fixed
+- No visible inner border visualisation when set to view mode on claims that aren't completely filled in.
+- Using bell while holding an item causing the item to be used, resulting in major issues like trident duplication.
+- Claim flags bypassed when an action is being done in one claim that would have an effect in another.
+
+## [0.3.3]
+
+### Added
+- Protection against players breaking pots with projectiles. Requires the build permission.
+- Protection against mobs breaking pots with projectiles. Bypassed by the mob griefing flag.
+- Protection against putting items in pots. Requires the manipulate permission.
+
+### Fixed
+- Tools being placed in pots which can be used to duplicate these items.
+- Visualiser delay triggering when the visualiser is not currently being shown.
+- Residual comments spamming the console.
+
+## [0.3.2]
+
+### Added
+- Configurable delay on visualiser hide time to stop lag abuse.
+- Configurable allowed refresh period for visualiser refreshes to stop lag abuse.
+
+### Fixed
+- Inability to add a new partition when the partition to attach to is on a chunk border.
+
 ## [0.3.1]
 
 ### Fixed
