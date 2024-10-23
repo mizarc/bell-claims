@@ -1,5 +1,7 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
+import com.destroystokyo.paper.MaterialSetTag
+import com.destroystokyo.paper.MaterialTags
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
@@ -15,8 +17,11 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import dev.mizarc.bellclaims.domain.partitions.Position2D
+import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.Location
 import org.bukkit.block.BlockState
+import org.bukkit.block.BlockType
+import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
 import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.entity.*
@@ -103,6 +108,8 @@ class RuleBehaviour {
             Companion::entityChangeBlockInClaim)
         val potBreak = RuleExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
             Companion::entityChangeBlockInClaim)
+        val fluidBlockForm = RuleExecutor(BlockFormEvent::class.java, Companion::cancelFluidBlockForm,
+            Companion::blockFormInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -724,6 +731,43 @@ class RuleBehaviour {
             }
             event.isCancelled = true
             return true
+        }
+
+        private fun blockFormInClaim(event: Event, claimService: ClaimService,
+                                                partitionService: PartitionService): List<Claim> {
+            if (event !is BlockFormEvent) return listOf()
+            val partition = partitionService.getByLocation(event.block.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
+        }
+
+        private fun cancelFluidBlockForm(event: Event, claimService: ClaimService,
+                                                partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is BlockFormEvent) return false
+            val formPosition = Position3D(event.block.location)
+            val formClaim = partitionService.getByLocation(event.block.location)?.
+                let { claimService.getById(it.claimId) }
+            val directions = setOf(Position2D(1, 0), Position2D(-1, 0),
+                Position2D(0, 1), Position2D(0, -1))
+
+            // Concrete protection
+            if (event.block.type in MaterialTags.CONCRETE_POWDER.values) {
+                for (direction in directions) {
+                    // Check if adjacent block is water
+                    val checkPosition = Position3D(formPosition.x + direction.x, formPosition.y,
+                        formPosition.z + direction.z)
+                    val checkBlock = event.block.world.getBlockAt(checkPosition.x, checkPosition.y, checkPosition.z)
+                    if (checkBlock.type != Material.WATER) continue
+
+                    // Check if water is in same claim as concrete powder
+                    val checkClaim = partitionService.getByLocation(checkPosition.toLocation(event.block.world))?.
+                        let { claimService.getById(it.claimId) }
+                    if (formClaim == checkClaim) return false
+                    event.isCancelled = true
+                    return true
+                }
+            }
+            return false
         }
     }
 }
