@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.5]
+
+### Fixed
+- Server crashing due to math error when certain claim partition configurations are attempting to be visualised.
+
 ## [0.3.4]
 
 ### Fixed
