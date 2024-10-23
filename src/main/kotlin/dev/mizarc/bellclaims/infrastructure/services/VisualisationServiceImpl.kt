@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.partitions.Position
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.utils.toward
@@ -33,10 +34,9 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
         borders.removeAll(outerBorder)
 
         // Trace all inner borders
-        while (!borders.isEmpty()) {
-            val innerBorder = traceInnerBorder(borders, outerBorder, claim)
-            resultingBorder.addAll(innerBorder.first)
-            borders.removeAll(innerBorder.second)
+        val innerBorders = traceInnerBorders(borders, outerBorder, claim)
+        for (border in innerBorders) {
+            resultingBorder.addAll(border)
         }
         return resultingBorder.toSet()
     }
@@ -203,17 +203,18 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
      * @param borders The list of border block positions excluding the outer border.
      * @param outerBorder The list of border block positions of the outer border.
      * @param claim The claim to check against.
-     * @return A pair of sets, the first being the resulting border, the second being all the blocks checked.
+     * @return A set of sets, each being a collection of positions that make up a complete inner border
      */
-    private fun traceInnerBorder(borders: MutableList<Position2D>, outerBorder: Set<Position2D>, claim: Claim):
-            Pair<Set<Position2D>, Set<Position2D>> {
+    private fun traceInnerBorders(borders: MutableList<Position2D>, outerBorder: Set<Position2D>, claim: Claim):
+            Set<Set<Position2D>> {
         val partitions = partitionService.getByClaim(claim)
-        val resultingBorder = mutableSetOf<Position2D>()
+        val queryBorders = borders.toMutableList()
+        val resultingBorders: MutableSet<Set<Position2D>> = mutableSetOf()
         val checkedPositions = mutableSetOf<Position2D>()
 
         // Perform check for each border block
-        while (!borders.isEmpty()) {
-            val startingPosition = borders[0]
+        while (queryBorders.isNotEmpty()) {
+            val startingPosition = queryBorders[0]
 
             // A map of directions to move to depending on found direction (North, South, West, East)
             val directions = mapOf(
@@ -234,7 +235,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
 
             // Stop this iteration if no navigation is found
             if (currentPosition == startingPosition) {
-                borders.removeAt(0)
+                queryBorders.remove(startingPosition)
                 checkedPositions.add(startingPosition)
                 continue
             }
@@ -243,11 +244,12 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
             val mergedBorder = borders.toMutableList()
             mergedBorder.addAll(outerBorder)
             val innerBorder = traceBorder(startingPosition, currentPosition, mergedBorder)
-            resultingBorder.addAll(innerBorder)
+            resultingBorders.add(innerBorder)
             checkedPositions.addAll(innerBorder)
             break
         }
-        return Pair(resultingBorder, checkedPositions)
+
+        return resultingBorders
     }
 
     /**
