@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.5]
+
+### Fixed
+- Water placed on the edge of a claim turning concrete powder into concrete and lava into obsidian. Bypassed by the fluid flow flag.
+
 ## [0.3.4]
 
 ### Fixed
