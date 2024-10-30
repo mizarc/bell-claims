@@ -10,6 +10,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.interaction.menus.ClaimManagementMenu
+import org.bukkit.plugin.java.JavaPlugin
 
 class ClaimBellListener(private val claimService: ClaimService,
                         private val claimWorldService: ClaimWorldService,
@@ -17,7 +18,8 @@ class ClaimBellListener(private val claimService: ClaimService,
                         private val defaultPermissionService: DefaultPermissionService,
                         private val playerPermissionService: PlayerPermissionService,
                         private val playerLimitService: PlayerLimitService,
-                        private val playerStateService: PlayerStateService): Listener {
+                        private val playerStateService: PlayerStateService,
+                        private val plugin: JavaPlugin): Listener {
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
@@ -41,7 +43,7 @@ class ClaimBellListener(private val claimService: ClaimService,
         event.isCancelled = true
         val claimBuilder = Claim.Builder(event.player, clickedBlock.location)
         val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
-            playerPermissionService, playerLimitService, playerStateService, claimBuilder)
+            playerPermissionService, playerLimitService, playerStateService, claimBuilder, plugin)
 
         if (claim != null && playerHasTransferRequest) {
             claimManagementMenu.openTransferOfferMenu(claim, event.player)

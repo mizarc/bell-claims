@@ -27,6 +27,8 @@ import kotlin.math.ceil
 import dev.mizarc.bellclaims.utils.getLangText
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
+import net.wesjd.anvilgui.AnvilGUI
+import org.bukkit.plugin.java.JavaPlugin
 
 class ClaimManagementMenu(private val claimService: ClaimService,
                           private val claimWorldService: ClaimWorldService,
@@ -35,7 +37,8 @@ class ClaimManagementMenu(private val claimService: ClaimService,
                           private val playerPermissionService: PlayerPermissionService,
                           private val playerLimitService: PlayerLimitService,
                           private val playerStateService: PlayerStateService,
-                          private val claimBuilder: Claim.Builder) {
+                          private val claimBuilder: Claim.Builder,
+                          private val plugin: JavaPlugin) {
     fun openClaimManagementMenu() {
         val existingClaim = claimWorldService.getByLocation(claimBuilder.location)
         if (existingClaim == null) {
@@ -90,6 +93,26 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openClaimNamingMenu(existingName: Boolean = false) {
         // Create homes menu
+        val aGui = AnvilGUI.Builder()
+            .onClick { slot, stateSnapshot ->
+                if (slot != AnvilGUI.Slot.OUTPUT) {
+                    return@onClick emptyList()
+                }
+                claimBuilder.name = stateSnapshot.text
+                if (claimService.getByPlayer(claimBuilder.player).any { it.name == stateSnapshot.text }) {
+                    openClaimNamingMenu(existingName = true)
+                    return@onClick emptyList()
+                }
+                claimWorldService.create(stateSnapshot.text, claimBuilder.location, claimBuilder.player)
+                val claim = claimWorldService.getByLocation(claimBuilder.location) ?: return@onClick emptyList()
+                openClaimEditMenu(claim)
+                listOf(AnvilGUI.ResponseAction.close())
+            }
+            .text("Bell")
+            .title("Naming Claim")
+            .plugin(plugin)
+
+
         val gui = AnvilGui("Naming Claim")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -104,6 +127,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiItem, 0, 0)
         gui.firstItemComponent.addPane(firstPane)
+        aGui.itemLeft(lodestoneItem)
 
         // Add message menu item if name is already taken
         if (existingName) {
@@ -113,6 +137,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
             secondPane.addItem(guiPaperItem, 0, 0)
             gui.secondItemComponent.addPane(secondPane)
+            aGui.itemRight(paperItem)
         }
 
         // Add confirm menu item.
@@ -130,8 +155,10 @@ class ClaimManagementMenu(private val claimService: ClaimService,
             guiEvent.isCancelled = true
         }
         thirdPane.addItem(confirmGuiItem, 0, 0)
+        //aGui.itemOutput(ItemStack(Material.PAPER))
         gui.resultComponent.addPane(thirdPane)
-        gui.show(claimBuilder.player)
+        //gui.show(claimBuilder.player)
+        aGui.open(claimBuilder.player)
     }
 
     fun openClaimEditMenu(claim: Claim) {
@@ -910,6 +937,17 @@ class ClaimManagementMenu(private val claimService: ClaimService,
 
     fun openPlayerSearchMenu(claim: Claim, playerDoesNotExist: Boolean = false) {
         // Create homes menu
+        val aGui = AnvilGUI.Builder()
+            .onClick { slot, stateSnapshot ->
+                if (slot != AnvilGUI.Slot.OUTPUT) {
+                    return@onClick emptyList()
+                }
+                listOf(AnvilGUI.ResponseAction.close())
+            }
+            .text("Bell")
+            .title(getLangText("SearchForPlayer"))
+
+
         val gui = AnvilGui(getLangText("SearchForPlayer"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
