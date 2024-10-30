@@ -23,7 +23,10 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-    mavenLocal()
+    maven {
+        url = uri("https://repo.codemc.io/repository/maven-snapshots/")
+    }
+        mavenLocal()
 }
 
 dependencies {
@@ -39,6 +42,7 @@ dependencies {
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.17")
+    implementation("net.wesjd:anvilgui:1.10.3-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 
