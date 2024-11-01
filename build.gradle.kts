@@ -26,6 +26,9 @@ repositories {
     maven {
         url = uri("https://repo.codemc.io/repository/maven-snapshots/")
     }
+    maven {
+        url = uri("https://repo.opencollab.dev/main/")
+    }
         mavenLocal()
 }
 
@@ -44,6 +47,7 @@ dependencies {
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.17")
     implementation("net.wesjd:anvilgui:1.10.3-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("org.geysermc.geyser:api:2.4.2-SNAPSHOT")
 }
 
 java {
