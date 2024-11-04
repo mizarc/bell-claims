@@ -24,6 +24,7 @@ fun Flag.getIcon(): ItemStack {
         Flag.Sponge -> ItemStack(Material.SPONGE)
         Flag.Lightning -> ItemStack(Material.LIGHTNING_ROD)
         Flag.FallingBlock -> ItemStack(Material.ANVIL)
+        Flag.AnimalVehicle -> ItemStack(Material.OAK_BOAT)
     }
 }
 
@@ -45,6 +46,7 @@ fun Flag.getDisplayName(): String {
         Flag.Sponge -> getLangText("NameFlagSponge")
         Flag.Lightning -> getLangText("NameFlagLightning")
         Flag.FallingBlock -> getLangText("NameFlagFallingBlock")
+        Flag.AnimalVehicle -> getLangText("NameFlagAnimalVehicle")
     }
 }
 
@@ -66,5 +68,6 @@ fun Flag.getDescription(): String {
         Flag.Sponge -> getLangText("DescFlagSponge")
         Flag.Lightning -> getLangText("DescFlagLightning")
         Flag.FallingBlock -> getLangText("DescFlagFallingBlock")
+        Flag.AnimalVehicle -> getLangText("DescFlagAnimalVehicle")
     }
 }

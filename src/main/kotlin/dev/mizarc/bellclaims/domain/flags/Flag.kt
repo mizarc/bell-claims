@@ -85,6 +85,10 @@ enum class Flag(val rules: Array<RuleExecutor>) {
 
     FallingBlock(arrayOf(
         RuleBehaviour.blockFall
+    )),
+
+    AnimalVehicle(arrayOf(
+        RuleBehaviour.animalEnterVehicle
     ));
 
     companion object {

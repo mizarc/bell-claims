@@ -11,6 +11,7 @@ NameFlagDispensers: "Dispense"
 NameFlagSponge: "Sponge Absorb"
 NameFlagLightning: "Lightning Damage"
 NameFlagFallingBlock: "Block Launching"
+NameFlagAnimalVehicle: "Animal Vehicle"
 
 DescFlagExplosions: "Allows TNT to damage claim blocks"
 DescFlagFireSpread: "Allows fire to spread to other blocks"
@@ -23,6 +24,7 @@ DescFlagDispensers: "Allows dispensers placed outside to dispense into the claim
 DescFlagSponge: "Allows sponges placed outside to drain fluids in the claim"
 DescFlagLightning: "Allows lightning to cause damage and set the ground alight"
 DescFlagFallingBlock: "Allows blocks such as sand and anvils to be launched into the claim"
+DescFlagAnimalVehicle: "Allows animals to enter vehicles such as boats and minecarts"
 
 # --- PermissionDisplay.kt ---
 
