@@ -27,7 +27,8 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
         PermissionBehaviour.dragonEggTeleport,
         PermissionBehaviour.bucketFill,
         PermissionBehaviour.pumpkinShear,
-        PermissionBehaviour.potBreak
+        PermissionBehaviour.potBreak,
+        PermissionBehaviour.armourStandPush
     )),
 
     /**
