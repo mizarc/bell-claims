@@ -36,6 +36,7 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.projectiles.BlockProjectileSource
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -684,6 +685,8 @@ class RuleBehaviour {
         private fun cancelSplashPotionEffect(event: Event, claimService: ClaimService,
                                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is PotionSplashEvent) return false
+            val projectile = event.entity as Projectile
+            if (projectile.shooter !is BlockProjectileSource) return false
             for (entity in event.affectedEntities) {
                 if (entity !is Monster) {
                     event.setIntensity(entity, 0.0)
@@ -707,6 +710,8 @@ class RuleBehaviour {
         private fun cancelLingeringPotionEffect(event: Event, claimService: ClaimService,
                                                 partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is AreaEffectCloudApplyEvent) return false
+            val projectile = event.entity as Projectile
+            if (projectile.shooter !is BlockProjectileSource) return false
             event.affectedEntities.removeAll { it !is Monster }
             return false
         }
