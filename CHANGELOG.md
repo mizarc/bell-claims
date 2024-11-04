@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.4.0]
+
+### Added
+- Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
+
 ## [0.3.5]
 
 ### Added
@@ -11,7 +16,6 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - Server crashing due to math error when certain claim partition configurations are attempting to be visualised.
-
 
 ## [0.3.4]
 
