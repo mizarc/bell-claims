@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.6]
+
+### Added
+- Protection against wind charges being used to push animals and villagers, protected by the husbandry permission.
+- Protection against wind charges being used to push armour stands. Requires the build permission.
+
 ## [0.3.5]
 
 ### Added
