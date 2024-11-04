@@ -111,7 +111,7 @@ class RuleBehaviour {
             Companion::entityChangeBlockInClaim)
         val fluidBlockForm = RuleExecutor(BlockFormEvent::class.java, Companion::cancelFluidBlockForm,
             Companion::blockFormInClaim)
-        val entityEnterVehicle = RuleExecutor(VehicleEnterEvent::class.java, Companion::cancelMobEnterVehicleEvent,
+        val animalEnterVehicle = RuleExecutor(VehicleEnterEvent::class.java, Companion::cancelAnimalEnterVehicleEvent,
             Companion::vehicleEnterInClaim)
 
         /**
@@ -781,7 +781,7 @@ class RuleBehaviour {
             return listOf(claim)
         }
 
-        private fun cancelMobEnterVehicleEvent(event: Event, claimService: ClaimService,
+        private fun cancelAnimalEnterVehicleEvent(event: Event, claimService: ClaimService,
                                                partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is VehicleEnterEvent) return false
             if (event.entered is Monster) return false
