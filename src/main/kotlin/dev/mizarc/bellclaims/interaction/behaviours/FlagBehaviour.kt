@@ -33,6 +33,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.event.vehicle.VehicleEnterEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.inventory.ItemStack
@@ -110,6 +111,8 @@ class RuleBehaviour {
             Companion::entityChangeBlockInClaim)
         val fluidBlockForm = RuleExecutor(BlockFormEvent::class.java, Companion::cancelFluidBlockForm,
             Companion::blockFormInClaim)
+        val entityEnterVehicle = RuleExecutor(VehicleEnterEvent::class.java, Companion::cancelMobEnterVehicleEvent,
+            Companion::vehicleEnterInClaim)
 
         /**
          * Cancel any cancellable event.
@@ -768,6 +771,22 @@ class RuleBehaviour {
                 }
             }
             return false
+        }
+
+        private fun vehicleEnterInClaim(event: Event, claimService: ClaimService,
+                                         partitionService: PartitionService): List<Claim> {
+            if (event !is VehicleEnterEvent) return listOf()
+            val partition = partitionService.getByLocation(event.vehicle.location) ?: return listOf()
+            val claim = claimService.getById(partition.claimId) ?: return listOf()
+            return listOf(claim)
+        }
+
+        private fun cancelMobEnterVehicleEvent(event: Event, claimService: ClaimService,
+                                               partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is VehicleEnterEvent) return false
+            if (event.entered is Monster) return false
+            event.isCancelled = true
+            return true
         }
     }
 }
