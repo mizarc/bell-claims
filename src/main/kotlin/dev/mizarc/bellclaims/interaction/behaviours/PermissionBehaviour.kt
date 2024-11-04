@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
+import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent
 import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
@@ -251,6 +252,16 @@ class PermissionBehaviour {
         // Used to prevent players from breaking pots with projectiles
         val potBreak = PermissionExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
             Companion::getEntityChangeBlockLocations, Companion::getEntityChangeBlockPlayer)
+
+        // Used to prevent wind charges from affecting armour stands
+        val armourStandPush = PermissionExecutor(EntityKnockbackByEntityEvent::class.java,
+            Companion::cancelArmourStandPush, Companion::getEntityKnockbackByEntityLocations,
+            Companion::getEntityKnockbackByEntityPlayer)
+
+        // Used to prevent wind charges from affecting armour stands
+        val animalPush = PermissionExecutor(EntityKnockbackByEntityEvent::class.java,
+            Companion::cancelAnimalPush, Companion::getEntityKnockbackByEntityLocations,
+            Companion::getEntityKnockbackByEntityPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -668,6 +679,26 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the action of pushing armour stands with wind charges.
+         */
+        private fun cancelArmourStandPush(listener: Listener, event: Event): Boolean {
+            if (event !is EntityKnockbackByEntityEvent) return false
+            if (event.entity !is ArmorStand) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of pushing animals with wind charges.
+         */
+        private fun cancelAnimalPush(listener: Listener, event: Event): Boolean {
+            if (event !is EntityKnockbackByEntityEvent) return false
+            if (event.entity !is Animals && event.entity !is Villager) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -888,9 +919,20 @@ class PermissionBehaviour {
             return listOf(location)
         }
 
+        /**
+         * Gets the affected locations of the EntityChangeBlockEvent.
+         */
         private fun getEntityChangeBlockLocations(event: Event): List<Location> {
             if (event !is EntityChangeBlockEvent) return listOf()
             return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of the EntityKnockbackByEntityEvent.
+         */
+        private fun getEntityKnockbackByEntityLocations(event: Event): List<Location> {
+            if (event !is EntityKnockbackByEntityEvent) return listOf()
+            return listOf(event.entity.location)
         }
 
         /**
@@ -1151,6 +1193,19 @@ class PermissionBehaviour {
             if (event.entity is Player) return event.entity as Player
             if (event.entity is Projectile) {
                 val projectile = event.entity as Projectile
+                if (projectile.shooter is Player) return projectile.shooter as Player
+            }
+            return null
+        }
+
+        /**
+         * Gets the player that is triggering the EntityKnockbackByEntityEvent.
+         */
+        private fun getEntityKnockbackByEntityPlayer(event: Event): Player? {
+            if (event !is EntityKnockbackByEntityEvent) return null
+            if (event.hitBy is Player) return event.hitBy as Player
+            if (event.hitBy is Projectile) {
+                val projectile = event.hitBy as Projectile
                 if (projectile.shooter is Player) return projectile.shooter as Player
             }
             return null
