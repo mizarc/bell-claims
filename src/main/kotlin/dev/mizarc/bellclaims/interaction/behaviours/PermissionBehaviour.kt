@@ -258,6 +258,11 @@ class PermissionBehaviour {
             Companion::cancelArmourStandPush, Companion::getEntityKnockbackByEntityLocations,
             Companion::getEntityKnockbackByEntityPlayer)
 
+        // Used to prevent wind charges from affecting armour stands
+        val animalPush = PermissionExecutor(EntityKnockbackByEntityEvent::class.java,
+            Companion::cancelAnimalPush, Companion::getEntityKnockbackByEntityLocations,
+            Companion::getEntityKnockbackByEntityPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -674,11 +679,21 @@ class PermissionBehaviour {
         }
 
         /**
-         * Cancels the action of breaking a pot with a projectile.
+         * Cancels the action of pushing armour stands with wind charges.
          */
         private fun cancelArmourStandPush(listener: Listener, event: Event): Boolean {
             if (event !is EntityKnockbackByEntityEvent) return false
             if (event.entity !is ArmorStand) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of pushing animals with wind charges.
+         */
+        private fun cancelAnimalPush(listener: Listener, event: Event): Boolean {
+            if (event !is EntityKnockbackByEntityEvent) return false
+            if (event.entity !is Animals && event.entity !is Villager) return false
             event.isCancelled = true
             return true
         }

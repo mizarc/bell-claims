@@ -90,7 +90,8 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
         PermissionBehaviour.beehiveBottle,
         PermissionBehaviour.tridentLightningDamage,
         PermissionBehaviour.potionSplash,
-        PermissionBehaviour.potionLinger
+        PermissionBehaviour.potionLinger,
+        PermissionBehaviour.animalPush
     )),
 
     /**
