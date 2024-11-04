@@ -46,7 +46,7 @@ fun Flag.getDisplayName(): String {
         Flag.Sponge -> getLangText("NameFlagSponge")
         Flag.Lightning -> getLangText("NameFlagLightning")
         Flag.FallingBlock -> getLangText("NameFlagFallingBlock")
-        Flag.AnimalVehicle -> getLangText("NameFlagEntityVehicle")
+        Flag.AnimalVehicle -> getLangText("NameFlagAnimalVehicle")
     }
 }
 
@@ -68,6 +68,6 @@ fun Flag.getDescription(): String {
         Flag.Sponge -> getLangText("DescFlagSponge")
         Flag.Lightning -> getLangText("DescFlagLightning")
         Flag.FallingBlock -> getLangText("DescFlagFallingBlock")
-        Flag.AnimalVehicle -> getLangText("DescFlagEntityVehicle")
+        Flag.AnimalVehicle -> getLangText("DescFlagAnimalVehicle")
     }
 }
