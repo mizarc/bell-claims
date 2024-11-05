@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against wind charges being used to push animals and villagers, protected by the husbandry permission.
 - Protection against wind charges being used to push armour stands. Requires the build permission.
+- Protection against witches affecting animals and villagers with splash potions. Bypassed by the mob griefing flag.
 
 ### Changed
 - Splash potions are now completely negated if dispensed into a claim, with per entity checks only required when dispensed onto outer edge of claim.
@@ -23,7 +24,6 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - Server crashing due to math error when certain claim partition configurations are attempting to be visualised.
-
 
 ## [0.3.4]
 
