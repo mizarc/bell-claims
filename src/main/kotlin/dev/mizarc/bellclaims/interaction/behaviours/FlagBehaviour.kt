@@ -734,23 +734,27 @@ class RuleBehaviour {
 
             if (dispenserClaim == projectileClaim) return false
             event.isCancelled = true
-            return false
+            return true
         }
-
 
         private fun cancelLingeringPotionEffect(event: Event, claimService: ClaimService,
                                                 partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is AreaEffectCloudApplyEvent) return false
             if (event.entity.source is Player || event.entity.source is Monster) return false
+            val potionClaim = partitionService.getByLocation(event.entity.location)?.let {
+                claimService.getById(it.claimId) }
+
+            // Check each entity to see if they should be affected
             val affectedEntities = event.affectedEntities.toMutableList()
             for (entity in event.affectedEntities) {
                 val entityClaim = partitionService.getByLocation(entity.location)?.let {
-                    claimService.getById(it.claimId) }
-                if (entityClaim == null) continue
+                    claimService.getById(it.claimId) } ?: continue
+                if (entityClaim == potionClaim) continue
                 if (entity !is Monster) affectedEntities.remove(entity)
             }
-            event.affectedEntities.removeAll(affectedEntities)
-            return false
+            event.affectedEntities.clear()
+            event.affectedEntities.addAll(affectedEntities)
+            return true
         }
 
         private fun cancelBlockDispenseEvent(event: Event, claimService: ClaimService,
