@@ -101,6 +101,8 @@ class RuleBehaviour {
             Companion::cancelLingeringPotionEffect, Companion::areaEffectCloudApplyInClaim)
         val dispensedLingeringPotionSplash = RuleExecutor(LingeringPotionSplashEvent::class.java,
             Companion::cancelLingeringPotionSplash, Companion::lingeringPotionSplashInClaim)
+        val mobSplashPotion = RuleExecutor(PotionSplashEvent::class.java,
+            Companion::cancelMobSplashPotionEffect, Companion::potionSplashInClaim)
         val spongeAbsorb = RuleExecutor(SpongeAbsorbEvent::class.java, Companion::cancelSpongeAbsorbEvent,
             Companion::spongeAbsorbInClaim)
         val lightningDamage = RuleExecutor(LightningStrikeEvent::class.java, Companion::cancelLightningStrikeEvent,
@@ -709,8 +711,6 @@ class RuleBehaviour {
                 claimService.getById(it.claimId) }
 
             // Cancel if the potion is thrown into the claim
-            println(dispenserClaim)
-            println(potionClaim)
             if (dispenserClaim != potionClaim) {
                 event.isCancelled = true
                 return true
@@ -722,6 +722,23 @@ class RuleBehaviour {
                     claimService.getById(it.claimId) }
                 if (entityClaim == dispenserClaim) continue
                 if (entity !is Monster) event.setIntensity(entity, 0.0)
+            }
+            return true
+        }
+
+        private fun cancelMobSplashPotionEffect(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is PotionSplashEvent) return false
+            val projectile = event.entity as Projectile
+            val monster = projectile.shooter as? Monster
+            if (monster == null) return false
+
+            // For the splash affect, cancel out non-monster mobs that are inside the claim
+            for (entity in event.affectedEntities) {
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) } ?: continue
+                if (flagService.doesClaimHaveFlag(entityClaim, Flag.MobGriefing)) continue
+                if (entity is Animals || entity is AbstractVillager) event.setIntensity(entity, 0.0)
             }
             return true
         }
