@@ -30,7 +30,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
         RuleBehaviour.creeperDamageHangingEntity,
-        RuleBehaviour.potBreak
+        RuleBehaviour.potBreak,
+        RuleBehaviour.mobSplashPotion
     )),
 
     /**
