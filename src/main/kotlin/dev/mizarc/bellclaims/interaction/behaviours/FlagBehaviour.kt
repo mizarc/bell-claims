@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.interaction.behaviours
 
-import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import org.bukkit.Material
 import org.bukkit.World
@@ -20,8 +19,6 @@ import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import org.bukkit.Location
 import org.bukkit.block.BlockState
-import org.bukkit.block.BlockType
-import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Directional
 import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.entity.*
@@ -30,12 +27,14 @@ import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.LingeringPotionSplashEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.projectiles.BlockProjectileSource
 
 /**
  * A data structure that contains the type of event [eventClass], the function to handle the result of the event
@@ -98,8 +97,12 @@ class RuleBehaviour {
             Companion::blockDispenseInClaim)
         val dispensedSplashPotion = RuleExecutor(PotionSplashEvent::class.java,
             Companion::cancelSplashPotionEffect, Companion::potionSplashInClaim)
-        val dispensedLingeringPotion = RuleExecutor(AreaEffectCloudApplyEvent::class.java,
+        val dispensedLingeringPotionEffect = RuleExecutor(AreaEffectCloudApplyEvent::class.java,
             Companion::cancelLingeringPotionEffect, Companion::areaEffectCloudApplyInClaim)
+        val dispensedLingeringPotionSplash = RuleExecutor(LingeringPotionSplashEvent::class.java,
+            Companion::cancelLingeringPotionSplash, Companion::lingeringPotionSplashInClaim)
+        val mobSplashPotion = RuleExecutor(PotionSplashEvent::class.java,
+            Companion::cancelMobSplashPotionEffect, Companion::potionSplashInClaim)
         val spongeAbsorb = RuleExecutor(SpongeAbsorbEvent::class.java, Companion::cancelSpongeAbsorbEvent,
             Companion::spongeAbsorbInClaim)
         val lightningDamage = RuleExecutor(LightningStrikeEvent::class.java, Companion::cancelLightningStrikeEvent,
@@ -673,6 +676,13 @@ class RuleBehaviour {
                                         partitionService: PartitionService): List<Claim> {
             if (event !is PotionSplashEvent) return listOf()
             val affectedClaims = mutableListOf<Claim>()
+
+            // Include the claim the potion lands in
+            val potionClaim = partitionService.getByLocation(event.entity.location)?.let {
+                claimService.getById(it.claimId) }
+            if (potionClaim != null) affectedClaims.add(potionClaim)
+
+            // Include through all affected entities
             for (entity in event.affectedEntities) {
                 val partition = partitionService.getByLocation(entity.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
@@ -681,13 +691,54 @@ class RuleBehaviour {
             return affectedClaims
         }
 
+        private fun lingeringPotionSplashInClaim(event: Event, claimService: ClaimService,
+                                        partitionService: PartitionService): List<Claim> {
+            if (event !is LingeringPotionSplashEvent) return listOf()
+            val claim = partitionService.getByLocation(event.entity.location)?.let {
+                claimService.getById(it.claimId) } ?: return listOf()
+            return listOf(claim)
+        }
+
         private fun cancelSplashPotionEffect(event: Event, claimService: ClaimService,
                                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is PotionSplashEvent) return false
+            val projectile = event.entity as Projectile
+            val dispenser = projectile.shooter as? BlockProjectileSource
+            if (dispenser == null) return false
+            val dispenserClaim = partitionService.getByLocation(dispenser.block.location)?.let {
+                claimService.getById(it.claimId) }
+            val potionClaim = partitionService.getByLocation(projectile.location)?.let {
+                claimService.getById(it.claimId) }
+
+            // Cancel if the potion is thrown into the claim
+            if (dispenserClaim != potionClaim) {
+                event.isCancelled = true
+                return true
+            }
+
+            // For the splash affect, cancel out non-monster mobs that are inside the claim
             for (entity in event.affectedEntities) {
-                if (entity !is Monster) {
-                    event.setIntensity(entity, 0.0)
-                }
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) }
+                if (entityClaim == dispenserClaim) continue
+                if (entity !is Monster) event.setIntensity(entity, 0.0)
+            }
+            return true
+        }
+
+        private fun cancelMobSplashPotionEffect(event: Event, claimService: ClaimService,
+                                             partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is PotionSplashEvent) return false
+            val projectile = event.entity as Projectile
+            val monster = projectile.shooter as? Monster
+            if (monster == null) return false
+
+            // For the splash affect, cancel out non-monster mobs that are inside the claim
+            for (entity in event.affectedEntities) {
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) } ?: continue
+                if (flagService.doesClaimHaveFlag(entityClaim, Flag.MobGriefing)) continue
+                if (entity is Animals || entity is AbstractVillager) event.setIntensity(entity, 0.0)
             }
             return true
         }
@@ -704,11 +755,41 @@ class RuleBehaviour {
             return affectedClaims
         }
 
+        private fun cancelLingeringPotionSplash(event: Event, claimService: ClaimService,
+                                                partitionService: PartitionService, flagService: FlagService): Boolean {
+            if (event !is LingeringPotionSplashEvent) return false
+            val projectile = event.entity
+            val dispenser = projectile.shooter as? BlockProjectileSource
+            if (dispenser == null) return false
+
+            val dispenserClaim = partitionService.getByLocation(dispenser.block.location)?.let {
+                claimService.getById(it.claimId) }
+            val projectileClaim = partitionService.getByLocation(projectile.location)?.let {
+                claimService.getById(it.claimId) }
+
+            if (dispenserClaim == projectileClaim) return false
+            event.isCancelled = true
+            return true
+        }
+
         private fun cancelLingeringPotionEffect(event: Event, claimService: ClaimService,
                                                 partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is AreaEffectCloudApplyEvent) return false
-            event.affectedEntities.removeAll { it !is Monster }
-            return false
+            if (event.entity.source is Player || event.entity.source is Monster) return false
+            val potionClaim = partitionService.getByLocation(event.entity.location)?.let {
+                claimService.getById(it.claimId) }
+
+            // Check each entity to see if they should be affected
+            val affectedEntities = event.affectedEntities.toMutableList()
+            for (entity in event.affectedEntities) {
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) } ?: continue
+                if (entityClaim == potionClaim) continue
+                if (entity !is Monster) affectedEntities.remove(entity)
+            }
+            event.affectedEntities.clear()
+            event.affectedEntities.addAll(affectedEntities)
+            return true
         }
 
         private fun cancelBlockDispenseEvent(event: Event, claimService: ClaimService,
