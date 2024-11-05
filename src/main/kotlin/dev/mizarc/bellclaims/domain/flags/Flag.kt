@@ -72,7 +72,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     Dispensers(arrayOf(
         RuleBehaviour.dispense,
         RuleBehaviour.dispensedSplashPotion,
-        RuleBehaviour.dispensedLingeringPotion
+        RuleBehaviour.dispensedLingeringPotionSplash,
+        RuleBehaviour.dispensedLingeringPotionEffect
     )),
 
     Sponge(arrayOf(
