@@ -674,6 +674,13 @@ class RuleBehaviour {
                                         partitionService: PartitionService): List<Claim> {
             if (event !is PotionSplashEvent) return listOf()
             val affectedClaims = mutableListOf<Claim>()
+
+            // Include the claim the potion lands in
+            val potionClaim = partitionService.getByLocation(event.entity.location)?.let {
+                claimService.getById(it.claimId) }
+            if (potionClaim != null) affectedClaims.add(potionClaim)
+
+            // Include through all affected entities
             for (entity in event.affectedEntities) {
                 val partition = partitionService.getByLocation(entity.location) ?: continue
                 val claim = claimService.getById(partition.claimId) ?: continue
