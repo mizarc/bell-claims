@@ -30,7 +30,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
         RuleBehaviour.creeperExplode,
         RuleBehaviour.creeperDamageStaticEntity,
         RuleBehaviour.creeperDamageHangingEntity,
-        RuleBehaviour.potBreak
+        RuleBehaviour.potBreak,
+        RuleBehaviour.mobSplashPotion
     )),
 
     /**
@@ -72,7 +73,8 @@ enum class Flag(val rules: Array<RuleExecutor>) {
     Dispensers(arrayOf(
         RuleBehaviour.dispense,
         RuleBehaviour.dispensedSplashPotion,
-        RuleBehaviour.dispensedLingeringPotion
+        RuleBehaviour.dispensedLingeringPotionSplash,
+        RuleBehaviour.dispensedLingeringPotionEffect
     )),
 
     Sponge(arrayOf(
