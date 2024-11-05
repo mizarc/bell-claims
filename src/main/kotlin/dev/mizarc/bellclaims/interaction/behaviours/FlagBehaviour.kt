@@ -686,11 +686,16 @@ class RuleBehaviour {
                                              partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is PotionSplashEvent) return false
             val projectile = event.entity as Projectile
-            if (projectile.shooter !is BlockProjectileSource) return false
+            val dispenser = projectile.shooter as? BlockProjectileSource
+            if (dispenser == null) return false
+            val dispenserClaim = partitionService.getByLocation(dispenser.block.location)?.let {
+                claimService.getById(it.claimId) }
+
             for (entity in event.affectedEntities) {
-                if (entity !is Monster) {
-                    event.setIntensity(entity, 0.0)
-                }
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) }
+                if (entityClaim == dispenserClaim) continue
+                if (entity !is Monster) event.setIntensity(entity, 0.0)
             }
             return true
         }
@@ -710,9 +715,19 @@ class RuleBehaviour {
         private fun cancelLingeringPotionEffect(event: Event, claimService: ClaimService,
                                                 partitionService: PartitionService, flagService: FlagService): Boolean {
             if (event !is AreaEffectCloudApplyEvent) return false
-            val projectile = event.entity as Projectile
-            if (projectile.shooter !is BlockProjectileSource) return false
-            event.affectedEntities.removeAll { it !is Monster }
+            val projectile = event.entity
+            val dispenser = projectile.source as? BlockProjectileSource
+            if (dispenser == null) return false
+            val dispenserClaim = partitionService.getByLocation(dispenser.block.location)?.let {
+                claimService.getById(it.claimId) }
+
+            if (event.entity.location != dispenser.block.location) return false
+            for (entity in event.affectedEntities) {
+                val entityClaim = partitionService.getByLocation(entity.location)?.let {
+                    claimService.getById(it.claimId) }
+                if (entityClaim == dispenserClaim) continue
+                if (entity !is Monster) event.affectedEntities.remove(entity)
+            }
             return false
         }
 
