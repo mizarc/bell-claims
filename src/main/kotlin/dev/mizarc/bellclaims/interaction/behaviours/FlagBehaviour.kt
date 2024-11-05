@@ -698,7 +698,18 @@ class RuleBehaviour {
             if (dispenser == null) return false
             val dispenserClaim = partitionService.getByLocation(dispenser.block.location)?.let {
                 claimService.getById(it.claimId) }
+            val potionClaim = partitionService.getByLocation(projectile.location)?.let {
+                claimService.getById(it.claimId) }
 
+            // Cancel if the potion is thrown into the claim
+            println(dispenserClaim)
+            println(potionClaim)
+            if (dispenserClaim != potionClaim) {
+                event.isCancelled = true
+                return true
+            }
+
+            // For the splash affect, cancel out non-monster mobs that are inside the claim
             for (entity in event.affectedEntities) {
                 val entityClaim = partitionService.getByLocation(entity.location)?.let {
                     claimService.getById(it.claimId) }
