@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 
 import dev.mizarc.bellclaims.utils.getLangText
 
@@ -20,6 +21,7 @@ open class ClaimCommand : BaseCommand() {
     @Dependency protected lateinit var defaultPermissionService: DefaultPermissionService
     @Dependency protected lateinit var playerPermissionService: PlayerPermissionService
     @Dependency protected lateinit var playerStateService: PlayerStateService
+    @Dependency protected lateinit var visualiser: Visualiser
 
     @CommandAlias("claim")
     @CommandPermission("bellclaims.command.claim")
@@ -28,6 +30,11 @@ open class ClaimCommand : BaseCommand() {
         if (isItemInInventory(player.inventory)) {
             player.sendMessage(getLangText("AlreadyHaveClaimTool"))
             return
+        }
+
+        // Refresh visualiser if result ends in the claim tool being put in hand
+        if (player.inventory.itemInMainHand == getClaimTool()) {
+            visualiser.show(player)
         }
 
         player.inventory.addItem(getClaimTool())
