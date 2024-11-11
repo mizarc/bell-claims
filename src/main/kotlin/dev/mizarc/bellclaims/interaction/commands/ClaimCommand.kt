@@ -31,13 +31,14 @@ open class ClaimCommand : BaseCommand() {
             player.sendMessage(getLangText("AlreadyHaveClaimTool"))
             return
         }
+        
+        player.inventory.addItem(getClaimTool())
 
         // Refresh visualiser if result ends in the claim tool being put in hand
         if (player.inventory.itemInMainHand == getClaimTool()) {
             visualiser.show(player)
         }
 
-        player.inventory.addItem(getClaimTool())
         player.sendMessage(getLangText("ClaimToolGiven"))
     }
 
