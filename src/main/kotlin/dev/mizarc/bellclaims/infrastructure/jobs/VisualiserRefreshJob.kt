@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.jobs
+package dev.mizarc.bellclaims.infrastructure.jobs
 
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
