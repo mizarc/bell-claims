@@ -4,6 +4,7 @@ import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.VisualisationService
+import dev.mizarc.bellclaims.api.VisualiserRefreshJobScheduler
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
@@ -23,6 +24,7 @@ class Visualiser(private val plugin: JavaPlugin,
                  private val partitionService: PartitionService,
                  private val playerStateService: PlayerStateService,
                  private val visualisationService: VisualisationService,
+                 private val visualiserRefreshJobScheduler: VisualiserRefreshJobScheduler,
                  private val config: Config) : Listener {
     /**
      * Display claim visualisation to target player
@@ -64,6 +66,7 @@ class Visualiser(private val plugin: JavaPlugin,
         playerState.visualisedBlockPositions[claim] = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
+        visualiserRefreshJobScheduler.start(player)
         return borders
     }
 
