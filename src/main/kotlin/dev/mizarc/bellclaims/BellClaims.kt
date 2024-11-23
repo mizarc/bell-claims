@@ -8,6 +8,7 @@ import dev.mizarc.bellclaims.domain.partitions.PartitionRepository
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.jobs.VisualiserRefreshJobSchedulerImpl
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
@@ -57,6 +58,7 @@ class BellClaims : JavaPlugin() {
     private lateinit var defaultPermissionService: DefaultPermissionService
     private lateinit var playerPermissionService: PlayerPermissionService
     private lateinit var visualisationService: VisualisationService
+    private lateinit var visualiserRefreshJobScheduler: VisualiserRefreshJobScheduler
 
     private lateinit var visualiser: Visualiser
 
@@ -164,6 +166,7 @@ class BellClaims : JavaPlugin() {
         defaultPermissionService = DefaultPermissionServiceImpl(claimPermissionRepo)
         playerPermissionService = PlayerPermissionServiceImpl(playerAccessRepo)
         visualisationService = VisualisationServiceImpl(partitionService)
+        visualiserRefreshJobScheduler = VisualiserRefreshJobSchedulerImpl()
     }
 
     /**
@@ -171,7 +174,7 @@ class BellClaims : JavaPlugin() {
      */
     private fun initialiseInteractions() {
         visualiser = Visualiser(this, claimService, partitionService, playerStateService,
-            visualisationService, config)
+            visualisationService, visualiserRefreshJobScheduler, config)
     }
 
     /**
@@ -234,7 +237,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
         server.pluginManager.registerEvents(
             Visualiser(this, claimService, partitionService,
-                playerStateService, visualisationService, config), this)
+                playerStateService, visualisationService, visualiserRefreshJobScheduler, config), this)
         server.pluginManager.registerEvents(
             PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)
