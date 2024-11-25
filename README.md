@@ -54,11 +54,11 @@ will make use of it as such.
 
 To set a metadata for a player, use command:
 
-`/lp group <player_name> meta set <limit_name> <desired_number>`
+`/lp group <group_name> meta set <limit_name> <desired_number>`
 
 For groups:
 
-`/lp user <group_name> meta set <limit_name> <desired_number>`
+`/lp user <user_name> meta set <limit_name> <desired_number>`
 
 Here are the different limits you can set:
 - bellclaims.claim_limit - Defines how many claim bells the player can own.
@@ -66,7 +66,7 @@ Here are the different limits you can set:
 
 ## Building from Source
 ### Requirements
-- Java JDK 17 or newer
+- Java JDK 21 or newer
 - Git
 
 ### Compiling
@@ -81,4 +81,4 @@ Built .jar binary can be found in the `build/libs` folder.
 If you encounter any bugs, crashes, or unexpected behaviour, please [open an issue](https://github.com/mizarc/bell-claims/issues) in this repository.
 
 ## License
-Solid Claims is licensed under the permissive MIT license. Please view [LICENSE](LICENSE) for more info.
+Bell Claims is licensed under the permissive MIT license. Please view [LICENSE](LICENSE) for more info.
