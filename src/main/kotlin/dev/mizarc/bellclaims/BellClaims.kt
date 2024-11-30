@@ -22,7 +22,7 @@ import dev.mizarc.bellclaims.infrastructure.services.playerlimit.SimplePlayerLim
 import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration

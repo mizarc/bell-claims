@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.visualisation
+package dev.mizarc.bellclaims.infrastructure.visualisation
 
 import dev.mizarc.bellclaims.api.ClaimService
 import dev.mizarc.bellclaims.api.PartitionService

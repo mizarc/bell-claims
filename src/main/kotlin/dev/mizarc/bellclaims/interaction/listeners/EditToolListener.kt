@@ -24,7 +24,7 @@ import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.interaction.menus.EditToolMenu
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
 import java.util.*
 
 import dev.mizarc.bellclaims.utils.getLangText

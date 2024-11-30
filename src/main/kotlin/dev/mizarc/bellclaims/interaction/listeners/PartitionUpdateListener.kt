@@ -5,7 +5,7 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.entity.Player

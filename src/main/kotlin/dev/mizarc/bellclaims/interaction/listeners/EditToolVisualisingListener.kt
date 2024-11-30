@@ -5,14 +5,13 @@ import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.domain.players.PlayerState
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent

@@ -12,7 +12,7 @@ import dev.mizarc.bellclaims.api.PartitionService
 import dev.mizarc.bellclaims.api.PlayerStateService
 import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.event.inventory.ClickType
