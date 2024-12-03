@@ -13,7 +13,6 @@ import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import java.time.Instant
@@ -25,11 +24,11 @@ class Visualiser(private val plugin: JavaPlugin,
                  private val playerStateService: PlayerStateService,
                  private val visualisationService: VisualisationService,
                  private val visualiserRefreshJobScheduler: VisualiserRefreshJobScheduler,
-                 private val config: Config) : Listener {
+                 private val config: Config) : BlockVisualiserService {
     /**
      * Display claim visualisation to target player
      */
-    fun show(player: Player): MutableMap<Claim, Set<Position3D>> {
+    override fun show(player: Player): MutableMap<Claim, Set<Position3D>> {
         val playerState = playerStateService.getByPlayer(player) ?: return mutableMapOf()
 
         // Change visualiser depending on view mode
@@ -52,7 +51,7 @@ class Visualiser(private val plugin: JavaPlugin,
     /**
      * Display claim visualisation to target player
      */
-    fun show(player: Player, claim: Claim): Set<Position3D> {
+    override fun show(player: Player, claim: Claim): Set<Position3D> {
         val playerState = playerStateService.getByPlayer(player) ?: return mutableSetOf()
 
         // Change visualiser depending on view mode
@@ -73,7 +72,7 @@ class Visualiser(private val plugin: JavaPlugin,
     /**
      * Hide claim visualisation for target player
      */
-    fun hide(player: Player) {
+    override fun hide(player: Player) {
         val playerState = playerStateService.getByPlayer(player) ?: return
         revertVisualisedBlocks(player)
         playerState.visualisedBlockPositions.clear()
@@ -83,7 +82,7 @@ class Visualiser(private val plugin: JavaPlugin,
     /**
      * Hide claim visualiser for target player after a config specified time
      */
-    fun delayedVisualiserHide(player: Player) {
+    override fun delayedHide(player: Player) {
         val playerState = playerStateService.getByPlayer(player) ?: return
 
         class VisualiserHideRunnable : BukkitRunnable() {
@@ -101,7 +100,7 @@ class Visualiser(private val plugin: JavaPlugin,
     /**
      * Load a new visualiser display for a target player who is already visualising
      */
-    fun refresh(player: Player) {
+    override fun refresh(player: Player) {
         val playerState = playerStateService.getByPlayer(player) ?: return
         val lastVisualisationTime = playerState.lastVisualisationTime ?: return
         if (Instant.now() < lastVisualisationTime.plusSeconds(config.visualiserRefreshPeriod.toLong())) {

@@ -92,7 +92,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin,
             }
 
         } else if (playerState.isVisualisingClaims) {
-            visualiser.delayedVisualiserHide(player)
+            visualiser.delayedHide(player)
         }
     }
 }
