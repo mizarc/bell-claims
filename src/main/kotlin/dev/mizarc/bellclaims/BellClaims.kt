@@ -20,6 +20,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.services.*
 import dev.mizarc.bellclaims.infrastructure.services.playerlimit.SimplePlayerLimitServiceImpl
 import dev.mizarc.bellclaims.infrastructure.services.playerlimit.VaultPlayerLimitServiceImpl
+import dev.mizarc.bellclaims.infrastructure.visualisation.BlockVisualiserService
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import dev.mizarc.bellclaims.infrastructure.visualisation.Visualiser
@@ -235,9 +236,6 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(ClaimDestructionListener(claimService, claimWorldService,
             playerStateService), this)
         server.pluginManager.registerEvents(MoveToolListener(claimRepo, partitionService), this)
-        server.pluginManager.registerEvents(
-            Visualiser(this, claimService, partitionService,
-                playerStateService, visualisationService, visualiserRefreshJobScheduler, config), this)
         server.pluginManager.registerEvents(
             PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)
