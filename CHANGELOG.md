@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.7]
+This is a version bump only release. Update to support MC version 1.21.3.
+
+### Fixed
+- Inability to use inventory GUIs with MC 1.21.3
+
 ## [0.3.6]
 
 ### Added
