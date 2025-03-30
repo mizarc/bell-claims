@@ -252,6 +252,10 @@ class PermissionBehaviour {
         val potBreak = PermissionExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
             Companion::getEntityChangeBlockLocations, Companion::getEntityChangeBlockPlayer)
 
+        // Used to prevent players from harvesting crops
+        val cropHarvest = PermissionExecutor(PlayerHarvestBlockEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerHarvestBlockLocations, Companion::getPlayerHarvestBlockPlayer)
+
         /**
          * Cancels any cancellable event.
          */
@@ -888,9 +892,20 @@ class PermissionBehaviour {
             return listOf(location)
         }
 
+        /**
+         * Gets the affected locations of EntityChangeBlockEvent.
+         */
         private fun getEntityChangeBlockLocations(event: Event): List<Location> {
             if (event !is EntityChangeBlockEvent) return listOf()
             return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of PlayerHarvestBlockEvent.
+         */
+        private fun getPlayerHarvestBlockLocations(event: Event): List<Location> {
+            if (event !is PlayerHarvestBlockEvent) return listOf()
+            return listOf(event.harvestedBlock.location)
         }
 
         /**
@@ -1154,6 +1169,14 @@ class PermissionBehaviour {
                 if (projectile.shooter is Player) return projectile.shooter as Player
             }
             return null
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerHarvestBlock.
+         */
+        private fun getPlayerHarvestBlockPlayer(event: Event): Player? {
+            if (event !is PlayerHarvestBlockEvent) return null
+            return event.player
         }
     }
 }
