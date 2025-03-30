@@ -13,6 +13,7 @@ class Config(val plugin: Plugin) {
     var distanceBetweenClaims = 0
     var visualiserHideDelayPeriod = 0.0
     var visualiserRefreshPeriod = 0.0
+    var rightClickHarvest = true
     var pluginLanguage = "EN"
 
     init {
@@ -28,6 +29,7 @@ class Config(val plugin: Plugin) {
         distanceBetweenClaims = configFile.getInt("distance_between_claims")
         visualiserHideDelayPeriod = configFile.getDouble("visualiser_hide_delay_period")
         visualiserRefreshPeriod = configFile.getDouble("visualiser_refresh_period")
+        rightClickHarvest = configFile.getBoolean("right_click_harvest")
         pluginLanguage = configFile.getString("plugin_language") ?: "EN"
     }
 
