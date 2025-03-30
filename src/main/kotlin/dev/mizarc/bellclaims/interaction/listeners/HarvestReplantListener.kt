@@ -5,6 +5,7 @@ import org.bukkit.Sound
 import org.bukkit.block.data.Ageable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerHarvestBlockEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
@@ -13,6 +14,7 @@ class HarvestReplantListener: Listener {
     fun onInventoryClose(event: PlayerInteractEvent) {
         // Check if clicked block in set
         val clickedBlock = event.clickedBlock ?: return
+        if (event.action != Action.RIGHT_CLICK_BLOCK) return
         val hand = event.hand ?: return
         val cropMaterials = setOf(
             Material.WHEAT, Material.CARROTS, Material.POTATOES,
