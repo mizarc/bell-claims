@@ -14,6 +14,7 @@ import org.bukkit.entity.Item
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {
         ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
+        ClaimPermission.Harvest -> ItemStack(Material.WHEAT)
         ClaimPermission.ContainerInspect -> ItemStack(Material.CHEST)
         ClaimPermission.DisplayManipulate -> ItemStack(Material.ARMOR_STAND)
         ClaimPermission.VehicleDeploy -> ItemStack(Material.MINECART)
@@ -36,6 +37,7 @@ fun ClaimPermission.getIcon(): ItemStack {
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
         ClaimPermission.Build -> getLangText("NameClaimPermissionBuild")
+        ClaimPermission.Harvest -> getLangText("NameClaimPermissionHarvest")
         ClaimPermission.ContainerInspect -> getLangText("NameClaimPermissionContainerInspect")
         ClaimPermission.DisplayManipulate -> getLangText("NameClaimPermissionDisplayManipulate")
         ClaimPermission.VehicleDeploy -> getLangText("NameClaimPermissionVehicleDeploy")
@@ -58,6 +60,7 @@ fun ClaimPermission.getDisplayName(): String {
 fun ClaimPermission.getDescription(): String {
     return when (this) {
         ClaimPermission.Build -> getLangText("DescClaimPermissionBuild")
+        ClaimPermission.Harvest -> getLangText("DescClaimPermissionHarvest")
         ClaimPermission.ContainerInspect -> getLangText("DescClaimPermissionContainerInspect")
         ClaimPermission.DisplayManipulate -> getLangText("DescClaimPermissionDisplayManipulate")
         ClaimPermission.VehicleDeploy -> getLangText("DescClaimPermissionVehicleDeploy")
