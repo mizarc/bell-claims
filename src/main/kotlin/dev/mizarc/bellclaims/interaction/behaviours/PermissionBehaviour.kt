@@ -100,7 +100,7 @@ class PermissionBehaviour {
             Companion::getHangingBreakByEntityEventLocations, Companion::getHangingBreakByEntityEventPlayer)
 
         // Used for plant fertilisation with bone meal
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelEvent,
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelNonCropFertilize,
             Companion::getBlockLocations, Companion::getBlockFertilizeEventPlayer)
 
         // Used for inventories that either store something or will have an effect in the world from being used
@@ -255,6 +255,10 @@ class PermissionBehaviour {
         // Used to prevent players from harvesting crops
         val cropHarvest = PermissionExecutor(PlayerHarvestBlockEvent::class.java, Companion::cancelEvent,
             Companion::getPlayerHarvestBlockLocations, Companion::getPlayerHarvestBlockPlayer)
+
+        // Used to prevent using bone meal on crops
+        val cropFertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelBoneMealOnCrops,
+            Companion::getBlockLocations, Companion::getBlockFertilizeEventPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -667,6 +671,44 @@ class PermissionBehaviour {
         private fun cancelProjectilePotBreak(listener: Listener, event: Event): Boolean {
             if (event !is EntityChangeBlockEvent) return false
             if (event.block.blockData !is DecoratedPot) return false
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of using bone meal on a non crop.
+         */
+        private fun cancelNonCropFertilize(listener: Listener, event: Event): Boolean {
+            if (event !is BlockFertilizeEvent) return false
+
+            val cropMaterials = setOf(
+                Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS,
+                Material.COCOA, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
+                Material.MELON_STEM, Material.PUMPKIN_STEM
+            )
+            if (event.block.type in cropMaterials) {
+                return false
+            }
+
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of using bone meal on a crop.
+         */
+        private fun cancelBoneMealOnCrops(listener: Listener, event: Event): Boolean {
+            if (event !is BlockFertilizeEvent) return false
+
+            val cropMaterials = setOf(
+                Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS,
+                Material.COCOA, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
+                Material.MELON_STEM, Material.PUMPKIN_STEM
+            )
+            if (event.block.type !in cropMaterials) {
+                return false
+            }
+
             event.isCancelled = true
             return true
         }
