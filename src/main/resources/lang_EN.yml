@@ -29,6 +29,7 @@ DescFlagAnimalVehicle: "Allows animals to enter vehicles such as boats and minec
 # --- PermissionDisplay.kt ---
 
 NameClaimPermissionBuild: "Build"
+NameClaimPermissionHarvest: "Harvest"
 NameClaimPermissionContainerInspect: "Inspect Containers"
 NameClaimPermissionDisplayManipulate: "Manipulate"
 NameClaimPermissionVehicleDeploy: "Deploy Vehicles"
@@ -42,6 +43,7 @@ NameClaimPermissionEventStart: "Raid"
 NameClaimPermissionSleep: "Sleep"
 
 DescClaimPermissionBuild: "Grants permission to build"
+DescClaimPermissionHarvest: "Grants permission to harvest and apply bone meal to crops"
 DescClaimPermissionContainerInspect: "Grants permission to open inventories (Chest, Furnace, Anvil)"
 DescClaimPermissionDisplayManipulate: "Grants permission to manipulate display items (Item Frames, Armour Stands, Flower Pots)"
 DescClaimPermissionVehicleDeploy: "Grants permission to break and place vehicles (Boats, Minecarts)"
