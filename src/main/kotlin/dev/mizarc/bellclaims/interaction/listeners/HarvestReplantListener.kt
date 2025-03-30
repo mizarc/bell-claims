@@ -5,6 +5,7 @@ import org.bukkit.Sound
 import org.bukkit.block.data.Ageable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerHarvestBlockEvent
 import org.bukkit.event.player.PlayerInteractEvent
 
 class HarvestReplantListener: Listener {
@@ -12,6 +13,7 @@ class HarvestReplantListener: Listener {
     fun onInventoryClose(event: PlayerInteractEvent) {
         // Check if clicked block in set
         val clickedBlock = event.clickedBlock ?: return
+        val hand = event.hand ?: return
         val cropMaterials = setOf(
             Material.WHEAT, Material.CARROTS, Material.POTATOES,
             Material.BEETROOTS, Material.COCOA, Material.NETHER_WART
@@ -23,8 +25,17 @@ class HarvestReplantListener: Listener {
         if (blockData is Ageable) {
             val ageableData = blockData
             if (ageableData.age == ageableData.maximumAge) {
-                event.isCancelled = true
                 event.player.swingMainHand()
+
+                // Call built in Bukkit harvest event
+                val harvestEvent = PlayerHarvestBlockEvent(event.player, clickedBlock, hand, listOf())
+                harvestEvent.callEvent()
+                if (harvestEvent.isCancelled) {
+                    return
+                }
+
+                // Harvest the crop and break it as usual
+                event.isCancelled = true
                 val harvested = clickedBlock.breakNaturally()
 
                 // Replant if harvest is successful
