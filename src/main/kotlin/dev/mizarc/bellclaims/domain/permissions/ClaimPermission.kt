@@ -35,6 +35,7 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
      */
     Harvest(arrayOf(
         PermissionBehaviour.cropHarvest,
+        PermissionBehaviour.cropFertilize
     )),
 
     /**
