@@ -8,6 +8,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
+- Protection against harvesting crops such as berry bushes. Requires the harvest permission.
+
+### Changed
+- Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
 
 ## [0.3.5]
 
