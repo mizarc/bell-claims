@@ -238,5 +238,6 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(
             PartitionUpdateListener(claimService, partitionService, playerStateService, visualiser), this)
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)
+        server.pluginManager.registerEvents(HarvestReplantListener(), this)
     }
 }
