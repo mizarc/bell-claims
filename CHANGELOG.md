@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
+- Crops such as wheat, carrots, and cocoa beans can now be right click harvested which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
