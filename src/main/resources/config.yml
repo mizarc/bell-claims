@@ -6,7 +6,7 @@ distance_between_claims: 1
 visualiser_hide_delay_period: 2 # Value in seconds
 visualiser_refresh_period: 1 # Value in seconds
 plugin_language: EN
-
+right_click_harvest: true
 #NOT COMPLETED
 # EN - Original
 # RU - Machine translation (Temporary)

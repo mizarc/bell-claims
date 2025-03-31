@@ -31,6 +31,14 @@ enum class ClaimPermission(val events: Array<PermissionExecutor>) {
     )),
 
     /**
+     * When plants are harvested and replanted by a player.
+     */
+    Harvest(arrayOf(
+        PermissionBehaviour.cropHarvest,
+        PermissionBehaviour.cropFertilize
+    )),
+
+    /**
      * When a container is opened by a player.
      */
     ContainerInspect(arrayOf(PermissionBehaviour.openInventory)),

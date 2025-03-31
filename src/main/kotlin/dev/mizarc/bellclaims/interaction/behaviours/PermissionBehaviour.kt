@@ -100,7 +100,7 @@ class PermissionBehaviour {
             Companion::getHangingBreakByEntityEventLocations, Companion::getHangingBreakByEntityEventPlayer)
 
         // Used for plant fertilisation with bone meal
-        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelEvent,
+        val fertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelNonCropFertilize,
             Companion::getBlockLocations, Companion::getBlockFertilizeEventPlayer)
 
         // Used for inventories that either store something or will have an effect in the world from being used
@@ -251,6 +251,14 @@ class PermissionBehaviour {
         // Used to prevent players from breaking pots with projectiles
         val potBreak = PermissionExecutor(EntityChangeBlockEvent::class.java, Companion::cancelProjectilePotBreak,
             Companion::getEntityChangeBlockLocations, Companion::getEntityChangeBlockPlayer)
+
+        // Used to prevent players from harvesting crops
+        val cropHarvest = PermissionExecutor(PlayerHarvestBlockEvent::class.java, Companion::cancelEvent,
+            Companion::getPlayerHarvestBlockLocations, Companion::getPlayerHarvestBlockPlayer)
+
+        // Used to prevent using bone meal on crops
+        val cropFertilize = PermissionExecutor(BlockFertilizeEvent::class.java, Companion::cancelBoneMealOnCrops,
+            Companion::getBlockLocations, Companion::getBlockFertilizeEventPlayer)
 
         /**
          * Cancels any cancellable event.
@@ -668,6 +676,44 @@ class PermissionBehaviour {
         }
 
         /**
+         * Cancels the action of using bone meal on a non crop.
+         */
+        private fun cancelNonCropFertilize(listener: Listener, event: Event): Boolean {
+            if (event !is BlockFertilizeEvent) return false
+
+            val cropMaterials = setOf(
+                Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS,
+                Material.COCOA, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
+                Material.MELON_STEM, Material.PUMPKIN_STEM
+            )
+            if (event.block.type in cropMaterials) {
+                return false
+            }
+
+            event.isCancelled = true
+            return true
+        }
+
+        /**
+         * Cancels the action of using bone meal on a crop.
+         */
+        private fun cancelBoneMealOnCrops(listener: Listener, event: Event): Boolean {
+            if (event !is BlockFertilizeEvent) return false
+
+            val cropMaterials = setOf(
+                Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS,
+                Material.COCOA, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
+                Material.MELON_STEM, Material.PUMPKIN_STEM
+            )
+            if (event.block.type !in cropMaterials) {
+                return false
+            }
+
+            event.isCancelled = true
+            return true
+        }
+
+        /**
          * Gets the affected locations of the VehicleDestroyEvent.
          */
         private fun getVehicleDestroyLocations(event: Event): List<Location> {
@@ -888,9 +934,20 @@ class PermissionBehaviour {
             return listOf(location)
         }
 
+        /**
+         * Gets the affected locations of EntityChangeBlockEvent.
+         */
         private fun getEntityChangeBlockLocations(event: Event): List<Location> {
             if (event !is EntityChangeBlockEvent) return listOf()
             return listOf(event.block.location)
+        }
+
+        /**
+         * Gets the affected locations of PlayerHarvestBlockEvent.
+         */
+        private fun getPlayerHarvestBlockLocations(event: Event): List<Location> {
+            if (event !is PlayerHarvestBlockEvent) return listOf()
+            return listOf(event.harvestedBlock.location)
         }
 
         /**
@@ -1154,6 +1211,14 @@ class PermissionBehaviour {
                 if (projectile.shooter is Player) return projectile.shooter as Player
             }
             return null
+        }
+
+        /**
+         * Gets the player that is triggering the PlayerHarvestBlock.
+         */
+        private fun getPlayerHarvestBlockPlayer(event: Event): Player? {
+            if (event !is PlayerHarvestBlockEvent) return null
+            return event.player
         }
     }
 }
