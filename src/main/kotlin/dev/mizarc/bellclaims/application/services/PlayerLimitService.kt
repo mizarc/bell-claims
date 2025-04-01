@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.api
+package dev.mizarc.bellclaims.application.services
 
 import org.bukkit.OfflinePlayer
 

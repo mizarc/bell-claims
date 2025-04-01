@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.api.enums
+package dev.mizarc.bellclaims.application.enums
 
 /**
  * Represents the result of moving a claim's position.

@@ -1,6 +1,6 @@
-package dev.mizarc.bellclaims.api
+package dev.mizarc.bellclaims.application.services
 
-import dev.mizarc.bellclaims.api.enums.FlagChangeResult
+import dev.mizarc.bellclaims.application.enums.FlagChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 

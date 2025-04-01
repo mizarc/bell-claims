@@ -5,7 +5,12 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
-import dev.mizarc.bellclaims.api.*
+import dev.mizarc.bellclaims.application.services.ClaimService
+import dev.mizarc.bellclaims.application.services.DefaultPermissionService
+import dev.mizarc.bellclaims.application.services.FlagService
+import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.PlayerPermissionService
+import dev.mizarc.bellclaims.application.services.PlayerStateService
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool

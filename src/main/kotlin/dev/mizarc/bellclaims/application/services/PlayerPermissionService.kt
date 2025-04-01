@@ -1,6 +1,6 @@
-package dev.mizarc.bellclaims.api
+package dev.mizarc.bellclaims.application.services
 
-import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.application.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import org.bukkit.OfflinePlayer

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.api.enums
+package dev.mizarc.bellclaims.application.enums
 
 /**
  * Represents the result of changing the default permissions of a claim.
