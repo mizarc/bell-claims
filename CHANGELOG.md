@@ -14,6 +14,25 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
 
+## [0.3.7]
+This is a version bump only release. Update to support MC version 1.21.3.
+
+### Fixed
+- Inability to use inventory GUIs with MC 1.21.3
+
+## [0.3.6]
+
+### Added
+- Protection against wind charges being used to push animals and villagers, protected by the husbandry permission.
+- Protection against wind charges being used to push armour stands. Requires the build permission.
+- Protection against witches affecting animals and villagers with splash potions. Bypassed by the mob griefing flag.
+
+### Changed
+- Splash potions are now completely negated if dispensed into a claim, with per entity checks only required when dispensed onto outer edge of claim.
+
+### Fixed
+- Dispense flag cancels splash potions entirely, rather than just ones thrown by a dispenser.
+
 ## [0.3.5]
 
 ### Added
