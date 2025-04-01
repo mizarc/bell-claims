@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.api.events
+package dev.mizarc.bellclaims.application.events
 
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import org.bukkit.event.Event

@@ -7,11 +7,10 @@ import org.bukkit.block.data.type.Bell
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
-import dev.mizarc.bellclaims.api.ClaimService
-import dev.mizarc.bellclaims.api.ClaimWorldService
-import dev.mizarc.bellclaims.api.PlayerStateService
+import dev.mizarc.bellclaims.application.services.ClaimService
+import dev.mizarc.bellclaims.application.services.ClaimWorldService
+import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.utils.getStringMeta
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block

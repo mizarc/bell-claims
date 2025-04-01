@@ -3,8 +3,8 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
-import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
+import dev.mizarc.bellclaims.application.enums.PartitionDestroyResult
+import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import org.bukkit.entity.Player
 
 @CommandAlias("claim")

@@ -2,9 +2,8 @@ package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
-import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import kotlin.math.ceil
 

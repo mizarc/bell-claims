@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.api.enums
+package dev.mizarc.bellclaims.application.enums
 
 /**
  * Represents the result of unregistering a player's state.

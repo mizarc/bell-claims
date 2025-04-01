@@ -1,17 +1,14 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import com.sun.org.apache.xpath.internal.operations.Bool
-import dev.mizarc.bellclaims.api.PartitionService
-import dev.mizarc.bellclaims.api.VisualisationService
+import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.domain.partitions.Position
 import dev.mizarc.bellclaims.domain.partitions.Position2D
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.utils.toward
 import dev.mizarc.bellclaims.utils.transparentMaterials
 import org.bukkit.Location
-import javax.swing.border.Border
 
 private const val upperRange = 5
 private const val lowerRange = 50

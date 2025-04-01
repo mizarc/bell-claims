@@ -1,14 +1,12 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.PlayerPermissionService
-import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.application.services.PlayerPermissionService
+import dev.mizarc.bellclaims.application.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import java.util.*
 
 class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepository): PlayerPermissionService {
     override fun doesPlayerHavePermission(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean {

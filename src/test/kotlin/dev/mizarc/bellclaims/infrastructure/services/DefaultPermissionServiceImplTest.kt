@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.api.enums.FlagChangeResult
+import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission

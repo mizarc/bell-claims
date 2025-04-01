@@ -1,13 +1,11 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.BellClaims
-import dev.mizarc.bellclaims.api.ClaimWorldService
-import dev.mizarc.bellclaims.api.PartitionService
-import dev.mizarc.bellclaims.api.PlayerLimitService
-import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.api.enums.ClaimCreationResult
-import dev.mizarc.bellclaims.api.enums.ClaimMoveResult
-import dev.mizarc.bellclaims.api.enums.PartitionCreationResult
+import dev.mizarc.bellclaims.application.services.ClaimWorldService
+import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.PlayerLimitService
+import dev.mizarc.bellclaims.application.enums.ClaimCreationResult
+import dev.mizarc.bellclaims.application.enums.ClaimMoveResult
+import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Area

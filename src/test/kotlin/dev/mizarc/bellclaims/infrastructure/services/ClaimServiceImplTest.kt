@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.ClaimService
+import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.claims.ClaimRepository
 import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository

@@ -1,12 +1,16 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import dev.mizarc.bellclaims.BellClaims
-import dev.mizarc.bellclaims.api.*
+import dev.mizarc.bellclaims.application.services.ClaimService
+import dev.mizarc.bellclaims.application.services.DefaultPermissionService
+import dev.mizarc.bellclaims.application.services.FlagService
+import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.PlayerPermissionService
+import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.flags.Flag
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
@@ -24,7 +28,8 @@ class ClaimInteractListener(private var plugin: BellClaims,
                             private val flagService: FlagService,
                             private val defaultPermissionService: DefaultPermissionService,
                             private val playerPermissionService: PlayerPermissionService,
-                            private val playerStateService: PlayerStateService) : Listener {
+                            private val playerStateService: PlayerStateService
+) : Listener {
     init {
         for (perm in ClaimPermission.entries) {
             for (e in perm.events) {
@@ -50,7 +55,8 @@ class ClaimInteractListener(private var plugin: BellClaims,
         if (claims.isEmpty()) return // Check if any claims are affected by the event
 
         var executor: ((event: Event, claimService: ClaimService,
-                        partitionService: PartitionService, flagService: FlagService) -> Boolean)?
+                        partitionService: PartitionService, flagService: FlagService
+        ) -> Boolean)?
         for (claim in claims) { // If they are, check if they do not allow this event
             for (rule in rules) {
                 if (!flagService.doesClaimHaveFlag(claim, rule)) {

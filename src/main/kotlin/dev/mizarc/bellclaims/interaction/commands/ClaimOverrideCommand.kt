@@ -5,10 +5,8 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
-import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.application.services.PlayerStateService
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 
 @CommandAlias("claimoverride")
 class ClaimOverrideCommand: BaseCommand() {
