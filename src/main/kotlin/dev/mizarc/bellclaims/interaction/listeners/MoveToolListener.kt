@@ -11,7 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import java.util.*
 

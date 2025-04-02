@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission

@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

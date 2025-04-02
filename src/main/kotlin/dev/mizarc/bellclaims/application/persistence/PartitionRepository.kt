@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.domain.partitions
+package dev.mizarc.bellclaims.application.persistence
 
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Partition

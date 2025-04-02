@@ -2,11 +2,12 @@ package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.domain.partitions.*
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
+import dev.mizarc.bellclaims.application.persistence.PartitionRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import io.mockk.*
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer

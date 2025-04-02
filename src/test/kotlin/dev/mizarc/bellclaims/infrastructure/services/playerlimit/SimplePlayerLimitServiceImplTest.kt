@@ -2,9 +2,10 @@ package dev.mizarc.bellclaims.infrastructure.services.playerlimit
 
 import dev.mizarc.bellclaims.application.services.PlayerLimitService
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.domain.partitions.*
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import io.mockk.every
 import io.mockk.mockk

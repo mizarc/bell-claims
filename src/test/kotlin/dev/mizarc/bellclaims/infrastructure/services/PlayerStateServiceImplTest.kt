@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.application.enums.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.enums.PlayerUnregisterResult
 import dev.mizarc.bellclaims.domain.players.PlayerState
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

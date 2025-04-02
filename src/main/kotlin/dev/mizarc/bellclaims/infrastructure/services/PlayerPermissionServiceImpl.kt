@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.application.services.PlayerPermissionService
 import dev.mizarc.bellclaims.application.enums.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

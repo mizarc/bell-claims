@@ -1,6 +1,7 @@
-package dev.mizarc.bellclaims.domain.players
+package dev.mizarc.bellclaims.application.persistence
 
-import java.util.*
+import dev.mizarc.bellclaims.domain.players.PlayerState
+import java.util.UUID
 
 /**
  * A repository that handles the persistence of player state.
