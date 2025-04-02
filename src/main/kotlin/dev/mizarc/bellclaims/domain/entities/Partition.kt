@@ -1,6 +1,9 @@
-package dev.mizarc.bellclaims.domain.partitions
+package dev.mizarc.bellclaims.domain.entities
 
 import dev.mizarc.bellclaims.domain.exceptions.IncompletePartitionBuilderException
+import dev.mizarc.bellclaims.domain.values.Area
+import dev.mizarc.bellclaims.domain.values.Position
+import dev.mizarc.bellclaims.domain.values.Position2D
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.absoluteValue
@@ -15,7 +18,9 @@ import kotlin.math.absoluteValue
  */
 data class Partition(var id: UUID, var claimId: UUID, var area: Area) {
     constructor(claimId: UUID, area: Area): this(UUID.randomUUID(), claimId, area)
-    constructor(builder: Builder): this(builder.id, builder.claimId, Area(builder.firstPosition2D, builder.secondPosition2D))
+    constructor(builder: Builder): this(builder.id, builder.claimId,
+        Area(builder.firstPosition2D, builder.secondPosition2D)
+    )
 
     /**
      * Checks whether the specified position is within the bounds of this claim.

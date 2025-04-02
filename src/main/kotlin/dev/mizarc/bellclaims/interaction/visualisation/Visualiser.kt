@@ -4,8 +4,8 @@ import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.PartitionService
 import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.application.services.VisualisationService
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.utils.carpetBlocks
 import org.bukkit.Chunk

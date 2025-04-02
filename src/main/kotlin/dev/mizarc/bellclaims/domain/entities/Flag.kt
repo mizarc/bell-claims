@@ -1,9 +1,8 @@
-package dev.mizarc.bellclaims.domain.flags
+package dev.mizarc.bellclaims.domain.entities
 
 import dev.mizarc.bellclaims.interaction.behaviours.RuleBehaviour
 import dev.mizarc.bellclaims.interaction.behaviours.RuleExecutor
 import org.bukkit.event.Event
-import org.junit.Rule
 
 /**
  * Represents the expected behaviour of certain events in claims that do not pertain to players.
@@ -15,82 +14,82 @@ enum class Flag(val rules: Array<RuleExecutor>) {
      * When a block is lit on fire.
      */
     FireSpread(arrayOf(
-        RuleBehaviour.fireSpread,
-        RuleBehaviour.fireBurn
+        RuleBehaviour.Companion.fireSpread,
+        RuleBehaviour.Companion.fireBurn
     )),
 
     /**
      * When a mob destroys or otherwise changes blocks.
      */
     MobGriefing(arrayOf(
-        RuleBehaviour.mobBlockChange,
-        RuleBehaviour.mobBreakDoor,
-        RuleBehaviour.mobHangingDamage,
-        RuleBehaviour.mobDamageStaticEntity,
-        RuleBehaviour.creeperExplode,
-        RuleBehaviour.creeperDamageStaticEntity,
-        RuleBehaviour.creeperDamageHangingEntity,
-        RuleBehaviour.potBreak,
-        RuleBehaviour.mobSplashPotion
+        RuleBehaviour.Companion.mobBlockChange,
+        RuleBehaviour.Companion.mobBreakDoor,
+        RuleBehaviour.Companion.mobHangingDamage,
+        RuleBehaviour.Companion.mobDamageStaticEntity,
+        RuleBehaviour.Companion.creeperExplode,
+        RuleBehaviour.Companion.creeperDamageStaticEntity,
+        RuleBehaviour.Companion.creeperDamageHangingEntity,
+        RuleBehaviour.Companion.potBreak,
+        RuleBehaviour.Companion.mobSplashPotion
     )),
 
     /**
      * When TNT or other entities explode.
      */
     Explosions(arrayOf(
-        RuleBehaviour.entityExplode,
-        RuleBehaviour.blockExplode,
-        RuleBehaviour.entityExplodeDamage,
-        RuleBehaviour.blockExplodeDamage,
-        RuleBehaviour.entityExplodeHangingDamage,
-        RuleBehaviour.blockExplodeHangingDamage
+        RuleBehaviour.Companion.entityExplode,
+        RuleBehaviour.Companion.blockExplode,
+        RuleBehaviour.Companion.entityExplodeDamage,
+        RuleBehaviour.Companion.blockExplodeDamage,
+        RuleBehaviour.Companion.entityExplodeHangingDamage,
+        RuleBehaviour.Companion.blockExplodeHangingDamage
     )),
 
     /**
      * When a piston extends or retracts and causes other blocks to move.
      */
     Pistons(arrayOf(
-        RuleBehaviour.pistonExtend,
-        RuleBehaviour.pistonRetract
+        RuleBehaviour.Companion.pistonExtend,
+        RuleBehaviour.Companion.pistonRetract
     )),
 
     /**
      * When fluids flow into a claim
      */
     Fluids(arrayOf(
-        RuleBehaviour.fluidFlow,
-        RuleBehaviour.fluidBlockForm
+        RuleBehaviour.Companion.fluidFlow,
+        RuleBehaviour.Companion.fluidBlockForm
     )),
 
     Trees(arrayOf(
-        RuleBehaviour.treeGrowth
+        RuleBehaviour.Companion.treeGrowth
     )),
 
     Sculk(arrayOf(
-        RuleBehaviour.sculkSpread
+        RuleBehaviour.Companion.sculkSpread
     )),
 
     Dispensers(arrayOf(
-        RuleBehaviour.dispense,
-        RuleBehaviour.dispensedSplashPotion,
-        RuleBehaviour.dispensedLingeringPotionSplash,
-        RuleBehaviour.dispensedLingeringPotionEffect
+        RuleBehaviour.Companion.dispense,
+        RuleBehaviour.Companion.dispensedSplashPotion,
+        RuleBehaviour.Companion.dispensedLingeringPotionSplash,
+        RuleBehaviour.Companion.dispensedLingeringPotionEffect
     )),
 
     Sponge(arrayOf(
-        RuleBehaviour.spongeAbsorb
+        RuleBehaviour.Companion.spongeAbsorb
     )),
 
     Lightning(arrayOf(
-        RuleBehaviour.lightningDamage
+        RuleBehaviour.Companion.lightningDamage
     )),
 
     FallingBlock(arrayOf(
-        RuleBehaviour.blockFall
+        RuleBehaviour.Companion.blockFall
     )),
 
     AnimalVehicle(arrayOf(
-        RuleBehaviour.animalEnterVehicle
+        RuleBehaviour.Companion.animalEnterVehicle
     ));
 
     companion object {

@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.*
 import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 
 @CommandAlias("claim")
 class UntrustAllCommand : ClaimCommand() {

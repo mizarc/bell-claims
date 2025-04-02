@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.domain.partitions
+package dev.mizarc.bellclaims.domain.values
 
 import kotlin.math.absoluteValue
 

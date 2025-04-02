@@ -1,9 +1,9 @@
 package dev.mizarc.bellclaims.utils
 
-import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.entities.Claim
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 import org.bukkit.entity.Item
 
 /**

@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.persistence
 
-import dev.mizarc.bellclaims.domain.players.PlayerState
+import dev.mizarc.bellclaims.domain.entities.PlayerState
 import java.util.UUID
 
 /**

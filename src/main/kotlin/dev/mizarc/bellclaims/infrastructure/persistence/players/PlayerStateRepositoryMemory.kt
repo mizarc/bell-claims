@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.players
 
-import dev.mizarc.bellclaims.domain.players.PlayerState
+import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import java.util.*
 

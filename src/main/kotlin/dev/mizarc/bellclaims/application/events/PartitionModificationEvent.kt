@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.events
 
-import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.entities.Partition
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 

@@ -11,7 +11,7 @@ import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.PartitionService
 import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name

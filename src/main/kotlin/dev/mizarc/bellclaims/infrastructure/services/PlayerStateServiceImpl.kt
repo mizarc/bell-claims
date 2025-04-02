@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.application.enums.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.enums.PlayerUnregisterResult
-import dev.mizarc.bellclaims.domain.players.PlayerState
+import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player

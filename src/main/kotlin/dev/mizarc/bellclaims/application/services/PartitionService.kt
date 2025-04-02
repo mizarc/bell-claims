@@ -3,9 +3,9 @@ package dev.mizarc.bellclaims.application.services
 import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.application.enums.PartitionDestroyResult
 import dev.mizarc.bellclaims.application.enums.PartitionResizeResult
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Area
-import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Area
+import dev.mizarc.bellclaims.domain.entities.Partition
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.World

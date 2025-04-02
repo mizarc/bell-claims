@@ -2,8 +2,9 @@ package dev.mizarc.bellclaims.infrastructure.persistence.partitions
 
 import co.aikar.idb.Database
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.*
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
 import java.sql.SQLException
 import java.util.*
@@ -148,8 +149,10 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
                     Position2D(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
                     Position2D(result.getInt("upperPositionX"), result.getInt("upperPositionZ"))
                 )
-                val partition = Partition(UUID.fromString(result.getString("id")),
-                    UUID.fromString(result.getString("claimId")), area)
+                val partition = Partition(
+                    UUID.fromString(result.getString("id")),
+                    UUID.fromString(result.getString("claimId")), area
+                )
                 partitions[partition.id] = partition
 
                 for (chunk in area.getChunks()) {
