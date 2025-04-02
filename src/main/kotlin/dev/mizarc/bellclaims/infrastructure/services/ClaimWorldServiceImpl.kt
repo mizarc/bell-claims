@@ -5,11 +5,11 @@ import dev.mizarc.bellclaims.application.services.PartitionService
 import dev.mizarc.bellclaims.application.services.PlayerLimitService
 import dev.mizarc.bellclaims.application.enums.ClaimCreationResult
 import dev.mizarc.bellclaims.application.enums.ClaimMoveResult
-import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.domain.partitions.Area
-import dev.mizarc.bellclaims.domain.partitions.Position2D
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.values.Area
+import dev.mizarc.bellclaims.domain.values.Position2D
+import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import org.bukkit.Location
 import org.bukkit.Material

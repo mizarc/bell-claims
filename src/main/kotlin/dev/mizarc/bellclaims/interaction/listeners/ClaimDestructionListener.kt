@@ -10,7 +10,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.ClaimWorldService
 import dev.mizarc.bellclaims.application.services.PlayerStateService
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.values.Position3D
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block

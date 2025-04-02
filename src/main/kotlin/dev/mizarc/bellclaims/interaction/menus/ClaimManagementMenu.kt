@@ -20,10 +20,11 @@ import dev.mizarc.bellclaims.application.services.PlayerLimitService
 import dev.mizarc.bellclaims.application.services.PlayerPermissionService
 import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.domain.claims.*
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.Flag
 import dev.mizarc.bellclaims.interaction.menus.ConfirmationMenu.Companion.openConfirmationMenu
 import dev.mizarc.bellclaims.utils.*
 import org.bukkit.event.inventory.ClickType

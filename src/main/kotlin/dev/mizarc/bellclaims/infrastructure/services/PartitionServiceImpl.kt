@@ -8,8 +8,9 @@ import dev.mizarc.bellclaims.application.enums.PartitionDestroyResult
 import dev.mizarc.bellclaims.application.enums.PartitionResizeResult
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import org.bukkit.Location
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.*
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import org.bukkit.Chunk
 import org.bukkit.World

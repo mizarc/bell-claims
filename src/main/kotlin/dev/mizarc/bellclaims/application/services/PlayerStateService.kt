@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.application.services
 
 import dev.mizarc.bellclaims.application.enums.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.enums.PlayerUnregisterResult
-import dev.mizarc.bellclaims.domain.players.PlayerState
+import dev.mizarc.bellclaims.domain.entities.PlayerState
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import java.util.UUID

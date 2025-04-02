@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.application.services
 
 import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 
 /**
  * A service that handles the modification of default permissions for a claim, allowing access for all players.

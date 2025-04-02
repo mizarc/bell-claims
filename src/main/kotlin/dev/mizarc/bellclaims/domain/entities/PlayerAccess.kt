@@ -1,5 +1,6 @@
-package dev.mizarc.bellclaims.domain.permissions
+package dev.mizarc.bellclaims.domain.entities
 
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 import java.util.*
 
 /**

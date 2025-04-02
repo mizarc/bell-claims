@@ -13,10 +13,10 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.FlagService
 import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.flags.Flag
-import dev.mizarc.bellclaims.domain.partitions.Position2D
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Flag
+import dev.mizarc.bellclaims.domain.values.Position2D
+import dev.mizarc.bellclaims.domain.values.Position3D
 import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional

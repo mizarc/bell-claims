@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.application.persistence
 
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.domain.partitions.Position
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.Position
 import java.util.*
 
 /**

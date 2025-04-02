@@ -1,10 +1,10 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
-import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 

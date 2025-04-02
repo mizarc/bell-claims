@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.enums.FlagChangeResult
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.entities.Flag
 
 @CommandAlias("claim")
 class AddFlagCommand : ClaimCommand() {

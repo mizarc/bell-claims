@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.domain.partitions
+package dev.mizarc.bellclaims.domain.values
 
 /**
  * Stores two integers to define a flat position in the world.

@@ -14,7 +14,7 @@ import dev.mizarc.bellclaims.application.services.PlayerStateService
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
-import dev.mizarc.bellclaims.domain.partitions.Partition
+import dev.mizarc.bellclaims.domain.entities.Partition
 
 import dev.mizarc.bellclaims.utils.getLangText
 

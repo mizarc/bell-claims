@@ -1,13 +1,14 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.partitions.*
+import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.domain.entities.Partition
 import io.mockk.*
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -59,7 +60,8 @@ class ClaimServiceImplTest {
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))),
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -5), Position2D(7, 8))),
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(-5, -6), Position2D(1, -1))),
-            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5))))
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5)))
+        )
     }
 
     @Test

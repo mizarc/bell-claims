@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.application.persistence
 
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.ClaimPermission
 import org.bukkit.OfflinePlayer
 import java.util.*
 

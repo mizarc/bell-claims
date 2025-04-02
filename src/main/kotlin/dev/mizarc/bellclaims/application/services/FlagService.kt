@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.application.services
 
 import dev.mizarc.bellclaims.application.enums.FlagChangeResult
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.flags.Flag
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Flag
 
 /**
  * A service that handles the modification of flags for a claim, which handles game protection behaviour.

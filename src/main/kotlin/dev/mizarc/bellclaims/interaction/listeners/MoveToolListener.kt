@@ -12,7 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.domain.values.Position3D
 import java.util.*
 
 class MoveToolListener(private val claimRepo: ClaimRepository,

@@ -1,14 +1,14 @@
-package dev.mizarc.bellclaims.domain.claims
+package dev.mizarc.bellclaims.domain.entities
 
+import dev.mizarc.bellclaims.domain.values.Position3D
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.World
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.domain.partitions.Position3D
-import org.bukkit.Location
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.concurrent.thread
 
 /**
@@ -26,7 +26,8 @@ import kotlin.concurrent.thread
  * @property icon The material the claim is using as an icon.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
-            var name: String, var description: String, var position: Position3D, var icon: Material) {
+            var name: String, var description: String, var position: Position3D, var icon: Material
+) {
     var breakCount = 3
 
     private val defaultBreakCount = 3
@@ -34,7 +35,7 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
 
     // Key: UUID of player which transfer request is sent to
     // Value: expiry time of the transfer request (Default request timestamp + 5 minutes)
-    var transferRequests: HashMap<UUID, Int> = HashMap()
+    var transferRequests: java.util.HashMap<UUID, Int> = HashMap()
 
     /**
      * Compiles a new claim based on the minimum details required.

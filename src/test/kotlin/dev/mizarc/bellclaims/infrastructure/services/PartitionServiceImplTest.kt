@@ -7,8 +7,9 @@ import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.application.enums.PartitionDestroyResult
 import dev.mizarc.bellclaims.application.enums.PartitionResizeResult
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.*
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import io.mockk.*
 import org.bukkit.Chunk
@@ -64,13 +65,15 @@ class PartitionServiceImplTest {
         claimOne = Claim(world.uid, playerOne, Position3D(15,85,10), "Test")
         partitionCollectionOne = listOf(
             Partition(UUID.randomUUID(), claimOne.id, Area(Position2D(8, 5), Position2D(19, 16))),
-            Partition(UUID.randomUUID(), claimOne.id, Area(Position2D(16, 17), Position2D(25, 24))))
+            Partition(UUID.randomUUID(), claimOne.id, Area(Position2D(16, 17), Position2D(25, 24)))
+        )
 
         claimTwo = Claim(world.uid, playerTwo, Position3D(21,74,30), "Test1")
         partitionCollectionTwo = listOf(
             Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(17, 29), Position2D(23, 39))),
             Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(11, 37), Position2D(16, 43))),
-            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(15, 44), Position2D(25, 53))))
+            Partition(UUID.randomUUID(), claimTwo.id, Area(Position2D(15, 44), Position2D(25, 53)))
+        )
     }
 
     @Test

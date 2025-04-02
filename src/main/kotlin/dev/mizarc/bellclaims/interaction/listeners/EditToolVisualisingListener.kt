@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.services.PlayerStateService
-import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.domain.players.PlayerState
+import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
