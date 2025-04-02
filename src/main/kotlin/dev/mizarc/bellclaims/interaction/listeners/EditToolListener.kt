@@ -17,7 +17,7 @@ import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.application.enums.PartitionResizeResult
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.partitions.Position2D

@@ -7,7 +7,7 @@ import dev.mizarc.bellclaims.application.enums.ClaimCreationResult
 import dev.mizarc.bellclaims.application.enums.ClaimMoveResult
 import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
 import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.partitions.Area
 import dev.mizarc.bellclaims.domain.partitions.Partition
 import dev.mizarc.bellclaims.domain.partitions.Position2D

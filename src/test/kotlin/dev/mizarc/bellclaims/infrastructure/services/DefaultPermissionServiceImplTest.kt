@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.claims.Claim
 import dev.mizarc.bellclaims.domain.partitions.Position3D
 import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import io.mockk.*
 import org.bukkit.OfflinePlayer
 import org.junit.jupiter.api.Test

@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.Bukkit
 import org.bukkit.Material
