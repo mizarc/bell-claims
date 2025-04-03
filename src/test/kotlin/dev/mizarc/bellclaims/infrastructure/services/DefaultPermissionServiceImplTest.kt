@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import io.mockk.*
 import org.bukkit.OfflinePlayer

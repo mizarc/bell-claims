@@ -2,9 +2,7 @@ package dev.mizarc.bellclaims.utils
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.domain.entities.Flag
-
-import dev.mizarc.bellclaims.utils.getLangText
+import dev.mizarc.bellclaims.domain.values.Flag
 
 /**
  * Associates claim flags with a specific in-game item.

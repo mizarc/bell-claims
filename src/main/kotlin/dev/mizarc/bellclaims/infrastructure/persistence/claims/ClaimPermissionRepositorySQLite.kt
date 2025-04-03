@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import java.sql.SQLException
 import java.util.*

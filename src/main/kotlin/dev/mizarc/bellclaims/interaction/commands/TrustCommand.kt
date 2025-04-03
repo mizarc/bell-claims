@@ -5,7 +5,7 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import dev.mizarc.bellclaims.application.enums.PlayerPermissionChangeResult
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 
 @CommandAlias("claim")
 class TrustCommand : ClaimCommand() {

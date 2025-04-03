@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.domain.entities
+package dev.mizarc.bellclaims.domain.values
 
 import dev.mizarc.bellclaims.interaction.behaviours.PermissionBehaviour
 import dev.mizarc.bellclaims.interaction.behaviours.PermissionExecutor

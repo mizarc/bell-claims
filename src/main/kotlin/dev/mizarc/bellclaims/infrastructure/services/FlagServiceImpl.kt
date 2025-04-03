@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.services.FlagService
 import dev.mizarc.bellclaims.application.enums.FlagChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.entities.Flag
+import dev.mizarc.bellclaims.domain.values.Flag
 
 class FlagServiceImpl(private val flagRepo: ClaimFlagRepository): FlagService {
     override fun doesClaimHaveFlag(claim: Claim, flag: Flag): Boolean {
