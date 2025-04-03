@@ -1,10 +1,8 @@
 package dev.mizarc.bellclaims.utils
 
-import dev.mizarc.bellclaims.domain.entities.Claim
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
-import org.bukkit.entity.Item
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 
 /**
  * Associates claim permissions with a specific in-game item.

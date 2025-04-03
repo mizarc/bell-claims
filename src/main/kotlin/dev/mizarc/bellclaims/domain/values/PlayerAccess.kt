@@ -1,7 +1,6 @@
-package dev.mizarc.bellclaims.domain.entities
+package dev.mizarc.bellclaims.domain.values
 
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
-import java.util.*
+import java.util.UUID
 
 /**
  * Maps claims to players to permissions. Each claim can contain multiple players which can each contain multiple

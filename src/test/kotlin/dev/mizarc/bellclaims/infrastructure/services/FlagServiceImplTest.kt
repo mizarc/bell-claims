@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.services.FlagService
 import dev.mizarc.bellclaims.application.enums.FlagChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.entities.Flag
+import dev.mizarc.bellclaims.domain.values.Flag
 import dev.mizarc.bellclaims.domain.values.Position3D
 import io.mockk.every
 import io.mockk.mockk

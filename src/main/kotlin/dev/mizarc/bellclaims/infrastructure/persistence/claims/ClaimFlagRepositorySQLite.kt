@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.infrastructure.persistence.claims
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
-import dev.mizarc.bellclaims.domain.entities.Flag
+import dev.mizarc.bellclaims.domain.values.Flag
 import java.sql.SQLException
 import java.util.*
 

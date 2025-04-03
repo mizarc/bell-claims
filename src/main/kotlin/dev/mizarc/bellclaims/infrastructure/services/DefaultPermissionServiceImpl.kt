@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.application.services.DefaultPermissionService
 import dev.mizarc.bellclaims.application.enums.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 
 class DefaultPermissionServiceImpl(private val permissionRepo: ClaimPermissionRepository): DefaultPermissionService {
 

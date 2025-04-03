@@ -12,8 +12,8 @@ import dev.mizarc.bellclaims.application.services.PartitionService
 import dev.mizarc.bellclaims.application.services.PlayerPermissionService
 import dev.mizarc.bellclaims.application.services.PlayerStateService
 import dev.mizarc.bellclaims.domain.entities.Claim
-import dev.mizarc.bellclaims.domain.entities.Flag
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.Flag
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 

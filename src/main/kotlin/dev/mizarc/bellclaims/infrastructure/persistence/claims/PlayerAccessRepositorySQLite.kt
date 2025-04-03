@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
-import dev.mizarc.bellclaims.domain.entities.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import java.sql.SQLException
 import java.util.*
 
