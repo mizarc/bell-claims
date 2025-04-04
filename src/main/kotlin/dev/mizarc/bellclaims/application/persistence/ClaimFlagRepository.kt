@@ -8,6 +8,14 @@ import java.util.UUID
  */
 interface ClaimFlagRepository {
     /**
+     * Checks if claim has an associated flag.
+     *
+     * @param claimId The id of the claim to query.
+     * @return True if claim has a flag, false if not.
+     */
+    fun doesClaimHaveFlag(claimId: UUID, flag: Flag): Boolean
+
+    /**
      * Gets all flags linked to a given claim.
      *
      * @param claimId The id of the claim to query.
@@ -20,21 +28,24 @@ interface ClaimFlagRepository {
      *
      * @param claimId The id of the clam to add the flag to.
      * @param flag The flag to add.
+     * @return True if successful, false if duplicate
      */
-    fun add(claimId: UUID, flag: Flag)
+    fun add(claimId: UUID, flag: Flag): Boolean
 
     /**
      * Removes an existing flag from a given claim.
      *
      * @param claimId The id of the  claim to remove the flag from.
      * @param flag The flag to remove.
+     * @return True if successful, false if entry doesn't exist.
      */
-    fun remove(claimId: UUID, flag: Flag)
+    fun remove(claimId: UUID, flag: Flag): Boolean
 
     /**
      * Removes all flags attached to a given claim.
      *
      * @param claimId The id of the claim to remove the flags from.
+     * @return True if successful, false if no entries exist.
      */
-    fun removeByClaim(claimId: UUID)
+    fun removeByClaim(claimId: UUID): Boolean
 }
