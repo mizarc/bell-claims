@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
-import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
@@ -15,56 +15,57 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
         preload()
     }
 
-    override fun doesClaimHavePermission(claim: Claim, permission: ClaimPermission): Boolean {
-        return permissions[claim.id]?.contains(permission) ?: false
+    override fun doesClaimHavePermission(claimId: UUID, permission: ClaimPermission): Boolean {
+        return permissions[claimId]?.contains(permission) == true
     }
 
-    override fun getByClaim(claim: Claim): Set<ClaimPermission> {
-        return permissions[claim.id]?.toSet() ?: setOf()
+    override fun getByClaim(claimId: UUID): Set<ClaimPermission> {
+        return permissions[claimId]?.toSet() ?: setOf()
     }
 
-    override fun add(claim: Claim, permission: ClaimPermission) {
-        permissions.getOrPut(claim.id) { mutableSetOf() }.add(permission)
+    override fun add(claimId: UUID, permission: ClaimPermission): Boolean {
+        // Add to cache
+        permissions.getOrPut(claimId) { mutableSetOf() }.add(permission)
+
+        // Add to database
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
-                    "VALUES (?,?)", claim.id, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
+                    "VALUES (?,?)", claimId, permission.name)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to add permission '$permission' for claimId '$claimId' to the " +
+                    "database. Cause: ${error.message}", error)
         }
     }
 
-    override fun remove(claim: Claim, permission: ClaimPermission) {
-        val claimPermissions = permissions[claim.id] ?: return
+    override fun remove(claimId: UUID, permission: ClaimPermission): Boolean {
+        // Remove from cache
+        val claimPermissions = permissions[claimId] ?: return false
         claimPermissions.remove(permission)
-        if (claimPermissions.isEmpty()) {
-            permissions.remove(claim.id)
-        }
+        if (claimPermissions.isEmpty()) permissions.remove(claimId)
 
+        // Remove from database
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND permission=?",
-                claim.id, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND " +
+                    "permission=?", claimId, permission.name)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
-        }
-    }
-
-    override fun removeByClaim(claim: Claim) {
-        permissions.remove(claim.id)
-
-        try {
-            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claim.id)
-        } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove permission '$permission' for claimId '$claimId' from " +
+                    "the database. Cause: ${error.message}", error)
         }
     }
 
-    fun removeClaim(claim: Claim) {
-        permissions.remove(claim.id)
+    override fun removeByClaim(claimId: UUID): Boolean {
+        // Remove from cache
+        permissions.remove(claimId)
 
+        // Remove from database
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claim.id)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claimId)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove all permissions for claim $claimId from the database. " +
+                    "Cause: ${error.message}", error)
         }
     }
 
@@ -74,7 +75,7 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
     private fun createTable() {
         try {
             storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT, " +
-                    "permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+                    "permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id), UNIQUE (claimId, permission))")
         } catch (error: SQLException) {
             error.printStackTrace()
         }

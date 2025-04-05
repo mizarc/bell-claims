@@ -23,7 +23,7 @@ class AddFlagCommand : ClaimCommand(), KoinComponent {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) return
 
-        // Add flag to the claim
+        // Add flag to the claim and notify player of result
         when (addFlagToClaim.execute(flag, partition.claimId)) {
             AddFlagToClaimResult.Success -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
