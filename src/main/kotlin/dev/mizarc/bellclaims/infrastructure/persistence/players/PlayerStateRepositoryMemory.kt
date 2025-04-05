@@ -18,11 +18,15 @@ class PlayerStateRepositoryMemory: PlayerStateRepository {
         return playerStates[id]
     }
 
-    override fun add(playerState: PlayerState) {
-        playerStates[playerState.player.uniqueId] = playerState
+    override fun add(playerState: PlayerState): Boolean {
+        return playerStates.putIfAbsent(playerState.player.uniqueId, playerState) == null
     }
 
-    override fun remove(playerState: PlayerState){
-        playerStates.remove(playerState.player.uniqueId)
+    override fun update(playerState: PlayerState): Boolean {
+        return playerStates.replace(playerState.player.uniqueId, playerState) != null
+    }
+
+    override fun remove(playerState: PlayerState): Boolean {
+        return playerStates.remove(playerState.player.uniqueId) != null
     }
 }

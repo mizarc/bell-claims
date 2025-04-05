@@ -29,6 +29,12 @@ interface PlayerStateRepository {
     fun add(playerState: PlayerState): Boolean
 
     /**
+     * Updates an existing player state.
+     *
+     */
+    fun update(playerState: PlayerState): Boolean
+
+    /**
      * Removes an existing player state.
      *
      * @param playerState The player state to remove.
