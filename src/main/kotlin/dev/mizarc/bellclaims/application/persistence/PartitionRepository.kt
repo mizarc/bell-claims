@@ -27,10 +27,10 @@ interface PartitionRepository {
     /**
      * Gets all partitions that are linked to a given claim.
      *
-     * @param claim The claim that owns the partitions.
+     * @param claimId The id of the claim that owns the partitions.
      * @return The set of partitions linked to this claim.
      */
-    fun getByClaim(claim: Claim): Set<Partition>
+    fun getByClaim(claimId: UUID): Set<Partition>
 
     /**
      * Gets the partitions that exist within a given position.
@@ -71,7 +71,7 @@ interface PartitionRepository {
     /**
      * Removes all partitions linked to a given claim.
      *
-     * @param claim The claim to remove the partitions from.
+     * @param claimId The id of the claim to remove the partitions from.
      */
-    fun removeByClaim(claim: Claim): Boolean
+    fun removeByClaim(claimId: UUID): Boolean
 }
