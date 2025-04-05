@@ -27,10 +27,10 @@ interface ClaimRepository {
     /**
      * Gets all claims that a player owns.
      *
-     * @param player The player to retrieve claims for.
+     * @param playerId The id of the player to retrieve claims for.
      * @return A set of claims owned by the player.
      */
-    fun getByPlayer(player: OfflinePlayer): Set<Claim>
+    fun getByPlayer(playerId: UUID): Set<Claim>
 
     /**
      * Retrieves a claim by the position in the world.
