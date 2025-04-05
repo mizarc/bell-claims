@@ -46,19 +46,19 @@ interface ClaimRepository {
      *
      * @param claim The claim to add.
      */
-    fun add(claim: Claim)
+    fun add(claim: Claim): Boolean
 
     /**
      * Updates the data of an existing claim.
      *
      * @param claim The claim to update.
      */
-    fun update(claim: Claim)
+    fun update(claim: Claim): Boolean
 
     /**
      * Removes an existing claim.
      *
      * @param claim The claim to remove.
      */
-    fun remove(claim: Claim)
+    fun remove(claim: Claim): Boolean
 }
