@@ -7,16 +7,18 @@ import java.util.UUID
 
 class ToggleClaimOverride(private val playerStateRepository: PlayerStateRepository) {
     fun execute(playerId: UUID): ToggleClaimOverrideResult {
+        // Check if player state exists
         val playerState = playerStateRepository.get(playerId) ?: return ToggleClaimOverrideResult.PlayerNotFound
+
+        // Toggle override and persist to storage
         val newOverrideValue = !playerState.claimOverride
         playerState.claimOverride = newOverrideValue
-
-        return try {
+        try {
             playerStateRepository.update(playerState)
-            ToggleClaimOverrideResult.Success(newOverrideValue)
+            return ToggleClaimOverrideResult.Success(newOverrideValue)
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
-            ToggleClaimOverrideResult.StorageError
+            return ToggleClaimOverrideResult.StorageError
         }
     }
 }
