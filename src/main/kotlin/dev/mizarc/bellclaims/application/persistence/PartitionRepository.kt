@@ -52,26 +52,26 @@ interface PartitionRepository {
      *
      * @param partition The partition to add.
      */
-    fun add(partition: Partition)
+    fun add(partition: Partition): Boolean
 
     /**
      * Updates the data of an existing partition
      *
      * @param partition The partition to update.
      */
-    fun update(partition: Partition)
+    fun update(partition: Partition): Boolean
 
     /**
      * Removes an existing partition.
      *
      * @param partition The partition to remove.
      */
-    fun remove(partition: Partition)
+    fun remove(partition: Partition): Boolean
 
     /**
      * Removes all partitions linked to a given claim.
      *
      * @param claim The claim to remove the partitions from.
      */
-    fun removeByClaim(claim: Claim)
+    fun removeByClaim(claim: Claim): Boolean
 }

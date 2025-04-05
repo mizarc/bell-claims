@@ -34,7 +34,7 @@ interface PlayerAccessRepository {
      * @param player The player to give the permission to.
      * @param permission The permission to add.
      */
-    fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission)
+    fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean
 
     /**
      * Removes a permission from a given player in a claim.
@@ -43,7 +43,7 @@ interface PlayerAccessRepository {
      * @param player The player to remove the permission from.
      * @param permission The permission to remove.
      */
-    fun remove(claim: Claim, player: OfflinePlayer, permission: ClaimPermission)
+    fun remove(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean
 
     /**
      * Removes all permission from a given player in a claim.
@@ -51,12 +51,12 @@ interface PlayerAccessRepository {
      * @param claim The target claim.
      * @param player The player to remove permissions from.
      */
-    fun removeByPlayer(claim: Claim, player: OfflinePlayer)
+    fun removeByPlayer(claim: Claim, player: OfflinePlayer): Boolean
 
     /**
      * Removes all player permissions from a given claim.
      *
      * @param claim The claim to remove permissions from.
      */
-    fun removeByClaim(claim: Claim)
+    fun removeByClaim(claim: Claim): Boolean
 }

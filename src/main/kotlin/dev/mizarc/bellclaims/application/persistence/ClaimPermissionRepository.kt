@@ -30,7 +30,7 @@ interface ClaimPermissionRepository {
      * @param claim The claim to add to.
      * @param permission The permission to add.
      */
-    fun add(claim: Claim, permission: ClaimPermission)
+    fun add(claim: Claim, permission: ClaimPermission): Boolean
 
     /**
      * Removes an existing permission from a claim.
@@ -38,12 +38,12 @@ interface ClaimPermissionRepository {
      * @param claim The claim to remove from.
      * @param permission The permission to remove.
      */
-    fun remove(claim: Claim, permission: ClaimPermission)
+    fun remove(claim: Claim, permission: ClaimPermission): Boolean
 
     /**
      * Removes all permissions linked to a claim.
      *
      * @param claim The claim to remove from.
      */
-    fun removeByClaim(claim: Claim)
+    fun removeByClaim(claim: Claim): Boolean
 }
