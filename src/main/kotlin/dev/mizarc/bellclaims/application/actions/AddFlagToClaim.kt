@@ -27,14 +27,14 @@ class AddFlagToClaim(private val flagRepository: ClaimFlagRepository, private va
         claimRepository.getById(claimId) ?: return AddFlagToClaimResult.ClaimNotFound
 
         // Add the flag to the claim
-        return try {
-            when (flagRepository.add(claimId, flag)) {
+        try {
+            return when (flagRepository.add(claimId, flag)) {
                 true -> AddFlagToClaimResult.Success
                 false -> AddFlagToClaimResult.AlreadyExists
             }
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
-            AddFlagToClaimResult.StorageError
+            return AddFlagToClaimResult.StorageError
         }
     }
 }
