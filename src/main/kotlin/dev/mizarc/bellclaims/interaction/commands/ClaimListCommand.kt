@@ -2,49 +2,58 @@ package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
+import dev.mizarc.bellclaims.application.actions.AddFlagToClaim
+import dev.mizarc.bellclaims.application.actions.GetClaimBlockCount
+import dev.mizarc.bellclaims.application.actions.ListPlayerClaims
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
 import kotlin.math.ceil
 
 @CommandAlias("claimlist")
-class ClaimListCommand : BaseCommand() {
-    @Dependency
-    private lateinit var claimService: ClaimService
+class ClaimListCommand : BaseCommand(), KoinComponent {
+    private val listPlayerClaims: ListPlayerClaims by inject()
+    private val getClaimBlockCount: GetClaimBlockCount by inject()
 
     @Default
     @CommandPermission("bellclaims.command.claimlist")
     @CommandCompletion("@nothing @players")
     @Syntax("[count] [player]")
     fun onClaimList(player: Player, @Default("1") page: Int) {
-        val playerClaims = claimService.getByPlayer(player).toList()
+        // Retrieve the list of claims associated with the player
+        val playerClaims = listPlayerClaims.execute(player.uniqueId)
 
-        // Check if player has claims
+        // Notify if player doesn't have any claims
         if (playerClaims.isEmpty()) {
             player.sendMessage("§cYou have no claims. Interact with a bell to get started.")
             return
         }
 
-        // Check if page is empty
+        // Notify if player specifies an invalid page
         if (page * 10 - 9 > playerClaims.count() || page < 1) {
             player.sendMessage("§cInvalid page specified.")
             return
         }
 
-        // Output list of trusted players
+        // Create page listing claims and their block counts
         val chatInfo = ChatInfoBuilder("Claims")
-        for (i in 0..9 + page) {
-            if (i > playerClaims.count() - 1) {
-                break
-            }
-
-            val name: String = playerClaims[i].name.ifEmpty { playerClaims[i].id.toString().substring(0, 7) }
-            val blockCount = claimService.getBlockCount(playerClaims[i])
-            chatInfo.addLinked(name,
-                "<${playerClaims[i].position.x}, ${playerClaims[i].position.y}, ${playerClaims[i].position.z} " +
-                        "(${blockCount} Blocks)")
+        val totalClaims = playerClaims.size
+        val startIndex = page * 10
+        val endIndex = minOf(startIndex + 10, totalClaims)
+        playerClaims.subList(startIndex, endIndex).forEach { claim ->
+            val name = claim.name.ifEmpty { claim.id.toString().take(7) }
+            val blockCount = getClaimBlockCount.execute(claim.id)
+            chatInfo.addLinked(
+                name,
+                "<${claim.position.x}, ${claim.position.y}, ${claim.position.z} (${blockCount} Blocks)>"
+            )
         }
-        player.sendMessage(chatInfo.createPaged(page,
-            ceil((playerClaims.count() / 10.0)).toInt()))
+
+        // Send the page of claims to player
+        val totalPages = ceil(totalClaims / 10.0).toInt()
+        player.sendMessage(chatInfo.createPaged(page, totalPages))
     }
 }
