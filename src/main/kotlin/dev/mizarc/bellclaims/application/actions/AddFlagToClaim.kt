@@ -33,7 +33,7 @@ class AddFlagToClaim(private val flagRepository: ClaimFlagRepository, private va
                 false -> AddFlagToClaimResult.AlreadyExists
             }
         } catch (error: DatabaseOperationException) {
-            print("Error has occurred trying to save to the database")
+            println("Error has occurred trying to save to the database")
             AddFlagToClaimResult.StorageError
         }
     }
