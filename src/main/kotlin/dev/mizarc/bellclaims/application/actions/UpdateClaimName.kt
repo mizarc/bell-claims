@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.enums.UpdateClaimAttributeResult
+import dev.mizarc.bellclaims.application.results.UpdateClaimAttributeResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import java.util.UUID

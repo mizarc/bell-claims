@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.enums.ToggleClaimOverrideResult
+import dev.mizarc.bellclaims.application.results.ToggleClaimOverrideResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import java.util.UUID

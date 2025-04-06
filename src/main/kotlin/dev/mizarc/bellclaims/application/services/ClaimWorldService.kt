@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.application.services
 
-import dev.mizarc.bellclaims.application.enums.ClaimCreationResult
-import dev.mizarc.bellclaims.application.enums.ClaimMoveResult
+import dev.mizarc.bellclaims.application.results.ClaimCreationResult
+import dev.mizarc.bellclaims.application.results.ClaimMoveResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer

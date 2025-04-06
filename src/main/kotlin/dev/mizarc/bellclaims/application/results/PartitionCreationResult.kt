@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.enums
+package dev.mizarc.bellclaims.application.results
 
 /**
  * Represents the result of adding a new partition to a claim.
