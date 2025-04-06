@@ -71,7 +71,7 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
             val rowsAffected = storage.connection.executeUpdate("DELETE FROM claims WHERE id=?;", claim.id)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove claim '$claim.name' from the database. " +
+            throw DatabaseOperationException("Failed to remove claim '${claim.name}' from the database. " +
                     "Cause: ${error.message}", error)
         }
     }
