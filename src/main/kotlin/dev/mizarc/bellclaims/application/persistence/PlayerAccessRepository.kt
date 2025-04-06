@@ -1,8 +1,6 @@
 package dev.mizarc.bellclaims.application.persistence
 
-import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
-import org.bukkit.OfflinePlayer
 import java.util.*
 
 /**
@@ -13,50 +11,50 @@ interface PlayerAccessRepository {
     /**
      * Gets all player permissions linked to a given claim.
      *
-     * @param claim The claim to query.
+     * @param claimId The id of the claim to query.
      * @return The map of permissions linked to each player.
      */
-    fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>>
+    fun getByClaim(claimId: UUID): Map<UUID, Set<ClaimPermission>>
 
     /**
      * Gets the permission that a given player has access to in a claim.
      *
-     * @param claim The claim to query.
-     * @param player The player to query.
+     * @param claimId The id of the claim to query.
+     * @param playerId The id of the player to query.
      * @return The set of permissions that the player has access to.
      */
-    fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission>
+    fun getByPlayer(claimId: UUID, playerId: UUID): Set<ClaimPermission>
 
     /**
      * Adds a permission to a given player in a claim.
      *
-     * @param claim The target claim.
-     * @param player The player to give the permission to.
+     * @param claimId The target claim.
+     * @param playerId The player to give the permission to.
      * @param permission The permission to add.
      */
-    fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean
+    fun add(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean
 
     /**
      * Removes a permission from a given player in a claim.
      *
-     * @param claim The target claim.
-     * @param player The player to remove the permission from.
+     * @param claimId The target claim.
+     * @param playerId The player to remove the permission from.
      * @param permission The permission to remove.
      */
-    fun remove(claim: Claim, player: OfflinePlayer, permission: ClaimPermission): Boolean
+    fun remove(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean
 
     /**
      * Removes all permission from a given player in a claim.
      *
-     * @param claim The target claim.
-     * @param player The player to remove permissions from.
+     * @param claimId The target claim's id.
+     * @param playerId The id of the player to remove permissions from.
      */
-    fun removeByPlayer(claim: Claim, player: OfflinePlayer): Boolean
+    fun removeByPlayer(claimId: UUID, playerId: UUID): Boolean
 
     /**
      * Removes all player permissions from a given claim.
      *
-     * @param claim The claim to remove permissions from.
+     * @param claimId The id of the claim to remove permissions from.
      */
-    fun removeByClaim(claim: Claim): Boolean
+    fun removeByClaim(claimId: UUID): Boolean
 }
