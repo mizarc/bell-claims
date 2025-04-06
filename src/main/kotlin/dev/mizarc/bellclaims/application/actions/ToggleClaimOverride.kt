@@ -11,11 +11,10 @@ class ToggleClaimOverride(private val playerStateRepository: PlayerStateReposito
         val playerState = playerStateRepository.get(playerId) ?: return ToggleClaimOverrideResult.PlayerNotFound
 
         // Toggle override and persist to storage
-        val newOverrideValue = !playerState.claimOverride
-        playerState.claimOverride = newOverrideValue
+        playerState.claimOverride = !playerState.claimOverride
         try {
             playerStateRepository.update(playerState)
-            return ToggleClaimOverrideResult.Success(newOverrideValue)
+            return ToggleClaimOverrideResult.Success(playerState.claimOverride)
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
             return ToggleClaimOverrideResult.StorageError
