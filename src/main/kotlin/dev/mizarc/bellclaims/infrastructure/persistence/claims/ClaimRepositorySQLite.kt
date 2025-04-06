@@ -31,8 +31,8 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         return claims.values.filter { it.owner.uniqueId == playerId }.toSet()
     }
 
-    override fun getByPosition(position3D: Position3D, worldId: UUID): Claim? {
-        return claims.values.firstOrNull { it.position == position3D && it.worldId == worldId }
+    override fun getByPosition(position: Position3D, worldId: UUID): Claim? {
+        return claims.values.firstOrNull { it.position == position && it.worldId == worldId }
     }
 
     override fun add(claim: Claim): Boolean {
