@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
 import dev.mizarc.bellclaims.application.services.FlagService
-import dev.mizarc.bellclaims.application.enums.FlagChangeResult
+import dev.mizarc.bellclaims.application.results.FlagChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.domain.values.Flag

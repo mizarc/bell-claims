@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.AddFlagToClaim
 import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.enums.AddFlagToClaimResult
+import dev.mizarc.bellclaims.application.results.AddFlagToClaimResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
 import org.koin.core.component.KoinComponent
