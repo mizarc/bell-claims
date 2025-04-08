@@ -89,14 +89,15 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         }
     }
 
-    override fun remove(partition: Partition): Boolean {
+    override fun remove(partitionId: UUID): Boolean {
+        val partition = getById(partitionId) ?: return false
         removeFromMemory(partition)
         try {
             val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;",
-                partition.id)
+                partitionId)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove partition '${partition.id}' from the database. " +
+            throw DatabaseOperationException("Failed to remove partition '${partitionId}' from the database. " +
                     "Cause: ${error.message}", error)
         }
     }
@@ -116,22 +117,22 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         }
     }
 
-    private fun addToMemory(entity: Partition) {
-        partitions[entity.id] = entity
-        val claimChunks = entity.getChunks()
+    private fun addToMemory(partition: Partition) {
+        partitions[partition.id] = partition
+        val claimChunks = partition.getChunks()
         for (chunk in claimChunks) {
             if (chunkPartitions[chunk] == null) {
                 chunkPartitions[chunk] = ArrayList()
             }
-            chunkPartitions[chunk]?.add(entity.id)
+            chunkPartitions[chunk]?.add(partition.id)
         }
     }
 
-    private fun removeFromMemory(entity: Partition) {
-        partitions.remove(entity.id)
-        for (chunk in entity.area.getChunks()) {
+    private fun removeFromMemory(partition: Partition) {
+        partitions.remove(partition.id)
+        for (chunk in partition.area.getChunks()) {
             val savedChunk = chunkPartitions[chunk] ?: return
-            savedChunk.remove(entity.id)
+            savedChunk.remove(partition.id)
         }
     }
 
