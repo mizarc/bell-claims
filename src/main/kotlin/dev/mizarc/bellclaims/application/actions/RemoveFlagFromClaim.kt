@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.enums.AddFlagToClaimResult
 import dev.mizarc.bellclaims.application.enums.RemoveFlagFromClaimResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
@@ -14,14 +13,14 @@ import java.util.UUID
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
  */
-class AddFlagToClaim(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class RemoveFlagFromClaim(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
 
     /**
      * Removes the specified [flag] from the claim with the given [claimId].
      *
      * @param flag The [Flag] to be added to the claim.
      * @param claimId The [UUID] of the claim to which the flag should be added.
-     * @return An [AddFlagToClaimResult] indicating the outcome of the flag addition operation.
+     * @return An [RemoveFlagFromClaimResult] indicating the outcome of the flag addition operation.
      */
     fun execute(flag: Flag, claimId: UUID): RemoveFlagFromClaimResult {
         // Check if claim exists
