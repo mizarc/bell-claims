@@ -13,7 +13,7 @@ import java.util.UUID
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
  */
-class RemoveFlagFromClaim(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class RemoveClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
 
     /**
      * Removes the specified [flag] from the claim with the given [claimId].

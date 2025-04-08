@@ -4,11 +4,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.RemoveFlagFromClaim
 import dev.mizarc.bellclaims.application.actions.RemovePartition
-import dev.mizarc.bellclaims.application.enums.RemoveFlagFromClaimResult
-import dev.mizarc.bellclaims.application.results.PartitionDestroyResult
-import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.application.results.RemovePartitionResult
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent

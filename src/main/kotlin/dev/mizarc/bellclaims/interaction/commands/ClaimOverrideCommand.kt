@@ -28,7 +28,6 @@ class ClaimOverrideCommand: BaseCommand(), KoinComponent {
                 player.sendMessage("Your player data was not found, contact your administrator for support.")
             is ToggleClaimOverrideResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
-
         }
     }
 }

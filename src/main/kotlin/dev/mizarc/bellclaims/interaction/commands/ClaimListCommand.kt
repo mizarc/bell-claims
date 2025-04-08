@@ -2,11 +2,9 @@ package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
-import dev.mizarc.bellclaims.application.actions.AddFlagToClaim
 import dev.mizarc.bellclaims.application.actions.GetClaimBlockCount
 import dev.mizarc.bellclaims.application.actions.ListPlayerClaims
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
