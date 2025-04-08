@@ -26,7 +26,7 @@ import kotlin.concurrent.thread
  * @property icon The material the claim is using as an icon.
  */
 class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creationTime: Instant,
-            var name: String, var description: String, var position: Position3D, var icon: Material
+            name: String, description: String, var position: Position3D, var icon: Material
 ) {
     var breakCount = 3
 
@@ -55,6 +55,18 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
      */
     constructor(builder: Builder): this(builder.location.world.uid, builder.player,
         Position3D(builder.location), builder.name)
+
+    var name: String = name
+        set(value) {
+            require(value.length in 1..50) { "Name must be between 1 and 50 characters." }
+            field = value
+        }
+
+    var description: String = description
+        set(value) {
+            require(value.length <= 300) { "Description cannot exceed 300 characters." }
+            field = value
+        }
 
     /**
      * Gets a reference to the world if available.
