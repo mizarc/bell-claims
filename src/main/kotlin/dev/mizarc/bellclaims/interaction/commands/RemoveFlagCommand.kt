@@ -4,8 +4,8 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.RemoveClaimFlag
-import dev.mizarc.bellclaims.application.enums.RemoveFlagFromClaimResult
+import dev.mizarc.bellclaims.application.actions.DisableClaimFlag
+import dev.mizarc.bellclaims.application.enums.DisableClaimFlagResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
 import org.koin.core.component.KoinComponent
@@ -13,7 +13,7 @@ import org.koin.core.component.inject
 
 @CommandAlias("claim")
 class RemoveFlagCommand : ClaimCommand(), KoinComponent {
-    private val removeClaimFlag: RemoveClaimFlag by inject()
+    private val disableClaimFlag: DisableClaimFlag by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
     @Subcommand("removeflag")
@@ -24,18 +24,18 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
         if (!isPlayerHasClaimPermission(player, partition)) return
 
         // Remove flag from the claim and notify player of result
-        when (removeClaimFlag.execute(flag, partition.claimId)) {
-            RemoveFlagFromClaimResult.DoesNotExist -> {
+        when (disableClaimFlag.execute(flag, partition.claimId)) {
+            DisableClaimFlagResult.DoesNotExist -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Claim §6${claimName}§c does not have §6$flag.")
             }
-            RemoveFlagFromClaimResult.Success -> {
+            DisableClaimFlagResult.Success -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("§6$flag §adisabled for claim §6${claimName}§a.")
             }
-            RemoveFlagFromClaimResult.ClaimNotFound ->
+            DisableClaimFlagResult.ClaimFlagNotFound ->
                 player.sendMessage("Claim was not found.")
-            RemoveFlagFromClaimResult.StorageError ->
+            DisableClaimFlagResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
