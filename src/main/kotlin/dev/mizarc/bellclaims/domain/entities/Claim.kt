@@ -56,12 +56,22 @@ class Claim(var id: UUID, var worldId: UUID, var owner: OfflinePlayer, val creat
     constructor(builder: Builder): this(builder.location.world.uid, builder.player,
         Position3D(builder.location), builder.name)
 
+    /**
+     * The name of the claim.
+     *
+     * - Must be between 1 and 50 characters.
+     */
     var name: String = name
         set(value) {
             require(value.length in 1..50) { "Name must be between 1 and 50 characters." }
             field = value
         }
 
+    /**
+     * A brief description of the claim.
+     *
+     * - Cannot exceed 300 characters.
+     */
     var description: String = description
         set(value) {
             require(value.length <= 300) { "Description cannot exceed 300 characters." }
