@@ -38,7 +38,7 @@ class DescriptionCommand : ClaimCommand(), KoinComponent {
                     when (error) {
                         is TextValidationErrorResult.ExceededCharacterLimit ->
                             player.sendMessage("Description of ${description.count()} characters exceeds character " +
-                                    "limit of ${error.maxCharacters} characters.")
+                                    "limit of ${error.maxCharacters}.")
                         is TextValidationErrorResult.InvalidCharacters ->
                             player.sendMessage("Description contains invalid characters: ${error.invalidCharacters}")
                         is TextValidationErrorResult.ContainsBlacklistedWord ->

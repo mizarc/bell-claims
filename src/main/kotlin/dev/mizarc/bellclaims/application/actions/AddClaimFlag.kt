@@ -13,7 +13,7 @@ import java.util.UUID
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
  */
-class AddFlagToClaim(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class AddClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
 
     /**
      * Add the specified [flag] to the claim with the given [claimId].
