@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.enums.RemoveFlagFromClaimResult
+import dev.mizarc.bellclaims.application.enums.DisableClaimFlagResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
@@ -13,28 +13,28 @@ import java.util.UUID
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
  */
-class RemoveClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class DisableClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
 
     /**
      * Removes the specified [flag] from the claim with the given [claimId].
      *
      * @param flag The [Flag] to be added to the claim.
      * @param claimId The [UUID] of the claim to which the flag should be added.
-     * @return An [RemoveFlagFromClaimResult] indicating the outcome of the flag addition operation.
+     * @return An [DisableClaimFlagResult] indicating the outcome of the flag addition operation.
      */
-    fun execute(flag: Flag, claimId: UUID): RemoveFlagFromClaimResult {
+    fun execute(flag: Flag, claimId: UUID): DisableClaimFlagResult {
         // Check if claim exists
-        claimRepository.getById(claimId) ?: return RemoveFlagFromClaimResult.ClaimNotFound
+        claimRepository.getById(claimId) ?: return DisableClaimFlagResult.ClaimFlagNotFound
 
         // Add the flag to the claim
         try {
             return when (flagRepository.remove(claimId, flag)) {
-                true -> RemoveFlagFromClaimResult.Success
-                false -> RemoveFlagFromClaimResult.DoesNotExist
+                true -> DisableClaimFlagResult.Success
+                false -> DisableClaimFlagResult.DoesNotExist
             }
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
-            return RemoveFlagFromClaimResult.StorageError
+            return DisableClaimFlagResult.StorageError
         }
     }
 }

@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.results.AddFlagToClaimResult
+import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
@@ -13,28 +13,28 @@ import java.util.UUID
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
  */
-class AddClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class EnableClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
 
     /**
      * Add the specified [flag] to the claim with the given [claimId].
      *
      * @param flag The [Flag] to be added to the claim.
      * @param claimId The [UUID] of the claim to which the flag should be added.
-     * @return An [AddFlagToClaimResult] indicating the outcome of the flag addition operation.
+     * @return An [EnableClaimFlagResult] indicating the outcome of the flag addition operation.
      */
-    fun execute(flag: Flag, claimId: UUID): AddFlagToClaimResult {
+    fun execute(flag: Flag, claimId: UUID): EnableClaimFlagResult {
         // Check if claim exists
-        claimRepository.getById(claimId) ?: return AddFlagToClaimResult.ClaimNotFound
+        claimRepository.getById(claimId) ?: return EnableClaimFlagResult.ClaimFlagNotFound
 
         // Add the flag to the claim
         try {
             return when (flagRepository.add(claimId, flag)) {
-                true -> AddFlagToClaimResult.Success
-                false -> AddFlagToClaimResult.AlreadyExists
+                true -> EnableClaimFlagResult.Success
+                false -> EnableClaimFlagResult.AlreadyExists
             }
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
-            return AddFlagToClaimResult.StorageError
+            return EnableClaimFlagResult.StorageError
         }
     }
 }

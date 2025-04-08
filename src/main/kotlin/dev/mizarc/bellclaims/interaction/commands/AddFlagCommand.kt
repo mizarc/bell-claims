@@ -3,9 +3,9 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.application.actions.AddClaimFlag
+import dev.mizarc.bellclaims.application.actions.EnableClaimFlag
 import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.results.AddFlagToClaimResult
+import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
 import org.koin.core.component.KoinComponent
@@ -13,7 +13,7 @@ import org.koin.core.component.inject
 
 @CommandAlias("claim")
 class AddFlagCommand : ClaimCommand(), KoinComponent {
-    private val addClaimFlag: AddClaimFlag by inject()
+    private val enableClaimFlag: EnableClaimFlag by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
     @Subcommand("addflag")
@@ -24,18 +24,18 @@ class AddFlagCommand : ClaimCommand(), KoinComponent {
         if (!isPlayerHasClaimPermission(player, partition)) return
 
         // Add flag to the claim and notify player of result
-        when (addClaimFlag.execute(flag, partition.claimId)) {
-            AddFlagToClaimResult.Success -> {
+        when (enableClaimFlag.execute(flag, partition.claimId)) {
+            EnableClaimFlagResult.Success -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Flag $flag has been added to claim $claimName.")
             }
-            AddFlagToClaimResult.AlreadyExists -> {
+            EnableClaimFlagResult.AlreadyExists -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Claim $claimName already has $flag.")
             }
-            AddFlagToClaimResult.ClaimNotFound ->
+            EnableClaimFlagResult.ClaimFlagNotFound ->
                 player.sendMessage("Claim was not found.")
-            AddFlagToClaimResult.StorageError ->
+            EnableClaimFlagResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
