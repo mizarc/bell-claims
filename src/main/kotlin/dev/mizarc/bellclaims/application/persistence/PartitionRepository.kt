@@ -64,9 +64,9 @@ interface PartitionRepository {
     /**
      * Removes an existing partition.
      *
-     * @param partition The partition to remove.
+     * @param partition The id of the partition to remove.
      */
-    fun remove(partition: Partition): Boolean
+    fun remove(partitionId: UUID): Boolean
 
     /**
      * Removes all partitions linked to a given claim.

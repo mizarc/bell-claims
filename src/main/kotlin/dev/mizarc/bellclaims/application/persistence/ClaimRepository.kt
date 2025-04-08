@@ -58,7 +58,7 @@ interface ClaimRepository {
     /**
      * Removes an existing claim.
      *
-     * @param claim The claim to remove.
+     * @param claimId The id of the claim to remove.
      */
-    fun remove(claim: Claim): Boolean
+    fun remove(claimId: UUID): Boolean
 }

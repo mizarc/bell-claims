@@ -65,13 +65,13 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         }
     }
 
-    override fun remove(claim: Claim): Boolean {
-        claims.remove(claim.id)
+    override fun remove(claimId: UUID): Boolean {
+        claims.remove(claimId)
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claims WHERE id=?;", claim.id)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claims WHERE id=?;", claimId)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove claim '${claim.name}' from the database. " +
+            throw DatabaseOperationException("Failed to remove claim '$claimId' from the database. " +
                     "Cause: ${error.message}", error)
         }
     }
