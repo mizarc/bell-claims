@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.enums
+package dev.mizarc.bellclaims.application.results
 
 sealed class AddFlagToClaimResult {
     object Success : AddFlagToClaimResult()

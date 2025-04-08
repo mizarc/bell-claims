@@ -15,8 +15,8 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
         preload()
     }
 
-    override fun doesClaimHaveFlag(claimId: UUID, rule: Flag): Boolean {
-        return flags[claimId]?.contains(rule) == true
+    override fun doesClaimHaveFlag(claimId: UUID, flag: Flag): Boolean {
+        return flags[claimId]?.contains(flag) == true
     }
 
     override fun getByClaim(claimId: UUID): Set<Flag> {

@@ -1,8 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.claims
 
-import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
-import org.bukkit.OfflinePlayer
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import java.sql.SQLException
@@ -16,59 +15,68 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         preload()
     }
 
-    override fun getByClaim(claim: Claim): Map<UUID, Set<ClaimPermission>> {
-        return playerAccess[claim.id]?.toMap() ?: emptyMap()
+    override fun getByClaim(claimId: UUID): Map<UUID, Set<ClaimPermission>> {
+        return playerAccess[claimId]?.toMap() ?: emptyMap()
     }
 
-    override fun getByPlayer(claim: Claim, player: OfflinePlayer): Set<ClaimPermission> {
-        return playerAccess[claim.id]?.get(player.uniqueId)?.toSet() ?: emptySet()
+    override fun getByPlayer(claimId: UUID, playerId: UUID): Set<ClaimPermission> {
+        return playerAccess[claimId]?.get(playerId)?.toSet() ?: emptySet()
     }
 
-    override fun add(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
-        playerAccess.getOrPut(claim.id) { mutableMapOf() }.getOrPut(player.uniqueId) { mutableSetOf() }.add(permission)
+    override fun add(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean {
+        playerAccess.getOrPut(claimId) { mutableMapOf() }.getOrPut(playerId) { mutableSetOf() }.add(permission)
         try {
-            storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, permission) " +
-                    "VALUES (?,?,?)", claim.id, player.uniqueId, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, " +
+                    "permission) VALUES (?,?,?)", claimId, playerId, permission.name)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to add permission '${permission}' for claim id '$claimId' to " +
+                    "the database. Cause: ${error.message}", error)
         }
     }
 
-    override fun remove(claim: Claim, player: OfflinePlayer, permission: ClaimPermission) {
-        val claimPermissions = playerAccess[claim.id] ?: return
-        val playerPermissions = claimPermissions[player.uniqueId] ?: return
+    override fun remove(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean  {
+        val claimPermissions = playerAccess[claimId] ?: return false
+        val playerPermissions = claimPermissions[playerId] ?: return false
         playerPermissions.remove(permission)
         if (playerPermissions.isEmpty()) {
-            claimPermissions.remove(player.uniqueId)
+            claimPermissions.remove(playerId)
         }
 
         try {
-            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=? " +
-                    "AND permission=?", claim.id, player.uniqueId, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND " +
+                    "playerId=? AND permission=?", claimId, playerId, permission.name)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
-        }
-    }
-
-    override fun removeByPlayer(claim: Claim, player: OfflinePlayer) {
-        val claimPermissions = playerAccess[claim.id] ?: return
-        claimPermissions.remove(player.uniqueId)
-
-        try {
-            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND playerId=?",
-                claim.id, player.uniqueId)
-        } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove permission '$permission' for player id '$playerId' " +
+                    "in claim id '$claimId' from the database. Cause: ${error.message}", error)
         }
     }
 
-    override fun removeByClaim(claim: Claim) {
-        playerAccess.remove(claim.id)
+    override fun removeByPlayer(claimId: UUID, playerId: UUID): Boolean  {
+        val claimPermissions = playerAccess[claimId] ?: return false
+        claimPermissions.remove(playerId)
 
         try {
-            storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=?", claim.id)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? " +
+                    "AND playerId=?", claimId, playerId)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove permissions for player id '$playerId' " +
+                    "in claimId '$claimId' from the database. Cause: ${error.message}", error)
+        }
+    }
+
+    override fun removeByClaim(claimId: UUID): Boolean  {
+        playerAccess.remove(claimId)
+
+        try {
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=?",
+                claimId)
+            return rowsAffected > 0
+        } catch (error: SQLException) {
+            throw DatabaseOperationException("Failed to remove permissions for claimId '$claimId' from the database. " +
+                    "Cause: ${error.message}", error)
         }
     }
 
@@ -78,7 +86,8 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
     private fun createTable() {
         try {
             storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS playerAccess (claimId TEXT, " +
-                    "playerId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id));")
+                    "playerId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id), UNIQUE (claimId, " +
+                    "playerId, permission));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }

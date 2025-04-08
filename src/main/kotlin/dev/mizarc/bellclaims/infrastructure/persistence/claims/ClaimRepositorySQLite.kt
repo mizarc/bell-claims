@@ -31,8 +31,8 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         return claims.values.filter { it.owner.uniqueId == playerId }.toSet()
     }
 
-    override fun getByPosition(position3D: Position3D, worldId: UUID): Claim? {
-        return claims.values.firstOrNull { it.position == position3D && it.worldId == worldId }
+    override fun getByPosition(position: Position3D, worldId: UUID): Claim? {
+        return claims.values.firstOrNull { it.position == position && it.worldId == worldId }
     }
 
     override fun add(claim: Claim): Boolean {
@@ -71,7 +71,7 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
             val rowsAffected = storage.connection.executeUpdate("DELETE FROM claims WHERE id=?;", claim.id)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove claim '$claim.name' from the database. " +
+            throw DatabaseOperationException("Failed to remove claim '${claim.name}' from the database. " +
                     "Cause: ${error.message}", error)
         }
     }

@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.application.services
 
-import dev.mizarc.bellclaims.application.enums.PartitionCreationResult
-import dev.mizarc.bellclaims.application.enums.PartitionDestroyResult
-import dev.mizarc.bellclaims.application.enums.PartitionResizeResult
+import dev.mizarc.bellclaims.application.results.PartitionCreationResult
+import dev.mizarc.bellclaims.application.results.PartitionDestroyResult
+import dev.mizarc.bellclaims.application.results.PartitionResizeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.entities.Partition

@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.persistence.partitions
 
 import co.aikar.idb.Database
+import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.Partition
@@ -11,8 +12,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class PartitionRepositorySQLite(private val storage: Storage<Database>): PartitionRepository {
-    var partitions: MutableMap<UUID, Partition> = mutableMapOf()
-    var chunkPartitions: MutableMap<Position2D, ArrayList<UUID>> = mutableMapOf()
+    private var partitions: MutableMap<UUID, Partition> = mutableMapOf()
+    private var chunkPartitions: MutableMap<Position2D, ArrayList<UUID>> = mutableMapOf()
 
     init {
         createTable()
@@ -27,10 +28,10 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         return partitions[id]
     }
 
-    override fun getByClaim(claim: Claim): Set<Partition> {
+    override fun getByClaim(claimId: UUID): Set<Partition> {
         val foundPartitions = ArrayList<Partition>()
         for (partition in partitions.values) {
-            if (partition.claimId == claim.id) {
+            if (partition.claimId == claimId) {
                 foundPartitions.add(partition)
             }
         }
@@ -59,54 +60,60 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         return partitionsInPosition.toSet()
     }
 
-    override fun add(partition: Partition) {
+    override fun add(partition: Partition): Boolean {
         addToMemory(partition)
         try {
-            storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, lowerPositionX, " +
-                    "lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, " +
+                    "lowerPositionX, lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
                 partition.id, partition.claimId, partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z,
                 partition.area.upperPosition2D.x, partition.area.upperPosition2D.z)
-            return
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to add partition '${partition.id}' to the database. " +
+                    "Cause: ${error.message}", error)
         }
     }
 
-    override fun update(partition: Partition) {
+    override fun update(partition: Partition): Boolean {
         removeFromMemory(partition)
         addToMemory(partition)
         try {
-            storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
+            val rowsAffected = storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
                     "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", partition.claimId,
                 partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z, partition.area.upperPosition2D.x,
                 partition.area.upperPosition2D.z, partition.id)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to add update partition '${partition.id}' in the database. " +
+                    "Cause: ${error.message}", error)
         }
     }
 
-    override fun remove(partition: Partition) {
+    override fun remove(partition: Partition): Boolean {
         removeFromMemory(partition)
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;", partition.id)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;",
+                partition.id)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove partition '${partition.id}' from the database. " +
+                    "Cause: ${error.message}", error)
         }
-        return
     }
 
-    override fun removeByClaim(claim: Claim) {
-        val partitions = getByClaim(claim)
+    override fun removeByClaim(claimId: UUID): Boolean {
+        val partitions = getByClaim(claimId)
         for (partition in partitions) {
             removeFromMemory(partition)
         }
         try {
-            storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE claimId=?;", claim.id)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE claimId=?;",
+                claimId)
+            return rowsAffected > 0
         } catch (error: SQLException) {
-            error.printStackTrace()
+            throw DatabaseOperationException("Failed to remove partitions for claim '${claimId}' from the database. " +
+                    "Cause: ${error.message}", error)
         }
-        return
-
     }
 
     private fun addToMemory(entity: Partition) {
@@ -141,7 +148,10 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         }
     }
 
-    fun preload() {
+    /**
+     * Fetches all partitions from the database and saves it to memory.
+     */
+    private fun preload() {
         try {
             val results = storage.connection.getResults("SELECT * FROM claimPartitions")
             for (result in results) {
