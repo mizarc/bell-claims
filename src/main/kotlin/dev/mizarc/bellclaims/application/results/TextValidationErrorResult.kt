@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.enums
+package dev.mizarc.bellclaims.application.results
 
 sealed class TextValidationErrorResult {
     data class ExceededCharacterLimit(val maxCharacters: String) : TextValidationErrorResult()

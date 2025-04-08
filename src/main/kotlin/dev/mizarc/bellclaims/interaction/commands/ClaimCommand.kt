@@ -19,12 +19,6 @@ import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.utils.getLangText
 
 open class ClaimCommand : BaseCommand() {
-    @Dependency protected lateinit var claimService: ClaimService
-    @Dependency protected lateinit var partitionService: PartitionService
-    @Dependency protected lateinit var flagService: FlagService
-    @Dependency protected lateinit var defaultPermissionService: DefaultPermissionService
-    @Dependency protected lateinit var playerPermissionService: PlayerPermissionService
-    @Dependency protected lateinit var playerStateService: PlayerStateService
 
     @CommandAlias("claim")
     @CommandPermission("bellclaims.command.claim")
