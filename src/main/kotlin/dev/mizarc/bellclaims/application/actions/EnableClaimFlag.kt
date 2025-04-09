@@ -1,9 +1,10 @@
 package dev.mizarc.bellclaims.application.actions
 
-import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
+import dev.mizarc.bellclaims.application.results.EnableAllClaimFlagsResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
 import dev.mizarc.bellclaims.domain.values.Flag
 import java.util.UUID
 
@@ -20,11 +21,11 @@ class EnableClaimFlag(private val flagRepository: ClaimFlagRepository, private v
      *
      * @param flag The [Flag] to be added to the claim.
      * @param claimId The [UUID] of the claim to which the flag should be added.
-     * @return An [EnableClaimFlagResult] indicating the outcome of the flag addition operation.
+     * @return An [EnableAllClaimFlagsResult] indicating the outcome of the flag addition operation.
      */
     fun execute(flag: Flag, claimId: UUID): EnableClaimFlagResult {
         // Check if claim exists
-        claimRepository.getById(claimId) ?: return EnableClaimFlagResult.ClaimFlagNotFound
+        claimRepository.getById(claimId) ?: return EnableClaimFlagResult.ClaimNotFound
 
         // Add the flag to the claim
         try {

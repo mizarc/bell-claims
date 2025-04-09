@@ -34,7 +34,7 @@ class TrustCommand : ClaimCommand(), KoinComponent {
                 player.sendMessage("${otherPlayer.player.displayName()} already has $permission " +
                         "permissions in claim $claimName.")
             }
-            GrantPlayerClaimPermissionResult.NotFoundClaim ->
+            GrantPlayerClaimPermissionResult.ClaimNotFound ->
                 player.sendMessage("Claim was not found.")
             GrantPlayerClaimPermissionResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")

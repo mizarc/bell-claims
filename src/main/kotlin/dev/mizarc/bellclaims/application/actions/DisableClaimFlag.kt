@@ -24,7 +24,7 @@ class DisableClaimFlag(private val flagRepository: ClaimFlagRepository, private 
      */
     fun execute(flag: Flag, claimId: UUID): DisableClaimFlagResult {
         // Check if claim exists
-        claimRepository.getById(claimId) ?: return DisableClaimFlagResult.ClaimFlagNotFound
+        claimRepository.getById(claimId) ?: return DisableClaimFlagResult.ClaimNotFound
 
         // Add the flag to the claim
         try {

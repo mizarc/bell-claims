@@ -33,7 +33,7 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("§6$flag §adisabled for claim §6${claimName}§a.")
             }
-            DisableClaimFlagResult.ClaimFlagNotFound ->
+            DisableClaimFlagResult.ClaimNotFound ->
                 player.sendMessage("Claim was not found.")
             DisableClaimFlagResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
