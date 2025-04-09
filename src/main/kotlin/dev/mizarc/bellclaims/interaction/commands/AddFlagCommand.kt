@@ -6,6 +6,7 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.EnableClaimFlag
 import dev.mizarc.bellclaims.application.actions.GetClaimDetails
 import dev.mizarc.bellclaims.application.results.EnableAllClaimFlagsResult
+import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
 import org.koin.core.component.KoinComponent
@@ -25,17 +26,17 @@ class AddFlagCommand : ClaimCommand(), KoinComponent {
 
         // Add flag to the claim and notify player of result
         when (enableClaimFlag.execute(flag, partition.claimId)) {
-            EnableAllClaimFlagsResult.Success -> {
+            EnableClaimFlagResult.Success -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Flag $flag has been added to claim $claimName.")
             }
-            EnableAllClaimFlagsResult.AlreadyExists -> {
+            EnableClaimFlagResult.AlreadyExists -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Claim $claimName already has $flag.")
             }
-            EnableAllClaimFlagsResult.ClaimFlagNotFound ->
+            EnableClaimFlagResult.ClaimNotFound ->
                 player.sendMessage("Claim was not found.")
-            EnableAllClaimFlagsResult.StorageError ->
+            EnableClaimFlagResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
