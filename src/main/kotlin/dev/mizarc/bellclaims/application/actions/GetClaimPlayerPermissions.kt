@@ -6,6 +6,6 @@ import java.util.UUID
 
 class GetClaimPlayerPermissions(private val playerAccessRepository: PlayerAccessRepository) {
     fun execute(claimId: UUID, playerId: UUID): List<ClaimPermission> {
-        return playerAccessRepository.getByPlayer(claimId, playerId).toList()
+        return playerAccessRepository.getForPlayerInClaim(claimId, playerId).toList()
     }
 }
