@@ -5,6 +5,10 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
+import dev.mizarc.bellclaims.application.actions.DoesPlayerHaveClaimOverride
+import dev.mizarc.bellclaims.application.actions.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.GetPartitionByPosition
+import dev.mizarc.bellclaims.application.results.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.DefaultPermissionService
 import dev.mizarc.bellclaims.application.services.FlagService
@@ -15,10 +19,16 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.Position3D
 
 import dev.mizarc.bellclaims.utils.getLangText
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-open class ClaimCommand : BaseCommand() {
+open class ClaimCommand : BaseCommand(), KoinComponent {
+    private val getPartitionByPosition: GetPartitionByPosition by inject()
+    private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
+    private val getClaimDetails: GetClaimDetails by inject()
 
     @CommandAlias("claim")
     @CommandPermission("bellclaims.command.claim")
@@ -49,7 +59,7 @@ open class ClaimCommand : BaseCommand() {
     }
 
     fun getPartitionAtPlayer(player: Player): Partition? {
-        val claimPartition = partitionService.getByLocation(player.location)
+        val claimPartition = getPartitionByPosition.execute(Position3D(player.location), player.world.uid)
         if (claimPartition == null) {
             player.sendMessage(getLangText("NoClaimPartitionHere"))
             return null
@@ -58,25 +68,19 @@ open class ClaimCommand : BaseCommand() {
     }
 
     fun isPlayerHasClaimPermission(player: Player, partition: Partition): Boolean {
-        // Check if player state exists
-        val playerState = playerStateService.getById(player.uniqueId)
-        if (playerState == null) {
-            player.sendMessage(getLangText("PlayerDataMissing"))
-            return false
-        }
-
         // Check if player has override
-        if (playerState.claimOverride) {
-            return true
+        val overrideResult = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        when (overrideResult) {
+            is DoesPlayerHaveClaimOverrideResult.Success -> if (overrideResult.hasOverride) return true
+            is DoesPlayerHaveClaimOverrideResult.StorageError -> return false
         }
 
         // Check if player owns claim
-        val claim = claimService.getById(partition.claimId) ?: return false
+        val claim = getClaimDetails.execute(partition.claimId) ?: return false
         if (player.uniqueId != claim.owner.uniqueId) {
             player.sendMessage(getLangText("NoPermissionToModifyClaim"))
             return false
         }
-
         return true
     }
 }
