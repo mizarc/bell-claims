@@ -23,6 +23,10 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         return playerAccess[claimId]?.get(playerId)?.toSet() ?: emptySet()
     }
 
+    override fun getPlayersWithPermissionInClaim(claimId: UUID): Set<UUID> {
+        return playerAccess[claimId]?.keys?.toSet() ?: emptySet()
+    }
+
     override fun add(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean {
         playerAccess.getOrPut(claimId) { mutableMapOf() }.getOrPut(playerId) { mutableSetOf() }.add(permission)
         try {
