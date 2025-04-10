@@ -3,8 +3,8 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.DisableClaimFlag
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.flags.DisableClaimFlag
 import dev.mizarc.bellclaims.application.enums.DisableClaimFlagResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag

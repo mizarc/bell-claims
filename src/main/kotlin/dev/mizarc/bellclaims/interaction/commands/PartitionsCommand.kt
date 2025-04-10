@@ -4,8 +4,8 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.GetClaimPartitions
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.partitions.GetClaimPartitions
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import org.koin.core.component.KoinComponent

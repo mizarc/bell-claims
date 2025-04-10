@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.annotation.*
-import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.RevokeClaimWidePermission
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.permissions.RevokeClaimWidePermission
 import dev.mizarc.bellclaims.application.results.RevokeClaimWidePermissionResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.ClaimPermission

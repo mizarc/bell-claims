@@ -4,9 +4,9 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.GetClaimPlayerPermissions
-import dev.mizarc.bellclaims.application.actions.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.permissions.GetClaimPlayerPermissions
+import dev.mizarc.bellclaims.application.actions.claim.permissions.GetPlayersWithPermissionInClaim
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder

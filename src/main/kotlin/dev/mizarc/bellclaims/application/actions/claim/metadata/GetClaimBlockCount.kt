@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.metadata
 
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import java.util.UUID

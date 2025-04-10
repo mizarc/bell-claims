@@ -1,17 +1,17 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.metadata
 
 import dev.mizarc.bellclaims.application.results.UpdateClaimAttributeResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import java.util.UUID
 
-class UpdateClaimName(private val claimRepository: ClaimRepository) {
-    fun execute(claimId: UUID, name: String): UpdateClaimAttributeResult {
+class UpdateClaimDescription(private val claimRepository: ClaimRepository) {
+    fun execute(claimId: UUID, description: String): UpdateClaimAttributeResult {
         // Check if claim exists
         val existingClaim = claimRepository.getById(claimId) ?: return UpdateClaimAttributeResult.ClaimNotFound
 
-        // Change Name and persist to storage
-        existingClaim.name = name
+        // Change description and persist to storage
+        existingClaim.description = description
         try {
             claimRepository.update(existingClaim)
             return UpdateClaimAttributeResult.Success

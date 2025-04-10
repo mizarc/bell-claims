@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.permissions
 
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository

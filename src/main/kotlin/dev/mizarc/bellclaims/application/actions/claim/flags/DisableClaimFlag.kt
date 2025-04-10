@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.flags
 
 import dev.mizarc.bellclaims.application.enums.DisableClaimFlagResult
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException

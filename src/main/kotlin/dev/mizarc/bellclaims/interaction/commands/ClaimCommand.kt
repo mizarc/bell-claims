@@ -5,9 +5,9 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Dependency
 import co.aikar.commands.annotation.Syntax
-import dev.mizarc.bellclaims.application.actions.DoesPlayerHaveClaimOverride
-import dev.mizarc.bellclaims.application.actions.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.GetPartitionByPosition
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.partitions.GetPartitionByPosition
 import dev.mizarc.bellclaims.application.results.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.application.services.ClaimService
 import dev.mizarc.bellclaims.application.services.DefaultPermissionService
