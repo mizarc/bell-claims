@@ -14,7 +14,7 @@ interface PlayerAccessRepository {
      * @param claimId The id of the claim to query.
      * @return The map of permissions linked to each player.
      */
-    fun getByClaim(claimId: UUID): Map<UUID, Set<ClaimPermission>>
+    fun getForAllPlayersInClaim(claimId: UUID): Map<UUID, Set<ClaimPermission>>
 
     /**
      * Gets the permission that a given player has access to in a claim.
@@ -23,7 +23,7 @@ interface PlayerAccessRepository {
      * @param playerId The id of the player to query.
      * @return The set of permissions that the player has access to.
      */
-    fun getByPlayer(claimId: UUID, playerId: UUID): Set<ClaimPermission>
+    fun getForPlayerInClaim(claimId: UUID, playerId: UUID): Set<ClaimPermission>
 
     /**
      * Adds a permission to a given player in a claim.
