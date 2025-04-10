@@ -32,7 +32,7 @@ class RevokePlayerClaimPermission(private val playerAccessRepository: PlayerAcce
         try {
             return when (playerAccessRepository.remove(claimId, playerId, permission)) {
                 true -> RevokePlayerClaimPermissionResult.Success
-                false -> RevokePlayerClaimPermissionResult.AlreadyExists
+                false -> RevokePlayerClaimPermissionResult.DoesNotExist
             }
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
