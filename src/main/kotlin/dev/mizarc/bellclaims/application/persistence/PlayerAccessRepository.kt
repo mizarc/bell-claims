@@ -26,6 +26,14 @@ interface PlayerAccessRepository {
     fun getForPlayerInClaim(claimId: UUID, playerId: UUID): Set<ClaimPermission>
 
     /**
+     * Gets players that have at least one permission in a claim.
+     *
+     * @param claimId The id of the claim to query.
+     * @return The map of permissions linked to each player.
+     */
+    fun getPlayersWithPermissionInClaim(claimId: UUID): Set<UUID>
+
+    /**
      * Adds a permission to a given player in a claim.
      *
      * @param claimId The target claim.
