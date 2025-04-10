@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.partitions
 
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
@@ -7,7 +7,8 @@ import dev.mizarc.bellclaims.domain.values.Position
 import java.util.UUID
 
 class GetPartitionByPosition(private val partitionRepository: PartitionRepository,
-                             private val claimRepository: ClaimRepository) {
+                             private val claimRepository: ClaimRepository
+) {
     fun execute(position: Position, worldId: UUID): Partition? {
         val partitions = partitionRepository.getByPosition(position)
 

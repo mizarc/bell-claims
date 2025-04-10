@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.partitions
 
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
@@ -15,8 +15,8 @@ class RemovePartition(private val partitionRepository: PartitionRepository) {
     /**
      * Removes the specified partition using its given [partitionId].
      *
-     * @param partitionId The [UUID] of the claim to which the flag should be added.
-     * @return An [RemovePartitionResult] indicating the outcome of the flag addition operation.
+     * @param partitionId The [java.util.UUID] of the claim to which the flag should be added.
+     * @return An [dev.mizarc.bellclaims.application.results.RemovePartitionResult] indicating the outcome of the flag addition operation.
      */
     fun execute(partitionId: UUID): RemovePartitionResult {
         // Add the flag to the claim

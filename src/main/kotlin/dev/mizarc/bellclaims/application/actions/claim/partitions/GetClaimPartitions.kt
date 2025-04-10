@@ -1,8 +1,8 @@
-package dev.mizarc.bellclaims.application.actions
+package dev.mizarc.bellclaims.application.actions.claim.partitions
 
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.domain.entities.Partition
-import java.util.*
+import java.util.UUID
 
 class GetClaimPartitions(private val partitionRepository: PartitionRepository) {
     fun execute(claimId: UUID): List<Partition> {
