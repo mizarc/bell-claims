@@ -33,6 +33,15 @@ interface ClaimRepository {
     fun getByPlayer(playerId: UUID): Set<Claim>
 
     /**
+     * Gets the claim owned by the player by name.
+     *
+     * @param playerId The id of the player to retrieve claims for.
+     * @param name The name of the target claim.
+     * @return The found claim, or null if it doesn't exist.
+     */
+    fun getByName(playerId: UUID, name: String): Claim?
+
+    /**
      * Retrieves a claim by the position in the world.
      *
      * @param position The position in the world.
