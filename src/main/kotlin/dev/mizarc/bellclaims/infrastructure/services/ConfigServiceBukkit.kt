@@ -1,0 +1,20 @@
+package dev.mizarc.bellclaims.infrastructure.services
+
+import dev.mizarc.bellclaims.application.services.ConfigService
+import dev.mizarc.bellclaims.config.MainConfig
+import org.bukkit.configuration.file.FileConfiguration
+
+class ConfigServiceBukkit(private val config: FileConfiguration): ConfigService {
+    override fun loadConfig() {
+        MainConfig(
+            claimLimit = config.getInt("claim_limit"),
+            claimBlockLimit = config.getInt("claim_block_limit"),
+            initialClaimSize = config.getInt("initial_claim_size"),
+            minimumPartitionSize = config.getInt("minimum_partition_size"),
+            distanceBetweenClaims = config.getInt("distance_between_claims"),
+            visualiserHideDelayPeriod = config.getDouble("visualiser_hide_delay_period"),
+            visualiserRefreshPeriod = config.getDouble("visualiser_refresh_period"),
+            pluginLanguage = config.getString("plugin_language") ?: ""
+        )
+    }
+}
