@@ -68,11 +68,11 @@ class ClaimIconMenu(private val player: Player, private val menuNavigator: MenuN
             // Set icon if item in slot
             if (newIcon != null) {
                 updateClaimIcon.execute(claim.id, newIcon.type.name)
-                openClaimEditMenu(claim)
+                menuNavigator.goBack()
             }
 
             // Go back to edit menu if no item in slot
-            openClaimEditMenu(claim)
+            menuNavigator.goBack()
         }
         outputPane.addItem(confirmGuiItem, 0, 0)
         gui.outputComponent.addPane(outputPane)
