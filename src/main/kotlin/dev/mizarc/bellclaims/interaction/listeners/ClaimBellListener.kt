@@ -13,7 +13,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
-import dev.mizarc.bellclaims.interaction.menus.ClaimManagementMenu
+import dev.mizarc.bellclaims.interaction.menus.ClaimManagementMenuOld
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -69,9 +69,9 @@ class ClaimBellListener(): Listener, KoinComponent {
         // Open the menu
         event.isCancelled = true
         val claimBuilder = Claim.Builder(event.player, clickedBlock.location)
-        val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
+        val claimManagementMenuOld = ClaimManagementMenuOld(claimService, claimWorldService, flagService, defaultPermissionService,
             playerPermissionService, playerLimitService, playerStateService, claimBuilder)
 
-        claimManagementMenu.openClaimManagementMenu()
+        claimManagementMenuOld.openClaimManagementMenu()
     }
 }
