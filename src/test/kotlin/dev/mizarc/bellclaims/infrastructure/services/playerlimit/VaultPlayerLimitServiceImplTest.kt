@@ -8,6 +8,7 @@ import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.infrastructure.services.old.playerlimit.VaultPlayerLimitServiceImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

@@ -9,6 +9,7 @@ import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.infrastructure.services.old.ClaimServiceImpl
 import io.mockk.*
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -41,8 +42,10 @@ class ClaimServiceImplTest {
         claimFlagRepo = mockk()
         claimPermissionRepo = mockk()
         playerPermissionRepo = mockk()
-        claimService = ClaimServiceImpl(claimRepo, partitionRepo,
-            claimFlagRepo, claimPermissionRepo, playerPermissionRepo)
+        claimService = ClaimServiceImpl(
+            claimRepo, partitionRepo,
+            claimFlagRepo, claimPermissionRepo, playerPermissionRepo
+        )
 
         claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
         claimCollection = arrayOf(

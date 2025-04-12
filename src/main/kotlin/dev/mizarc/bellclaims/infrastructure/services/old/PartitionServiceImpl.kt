@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.old
 
 import dev.mizarc.bellclaims.application.services.old.ClaimService
 import dev.mizarc.bellclaims.application.services.old.PartitionService

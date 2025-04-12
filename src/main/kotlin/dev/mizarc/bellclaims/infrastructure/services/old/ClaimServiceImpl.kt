@@ -1,23 +1,22 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.old
 
-import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.application.services.old.ClaimService
-import dev.mizarc.bellclaims.domain.claims.*
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.services.old.ClaimService
 import dev.mizarc.bellclaims.domain.entities.Claim
-import org.bukkit.OfflinePlayer
 import org.bukkit.Material
-import java.util.HashMap
+import org.bukkit.OfflinePlayer
 import java.util.UUID
 
 class ClaimServiceImpl(private val claimRepo: ClaimRepository,
                        private val partitionRepo: PartitionRepository,
                        private val claimFlagRepo: ClaimFlagRepository,
                        private val claimPermissionRepo: ClaimPermissionRepository,
-                       private val playerPermissionRepo: PlayerAccessRepository): ClaimService {
+                       private val playerPermissionRepo: PlayerAccessRepository
+): ClaimService {
     override fun getById(id: UUID): Claim? {
         return claimRepo.getById(id)
     }
@@ -69,7 +68,7 @@ class ClaimServiceImpl(private val claimRepo: ClaimRepository,
         claim.transferRequests[player.uniqueId] = requestExpireTimestamp
     }
 
-    override fun getTransferRequests(claim: Claim): HashMap<UUID, Int> {
+    override fun getTransferRequests(claim: Claim): java.util.HashMap<UUID, Int> {
         removeExpiredTransferRequests(claim)
 
         return claim.transferRequests
