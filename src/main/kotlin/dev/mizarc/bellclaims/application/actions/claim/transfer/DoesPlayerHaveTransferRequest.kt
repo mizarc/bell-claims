@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.application.actions.claim.transfer
 
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.application.results.claim.DoesPlayerHaveTransferRequestResult
+import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
 import java.util.UUID
 
 class DoesPlayerHaveTransferRequest(private val claimRepository: ClaimRepository) {

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.results.claim
+package dev.mizarc.bellclaims.application.results.claim.transfer
 
 sealed class DoesPlayerHaveTransferRequestResult {
     data class Success(val hasRequest: Boolean): DoesPlayerHaveTransferRequestResult()
