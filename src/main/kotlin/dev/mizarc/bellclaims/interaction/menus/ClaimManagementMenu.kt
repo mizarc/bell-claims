@@ -52,50 +52,6 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         openClaimEditMenu(existingClaim)
     }
 
-    fun openClaimCreationMenu() {
-        val gui = ChestGui(1, "Claim Creation")
-        val pane = StaticPane(0, 0, 9, 1)
-        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
-            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
-        gui.addPane(pane)
-
-        // Check if player doesn't have enough claims
-        if (playerLimitService.getRemainingClaimCount(claimBuilder.player) < 1) {
-            val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name(getLangText("CannotCreateClaim1"))
-                .lore(getLangText("YouHaveRunOutOfClaims"))
-                .lore(getLangText("DeleteExistingClaim"))
-            val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
-            pane.addItem(guiIconEditorItem, 4, 0)
-            Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
-            return
-        }
-
-        // Check if created claim area would overlap
-        if (!claimWorldService.isNewLocationValid(claimBuilder.location)) {
-            val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name(getLangText("CannotCreateClaim2"))
-                .lore(getLangText("OverlapAnotherClaim"))
-                .lore(getLangText("PlaceBellElsewhere"))
-            val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
-            pane.addItem(guiIconEditorItem, 4, 0)
-            Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
-            return
-        }
-
-        // Add warp creation icon
-        val iconEditorItem = ItemStack(Material.BELL)
-            .name(getLangText("CreateClaim"))
-            .lore(getLangText("ProtectedFromGriefing"))
-            .lore(getLangText("RemainingClaims1") + "${playerLimitService.getRemainingClaimCount(claimBuilder.player)} " + getLangText("RemainingClaims2"))
-        val guiIconEditorItem = GuiItem(iconEditorItem) { openClaimNamingMenu() }
-        pane.addItem(guiIconEditorItem, 4, 0)
-        Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
-    }
-
-
-
     fun openClaimEditMenu(claim: Claim) {
         val gui = ChestGui(1, "Claim '${claim.name}'")
         val pane = StaticPane(0, 0, 9, 1)
