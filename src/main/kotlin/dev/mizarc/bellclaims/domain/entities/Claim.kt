@@ -23,10 +23,10 @@ import kotlin.concurrent.thread
  * @property name The name of the claim.
  * @property description The description of the claim.
  * @property position The position in the world the claim exists in.
- * @property icon The material the claim is using as an icon.
+ * @property icon The name of the material the claim is using as an icon.
  */
 class Claim(var id: UUID, var worldId: UUID, var playerId: UUID, val creationTime: Instant,
-            name: String, description: String, var position: Position3D, var icon: Material) {
+            name: String, description: String, var position: Position3D, var icon: String) {
     var breakCount = 3
 
     private val defaultBreakCount = 3
@@ -45,7 +45,7 @@ class Claim(var id: UUID, var worldId: UUID, var playerId: UUID, val creationTim
      * @param name The name of the claim.
      */
     constructor(worldId: UUID, playerId: UUID, position: Position3D, name: String) : this(
-        UUID.randomUUID(), worldId, playerId, Instant.now(), name, "", position, Material.BELL)
+        UUID.randomUUID(), worldId, playerId, Instant.now(), name, "", position, "BELL")
 
     /**
      * The name of the claim.
