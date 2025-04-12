@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.application.services.old
 
-import dev.mizarc.bellclaims.application.results.PlayerRegisterResult
-import dev.mizarc.bellclaims.application.results.PlayerUnregisterResult
+import dev.mizarc.bellclaims.application.results.old.PlayerRegisterResult
+import dev.mizarc.bellclaims.application.results.old.PlayerUnregisterResult
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player

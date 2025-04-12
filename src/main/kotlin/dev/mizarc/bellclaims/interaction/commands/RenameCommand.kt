@@ -5,8 +5,8 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimName
-import dev.mizarc.bellclaims.application.results.TextValidationErrorResult
-import dev.mizarc.bellclaims.application.results.UpdateClaimAttributeResult
+import dev.mizarc.bellclaims.application.results.common.TextValidationErrorResult
+import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimAttributeResult
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

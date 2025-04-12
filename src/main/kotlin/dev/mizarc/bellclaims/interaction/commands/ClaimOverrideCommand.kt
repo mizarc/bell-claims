@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import dev.mizarc.bellclaims.application.actions.player.ToggleClaimOverride
-import dev.mizarc.bellclaims.application.results.ToggleClaimOverrideResult
+import dev.mizarc.bellclaims.application.results.player.ToggleClaimOverrideResult
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

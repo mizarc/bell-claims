@@ -5,10 +5,10 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimBlockCount
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.claim.flags.GetClaimFlags
-import dev.mizarc.bellclaims.application.actions.claim.partitions.GetClaimPartitions
-import dev.mizarc.bellclaims.application.actions.claim.permissions.GetClaimPermissions
-import dev.mizarc.bellclaims.application.actions.claim.permissions.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
+import dev.mizarc.bellclaims.application.actions.claim.permission.GetClaimPermissions
+import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import dev.mizarc.bellclaims.utils.getDisplayName

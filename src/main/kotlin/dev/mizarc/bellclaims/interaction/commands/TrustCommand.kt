@@ -2,9 +2,9 @@ package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.annotation.*
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
-import dev.mizarc.bellclaims.application.actions.claim.permissions.GrantPlayerClaimPermission
+import dev.mizarc.bellclaims.application.actions.claim.permission.GrantPlayerClaimPermission
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
-import dev.mizarc.bellclaims.application.results.GrantPlayerClaimPermissionResult
+import dev.mizarc.bellclaims.application.results.claim.permission.GrantPlayerClaimPermissionResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import org.koin.core.component.KoinComponent

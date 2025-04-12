@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.application.actions.claim
 
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
-import dev.mizarc.bellclaims.application.results.CreateClaimResult
+import dev.mizarc.bellclaims.application.results.claim.CreateClaimResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Claim

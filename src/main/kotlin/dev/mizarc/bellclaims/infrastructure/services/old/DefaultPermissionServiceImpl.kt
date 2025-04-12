@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.services.old
 
 import dev.mizarc.bellclaims.application.services.old.DefaultPermissionService
-import dev.mizarc.bellclaims.application.results.DefaultPermissionChangeResult
+import dev.mizarc.bellclaims.application.results.old.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import dev.mizarc.bellclaims.domain.values.ClaimPermission

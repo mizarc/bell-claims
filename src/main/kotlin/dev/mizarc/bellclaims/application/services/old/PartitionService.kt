@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.application.services.old
 
-import dev.mizarc.bellclaims.application.results.PartitionCreationResult
-import dev.mizarc.bellclaims.application.results.PartitionDestroyResult
-import dev.mizarc.bellclaims.application.results.PartitionResizeResult
+import dev.mizarc.bellclaims.application.results.old.PartitionCreationResult
+import dev.mizarc.bellclaims.application.results.old.PartitionDestroyResult
+import dev.mizarc.bellclaims.application.results.old.PartitionResizeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.entities.Partition

@@ -14,8 +14,8 @@ import dev.mizarc.bellclaims.application.services.old.ClaimService
 import dev.mizarc.bellclaims.application.services.old.PartitionService
 import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
 import dev.mizarc.bellclaims.application.services.old.PlayerStateService
-import dev.mizarc.bellclaims.application.results.PartitionCreationResult
-import dev.mizarc.bellclaims.application.results.PartitionResizeResult
+import dev.mizarc.bellclaims.application.results.old.PartitionCreationResult
+import dev.mizarc.bellclaims.application.results.old.PartitionResizeResult
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.entities.Claim

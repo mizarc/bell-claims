@@ -3,9 +3,9 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.application.actions.claim.flags.EnableClaimFlag
+import dev.mizarc.bellclaims.application.actions.claim.flag.EnableClaimFlag
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
-import dev.mizarc.bellclaims.application.results.EnableClaimFlagResult
+import dev.mizarc.bellclaims.application.results.claim.flags.EnableClaimFlagResult
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
 import org.koin.core.component.KoinComponent

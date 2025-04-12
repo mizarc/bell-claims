@@ -5,7 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.IsNewClaimLocationValid
 import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
-import dev.mizarc.bellclaims.application.results.IsNewClaimLocationValidResult
+import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.utils.getLangText

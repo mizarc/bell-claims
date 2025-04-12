@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.application.actions.player
 
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
-import dev.mizarc.bellclaims.application.results.ToggleClaimOverrideResult
+import dev.mizarc.bellclaims.application.results.player.ToggleClaimOverrideResult
 import java.util.UUID
 
 class ToggleClaimOverride(private val playerStateRepository: PlayerStateRepository) {
