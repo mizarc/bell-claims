@@ -1,19 +1,26 @@
-package dev.mizarc.bellclaims.infrastructure.services.playerlimit
+package dev.mizarc.bellclaims.infrastructure.services.old.playerlimit
 
 import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import net.milkbowl.vault.chat.Chat
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 
-class SimplePlayerLimitServiceImpl(private val config: Config, private val claimRepo: ClaimRepository,
-                                   private val partitionRepo: PartitionRepository): PlayerLimitService {
+class VaultPlayerLimitServiceImpl(private val config: Config, private val metadata: Chat,
+                                  private val claimRepo: ClaimRepository,
+                                  private val partitionRepo: PartitionRepository): PlayerLimitService {
     override fun getTotalClaimCount(player: OfflinePlayer): Int {
-        return config.claimLimit.coerceAtLeast(0)
+        return metadata.getPlayerInfoInteger(
+            Bukkit.getServer().worlds[0].name, player,
+            "bellclaims.claim_limit", config.claimLimit).takeIf { it > 0 } ?: 0
     }
 
     override fun getTotalClaimBlockCount(player: OfflinePlayer): Int {
-        return config.claimBlockLimit.coerceAtLeast(0)
+        return metadata.getPlayerInfoInteger(
+            Bukkit.getServer().worlds[0].name, player,
+            "bellclaims.claim_block_limit", config.claimBlockLimit).takeIf { it > 0 } ?: 0
     }
 
     override fun getUsedClaimsCount(player: OfflinePlayer): Int {

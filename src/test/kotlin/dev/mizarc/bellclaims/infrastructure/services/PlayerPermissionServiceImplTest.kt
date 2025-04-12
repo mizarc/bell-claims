@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.PlayerPermissionServiceImpl
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

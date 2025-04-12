@@ -1,9 +1,9 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.old
 
-import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
-import dev.mizarc.bellclaims.application.results.PlayerPermissionChangeResult
-import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.results.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -23,7 +23,8 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun addForPlayer(claim: Claim, player: OfflinePlayer,
-                              permission: ClaimPermission): PlayerPermissionChangeResult {
+                              permission: ClaimPermission
+    ): PlayerPermissionChangeResult {
         if (permission in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.add(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS
@@ -40,7 +41,8 @@ class PlayerPermissionServiceImpl(private val playerAccessRepo: PlayerAccessRepo
     }
 
     override fun removeForPlayer(claim: Claim, player: OfflinePlayer,
-                                 permission: ClaimPermission): PlayerPermissionChangeResult {
+                                 permission: ClaimPermission
+    ): PlayerPermissionChangeResult {
         if (permission !in getByPlayer(claim, player)) return PlayerPermissionChangeResult.UNCHANGED
         playerAccessRepo.remove(claim, player, permission)
         return PlayerPermissionChangeResult.SUCCESS

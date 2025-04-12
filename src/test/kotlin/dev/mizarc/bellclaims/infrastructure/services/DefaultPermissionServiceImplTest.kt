@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.DefaultPermissionServiceImpl
 import io.mockk.*
 import org.bukkit.OfflinePlayer
 import org.junit.jupiter.api.Test

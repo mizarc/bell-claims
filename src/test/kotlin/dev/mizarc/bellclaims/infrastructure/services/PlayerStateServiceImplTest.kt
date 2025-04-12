@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.results.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.results.PlayerUnregisterResult
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.PlayerStateServiceImpl
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

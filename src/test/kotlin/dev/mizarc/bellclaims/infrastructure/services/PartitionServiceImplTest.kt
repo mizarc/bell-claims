@@ -11,6 +11,7 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.*
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.infrastructure.services.old.PartitionServiceImpl
 import io.mockk.*
 import org.bukkit.Chunk
 import org.bukkit.Location

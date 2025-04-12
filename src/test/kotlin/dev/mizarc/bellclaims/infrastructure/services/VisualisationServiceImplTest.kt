@@ -7,6 +7,7 @@ import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.infrastructure.services.old.VisualisationServiceImpl
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.Location

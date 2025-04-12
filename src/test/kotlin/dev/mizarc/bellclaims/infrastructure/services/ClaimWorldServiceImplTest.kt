@@ -13,6 +13,7 @@ import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.infrastructure.services.old.ClaimWorldServiceImpl
 import io.mockk.*
 import org.bukkit.Location
 import org.bukkit.Material

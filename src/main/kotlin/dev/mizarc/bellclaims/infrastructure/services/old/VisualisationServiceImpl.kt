@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.old
 
 import dev.mizarc.bellclaims.application.services.old.PartitionService
 import dev.mizarc.bellclaims.application.services.old.VisualisationService
@@ -9,6 +9,7 @@ import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.utils.toward
 import dev.mizarc.bellclaims.utils.transparentMaterials
 import org.bukkit.Location
+import kotlin.collections.iterator
 
 private const val upperRange = 5
 private const val lowerRange = 50
@@ -140,7 +141,7 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
      * @return The 3D position of the first solid block.
      */
     private fun findSolidBlock(position: Position2D, renderLocation: Location,
-                                range: Int, direction: Int): Position3D? {
+                               range: Int, direction: Int): Position3D? {
         val startY = if (direction > 0) renderLocation.blockY + 1 else renderLocation.blockY
         val endY = renderLocation.blockY + direction * range
         for (y in startY toward endY) {
@@ -264,13 +265,17 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
         do {
             val newPosition: Position2D = when (getTravelDirection(previousPosition, currentPosition)) {
                 Direction.North -> findNextPosition(currentPosition, borders,
-                    Position2D(-1, 0), Position2D(0, -1), Position2D(1, 0))
+                    Position2D(-1, 0), Position2D(0, -1), Position2D(1, 0)
+                )
                 Direction.East -> findNextPosition(currentPosition, borders,
-                    Position2D(0, -1), Position2D(1, 0), Position2D(0, 1))
+                    Position2D(0, -1), Position2D(1, 0), Position2D(0, 1)
+                )
                 Direction.South -> findNextPosition(currentPosition, borders,
-                    Position2D(1, 0), Position2D(0, 1), Position2D(-1, 0))
+                    Position2D(1, 0), Position2D(0, 1), Position2D(-1, 0)
+                )
                 else -> findNextPosition(currentPosition, borders,
-                    Position2D(0, 1), Position2D(-1, 0), Position2D(0, -1))
+                    Position2D(0, 1), Position2D(-1, 0), Position2D(0, -1)
+                )
             } ?: continue
 
             resultingBorder.add(newPosition)
@@ -288,7 +293,8 @@ class VisualisationServiceImpl(private val partitionService: PartitionService): 
      * @return The valid position that was found within the border structure, null if not found.
      */
     private fun findNextPosition(current: Position2D, borders: MutableList<Position2D>,
-                                 vararg directions: Position2D): Position2D? {
+                                 vararg directions: Position2D
+    ): Position2D? {
         return directions.mapNotNull { direction ->
             borders.firstOrNull { it.x == current.x + direction.x && it.z == current.z + direction.z }}.firstOrNull()
     }

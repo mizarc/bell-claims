@@ -1,13 +1,13 @@
-package dev.mizarc.bellclaims.infrastructure.services
+package dev.mizarc.bellclaims.infrastructure.services.old
 
-import dev.mizarc.bellclaims.application.services.old.PlayerStateService
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.results.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.results.PlayerUnregisterResult
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.domain.entities.PlayerState
-import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import java.util.*
+import java.util.UUID
 
 class PlayerStateServiceImpl(private val playerStateRepo: PlayerStateRepository): PlayerStateService {
     override fun isPlayerRegistered(player: OfflinePlayer): Boolean {
