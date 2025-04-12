@@ -73,7 +73,7 @@ class ClaimListMenu(private val claimService: ClaimService, private val player: 
         var xSlot = 0
         var ySlot = 0
         for (claim in claims) {
-            val claimItem = ItemStack(claim.icon)
+            val claimItem = ItemStack(Material.valueOf(claim.icon))
                 .name(claim.name)
                 .lore("${claim.position.x}, ${claim.position.y}, ${claim.position.z}")
             val guiWarpItem = GuiItem(claimItem) { guiEvent -> guiEvent.isCancelled = true }
