@@ -43,58 +43,7 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
 
 
 
-    fun openClaimTrustMenu(claim: Claim, page: Int) {
-        val trustedPlayers = playerPermissionService.getByClaim(claim)
 
-        // Create trust menu
-        val gui = ChestGui(6, "Trusted Players")
-        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
-            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
-
-        // Add controls pane
-        val controlsPane = addControlsSection(gui) { openClaimEditMenu(claim) }
-        addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
-
-        // Add default permissions button
-        val defaultPermsItem = ItemStack(Material.LECTERN)
-            .name(getLangText("DefaultPermissions"))
-            .lore(getLangText("ConfiguresUntrustedPermissions"))
-        val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermissionsMenu(claim) }
-        controlsPane.addItem(guiDefaultPermsItem, 2, 0)
-
-        // Add all players menu
-        val allPlayersItem = ItemStack(Material.PLAYER_HEAD)
-            .name("All Players")
-            .lore("Find a player from a list of all online players")
-        val guiAllPlayersItem = GuiItem(allPlayersItem) { openAllPlayersMenu(claim, 0) }
-        controlsPane.addItem(guiAllPlayersItem, 4, 0)
-
-        // Add list of players
-        val warpsPane = StaticPane(0, 2, 9, 4)
-        gui.addPane(warpsPane)
-        var xSlot = 0
-        var ySlot = 0
-        for (trustedPlayer in trustedPlayers) {
-            val warpItem = createHead(Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
-                .name("${Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId).name}")
-                .lore(getLangText("HasPermissions1") + "${trustedPlayer.value.count()} "
-                        + getLangText("HasPermissions2"))
-            val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer.key.uniqueId))
-            }
-            warpsPane.addItem(guiWarpItem, xSlot, ySlot)
-
-            // Increment slot
-            xSlot += 1
-            if (xSlot > 8) {
-                xSlot = 0
-                ySlot += 1
-            }
-        }
-
-        gui.show(claimBuilder.player)
-    }
 
     fun openPlayerPermissionsMenu(claim: Claim, player: OfflinePlayer) {
         // Create player permissions menu
