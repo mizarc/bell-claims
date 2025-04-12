@@ -59,21 +59,24 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
         val renamingItem = ItemStack(Material.NAME_TAG)
             .name(getLangText("RenameClaim"))
             .lore(getLangText("RenamesThisClaim"))
-        val guiRenamingItem = GuiItem(renamingItem) { menuNavigator.openMenu() }
+        val guiRenamingItem = GuiItem(renamingItem) { menuNavigator.openMenu(
+            ClaimRenamingMenu(menuNavigator, player, claim)) }
         pane.addItem(guiRenamingItem, 3, 0)
 
         // Add player trusts button
         val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
             .name(getLangText("TrustedPlayers"))
             .lore("${getPlayersWithPermissionInClaim.execute(claim.id).count()}")
-        val guiPlayerTrustItem = GuiItem(playerTrustItem) { menuNavigator.openMenu() }
+        val guiPlayerTrustItem = GuiItem(playerTrustItem) {
+            menuNavigator.openMenu(ClaimTrustMenu(menuNavigator, player, claim)) }
         pane.addItem(guiPlayerTrustItem, 5, 0)
 
         // Add claim flags button
         val claimFlagsItem = ItemStack(Material.ACACIA_HANGING_SIGN)
             .name(getLangText("ClaimFlags"))
             .lore("${getClaimFlags.execute(claim.id).count()}")
-        val guiClaimFlagsItem = GuiItem(claimFlagsItem) { menuNavigator.openMenu() }
+        val guiClaimFlagsItem = GuiItem(claimFlagsItem) {
+            menuNavigator.openMenu(ClaimFlagMenu(menuNavigator, player, claim)) }
         pane.addItem(guiClaimFlagsItem, 6, 0)
 
         // Add claim move button
