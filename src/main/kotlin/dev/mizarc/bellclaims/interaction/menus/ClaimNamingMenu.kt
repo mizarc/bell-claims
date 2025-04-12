@@ -60,7 +60,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
             when (result) {
                 is CreateClaimResult.Success -> {
                     location.world.playSound(player.location, Sound.BLOCK_VAULT_OPEN_SHUTTER, SoundCategory.BLOCKS, 1.0f, 1.0f)
-                    menuNavigator.openMenu(WarpManagementMenu(player, menuNavigator, result.claim))
+                    menuNavigator.openMenu(ClaimManagementMenu(menuNavigator, player, result.claim))
                 }
                 is CreateClaimResult.LimitExceeded -> {
                     val paperItem = ItemStack(Material.PAPER)
