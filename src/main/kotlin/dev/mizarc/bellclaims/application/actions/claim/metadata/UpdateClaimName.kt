@@ -2,7 +2,7 @@ package dev.mizarc.bellclaims.application.actions.claim.metadata
 
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.application.results.UpdateClaimNameResult
+import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimNameResult
 import java.util.UUID
 
 class UpdateClaimName(private val claimRepository: ClaimRepository) {

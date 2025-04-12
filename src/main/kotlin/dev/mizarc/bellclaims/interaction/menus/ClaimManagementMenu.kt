@@ -3,8 +3,8 @@ package dev.mizarc.bellclaims.interaction.menus
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import dev.mizarc.bellclaims.application.actions.claim.flags.GetClaimFlags
-import dev.mizarc.bellclaims.application.actions.claim.permissions.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
+import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
 import dev.mizarc.bellclaims.infrastructure.getClaimTool

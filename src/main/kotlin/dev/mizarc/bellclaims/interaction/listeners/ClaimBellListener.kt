@@ -2,8 +2,8 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.DoesPlayerHaveTransferRequest
 import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
-import dev.mizarc.bellclaims.application.results.DoesPlayerHaveTransferRequestResult
-import dev.mizarc.bellclaims.application.results.GetClaimAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.DoesPlayerHaveTransferRequestResult
+import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material

@@ -4,8 +4,8 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.claim.partitions.RemovePartition
-import dev.mizarc.bellclaims.application.results.RemovePartitionResult
+import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
+import dev.mizarc.bellclaims.application.results.claim.partition.RemovePartitionResult
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

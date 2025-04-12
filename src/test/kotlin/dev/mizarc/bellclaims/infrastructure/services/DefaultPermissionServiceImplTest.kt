@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.application.results.DefaultPermissionChangeResult
+import dev.mizarc.bellclaims.application.results.old.DefaultPermissionChangeResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.domain.values.ClaimPermission

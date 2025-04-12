@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.application.actions.player
 
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
-import dev.mizarc.bellclaims.application.results.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import java.util.UUID
 

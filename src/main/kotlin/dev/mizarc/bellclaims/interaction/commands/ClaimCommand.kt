@@ -6,8 +6,8 @@ import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Syntax
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
-import dev.mizarc.bellclaims.application.actions.claim.partitions.GetPartitionByPosition
-import dev.mizarc.bellclaims.application.results.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool

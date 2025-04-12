@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.services.old
 
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
-import dev.mizarc.bellclaims.application.results.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.application.results.old.PlayerPermissionChangeResult
 import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission

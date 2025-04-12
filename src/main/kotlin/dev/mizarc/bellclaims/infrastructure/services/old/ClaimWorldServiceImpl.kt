@@ -3,8 +3,8 @@ package dev.mizarc.bellclaims.infrastructure.services.old
 import dev.mizarc.bellclaims.application.services.old.ClaimWorldService
 import dev.mizarc.bellclaims.application.services.old.PartitionService
 import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
-import dev.mizarc.bellclaims.application.results.ClaimCreationResult
-import dev.mizarc.bellclaims.application.results.ClaimMoveResult
+import dev.mizarc.bellclaims.application.results.old.ClaimCreationResult
+import dev.mizarc.bellclaims.application.results.old.ClaimMoveResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.values.Area
