@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.application.results.PlayerRegisterResult
 import dev.mizarc.bellclaims.application.results.PlayerUnregisterResult
 import dev.mizarc.bellclaims.domain.entities.PlayerState

@@ -1,15 +1,15 @@
 package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.ClaimWorldService
-import dev.mizarc.bellclaims.application.services.DefaultPermissionService
-import dev.mizarc.bellclaims.application.services.FlagService
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.PlayerPermissionService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
-import dev.mizarc.bellclaims.application.services.VisualisationService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.ClaimWorldService
+import dev.mizarc.bellclaims.application.services.old.DefaultPermissionService
+import dev.mizarc.bellclaims.application.services.old.FlagService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
+import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.VisualisationService
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository

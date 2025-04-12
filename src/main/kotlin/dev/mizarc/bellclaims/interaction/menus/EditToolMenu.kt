@@ -7,9 +7,9 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser

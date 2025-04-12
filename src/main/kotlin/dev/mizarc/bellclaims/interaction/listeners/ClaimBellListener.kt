@@ -1,12 +1,9 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.ClaimWorldService
-import dev.mizarc.bellclaims.application.services.DefaultPermissionService
-import dev.mizarc.bellclaims.application.services.FlagService
-import dev.mizarc.bellclaims.application.services.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.PlayerPermissionService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.actions.claim.DoesPlayerHaveTransferRequest
+import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
+import dev.mizarc.bellclaims.application.results.DoesPlayerHaveTransferRequestResult
+import dev.mizarc.bellclaims.application.results.GetClaimAtPositionResult
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
@@ -15,16 +12,15 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.interaction.menus.ClaimManagementMenu
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ClaimBellListener(private val claimService: ClaimService,
-                        private val claimWorldService: ClaimWorldService,
-                        private val flagService: FlagService,
-                        private val defaultPermissionService: DefaultPermissionService,
-                        private val playerPermissionService: PlayerPermissionService,
-                        private val playerLimitService: PlayerLimitService,
-                        private val playerStateService: PlayerStateService
-): Listener {
+class ClaimBellListener(): Listener, KoinComponent {
+    private val getClaimAtPosition: GetClaimAtPosition by inject()
+    private val doesPlayerHaveTransferRequest: DoesPlayerHaveTransferRequest by inject()
+
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
@@ -33,15 +29,41 @@ class ClaimBellListener(private val claimService: ClaimService,
         if ((clickedBlock.type) != Material.BELL) return
         if (!event.player.hasPermission("bellclaims.action.bell")) return
 
-        // Check for permission to open bell menu
-        val claim = claimWorldService.getByLocation(clickedBlock.location)
+        // Get the claim if it exists at the clicked location
+        var claim: Claim? = null
+        val claimResult = getClaimAtPosition.execute(Position3D(clickedBlock.location), clickedBlock.world.uid)
+        when (claimResult) {
+            is GetClaimAtPositionResult.Success -> claim = claimResult.claim
+            is GetClaimAtPositionResult.NoClaimFound -> {}
+            is GetClaimAtPositionResult.StorageError -> {
+                event.player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                return
+            }
+        }
 
-        val playerHasTransferRequest = if (claim != null) claimService.playerHasTransferRequest(claim, event.player) else false
+        if (claim != null) {
+            // Check if player has an active claim transfer request
+            var playerHasTransferRequest = false
+            val transferResult = doesPlayerHaveTransferRequest.execute(claim.id, event.player.uniqueId)
+            when (transferResult) {
+                is DoesPlayerHaveTransferRequestResult.Success -> playerHasTransferRequest = transferResult.hasRequest
+                else -> {
+                    event.player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                }
+            }
 
-        if (claim != null && claim.owner.uniqueId != event.player.uniqueId && !playerHasTransferRequest) {
-            event.player.sendActionBar(Component.text("This claim bell is owned by ${claim.owner.name}")
-                .color(TextColor.color(255, 85, 85)))
-            return
+            // Notify no ability to interact with claim without being owner or without an active transfer request
+            if (claim.owner.uniqueId != event.player.uniqueId && !playerHasTransferRequest) {
+                event.player.sendActionBar(Component.text("This claim bell is owned by ${claim.owner.name}")
+                    .color(TextColor.color(255, 85, 85)))
+                return
+            }
+
+            // Open transfer request menu if pending
+            if (playerHasTransferRequest) {
+                claimManagementMenu.openTransferOfferMenu(claim, event.player)
+                return
+            }
         }
 
         // Open the menu
@@ -49,11 +71,6 @@ class ClaimBellListener(private val claimService: ClaimService,
         val claimBuilder = Claim.Builder(event.player, clickedBlock.location)
         val claimManagementMenu = ClaimManagementMenu(claimService, claimWorldService, flagService, defaultPermissionService,
             playerPermissionService, playerLimitService, playerStateService, claimBuilder)
-
-        if (claim != null && playerHasTransferRequest) {
-            claimManagementMenu.openTransferOfferMenu(claim, event.player)
-            return
-        }
 
         claimManagementMenu.openClaimManagementMenu()
     }

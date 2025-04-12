@@ -10,9 +10,9 @@ import org.bukkit.event.Event
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.FlagService
-import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.FlagService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Flag
 import dev.mizarc.bellclaims.domain.values.Position2D

@@ -1,9 +1,9 @@
 package dev.mizarc.bellclaims.interaction.visualisation
 
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
-import dev.mizarc.bellclaims.application.services.VisualisationService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.VisualisationService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.Config

@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.services
+package dev.mizarc.bellclaims.application.services.old
 
 import dev.mizarc.bellclaims.application.results.PartitionCreationResult
 import dev.mizarc.bellclaims.application.results.PartitionDestroyResult

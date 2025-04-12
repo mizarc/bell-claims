@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
-import dev.mizarc.bellclaims.application.services.ClaimService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.interaction.menus.ClaimListMenu
 

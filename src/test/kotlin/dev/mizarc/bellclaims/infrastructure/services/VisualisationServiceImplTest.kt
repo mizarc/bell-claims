@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.VisualisationService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.VisualisationService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.entities.Partition
