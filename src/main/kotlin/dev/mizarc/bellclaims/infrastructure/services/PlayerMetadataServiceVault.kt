@@ -8,15 +8,15 @@ import java.util.UUID
 
 class PlayerMetadataServiceVault(private val metadata: Chat,
                                  private val config: MainConfig): PlayerMetadataService {
-    override fun getPlayerClaimLimit(playerId: UUID): Int? {
+    override fun getPlayerClaimLimit(playerId: UUID): Int {
         return metadata.getPlayerInfoInteger(
             Bukkit.getServer().worlds[0].name, Bukkit.getOfflinePlayer(playerId),
-            "bellclaims.claim_limit", config.claimLimit).takeIf { it > 0 }
+            "bellclaims.claim_limit", config.claimLimit)
     }
 
-    override fun getPlayerClaimBlockLimit(playerId: UUID): Int? {
+    override fun getPlayerClaimBlockLimit(playerId: UUID): Int {
         return metadata.getPlayerInfoInteger(
             Bukkit.getServer().worlds[0].name, Bukkit.getOfflinePlayer(playerId),
-            "bellclaims.claim_block_limit", config.claimLimit).takeIf { it > 0 }
+            "bellclaims.claim_block_limit", config.claimBlockLimit)
     }
 }
