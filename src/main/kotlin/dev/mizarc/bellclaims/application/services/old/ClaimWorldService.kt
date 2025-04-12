@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.services
+package dev.mizarc.bellclaims.application.services.old
 
 import dev.mizarc.bellclaims.application.results.ClaimCreationResult
 import dev.mizarc.bellclaims.application.results.ClaimMoveResult

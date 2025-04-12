@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

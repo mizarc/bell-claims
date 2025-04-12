@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.infrastructure.getClaimTool

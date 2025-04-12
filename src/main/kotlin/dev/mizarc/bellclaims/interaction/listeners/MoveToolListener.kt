@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location

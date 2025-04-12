@@ -12,13 +12,13 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.ClaimWorldService
-import dev.mizarc.bellclaims.application.services.DefaultPermissionService
-import dev.mizarc.bellclaims.application.services.FlagService
-import dev.mizarc.bellclaims.application.services.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.PlayerPermissionService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.ClaimWorldService
+import dev.mizarc.bellclaims.application.services.old.DefaultPermissionService
+import dev.mizarc.bellclaims.application.services.old.FlagService
+import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
+import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
@@ -94,51 +94,7 @@ class ClaimManagementMenu(private val claimService: ClaimService,
         Bukkit.getPlayer(claimBuilder.player.uniqueId)?.let { player -> gui.show(player)}
     }
 
-    fun openClaimNamingMenu(existingName: Boolean = false) {
-        // Create homes menu
-        val gui = AnvilGui("Naming Claim")
-        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
-            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
-        // Add lodestone menu item
-        val firstPane = StaticPane(0, 0, 1, 1)
-        val lodestoneItem = ItemStack(Material.BELL)
-            .name(claimBuilder.name)
-            .lore("${claimBuilder.location.blockX}, ${claimBuilder.location.blockY}, " +
-                    "${claimBuilder.location.blockZ}")
-        val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
-        firstPane.addItem(guiItem, 0, 0)
-        gui.firstItemComponent.addPane(firstPane)
-
-        // Add message menu item if name is already taken
-        if (existingName) {
-            val secondPane = StaticPane(0, 0, 1, 1)
-            val paperItem = ItemStack(Material.PAPER)
-                .name(getLangText("AlreadyHaveClaimWithName"))
-            val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
-            secondPane.addItem(guiPaperItem, 0, 0)
-            gui.secondItemComponent.addPane(secondPane)
-        }
-
-        // Add confirm menu item.
-        val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
-        val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
-            claimBuilder.name = gui.renameText
-            if (claimService.getByPlayer(claimBuilder.player).any { it.name == gui.renameText }) {
-                openClaimNamingMenu(existingName = true)
-                return@GuiItem
-            }
-            claimWorldService.create(gui.renameText, claimBuilder.location, claimBuilder.player)
-            val claim = claimWorldService.getByLocation(claimBuilder.location) ?: return@GuiItem
-            openClaimEditMenu(claim)
-            guiEvent.isCancelled = true
-        }
-        thirdPane.addItem(confirmGuiItem, 0, 0)
-        gui.resultComponent.addPane(thirdPane)
-        gui.show(claimBuilder.player)
-    }
 
     fun openClaimEditMenu(claim: Claim) {
         val gui = ChestGui(1, "Claim '${claim.name}'")

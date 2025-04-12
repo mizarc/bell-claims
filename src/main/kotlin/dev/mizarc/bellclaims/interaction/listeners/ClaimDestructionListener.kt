@@ -7,9 +7,9 @@ import org.bukkit.block.data.type.Bell
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.ClaimWorldService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.ClaimWorldService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.domain.values.Position3D
 import org.bukkit.Material
 import org.bukkit.NamespacedKey

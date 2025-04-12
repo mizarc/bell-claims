@@ -10,10 +10,10 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.EquipmentSlot
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.PlayerStateService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
 import dev.mizarc.bellclaims.application.results.PartitionCreationResult
 import dev.mizarc.bellclaims.application.results.PartitionResizeResult
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent

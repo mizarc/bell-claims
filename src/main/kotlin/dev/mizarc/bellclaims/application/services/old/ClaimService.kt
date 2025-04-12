@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.services
+package dev.mizarc.bellclaims.application.services.old
 
 import dev.mizarc.bellclaims.domain.entities.Claim
 import org.bukkit.Material

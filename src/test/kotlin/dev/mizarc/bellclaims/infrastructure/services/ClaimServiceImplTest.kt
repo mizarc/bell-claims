@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.application.services.ClaimService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository

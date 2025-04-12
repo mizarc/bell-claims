@@ -1,8 +1,8 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.application.services.ClaimService
-import dev.mizarc.bellclaims.application.services.PartitionService
-import dev.mizarc.bellclaims.application.services.PlayerLimitService
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
 import dev.mizarc.bellclaims.application.results.PartitionCreationResult
 import dev.mizarc.bellclaims.application.results.PartitionDestroyResult
 import dev.mizarc.bellclaims.application.results.PartitionResizeResult
