@@ -9,12 +9,6 @@ import org.bukkit.Location
  * @property z The Z-Axis position.
  */
 data class Position2D(override val x: Int, override val z: Int): Position(x, null, z) {
-    /**
-     * Creates a position from a location.
-     *
-     * @param location The location instance to use.
-     */
-    constructor(location: Location): this(location.blockX, location.blockZ)
 
     /**
      * Creates a position from a 3D position
