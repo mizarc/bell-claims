@@ -27,6 +27,7 @@ import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
@@ -34,7 +35,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, private val player: Player,
-                                 private val claim: Claim, private val targetPlayer: Player
+                                 private val claim: Claim, private val targetPlayer: OfflinePlayer
 ): Menu, KoinComponent {
     private val getPlayerClaimPermissions: GetClaimPlayerPermissions by inject()
     private val grantAllPlayerClaimPermissions: GrantAllPlayerClaimPermissions by inject()
