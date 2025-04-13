@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.results.common.TextValidationErrorResul
 sealed class AcceptTransferRequestResult {
     object Success : AcceptTransferRequestResult()
     object ClaimNotFound : AcceptTransferRequestResult()
+    object NoActiveTransferRequest: AcceptTransferRequestResult()
     object ClaimLimitExceeded: AcceptTransferRequestResult()
     object BlockLimitExceeded: AcceptTransferRequestResult()
     object PlayerOwnsClaim: AcceptTransferRequestResult()
