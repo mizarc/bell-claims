@@ -3,8 +3,6 @@ package dev.mizarc.bellclaims.infrastructure.persistence.claims
 import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.entities.Claim
-import org.bukkit.Bukkit
-import org.bukkit.Material
 import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import java.sql.SQLException
@@ -28,11 +26,11 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
     }
 
     override fun getByPlayer(playerId: UUID): Set<Claim> {
-        return claims.values.filter { it.owner.uniqueId == playerId }.toSet()
+        return claims.values.filter { it.playerId == playerId }.toSet()
     }
 
     override fun getByName(playerId: UUID, name: String): Claim? {
-        return claims.values.firstOrNull { it.owner.uniqueId == playerId && it.name == name }
+        return claims.values.firstOrNull { it.playerId == playerId && it.name == name }
     }
 
     override fun getByPosition(position: Position3D, worldId: UUID): Claim? {
@@ -45,8 +43,8 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
             val rowsAffected = storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, " +
                     "creationTime, name, description, positionX, positionY, positionZ, icon) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?);",
-                claim.id, claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
-                claim.position.x, claim.position.y, claim.position.z, claim.icon.name)
+                claim.id, claim.worldId, claim.playerId, claim.creationTime, claim.name, claim.description,
+                claim.position.x, claim.position.y, claim.position.z, claim.icon)
             return rowsAffected > 0
         } catch (error: SQLException) {
             throw DatabaseOperationException("Failed to add claim '${claim.name}' to the database. " +
@@ -60,7 +58,7 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         try {
             val rowsAffected = storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, " +
                     "creationTime=?, name=?, description=?, positionX=?, positionY=?, positionZ=?, icon=? WHERE id=?;",
-                claim.worldId, claim.owner.uniqueId, claim.creationTime, claim.name, claim.description,
+                claim.worldId, claim.playerId, claim.creationTime, claim.name, claim.description,
                 claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
             return rowsAffected > 0
         } catch (error: SQLException) {
@@ -102,11 +100,11 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
             for (result in results) {
                 val claim = Claim(UUID.fromString(result.getString("id")),
                     UUID.fromString(result.getString("worldId")),
-                    Bukkit.getOfflinePlayer(UUID.fromString(result.getString("ownerId"))),
+                    UUID.fromString(result.getString("ownerId")),
                     Instant.parse(result.getString("creationTime")), result.getString("name"),
                     result.getString("description"), Position3D(result.getInt("positionX"),
                         result.getInt("positionY"), result.getInt("positionZ")),
-                    Material.valueOf(result.getString("icon")))
+                    result.getString("icon"))
                 claims[claim.id] = claim
             }
         } catch (error: SQLException) {
