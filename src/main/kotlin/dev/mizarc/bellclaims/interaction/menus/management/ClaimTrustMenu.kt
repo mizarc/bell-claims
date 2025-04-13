@@ -45,14 +45,16 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
         val defaultPermsItem = ItemStack(Material.LECTERN)
             .name(getLangText("DefaultPermissions"))
             .lore(getLangText("ConfiguresUntrustedPermissions"))
-        val guiDefaultPermsItem = GuiItem(defaultPermsItem) { openClaimPermissionsMenu(claim) }
+        val guiDefaultPermsItem = GuiItem(defaultPermsItem) {
+            menuNavigator.openMenu(ClaimWidePermissionsMenu(menuNavigator, player, claim)) }
         controlsPane.addItem(guiDefaultPermsItem, 2, 0)
 
         // Add all players menu
         val allPlayersItem = ItemStack(Material.PLAYER_HEAD)
             .name("All Players")
             .lore("Find a player from a list of all online players")
-        val guiAllPlayersItem = GuiItem(allPlayersItem) { openAllPlayersMenu(claim, 0) }
+        val guiAllPlayersItem = GuiItem(allPlayersItem) {
+            menuNavigator.openMenu(ClaimPlayerMenu(menuNavigator, player, claim)) }
         controlsPane.addItem(guiAllPlayersItem, 4, 0)
 
         // Add list of players
@@ -61,15 +63,14 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
         var xSlot = 0
         var ySlot = 0
         for (trustedPlayer in trustedPlayers) {
-            val player = Bukkit.getOfflinePlayer(trustedPlayer)
+            val targetPlayer = Bukkit.getOfflinePlayer(trustedPlayer)
             val playerPermissions = getClaimPlayerPermissions.execute(claim.id, trustedPlayer)
-            val warpItem = createHead(player)
-                .name("${player.name}")
+            val warpItem = createHead(targetPlayer)
+                .name("${targetPlayer.name}")
                 .lore(getLangText("HasPermissions1") + "${playerPermissions.count()} "
                         + getLangText("HasPermissions2"))
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(trustedPlayer))
-            }
+                menuNavigator.openMenu(ClaimPlayerPermissionsMenu(menuNavigator, player, claim, targetPlayer)) }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 
             // Increment slot
