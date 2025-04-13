@@ -70,7 +70,7 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
 
         // Check if player owns claim
         val claim = getClaimDetails.execute(partition.claimId) ?: return false
-        if (player.uniqueId != claim.owner.uniqueId) {
+        if (player.uniqueId != claim.playerId) {
             player.sendMessage(getLangText("NoPermissionToModifyClaim"))
             return false
         }
