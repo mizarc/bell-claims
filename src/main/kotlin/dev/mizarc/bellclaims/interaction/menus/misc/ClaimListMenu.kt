@@ -1,15 +1,15 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.misc
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.services.old.ClaimService
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
+import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
+import org.bukkit.inventory.ItemStack
 import kotlin.math.ceil
 
 class ClaimListMenu(private val claimService: ClaimService, private val player: Player) {

@@ -23,7 +23,8 @@ import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.domain.values.Flag
-import dev.mizarc.bellclaims.interaction.menus.ConfirmationMenu.Companion.openConfirmationMenu
+import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu
+import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu.Companion.openConfirmationMenu
 import dev.mizarc.bellclaims.utils.*
 import org.bukkit.event.inventory.ClickType
 import kotlin.math.ceil
@@ -41,161 +42,6 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
                              private val playerStateService: PlayerStateService,
                              private val claimBuilder: Claim.Builder) {
 
-
-
-
-
-    fun openPlayerPermissionsMenu(claim: Claim, player: OfflinePlayer) {
-        // Create player permissions menu
-        val gui = ChestGui(6, "${player.name}'s Permissions")
-        gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
-        gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
-            guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
-
-        // Add controls pane
-        val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
-
-        val deselectAction: () -> Unit = {
-            playerPermissionService.removeAllForPlayer(claim, player)
-            openPlayerPermissionsMenu(claim, player)
-        }
-
-        val selectAction: () -> Unit = {
-            playerPermissionService.addAllForPlayer(claim, player)
-            openPlayerPermissionsMenu(claim, player)
-        }
-
-        addSelector(controlsPane, createHead(player).name("${player.name}"), deselectAction, selectAction)
-
-        if (claimService.playerHasTransferRequest(claim, player)) {
-            // Transfer requests for player, show cancel button
-            val cancelTransferClaimAction: () -> Unit = {
-                claimService.deleteTransferRequest(claim, player)
-                openPlayerPermissionsMenu(claim, player)
-            }
-
-            val transferClaimItem = ItemStack(Material.BARRIER)
-                .name("§4${getLangText("CancelTransferClaim")}")
-                .lore(getLangText("CancelTransferClaimDescription"))
-            val guiSelectItem = GuiItem(transferClaimItem) { cancelTransferClaimAction() };
-
-            controlsPane.addItem(guiSelectItem, 8, 0)
-        } else {
-            // No transfer request exists for player
-            val transferClaimAction: () -> Unit = {
-                val cancelAction: () -> Unit = {
-                    openPlayerPermissionsMenu(claim, player)
-                }
-
-                val confirmAction: () -> Unit = {
-                    claimService.addTransferRequest(claim, player)
-                    openPlayerPermissionsMenu(claim, player)
-                }
-
-                val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
-                    menuTitle = getLangText("TransferClaimQuestion"),
-                    cancelAction = cancelAction,
-                    confirmAction = confirmAction,
-                    confirmActionDescription = getLangText("TransferClaimConfirmQuestionDescription")
-                )
-
-                openConfirmationMenu(claimBuilder.player, parameters)
-            }
-
-            val playerClaimLimitReached = playerLimitService.getRemainingClaimCount(player) < 1;
-
-            val playerClaimMaxBlockCount = playerLimitService.getTotalClaimBlockCount(player)
-            val playerClaimedBlocksCount = playerLimitService.getUsedClaimBlockCount(player)
-            val claimBlockCount = claimService.getBlockCount(claim);
-
-            val playerBlockLimitReached = (playerClaimMaxBlockCount - playerClaimedBlocksCount - claimBlockCount) < 0;
-
-            val guiSelectItem: GuiItem
-            if (playerClaimLimitReached) {
-                // Player cannot receive transfer
-                val transferClaimItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("§4${getLangText("CannotTransferClaim")}")
-                    .lore(getLangText("PlayerHasRunOutOfClaims"))
-                guiSelectItem = GuiItem(transferClaimItem) { };
-            } else if (playerBlockLimitReached) {
-                // Player cannot receive transfer
-                val transferClaimItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("§4${getLangText("CannotTransferClaim")}")
-                    .lore(getLangText("PlayerClaimBlockLimit"))
-                guiSelectItem = GuiItem(transferClaimItem) { };
-            } else {
-                val transferClaimItem = ItemStack(Material.BELL)
-                    .name("§4${getLangText("TransferClaim")}")
-                    .lore("This will transfer the current claim to ${player.name}!")
-                guiSelectItem = GuiItem(transferClaimItem) { transferClaimAction() };
-            }
-
-            controlsPane.addItem(guiSelectItem, 8, 0)
-        }
-
-        // Add vertical divider
-        val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
-        val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
-        val verticalDividerPane = StaticPane(4, 2, 1, 6)
-        gui.addPane(verticalDividerPane)
-        for (slot in 0..3) {
-            verticalDividerPane.addItem(guiDividerItem, 0, slot)
-        }
-
-        val enabledPermissions = playerPermissionService.getByPlayer(claim, player)
-        val disabledPermissions = ClaimPermission.entries.toTypedArray().subtract(enabledPermissions)
-
-        // Add list of disabled permissions
-        val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
-        gui.addPane(disabledPermissionsPane)
-        var xSlot = 0
-        var ySlot = 0
-        for (permission in disabledPermissions) {
-            val permissionItem = permission.getIcon()
-                .name(permission.getDisplayName())
-                .lore(permission.getDescription())
-
-            val guiPermissionItem = GuiItem(permissionItem) {
-                playerPermissionService.addForPlayer(claim, player, permission)
-                openPlayerPermissionsMenu(claim, player)
-            }
-
-            disabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
-
-            // Increment slot
-            xSlot += 1
-            if (xSlot > 3) {
-                xSlot = 0
-                ySlot += 1
-            }
-        }
-
-        val enabledPermissionsPane = StaticPane(5, 2, 4, 4)
-        gui.addPane(enabledPermissionsPane)
-        xSlot = 0
-        ySlot = 0
-        for (permission in enabledPermissions) {
-            val permissionItem = permission.getIcon()
-                .name(permission.getDisplayName())
-                .lore(permission.getDescription())
-
-            val guiPermissionItem = GuiItem(permissionItem) {
-                playerPermissionService.removeForPlayer(claim, player, permission)
-                openPlayerPermissionsMenu(claim, player)
-            }
-
-            enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
-
-            // Increment slot
-            xSlot += 1
-            if (xSlot > 3) {
-                xSlot = 0
-                ySlot += 1
-            }
-        }
-
-        gui.show(claimBuilder.player)
-    }
 
     fun openTransferOfferMenu(claim: Claim, player: Player) {
         val cancelAction: () -> Unit = {
@@ -546,20 +392,5 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
         controlsPane.addItem(guiNextItem, 8, 0)
     }
 
-    private fun addSelector(controlsPane: StaticPane, displayItem: ItemStack,
-                            deselectAction: () -> Unit, selectAction: () -> Unit) {
-        // Add display item
-        val guiDisplayItem = GuiItem(displayItem) { guiEvent -> guiEvent.isCancelled = true }
-        controlsPane.addItem(guiDisplayItem, 4, 0)
 
-        // Add deselect all button
-        val deselectItem = ItemStack(Material.HONEY_BLOCK).name(getLangText("DeselectAll2"))
-        val guiDeselectItem = GuiItem(deselectItem) { deselectAction() }
-        controlsPane.addItem(guiDeselectItem, 2, 0)
-
-        // Add select all button
-        val selectItem = ItemStack(Material.SLIME_BLOCK).name(getLangText("SelectAll2"))
-        val guiSelectItem = GuiItem(selectItem) { selectAction() }
-        controlsPane.addItem(guiSelectItem, 6, 0)
-    }
 }

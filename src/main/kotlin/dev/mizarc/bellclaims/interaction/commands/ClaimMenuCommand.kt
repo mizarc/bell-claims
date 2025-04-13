@@ -7,7 +7,7 @@ import co.aikar.commands.annotation.Default
 import co.aikar.commands.annotation.Dependency
 import dev.mizarc.bellclaims.application.services.old.ClaimService
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.interaction.menus.ClaimListMenu
+import dev.mizarc.bellclaims.interaction.menus.misc.ClaimListMenu
 
 @CommandAlias("claimmenu")
 class ClaimMenuCommand: BaseCommand() {

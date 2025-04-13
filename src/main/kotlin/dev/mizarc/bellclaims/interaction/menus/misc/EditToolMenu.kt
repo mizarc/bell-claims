@@ -1,23 +1,22 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.misc
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.gui.type.HopperGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
+import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.application.services.old.ClaimService
 import dev.mizarc.bellclaims.application.services.old.PartitionService
 import dev.mizarc.bellclaims.application.services.old.PlayerStateService
-import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
+import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-
-import dev.mizarc.bellclaims.utils.getLangText
+import org.bukkit.inventory.ItemStack
 
 class EditToolMenu(private val claimService: ClaimService, private val partitionService: PartitionService,
                    private val playerStateService: PlayerStateService, private val player: Player,
@@ -101,7 +100,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
 
         val partitionItem = ItemStack(Material.PAPER)
             .name(getLangText("Partition"))
-            .lore(getLangText("PartitionLocation") + "${partition.area.lowerPosition2D.x}, ${partition.area.lowerPosition2D.z} / " +
+            .lore(
+                getLangText("PartitionLocation") + "${partition.area.lowerPosition2D.x}, ${partition.area.lowerPosition2D.z} / " +
                     "${partition.area.upperPosition2D.x}, ${partition.area.upperPosition2D.z}")
             .lore(getLangText("PartitionBlocks") + "${partition.area.getBlockCount()}")
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }

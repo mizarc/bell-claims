@@ -21,7 +21,7 @@ import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.values.Position2D
-import dev.mizarc.bellclaims.interaction.menus.EditToolMenu
+import dev.mizarc.bellclaims.interaction.menus.misc.EditToolMenu
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
