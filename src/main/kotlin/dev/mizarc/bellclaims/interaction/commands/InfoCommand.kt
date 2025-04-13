@@ -12,6 +12,7 @@ import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWith
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
 import dev.mizarc.bellclaims.utils.getDisplayName
+import org.bukkit.Bukkit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.ZoneId
@@ -47,7 +48,7 @@ class InfoCommand : ClaimCommand(), KoinComponent {
         if (claim.description.isNotEmpty()) chatInfo.addParagraph("${claim.description}\n")
 
         // Add metadata values
-        chatInfo.addLinked("Owner", claim.owner.name.toString())
+        chatInfo.addLinked("Owner", Bukkit.getOfflinePlayer(claimId).name ?: "(Name not found)")
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", getClaimPartitions.execute(claimId).count().toString())
         chatInfo.addLinked("Block Count", getClaimBlockCount.execute(claimId).toString())
