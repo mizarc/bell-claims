@@ -16,7 +16,7 @@ class RevokeAllClaimWidePermissions(private val claimRepository: ClaimRepository
      * @param claimId The [UUID] of the claim to which the flag should be added.
      * @return An [RevokeAllPlayerClaimPermissionsResult] indicating the outcome of the flag addition operation.
      */
-    fun execute(claimId: UUID, playerId: UUID): RevokeAllClaimWidePermissionsResult {
+    fun execute(claimId: UUID): RevokeAllClaimWidePermissionsResult {
         // Check if claim exists
         claimRepository.getById(claimId) ?: return RevokeAllClaimWidePermissionsResult.ClaimNotFound
 
