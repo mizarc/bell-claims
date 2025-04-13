@@ -1,49 +1,33 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.management
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
-import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.interaction.menus.Menu
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
+import dev.mizarc.bellclaims.utils.createHead
+import dev.mizarc.bellclaims.utils.getLangText
+import dev.mizarc.bellclaims.utils.lore
+import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.OfflinePlayer
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemFlag
-import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.application.services.old.ClaimService
-import dev.mizarc.bellclaims.application.services.old.ClaimWorldService
-import dev.mizarc.bellclaims.application.services.old.DefaultPermissionService
-import dev.mizarc.bellclaims.application.services.old.FlagService
-import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.old.PlayerPermissionService
-import dev.mizarc.bellclaims.application.services.old.PlayerStateService
-import dev.mizarc.bellclaims.domain.entities.Claim
-import dev.mizarc.bellclaims.infrastructure.getClaimTool
-import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
-import dev.mizarc.bellclaims.domain.values.ClaimPermission
-import dev.mizarc.bellclaims.domain.values.Flag
-import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu
-import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu.Companion.openConfirmationMenu
-import dev.mizarc.bellclaims.utils.*
 import org.bukkit.event.inventory.ClickType
+import org.bukkit.inventory.ItemStack
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.math.ceil
 
-import dev.mizarc.bellclaims.utils.getLangText
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextColor
+class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val player: Player,
+                      private val claim: Claim): Menu, KoinComponent {
+    private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
 
-class ClaimManagementMenuOld(private val claimService: ClaimService,
-                             private val claimWorldService: ClaimWorldService,
-                             private val flagService: FlagService,
-                             private val defaultPermissionService: DefaultPermissionService,
-                             private val playerPermissionService: PlayerPermissionService,
-                             private val playerLimitService: PlayerLimitService,
-                             private val playerStateService: PlayerStateService,
-                             private val claimBuilder: Claim.Builder) {
+    private var page = 0
 
-    fun openAllPlayersMenu(claim: Claim, page: Int = 0) {
-        val trustedPlayers = playerPermissionService.getByClaim(claim)
+    override fun open() {
+        val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
 
         // Create trust menu
         val gui = ChestGui(6, "All Players")
@@ -52,14 +36,15 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls
-        val controlsPane = addControlsSection(gui) { openClaimTrustMenu(claim, 0) }
+        val controlsPane = addControlsSection(gui) { menuNavigator.goBack() }
         addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
 
         // Add player search item
         val playerSearchItem = ItemStack(Material.NAME_TAG)
             .name(getLangText("Search"))
             .lore(getLangText("FindPlayerByName"))
-        val guiPlayerSearchItem = GuiItem(playerSearchItem) { openPlayerSearchMenu(claim, false) }
+        val guiPlayerSearchItem = GuiItem(playerSearchItem) {
+            menuNavigator.openMenu(ClaimPlayerSearchMenu(menuNavigator, claim, player)) }
         controlsPane.addItem(guiPlayerSearchItem, 3, 0)
 
         // Add list of players
@@ -67,15 +52,15 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
         gui.addPane(warpsPane)
         var xSlot = 0
         var ySlot = 0
-        for (player in Bukkit.getOnlinePlayers()) {
-            if (player == claimBuilder.player) {
+        for (targetPlayer in Bukkit.getOnlinePlayers()) {
+            if (targetPlayer.uniqueId == claim.playerId) {
                 continue
             }
 
             val warpItem = createHead(Bukkit.getOfflinePlayer(player.uniqueId))
                 .name("${Bukkit.getOfflinePlayer(player.uniqueId).name}")
             val guiWarpItem = GuiItem(warpItem) {
-                openPlayerPermissionsMenu(claim, Bukkit.getOfflinePlayer(player.uniqueId))
+                menuNavigator.openMenu(ClaimPlayerPermissionsMenu(menuNavigator, player, claim, targetPlayer))
             }
             warpsPane.addItem(guiWarpItem, xSlot, ySlot)
 
@@ -87,7 +72,7 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
             }
         }
 
-        gui.show(claimBuilder.player)
+        gui.show(player)
     }
 
     private fun addControlsSection(gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
@@ -129,6 +114,4 @@ class ClaimManagementMenuOld(private val claimService: ClaimService,
         val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiNextItem, 8, 0)
     }
-
-
 }
