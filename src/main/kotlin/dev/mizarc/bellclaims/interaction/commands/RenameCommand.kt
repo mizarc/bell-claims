@@ -7,6 +7,7 @@ import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimName
 import dev.mizarc.bellclaims.application.results.common.TextValidationErrorResult
 import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimAttributeResult
+import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimNameResult
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -27,14 +28,17 @@ class RenameCommand : ClaimCommand(), KoinComponent {
         // Update name and notify player of result
         val result = updateClaimName.execute(partition.claimId, name)
         when (result) {
-            is UpdateClaimAttributeResult.Success -> {
+            is UpdateClaimNameResult.Success -> {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("§aClaim $claimName has been renamed to $name.")
             }
-            is UpdateClaimAttributeResult.ClaimNotFound -> {
+            is UpdateClaimNameResult.NameAlreadyExists -> {
+                player.sendMessage("Name $name is already in use.")
+            }
+            is UpdateClaimNameResult.ClaimNotFound -> {
                 player.sendMessage("Claim was not found.")
             }
-            is UpdateClaimAttributeResult.InputTextInvalid -> {
+            is UpdateClaimNameResult.InputTextInvalid -> {
                 result.errors.forEach { error ->
                     when (error) {
                         is TextValidationErrorResult.ExceededCharacterLimit ->
@@ -49,7 +53,7 @@ class RenameCommand : ClaimCommand(), KoinComponent {
                     }
                 }
             }
-            is UpdateClaimAttributeResult.StorageError ->
+            is UpdateClaimNameResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
