@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.management
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
@@ -8,6 +8,8 @@ import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
 import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.domain.values.Position2D
+import dev.mizarc.bellclaims.interaction.menus.Menu
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name

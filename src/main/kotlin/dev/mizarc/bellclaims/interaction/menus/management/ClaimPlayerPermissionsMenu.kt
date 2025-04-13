@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.management
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
@@ -16,7 +16,9 @@ import dev.mizarc.bellclaims.application.results.claim.transfer.CanPlayerReceive
 import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
-import dev.mizarc.bellclaims.interaction.menus.ConfirmationMenu.Companion.openConfirmationMenu
+import dev.mizarc.bellclaims.interaction.menus.Menu
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
+import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu
 import dev.mizarc.bellclaims.utils.createHead
 import dev.mizarc.bellclaims.utils.getDescription
 import dev.mizarc.bellclaims.utils.getDisplayName
@@ -32,7 +34,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, private val player: Player,
-                                 private val claim: Claim, private val targetPlayer: Player): Menu, KoinComponent {
+                                 private val claim: Claim, private val targetPlayer: Player
+): Menu, KoinComponent {
     private val getPlayerClaimPermissions: GetClaimPlayerPermissions by inject()
     private val grantAllPlayerClaimPermissions: GrantAllPlayerClaimPermissions by inject()
     private val grantPlayerClaimPermission: GrantPlayerClaimPermission by inject()
@@ -110,7 +113,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                             confirmActionDescription = getLangText("TransferClaimConfirmQuestionDescription")
                         )
 
-                        openConfirmationMenu(player, parameters)
+                        ConfirmationMenu.Companion.openConfirmationMenu(player, parameters)
                     }
 
 

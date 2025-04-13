@@ -1,17 +1,15 @@
-package dev.mizarc.bellclaims.interaction.menus
+package dev.mizarc.bellclaims.interaction.menus.common
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.HopperGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
+import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
-import org.bukkit.event.inventory.ClickType
-
-import dev.mizarc.bellclaims.utils.getLangText
+import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.hamcrest.Description
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.inventory.ItemStack
 
 class ConfirmationMenu {
     companion object {
@@ -19,7 +17,8 @@ class ConfirmationMenu {
                                               val cancelAction: () -> Unit,
                                               val cancelActionDescription: String = getLangText("TakeMeBack"),
                                               val confirmAction: () -> Unit,
-                                              val confirmActionDescription: String = getLangText("PermanentActionWarning"))
+                                              val confirmActionDescription: String = getLangText("PermanentActionWarning")
+        )
 
 
         // Generic confirmation menu which takes cancel and confirm functions as argument
