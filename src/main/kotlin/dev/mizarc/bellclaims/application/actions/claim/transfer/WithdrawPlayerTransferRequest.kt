@@ -9,9 +9,7 @@ class WithdrawPlayerTransferRequest(private val claimRepository: ClaimRepository
         val claim = claimRepository.getById(claimId) ?: return WithdrawPlayerTransferRequestResult.ClaimNotFound
         if (playerId in claim.transferRequests.keys) return WithdrawPlayerTransferRequestResult.NoPendingRequest
 
-        val currentTimestamp: Int = (System.currentTimeMillis() / 1000).toInt()
-        val requestExpireTimestamp = currentTimestamp + (5 * 60)
-        claim.transferRequests.put(playerId, requestExpireTimestamp)
+        claim.transferRequests.remove(playerId)
         return WithdrawPlayerTransferRequestResult.Success
     }
 }
