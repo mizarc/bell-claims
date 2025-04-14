@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.CreateClaim
 import dev.mizarc.bellclaims.application.results.claim.CreateClaimResult
 import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getLangText
@@ -58,7 +59,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
         val thirdPane = StaticPane(0, 0, 1, 1)
         val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
-            val result = createClaim.execute(player.uniqueId, name, Position3D(location), location.world.uid)
+            val result = createClaim.execute(player.uniqueId, name, location.toPosition3D(), location.world.uid)
             when (result) {
                 is CreateClaimResult.Success -> {
                     location.world.playSound(player.location, Sound.BLOCK_VAULT_OPEN_SHUTTER, SoundCategory.BLOCKS, 1.0f, 1.0f)

@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
-import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 
 import dev.mizarc.bellclaims.utils.getLangText
 import org.koin.core.component.KoinComponent
@@ -52,7 +52,7 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     }
 
     fun getPartitionAtPlayer(player: Player): Partition? {
-        val claimPartition = getPartitionByPosition.execute(Position3D(player.location), player.world.uid)
+        val claimPartition = getPartitionByPosition.execute(player.location.toPosition3D(), player.world.uid)
         if (claimPartition == null) {
             player.sendMessage(getLangText("NoClaimPartitionHere"))
             return null
