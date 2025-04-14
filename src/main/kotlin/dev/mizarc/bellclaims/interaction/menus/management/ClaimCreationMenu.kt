@@ -8,6 +8,7 @@ import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
 import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.domain.values.Position2D
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getLangText
@@ -50,7 +51,7 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
         }
 
         // Change the button depending on whether the player is able to create the claim or not
-        when (isNewClaimLocationValid.execute(Position2D(location), location.world.uid)) {
+        when (isNewClaimLocationValid.execute(location.toPosition2D(), location.world.uid)) {
             IsNewClaimLocationValidResult.Valid -> {
                 val iconEditorItem = ItemStack(Material.BELL)
                     .name(getLangText("CreateClaim"))
