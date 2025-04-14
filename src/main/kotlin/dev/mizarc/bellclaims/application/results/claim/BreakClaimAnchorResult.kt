@@ -4,7 +4,7 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 
 sealed class BreakClaimAnchorResult {
     object Success: BreakClaimAnchorResult()
-    object ClaimBreaking: BreakClaimAnchorResult()
+    data class ClaimBreaking(val remainingBreaks: Int): BreakClaimAnchorResult()
     object ClaimNotFound: BreakClaimAnchorResult()
     object StorageError: BreakClaimAnchorResult()
 }

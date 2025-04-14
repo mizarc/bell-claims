@@ -21,7 +21,7 @@ class BreakClaimAnchor(private val claimRepository: ClaimRepository,
         // Trigger the break reset countdown and decrement break count by 1
         claim.resetBreakCount()
         if (claim.breakCount > 1) {
-            return BreakClaimAnchorResult.ClaimBreaking
+            return BreakClaimAnchorResult.ClaimBreaking(claim.breakCount)
         }
 
         // If break counter met, destroy claim and all associated
