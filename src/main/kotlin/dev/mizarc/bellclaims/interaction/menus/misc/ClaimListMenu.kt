@@ -3,20 +3,26 @@ package dev.mizarc.bellclaims.interaction.menus.misc
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
+import dev.mizarc.bellclaims.interaction.menus.Menu
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.math.ceil
 
-class ClaimListMenu(private val claimService: ClaimService, private val player: Player) {
+class ClaimListMenu(private val menuNavigator: MenuNavigator, private val player: Player): Menu, KoinComponent {
+    private val listPlayerClaims: ListPlayerClaims by inject()
+
     var page = 1
 
-    fun openClaimListMenu(backCommand: String? = null) {
-        val claims = claimService.getByPlayer(player)
+    override fun open() {
+        val claims = listPlayerClaims.execute(player.uniqueId)
         val gui = ChestGui(6, "Claims")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -27,17 +33,9 @@ class ClaimListMenu(private val claimService: ClaimService, private val player: 
         gui.addPane(controlsPane)
 
         // Add go back/exit item
-        val guiExitItem: GuiItem
-        if (backCommand != null) {
-            val exitItem = ItemStack(Material.NETHER_STAR)
-                .name("Go Back")
-            guiExitItem = GuiItem(exitItem) { player.performCommand(backCommand) }
-        }
-        else {
-            val exitItem = ItemStack(Material.NETHER_STAR)
-                .name("Exit")
-            guiExitItem = GuiItem(exitItem) { player.closeInventory() }
-        }
+        val exitItem = ItemStack(Material.NETHER_STAR)
+            .name("Go Back")
+        val guiExitItem = GuiItem(exitItem) { menuNavigator.goBack() }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add prev item
