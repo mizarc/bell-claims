@@ -14,8 +14,7 @@ class IsPlayerInClaimMenu(private val playerStateRepository: PlayerStateReposito
             playerStateRepository.add(playerState)
         }
 
-        val claim = playerState.isInClaimMenu
-        if (claim != null && claim.id == claimId) {
+        if (claimId == playerState.isInClaimMenu) {
             return IsPlayerInClaimMenuResult.Success(true)
         }
         return IsPlayerInClaimMenuResult.Success(false)
