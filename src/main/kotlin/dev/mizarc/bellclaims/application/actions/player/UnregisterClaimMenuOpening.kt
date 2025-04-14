@@ -8,10 +8,7 @@ import java.util.UUID
 
 class UnregisterClaimMenuOpening(private val playerStateRepository: PlayerStateRepository,
                                  private val claimRepository: ClaimRepository) {
-    fun execute(playerId: UUID, claimId: UUID): UnregisterClaimMenuOpeningResult {
-        // Check if claim exists
-        claimRepository.getById(claimId) ?: return UnregisterClaimMenuOpeningResult.ClaimNotFound
-
+    fun execute(playerId: UUID): UnregisterClaimMenuOpeningResult {
         // Get or create player state if it doesn't exist
         var playerState = playerStateRepository.get(playerId)
         if (playerState == null) {
