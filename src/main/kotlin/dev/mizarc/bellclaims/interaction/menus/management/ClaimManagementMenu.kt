@@ -5,6 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.actions.player.RegisterClaimMenuOpening
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
@@ -28,6 +29,7 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
                           private val claim: Claim): Menu, KoinComponent {
     private val getClaimFlags: GetClaimFlags by inject()
     private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
+    private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
 
     override fun open() {
         val gui = ChestGui(1, "Claim '${claim.name}'")
@@ -91,12 +93,8 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
         }
         pane.addItem(guiDeleteItem, 8, 0)
 
-        // Set player state that user is in claim management menu
-        val playerState = playerStateService.getByPlayer(player)
-        if (playerState != null) {
-            playerState.isInClaimMenu = claim
-        }
-
+        // Register the player being in the menu and open it
+        registerClaimMenuOpening.execute(player.uniqueId, claim.id)
         gui.show(player)
     }
 
