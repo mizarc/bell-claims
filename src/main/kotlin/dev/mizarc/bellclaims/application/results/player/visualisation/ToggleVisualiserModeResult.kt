@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.results.player
+package dev.mizarc.bellclaims.application.results.player.visualisation
 
 sealed class ToggleVisualiserModeResult {
     data class Success(val visualiserMode: Int) : ToggleVisualiserModeResult()

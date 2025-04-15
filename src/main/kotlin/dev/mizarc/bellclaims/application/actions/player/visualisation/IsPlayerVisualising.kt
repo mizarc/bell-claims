@@ -1,7 +1,7 @@
-package dev.mizarc.bellclaims.application.actions.player
+package dev.mizarc.bellclaims.application.actions.player.visualisation
 
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
-import dev.mizarc.bellclaims.application.results.player.IsPlayerVisualisingResult
+import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import java.util.UUID
 
