@@ -15,8 +15,13 @@ class PlayerState(val playerId: UUID) {
     var claimToolMode = 0
     var isHoldingClaimTool = false
     var isVisualisingClaims = false
-    var visualisedBlockPositions: MutableMap<UUID, Set<Position3D>> = mutableMapOf() // Map claim id to block positions
     var isInClaimMenu: UUID? = null
     var scheduledVisualiserHide: BukkitRunnable? = null
     var lastVisualisationTime: Instant? = null
+
+    // Map claim id to block positions
+    var visualisedClaims: MutableMap<UUID, Set<Position3D>> = mutableMapOf()
+
+    // Map claim id to partition id to block positions
+    var visualisedPartitions: MutableMap<UUID, MutableMap<UUID, Set<Position3D>>> = mutableMapOf()
 }
