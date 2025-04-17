@@ -40,6 +40,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         playerState.visualisedBlockPositions = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
+        playerStateRepository.update(playerState)
         return borders
     }
 
