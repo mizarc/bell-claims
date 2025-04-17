@@ -61,20 +61,22 @@ class VisualisationServiceBukkit: VisualisationService {
     }
 
     override fun refreshComplete(playerId: UUID, existingPositions: Set<Position3D>, areas: Set<Area>,
-                                 edgeBlock: String, edgeSurfaceBlock: String ) {
+                                 edgeBlock: String, edgeSurfaceBlock: String): Set<Position3D> {
         val border = displayComplete(playerId, areas, edgeBlock, edgeSurfaceBlock)
         val borderToRemove = existingPositions.toMutableSet()
         borderToRemove.removeAll(border)
         clear(playerId, borderToRemove)
+        return border
     }
 
     override fun refreshPartitioned(playerId: UUID, existingPositions: Set<Position3D>, areas: Set<Area>,
                                     edgeBlock: String, edgeSurfaceBlock: String, cornerBlock: String,
-                                    cornerSurfaceBlock: String) {
+                                    cornerSurfaceBlock: String): Set<Position3D> {
         val border = displayPartitioned(playerId, areas, edgeBlock, edgeSurfaceBlock, cornerBlock, cornerSurfaceBlock)
         val borderToRemove = existingPositions.toMutableSet()
         borderToRemove.removeAll(border)
         clear(playerId, borderToRemove)
+        return border
     }
 
     override fun clear(playerId: UUID, positions: Set<Position3D>) {
