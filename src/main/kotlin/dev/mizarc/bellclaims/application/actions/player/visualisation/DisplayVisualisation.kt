@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.PlayerState
+import dev.mizarc.bellclaims.domain.values.Position
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
 import java.time.Instant
@@ -95,9 +96,18 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             }
 
             // Visualise the partition and add it to the map assigned to the partition's claim
-            val newPositions = visualisationService.displayPartitioned(playerId, setOf(partition.area),
-                "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+            val newPositions = if (partition.area.isPositionInArea(claim.position)) {
+                // Main partition
+                visualisationService.displayPartitioned(playerId, setOf(partition.area),
+                    "CYAN_GLAZED_TERRACOTTA", "CYAN_CARPET",
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
+            } else {
+                // Attached partitions
+                visualisationService.displayPartitioned(playerId, setOf(partition.area),
+                    "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
+                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+            }
+
             visualised.computeIfAbsent(claim.id) { mutableSetOf() }.addAll(newPositions)
         }
         return visualised
