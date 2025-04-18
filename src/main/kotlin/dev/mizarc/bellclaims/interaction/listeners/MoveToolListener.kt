@@ -1,7 +1,7 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.actions.claim.MoveClaimAnchor
-import dev.mizarc.bellclaims.application.results.claim.MoveClaimAnchorResult
+import dev.mizarc.bellclaims.application.actions.claim.anchor.MoveClaimAnchor
+import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
