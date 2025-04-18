@@ -1,125 +1,66 @@
 package dev.mizarc.bellclaims.domain.values
 
-import dev.mizarc.bellclaims.interaction.behaviours.RuleBehaviour
-import dev.mizarc.bellclaims.interaction.behaviours.RuleExecutor
-import org.bukkit.event.Event
-
 /**
  * Represents the expected behaviour of certain events in claims that do not pertain to players.
- * NOTE: Unlike [ClaimPermission], this enum does not use a hierarchy to determine which rule takes precedence for any
- * particular event. Due to this, it assumes that every rule works on separate events with no overlap.
  */
-enum class Flag(val rules: Array<RuleExecutor>) {
+enum class Flag {
     /**
-     * When a block is lit on fire.
+     * When fire can spread from one block to another in the claim.
      */
-    FireSpread(arrayOf(
-        RuleBehaviour.Companion.fireSpread,
-        RuleBehaviour.Companion.fireBurn
-    )),
+    FIRE_SPREAD,
 
     /**
-     * When a mob destroys or otherwise changes blocks.
+     * When a mob destroys or otherwise changes blocks in the claim.
      */
-    MobGriefing(arrayOf(
-        RuleBehaviour.Companion.mobBlockChange,
-        RuleBehaviour.Companion.mobBreakDoor,
-        RuleBehaviour.Companion.mobHangingDamage,
-        RuleBehaviour.Companion.mobDamageStaticEntity,
-        RuleBehaviour.Companion.creeperExplode,
-        RuleBehaviour.Companion.creeperDamageStaticEntity,
-        RuleBehaviour.Companion.creeperDamageHangingEntity,
-        RuleBehaviour.Companion.potBreak,
-        RuleBehaviour.Companion.mobSplashPotion
-    )),
+    MOB_GRIEFING,
 
     /**
-     * When TNT or other entities explode.
+     * When TNT or other entities explode blocks in the claim.
      */
-    Explosions(arrayOf(
-        RuleBehaviour.Companion.entityExplode,
-        RuleBehaviour.Companion.blockExplode,
-        RuleBehaviour.Companion.entityExplodeDamage,
-        RuleBehaviour.Companion.blockExplodeDamage,
-        RuleBehaviour.Companion.entityExplodeHangingDamage,
-        RuleBehaviour.Companion.blockExplodeHangingDamage
-    )),
+    EXPLOSIONS,
 
     /**
-     * When a piston extends or retracts and causes other blocks to move.
+     * When a piston placed outside of the claim can pull and push blocks in the claim.
      */
-    Pistons(arrayOf(
-        RuleBehaviour.Companion.pistonExtend,
-        RuleBehaviour.Companion.pistonRetract
-    )),
+    PISTONS,
 
     /**
-     * When fluids flow into a claim
+     * When fluids can flow into the claim.
      */
-    Fluids(arrayOf(
-        RuleBehaviour.Companion.fluidFlow,
-        RuleBehaviour.Companion.fluidBlockForm
-    )),
+    FLUIDS,
 
-    Trees(arrayOf(
-        RuleBehaviour.Companion.treeGrowth
-    )),
+    /**
+     * When trees planted outside a claim grows into the claim.
+     */
+    TREES,
 
-    Sculk(arrayOf(
-        RuleBehaviour.Companion.sculkSpread
-    )),
+    /**
+     * When sculk placed outside a claim spreads into the claim.
+     */
+    SCULK,
 
-    Dispensers(arrayOf(
-        RuleBehaviour.Companion.dispense,
-        RuleBehaviour.Companion.dispensedSplashPotion,
-        RuleBehaviour.Companion.dispensedLingeringPotionSplash,
-        RuleBehaviour.Companion.dispensedLingeringPotionEffect
-    )),
+    /**
+     * When dispensers dispense into the claim.
+     */
+    DISPENSERS,
 
-    Sponge(arrayOf(
-        RuleBehaviour.Companion.spongeAbsorb
-    )),
+    /**
+     * When sponge placed outside the claim can drain water in the claim.
+     */
+    SPONGE,
 
-    Lightning(arrayOf(
-        RuleBehaviour.Companion.lightningDamage
-    )),
+    /**
+     * When lighting can cause damage to a claim.
+     */
+    LIGHTNING,
 
-    FallingBlock(arrayOf(
-        RuleBehaviour.Companion.blockFall
-    )),
+    /**
+     * When falling blocks can materialise when landing in a claim.
+     */
+    FALLING_BLOCK,
 
-    AnimalVehicle(arrayOf(
-        RuleBehaviour.Companion.animalEnterVehicle
-    ));
-
-    companion object {
-        /**
-         * Get the relevant [RuleExecutor] that handles [event].
-         */
-        fun getRuleExecutorForEvent(event: Class<out Event>): RuleExecutor? {
-            for (rule in values()) {
-                for (ruleExecutor in rule.rules) {
-                    if (ruleExecutor.eventClass == event) {
-                        return ruleExecutor
-                    }
-                }
-            }
-            return null
-        }
-
-        /**
-         * Get the [Flag] that handles [event].
-         */
-        fun getRulesForEvent(event: Class<out Event>): Array<Flag> {
-            val rules: ArrayList<Flag> = ArrayList()
-            for (rule in values()) {
-                for (ruleEvent in rule.rules) {
-                    if (ruleEvent.eventClass == event) {
-                        rules.add(rule)
-                    }
-                }
-            }
-            return rules.toTypedArray()
-        }
-    }
+    /**
+     * When animals can be placed in vehicles in a claim.
+     */
+    ANIMAL_VEHICLE
 }
