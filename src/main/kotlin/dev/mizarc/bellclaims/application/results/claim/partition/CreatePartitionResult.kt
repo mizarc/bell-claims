@@ -6,9 +6,9 @@ import dev.mizarc.bellclaims.domain.entities.Partition
 sealed class CreatePartitionResult {
     data class Success(val claim: Claim, val partition: Partition): CreatePartitionResult()
     data class InsufficientBlocks(val requiredExtraBlocks: Int): CreatePartitionResult()
+    data class TooSmall(val minimumSize: Int): CreatePartitionResult()
     object Overlaps: CreatePartitionResult()
     object TooClose: CreatePartitionResult()
     object Disconnected: CreatePartitionResult()
-    object TooSmall: CreatePartitionResult()
     object StorageError: CreatePartitionResult()
 }
