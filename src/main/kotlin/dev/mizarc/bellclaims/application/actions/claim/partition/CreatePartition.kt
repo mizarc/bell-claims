@@ -3,7 +3,6 @@ package dev.mizarc.bellclaims.application.actions.claim.partition
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.results.claim.partition.CreatePartitionResult
-import dev.mizarc.bellclaims.application.results.claim.partition.ResizePartitionResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Partition
@@ -45,7 +44,7 @@ class CreatePartition(private val claimRepository: ClaimRepository,
         for (adjacentPartition in adjacentPartitions) {
             if (adjacentPartition.claimId == partition.claimId) {
                 partitionRepository.add(partition)
-                return CreatePartitionResult.Success
+                return CreatePartitionResult.Success(claim, partition)
             }
         }
 
