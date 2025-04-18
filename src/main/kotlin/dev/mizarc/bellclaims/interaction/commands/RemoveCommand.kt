@@ -33,6 +33,12 @@ class RemoveCommand : ClaimCommand(), KoinComponent {
                 val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
                 player.sendMessage("Partition has been removed for claim §6${claimName}§a.")
             }
+            RemovePartitionResult.Disconnected -> {
+                player.sendMessage("Cannot remove this partition as it would result in a fragmented claim.")
+            }
+            RemovePartitionResult.ExposedClaimAnchor -> {
+                player.sendMessage("Cannot remove this partition as the claim bell is in it.")
+            }
             RemovePartitionResult.StorageError ->
                 player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
