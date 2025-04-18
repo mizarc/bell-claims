@@ -1,58 +1,60 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.actions.claim.MoveClaimAnchor
+import dev.mizarc.bellclaims.application.results.claim.MoveClaimAnchorResult
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.domain.values.Position3D
-import java.util.*
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.util.UUID
 
-class MoveToolListener(private val claimRepo: ClaimRepository,
-                       private val partitionService: PartitionService): Listener {
+class MoveToolListener: Listener, KoinComponent {
+    private val moveClaimAnchor: MoveClaimAnchor by inject()
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
         val claimId = event.itemInHand.itemMeta.persistentDataContainer.get(
             NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: return
-        val claim = claimRepo.getById(UUID.fromString(claimId)) ?: return
 
-        val partition = partitionService.getByLocation(event.blockPlaced.location)
-        if (partition == null || partition.claimId != claim.id) {
-            event.player.sendActionBar(
-                Component.text("Place this block within the claim borders")
-                .color(TextColor.color(255, 85, 85)))
-            event.isCancelled = true
-            return
+        when (moveClaimAnchor.execute(
+            UUID.fromString(claimId), event.player.uniqueId,
+            event.blockPlaced.world.uid, event.blockPlaced.location.toPosition3D())) {
+            MoveClaimAnchorResult.Success -> {
+                event.player.sendActionBar(
+                    Component.text("Claim position has been moved")
+                        .color(TextColor.color(85, 255, 85)))
+                return
+            }
+            MoveClaimAnchorResult.InvalidPosition -> {
+                event.player.sendActionBar(
+                    Component.text("Place this block within the claim borders")
+                        .color(TextColor.color(255, 85, 85)))
+                event.isCancelled = true
+                return
+            }
+            MoveClaimAnchorResult.NoPermission -> {
+                event.player.sendActionBar(
+                    Component.text("You cannot move this claim bell")
+                        .color(TextColor.color(255, 85, 85)))
+                event.player.inventory.setItemInMainHand(ItemStack.empty())
+                event.isCancelled = true
+                return
+            }
+            MoveClaimAnchorResult.StorageError -> {
+                event.player.sendActionBar(
+                    Component.text("An internal error has occurred, contact your local administrator.")
+                        .color(TextColor.color(255, 85, 85)))
+                event.player.inventory.setItemInMainHand(ItemStack.empty())
+                event.isCancelled = true
+                return
+            }
         }
-
-        if (claim.owner != event.player) {
-            event.player.sendActionBar(
-                Component.text("You cannot move this claim bell")
-                    .color(TextColor.color(255, 85, 85)))
-
-            event.player.inventory.setItemInMainHand(ItemStack.empty())
-
-            event.isCancelled = true
-            return
-        }
-
-        val existingLocation = Location(claim.getWorld(),
-            claim.position.x.toDouble(), claim.position.y.toDouble(), claim.position.z.toDouble())
-        val existingBlock = existingLocation.block
-        existingBlock.breakNaturally(ItemStack(Material.WOODEN_HOE))
-        claim.position = Position3D(event.blockPlaced.location)
-        claimRepo.update(claim)
-        event.isCancelled = false
-        event.player.sendActionBar(
-            Component.text("Claim position has been moved")
-                .color(TextColor.color(85, 255, 85)))
     }
 }
