@@ -4,12 +4,23 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.gui.type.HopperGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimBlockCount
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.partition.CanRemovePartition
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
+import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
+import dev.mizarc.bellclaims.application.actions.player.RegisterClaimMenuOpening
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualiserMode
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ToggleVisualiserMode
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.application.services.old.ClaimService
-import dev.mizarc.bellclaims.application.services.old.PartitionService
-import dev.mizarc.bellclaims.application.services.old.PlayerStateService
+import dev.mizarc.bellclaims.application.results.claim.partition.CanRemovePartitionResult
+import dev.mizarc.bellclaims.application.results.player.visualisation.GetVisualiserModeResult
 import dev.mizarc.bellclaims.domain.entities.Partition
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.interaction.menus.Menu
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
@@ -17,11 +28,23 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class EditToolMenu(private val claimService: ClaimService, private val partitionService: PartitionService,
-                   private val playerStateService: PlayerStateService, private val player: Player,
-                   private val visualiser: Visualiser, private val partition: Partition? = null) {
-    fun openEditToolMenu() {
+class EditToolMenu(private val menuNavigator: MenuNavigator, private val player: Player,
+                   private val partition: Partition? = null): Menu, KoinComponent {
+    private val getVisualiserMode: GetVisualiserMode by inject()
+    private val toggleVisualiserMode: ToggleVisualiserMode by inject()
+    private val getClaimDetails: GetClaimDetails by inject()
+    private val getClaimBlockCount: GetClaimBlockCount by inject()
+    private val getClaimPartitions: GetClaimPartitions by inject()
+    private val displayVisualisation: DisplayVisualisation by inject()
+    private val clearVisualisation: ClearVisualisation by inject()
+    private val removePartition: RemovePartition by inject()
+    private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
+    private val canRemovePartition: CanRemovePartition by inject()
+
+    override fun open() {
         val gui = ChestGui(1, getLangText("ClaimTool2"))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -30,29 +53,34 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         val pane = StaticPane(0, 0, 9, 1)
         gui.addPane(pane)
 
-        // Add mode switch icon
-        val modeSwitchItem = ItemStack(Material.SPYGLASS)
-            .name(getLangText("ChangeMode"))
+        // Get visualiser mode
+        val visualiserMode = when (val result = getVisualiserMode.execute(player.uniqueId)) {
+            GetVisualiserModeResult.StorageError -> 0
+            is GetVisualiserModeResult.Success -> result.visualiserMode
+        }
 
-        val playerState = playerStateService.getByPlayer(player) ?: return
+        // Add mode switch icon
+        val modeSwitchItem = ItemStack(Material.SPYGLASS).name(getLangText("ChangeMode"))
         val guiModeSwitchItem: GuiItem
-        if (playerState.claimToolMode == 0) {
+        if (visualiserMode == 0) {
             modeSwitchItem.lore(getLangText("ViewMode1"))
             modeSwitchItem.lore(getLangText("EditMode"))
 
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
-                playerState.claimToolMode = 1
-                visualiser.refresh(player)
-                openEditToolMenu()
+                toggleVisualiserMode.execute(player.uniqueId)
+                clearVisualisation.execute(player.uniqueId)
+                displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
+                open()
             }
         }
         else {
             modeSwitchItem.lore(getLangText("ViewMode2"))
             modeSwitchItem.lore(getLangText("ActiveEditMode"))
             guiModeSwitchItem = GuiItem(modeSwitchItem) {
-                playerState.claimToolMode = 0
-                visualiser.refresh(player)
-                openEditToolMenu()
+                toggleVisualiserMode.execute(player.uniqueId)
+                clearVisualisation.execute(player.uniqueId)
+                displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
+                open()
             }
         }
 
@@ -76,8 +104,8 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         }
 
         // Add message if player doesn't own claim
-        val claim = claimService.getById(partition.claimId) ?: return
-        if (claim.owner.uniqueId != player.uniqueId) {
+        val claim = getClaimDetails.execute(partition.claimId) ?: return
+        if (claim.playerId != player.uniqueId) {
             val messageItem = ItemStack(Material.COAL)
                 .name(getLangText("NotYourClaim"))
                 .lore(getLangText("SelectYourClaimForMoreOptions"))
@@ -88,16 +116,19 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             return
         }
 
-        val partitions = partitionService.getByClaim(claim)
+        // Add claim information item
+        val partitions = getClaimPartitions.execute(claim.id)
+        val blockCount = getClaimBlockCount.execute(claim.id)
         val claimItem = ItemStack(Material.BELL)
             .name(getLangText("Claim"))
-            .lore(getLangText("Name") + "${claim.name}")
+            .lore(getLangText("Name") + claim.name)
             .lore(getLangText("Location") + "${claim.position.x}, ${claim.position.y}, ${claim.position.z}")
             .lore(getLangText("Partitions") + "${partitions.count()}")
-            .lore(getLangText("ClaimBlocks") + "${claimService.getBlockCount(claim)}")
+            .lore(getLangText("ClaimBlocks") + "$blockCount")
         val guiClaimItem = GuiItem(claimItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiClaimItem, 3, 0)
 
+        // Add partition information item
         val partitionItem = ItemStack(Material.PAPER)
             .name(getLangText("Partition"))
             .lore(
@@ -107,24 +138,26 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
         val guiPartitionItem = GuiItem(partitionItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiPartitionItem, 5, 0)
 
-        val primaryPartition = partitionService.getPrimary(claim) ?: return
-        if (partitionService.isRemoveAllowed(partition) ||
-                partition.id == primaryPartition.id) {
-            val deleteItem = ItemStack(Material.GUNPOWDER)
-                .name(getLangText("CantDeletePartition"))
-                .lore(getLangText("FragmentedClaimWarning"))
+        // Change button depending on if partition can be removed
+        when (canRemovePartition.execute(partition.id)) {
+            CanRemovePartitionResult.Success -> {
+                val deleteItem = ItemStack(Material.REDSTONE)
+                    .name(getLangText("DeletePartition"))
+                val guiDeleteItem = GuiItem(deleteItem) { openDeleteMenu(partition) }
+                pane.addItem(guiDeleteItem, 7, 0)
+            }
+            else -> {
+                val deleteItem = ItemStack(Material.GUNPOWDER)
+                    .name(getLangText("CantDeletePartition"))
+                    .lore(getLangText("FragmentedClaimWarning"))
 
-            val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
-            pane.addItem(guiDeleteItem, 7, 0)
-        }
-        else {
-            val deleteItem = ItemStack(Material.REDSTONE)
-                .name(getLangText("DeletePartition"))
-            val guiDeleteItem = GuiItem(deleteItem) { openDeleteMenu(partition) }
-            pane.addItem(guiDeleteItem, 7, 0)
+                val guiDeleteItem = GuiItem(deleteItem) { guiEvent -> guiEvent.isCancelled = true }
+                pane.addItem(guiDeleteItem, 7, 0)
+            }
+
         }
 
-        playerState.isInClaimMenu = claim
+        registerClaimMenuOpening.execute(player.uniqueId, claim.id)
         gui.show(player)
     }
 
@@ -142,7 +175,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             .lore(getLangText("TakeMeBack"))
         val guiNoItem = GuiItem(noItem) { guiEvent ->
             guiEvent.isCancelled = true
-            openEditToolMenu()
+            open()
         }
         pane.addItem(guiNoItem, 0, 0)
 
@@ -152,7 +185,7 @@ class EditToolMenu(private val claimService: ClaimService, private val partition
             .lore(getLangText("PermanentActionWarning"))
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             guiEvent.isCancelled = true
-            partitionService.delete(partition)
+            removePartition.execute(partition.id)
             val event = PartitionModificationEvent(partition)
             event.callEvent()
             player.closeInventory()
