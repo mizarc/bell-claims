@@ -1,11 +1,9 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.application.services.old.PlayerStateService
-import dev.mizarc.bellclaims.domain.values.Position3D
-import dev.mizarc.bellclaims.domain.entities.PlayerState
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
-import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -16,83 +14,68 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.plugin.java.JavaPlugin
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.concurrent.thread
 
-class EditToolVisualisingListener(private val plugin: JavaPlugin,
-                                  private val playerStateService: PlayerStateService,
-                                  private val visualiser: Visualiser,
-                                  private val config: Config): Listener {
+class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
+    private val displayVisualisation: DisplayVisualisation by inject()
+    private val clearVisualisation: ClearVisualisation by inject()
+
+    /**
+     * Triggers when the player swaps to the claim tool in their inventory.
+     */
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) })
     }
 
+    /**
+     * Triggers when the player picks up the claim tool.
+     */
     @EventHandler
     fun onPickupClaimTool(event: EntityPickupItemEvent) {
         if (event.entityType != EntityType.PLAYER) return
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.entity as Player) })
     }
 
+    /**
+     * Triggers when the player drops the claim tool.
+     */
     @EventHandler
     fun onDropClaimTool(event: PlayerDropItemEvent) {
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(event.player) })
     }
 
+    /**
+     * Triggers when the player clicks on the claim tool in their inventory.
+     */
     @EventHandler
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
         val player = event.whoClicked as Player
         plugin.server.scheduler.runTask(plugin, Runnable { autoClaimToolVisualisation(player) })
     }
 
+    /**
+     * Triggers when the player clicks on a border block while visualisation is active.
+     */
     @EventHandler
-    fun onBorderClick(event: PlayerInteractEvent) {
-        val playerState = playerStateService.getByPlayer(event.player) ?: return
-        val clickedBlock = event.clickedBlock ?: return
-        for (claim in playerState.visualisedBlockPositions) {
-            if (claim.value.contains(Position3D(clickedBlock.location))) {
-                thread(start = true) {
-                    Thread.sleep(1)
-                    val blockPositions = playerState.visualisedBlockPositions[claim.key] ?: return@thread
-                    blockPositions.toMutableSet().remove(Position3D(clickedBlock.location))
-                    playerState.visualisedBlockPositions[claim.key] = blockPositions
-                    visualiser.refresh(event.player)
-                }
-                return
-            }
+    fun onClaimToolClick(event: PlayerInteractEvent) {
+        thread(start = true) {
+            Thread.sleep(1)
+            autoClaimToolVisualisation(event.player)
         }
     }
 
     private fun autoClaimToolVisualisation(player: Player) {
         val mainItemMeta = player.inventory.itemInMainHand.itemMeta
         val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
-        val playerState = playerStateService.getByPlayer(player) ?: return
 
         // Visualise if player isn't already holding the claim tool (e.g. swapping hands)
         val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
-        if (!holdingClaimTool || !playerState.isHoldingClaimTool) {
-            if (config.visualiserHideDelayPeriod > 0) {
-                runDelayedVisualisation(holdingClaimTool, playerState, player)
-            }
-            else {
-                visualiser.hide(player)
-                if (holdingClaimTool) visualiser.show(player)
-            }
-        }
-        playerState.isHoldingClaimTool = holdingClaimTool
-    }
-
-    private fun runDelayedVisualisation(holdingClaimTool: Boolean, playerState: PlayerState, player: Player) {
         if (holdingClaimTool) {
-            val scheduledVisualiserHide = playerState.scheduledVisualiserHide
-            if (scheduledVisualiserHide != null && !scheduledVisualiserHide.isCancelled) {
-                scheduledVisualiserHide.cancel()
-                playerState.scheduledVisualiserHide = null
-            } else {
-                visualiser.show(player)
-            }
-
-        } else if (playerState.isVisualisingClaims) {
-            visualiser.delayedVisualiserHide(player)
+            clearVisualisation.execute(player.uniqueId)
+            displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
         }
     }
 }
