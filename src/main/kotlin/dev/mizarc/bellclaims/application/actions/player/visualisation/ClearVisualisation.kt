@@ -17,8 +17,8 @@ class ClearVisualisation(private val playerStateRepository: PlayerStateRepositor
             playerStateRepository.add(playerState)
         }
 
-        visualisationService.clear(playerId, playerState.visualisedBlockPositions.values.flatten().toSet())
-        playerState.visualisedBlockPositions.clear()
+        visualisationService.clear(playerId, playerState.visualisedClaims.values.flatten().toSet())
+        playerState.visualisedClaims.clear()
         playerState.isVisualisingClaims = false
         playerStateRepository.update(playerState)
         return

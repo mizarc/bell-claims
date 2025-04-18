@@ -6,7 +6,6 @@ import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.PlayerState
-import dev.mizarc.bellclaims.domain.values.Position
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
 import java.time.Instant
@@ -38,7 +37,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         }
 
         // Set visualisation in player state
-        playerState.visualisedBlockPositions = borders
+        playerState.visualisedClaims = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
         playerStateRepository.update(playerState)

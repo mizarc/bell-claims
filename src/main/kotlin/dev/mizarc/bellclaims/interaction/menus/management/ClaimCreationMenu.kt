@@ -7,7 +7,6 @@ import dev.mizarc.bellclaims.application.actions.claim.IsNewClaimLocationValid
 import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
 import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
-import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
