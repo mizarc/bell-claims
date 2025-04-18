@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.results.claim
+package dev.mizarc.bellclaims.application.results.claim.anchor
 
 sealed class MoveClaimAnchorResult {
     object Success: MoveClaimAnchorResult()
