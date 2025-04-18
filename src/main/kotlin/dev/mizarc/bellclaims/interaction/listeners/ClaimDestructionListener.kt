@@ -1,11 +1,11 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent
-import dev.mizarc.bellclaims.application.actions.claim.BreakClaimAnchor
-import dev.mizarc.bellclaims.application.actions.claim.GetClaimAnchorAtPosition
+import dev.mizarc.bellclaims.application.actions.claim.anchor.BreakClaimAnchor
+import dev.mizarc.bellclaims.application.actions.claim.anchor.GetClaimAnchorAtPosition
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
-import dev.mizarc.bellclaims.application.results.claim.BreakClaimAnchorResult
-import dev.mizarc.bellclaims.application.results.claim.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.BreakClaimAnchorResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor

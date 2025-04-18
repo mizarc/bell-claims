@@ -1,9 +1,9 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.transfer.DoesPlayerHaveTransferRequest
-import dev.mizarc.bellclaims.application.actions.claim.GetClaimAnchorAtPosition
+import dev.mizarc.bellclaims.application.actions.claim.anchor.GetClaimAnchorAtPosition
 import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
-import dev.mizarc.bellclaims.application.results.claim.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
