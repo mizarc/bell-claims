@@ -3,16 +3,30 @@ package dev.mizarc.bellclaims.application.actions.claim.partition
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.results.claim.partition.CanRemovePartitionResult
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.Position2D
 import java.util.UUID
 
 class CanRemovePartition(private val claimRepository: ClaimRepository,
                          private val partitionRepository: PartitionRepository) {
     fun execute(partitionId: UUID): CanRemovePartitionResult {
         val partition = partitionRepository.getById(partitionId) ?: return CanRemovePartitionResult.StorageError
-        if (isRemoveResultInAnyDisconnected(partition)) return CanRemovePartitionResult.WillBeDisconnected
+
+        // Check if removal would result in partitions being disconnected to the claim anchor
+        if (isRemoveResultInAnyDisconnected(partition)) return CanRemovePartitionResult.Disconnected
+
+        // Check if claim bell would be outside partition
+        val claim = claimRepository.getById(partition.claimId) ?: return CanRemovePartitionResult.StorageError
+        if (partitionId == getPrimaryPartition(claim).id) return CanRemovePartitionResult.ExposedClaimAnchor
+
         partitionRepository.remove(partition.id)
         return CanRemovePartitionResult.Success
+    }
+
+    private fun getPrimaryPartition(claim: Claim): Partition {
+        val claimPartitions = partitionRepository.getByClaim(claim.id)
+        return partitionRepository.getByPosition(Position2D(claim.position)).intersect(claimPartitions.toSet()).first()
     }
 
     private fun isRemoveResultInAnyDisconnected(partition: Partition): Boolean {

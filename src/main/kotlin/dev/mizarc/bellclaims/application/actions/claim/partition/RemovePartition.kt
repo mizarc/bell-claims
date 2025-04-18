@@ -25,8 +25,9 @@ class RemovePartition(private val partitionRepository: PartitionRepository,
          when (canRemovePartition.execute(partitionId)) {
              CanRemovePartitionResult.Success -> Unit
              CanRemovePartitionResult.StorageError -> return RemovePartitionResult.StorageError
-             CanRemovePartitionResult.WillBeDisconnected -> return RemovePartitionResult.WillBeDisconnected
-        }
+             CanRemovePartitionResult.Disconnected -> return RemovePartitionResult.Disconnected
+             CanRemovePartitionResult.ExposedClaimAnchor -> return RemovePartitionResult.ExposedClaimAnchor
+         }
 
         // Remove the partition from the claim
         try {
