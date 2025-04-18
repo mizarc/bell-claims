@@ -21,7 +21,7 @@ class RegisterVisualisation(private val claimRepository: ClaimRepository,
         }
 
         // Set visualised block positions
-        playerState.visualisedBlockPositions[claimId] = blockPositions
+        playerState.visualisedClaims[claimId] = blockPositions
         playerStateRepository.update(playerState)
         return RegisterVisualisationResult.Success
     }

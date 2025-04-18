@@ -20,7 +20,7 @@ class UnregisterVisualisation(private val claimRepository: ClaimRepository,
         }
 
         // Clear visualised block positions
-        playerState.visualisedBlockPositions.remove(claimId)
+        playerState.visualisedClaims.remove(claimId)
         playerStateRepository.update(playerState)
         return UnregisterVisualisationResult.Success
     }

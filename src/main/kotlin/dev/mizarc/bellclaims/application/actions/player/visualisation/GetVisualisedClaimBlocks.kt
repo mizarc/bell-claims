@@ -20,7 +20,7 @@ class GetVisualisedClaimBlocks(private val claimRepository: ClaimRepository,
         }
 
         // Toggle override and persist to storage
-        val blockPositions = playerState.visualisedBlockPositions[claimId]
+        val blockPositions = playerState.visualisedClaims[claimId]
         if (blockPositions != null) {
             return GetVisualisedClaimBlocksResult.Success(blockPositions.toSet())
         }
