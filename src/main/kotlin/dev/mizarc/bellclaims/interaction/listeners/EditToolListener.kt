@@ -1,5 +1,13 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
+import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
+import dev.mizarc.bellclaims.application.actions.claim.partition.CreatePartition
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
+import dev.mizarc.bellclaims.application.actions.claim.partition.ResizePartition
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
+import dev.mizarc.bellclaims.application.actions.player.GetRemainingClaimBlockCount
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -10,37 +18,43 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.EquipmentSlot
-import dev.mizarc.bellclaims.application.services.old.ClaimService
-import dev.mizarc.bellclaims.application.services.old.PartitionService
-import dev.mizarc.bellclaims.application.services.old.PlayerLimitService
-import dev.mizarc.bellclaims.application.services.old.PlayerStateService
-import dev.mizarc.bellclaims.application.results.old.PartitionCreationResult
-import dev.mizarc.bellclaims.application.results.old.PartitionResizeResult
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.partition.CreatePartitionResult
+import dev.mizarc.bellclaims.application.results.claim.partition.ResizePartitionResult
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.interaction.menus.misc.EditToolMenu
-import dev.mizarc.bellclaims.domain.entities.Partition
-import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.domain.values.Area
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 
 import dev.mizarc.bellclaims.utils.getLangText
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.util.UUID
 
 /**
  * Actions based on utilising the claim tool.
- * @property claimContainer A reference to the claim containers to modify.
  */
-class EditToolListener(private val claims: ClaimRepository,
-                       private val partitionService: PartitionService,
-                       private val playerLimitService: PlayerLimitService,
-                       private val playerStateService: PlayerStateService,
-                       private val claimService: ClaimService,
-                       private val visualiser: Visualiser,
-                       private val config: Config) : Listener {
-    private var partitionBuilders = mutableMapOf<Player, Partition.Builder>()
-    private var partitionResizers = mutableMapOf<Player, Partition.Resizer>()
+class EditToolListener: Listener, KoinComponent {
+    private val getPartitionByPosition: GetPartitionByPosition by inject()
+    private val clearVisualisation: ClearVisualisation by inject()
+    private val displayVisualisation: DisplayVisualisation by inject()
+    private val createPartition: CreatePartition by inject()
+    private val getRemainingClaimBlockCount: GetRemainingClaimBlockCount by inject()
+    private val getClaimAtPosition: GetClaimAtPosition by inject()
+    private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
+    private val resizePartition: ResizePartition by inject()
+
+    // Map of player id to the partition and first selected corner to resize a partition
+    private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
+
+    // Map of player id to the claim and first selected corner to create a partition
+    private val firstSelectedCornerCreate: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
 
     @EventHandler
     fun onUseClaimTool(event: PlayerInteractEvent) {
@@ -52,29 +66,30 @@ class EditToolListener(private val claims: ClaimRepository,
         // Open menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
             val location = event.clickedBlock?.location ?: return
-            val partition: Partition? = partitionService.getByLocation(location)
-            EditToolMenu(claimService, partitionService, playerStateService, event.player, visualiser, partition)
-                .openEditToolMenu()
+            val partition = getPartitionByPosition.execute(location.toPosition2D(), location.world.uid)
+            val menuNavigator = MenuNavigator(event.player)
+            menuNavigator.openMenu(EditToolMenu(menuNavigator, event.player, partition))
             return
         }
 
-        visualiser.refresh(event.player)
+        clearVisualisation.execute(event.player.uniqueId)
+        displayVisualisation.execute(event.player.uniqueId, event.player.location.toPosition3D())
 
         // Resizes an existing partition
-        val partitionResizer = partitionResizers[event.player]
+        val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
-            resizePartition(event.player, clickedBlock.location, partitionResizer)
+            resizePartitionBranch(event.player, clickedBlock.location, partitionResizer)
             return
         }
 
         // Creates a new partition
-        val partitionBuilder = partitionBuilders[event.player]
+        val partitionBuilder = firstSelectedCornerCreate[event.player.uniqueId]
         if (partitionBuilder != null) {
-            createPartition(event.player, clickedBlock.location, partitionBuilder)
+            createPartitionBranch(event.player, clickedBlock.location, partitionBuilder)
             return
         }
 
-        // Select corner of existing claim
+        // Select corner of existing claim for resize operation
         if (selectExistingCorner(event.player, clickedBlock.location)) {
             return
         }
@@ -88,9 +103,9 @@ class EditToolListener(private val claims: ClaimRepository,
         if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) return
 
         // Cancel claim building on unequip
-        val partitionBuilder = partitionBuilders[event.player]
+        val partitionBuilder = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionBuilder != null) {
-            partitionBuilders.remove(event.player)
+            firstSelectedCornerResize.remove(event.player.uniqueId)
             event.player.sendActionBar(
                 Component.text(getLangText("ClaimToolUnequipped"))
                 .color(TextColor.color(255, 85, 85)))
@@ -98,9 +113,9 @@ class EditToolListener(private val claims: ClaimRepository,
         }
 
         // Cancel claim resizing
-        val partitionResizer = partitionResizers[event.player]
+        val partitionResizer = firstSelectedCornerCreate[event.player.uniqueId]
         if (partitionResizer != null) {
-            partitionResizers.remove(event.player)
+            firstSelectedCornerCreate.remove(event.player.uniqueId)
             event.player.sendActionBar(
                 Component.text(getLangText("ClaimToolUnequippedResizingCancelled"))
                     .color(TextColor.color(255, 85, 85)))
@@ -112,7 +127,8 @@ class EditToolListener(private val claims: ClaimRepository,
      */
     fun selectNewCorner(player: Player, location: Location) {
         // Check if the selected spot exists in an existing claim
-        if (partitionService.getByLocation(location) != null) {
+        val partition = getPartitionByPosition.execute(location.toPosition2D(), location.world.uid)
+        if (partition != null) {
             player.sendActionBar(
                 Component.text("That spot is inside an existing claim")
                     .color(TextColor.color(255, 85, 85)))
@@ -121,10 +137,9 @@ class EditToolListener(private val claims: ClaimRepository,
 
         // Find claims next to the current selection
         var selectedClaim: Claim? = null
-        val adjacentPartitions = findAdjacentPartitions(location)
-        for (partition in adjacentPartitions) {
-            val claim = claimService.getById(partition.claimId) ?: continue
-            if (claim.owner.uniqueId == player.uniqueId) {
+        val adjacentClaims = findAdjacentClaims(location)
+        for (claim in adjacentClaims) {
+            if (claim.playerId == player.uniqueId) {
                 selectedClaim = claim
                 break
             }
@@ -137,7 +152,7 @@ class EditToolListener(private val claims: ClaimRepository,
                     .color(TextColor.color(255, 85, 85)))
         }
 
-        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
+        val remainingClaimBlockCount = getRemainingClaimBlockCount.execute(player.uniqueId)
 
         // Check if the player already hit claim block limit
         if (remainingClaimBlockCount < 1) {
@@ -147,78 +162,83 @@ class EditToolListener(private val claims: ClaimRepository,
         }
 
         // Start partition building
-        partitionBuilders[player] = Partition.Builder(selectedClaim.id, Position2D(location))
+        firstSelectedCornerCreate[player.uniqueId] = Pair(selectedClaim.id, location.toPosition2D())
         return player.sendActionBar(
-            Component.text(getLangText("NewClaimExtensionStarted1") + "$remainingClaimBlockCount" + getLangText("NewClaimExtensionStarted2"))
-                .color(TextColor.color(85, 255, 85)))
+            Component.text(getLangText("NewClaimExtensionStarted1") + "$remainingClaimBlockCount"
+                    + getLangText("NewClaimExtensionStarted2")).color(TextColor.color(85, 255, 85)))
     }
 
     /**
      * Creates a new partition using a claim builder.
      */
-    fun createPartition(player: Player, location: Location, partitionBuilder: Partition.Builder) {
-        partitionBuilder.secondPosition2D = Position2D(location.x.toInt(), location.z.toInt())
-        val partition = partitionBuilder.build()
-        val claim = claimService.getById(partition.claimId) ?: return
-        when (partitionService.append(partition.area, claim)) {
-            PartitionCreationResult.OVERLAP ->
-                return player.sendActionBar(Component.text("That selection overlaps an existing partition")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionCreationResult.TOO_CLOSE ->
-                return player.sendActionBar(Component.text("That selection is too close to another claim")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionCreationResult.TOO_SMALL ->
-                return player.sendActionBar(Component.text("The selection must be at least " +
-                        "${config.minimumPartitionSize}x${config.minimumPartitionSize} blocks")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionCreationResult.INSUFFICIENT_BLOCKS ->
-                return player.sendActionBar(Component.text("That selection would require an additional " +
-                        "${partition.area.getBlockCount() - playerLimitService.getRemainingClaimBlockCount(player)} " +
-                        "claim blocks.")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionCreationResult.SUCCESS ->
-                player.sendActionBar(Component.text("New partition has been added to " + claim.name)
+    fun createPartitionBranch(player: Player, location: Location, partitionBuilder: Pair<UUID, Position2D>) {
+        val secondPosition = Position2D(location.x.toInt(), location.z.toInt())
+        val area = Area(partitionBuilder.second, secondPosition)
+        when (val result = createPartition.execute(partitionBuilder.first, area)) {
+            is CreatePartitionResult.Success -> {
+                player.sendActionBar(Component.text("New partition has been added to " + result.claim.name)
                     .color(TextColor.color(85, 255, 85)))
-            PartitionCreationResult.NOT_CONNECTED -> player.sendActionBar(Component.text("That selection is " +
-                    "not connected to your claim.")
-                .color(TextColor.color(255, 85, 85)))
+                firstSelectedCornerCreate.remove(player.uniqueId)
+                val event = PartitionModificationEvent(result.partition)
+                event.callEvent()
+            }
+            is CreatePartitionResult.Disconnected -> {
+                player.sendActionBar(Component.text("That selection is " +
+                        "not connected to your claim.")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is CreatePartitionResult.InsufficientBlocks -> {
+                player.sendActionBar(Component.text("That selection would require an additional " +
+                        "${result.requiredExtraBlocks} claim blocks.").color(TextColor.color(255, 85, 85)))
+            }
+            is CreatePartitionResult.Overlaps -> {
+                player.sendActionBar(Component.text("That selection overlaps an existing partition")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is CreatePartitionResult.TooClose -> {
+                player.sendActionBar(Component.text("That selection is too close to another claim")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is CreatePartitionResult.TooSmall -> {
+                player.sendActionBar(Component.text("The selection must be at least " +
+                        "${result.minimumSize}x${result.minimumSize} blocks").color(TextColor.color(255, 85, 85)))
+            }
+            is CreatePartitionResult.StorageError -> {
+                player.sendActionBar(Component.text("An internal error has occurred, contact your local administrator.")
+                    .color(TextColor.color(255, 85, 85)))
+            }
         }
-
-        // Update builders list and visualisation
-        partitionBuilders.remove(player)
-        val event = PartitionModificationEvent(partition)
-        event.callEvent()
     }
 
     /**
      * Selects an existing claim corner if one is selected that a player has access to.
      */
     fun selectExistingCorner(player: Player, location: Location) : Boolean {
-        val partition = partitionService.getByLocation(location) ?: return false
-        val claim = claims.getById(partition.claimId) ?: return false
-
-        // Check if player state exists
-        val playerState = playerStateService.getByPlayer(player)
-        if (playerState == null) {
-            player.sendPlainMessage("§cSomehow, your player data doesn't exist. Please contact an administrator.")
-            return false
+        val partition = getPartitionByPosition.execute(location.toPosition2D(), location.world.uid) ?: return false
+        val claim = when (val result = getClaimAtPosition.execute(location.world.uid, location.toPosition2D())) {
+            is GetClaimAtPositionResult.Success -> result.claim
+            else -> return false
         }
 
         // Check for permission to modify claim.
-        if (playerState.claimOverride) {}
-        else if (claim.owner.uniqueId != player.uniqueId) {
+        val hasOverride = when (doesPlayerHaveClaimOverride.execute(player.uniqueId)) {
+            DoesPlayerHaveClaimOverrideResult.StorageError -> false
+            is DoesPlayerHaveClaimOverrideResult.Success -> true
+        }
+        if (hasOverride) {}
+        else if (claim.playerId != player.uniqueId) {
             player.sendActionBar(
                 Component.text("You don't have permission to modify that claim.")
                     .color(TextColor.color(255, 85, 85)))
             return false
         }
 
-        if (!partition.isPositionInCorner(Position2D(location))) {
+        if (!partition.isPositionInCorner(location.toPosition2D())) {
             return false
         }
 
-        partitionResizers[player] = Partition.Resizer(partition, Position2D(location))
-        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
+        firstSelectedCornerResize[player.uniqueId] = Pair(partition.id, location.toPosition2D())
+        val remainingClaimBlockCount = getRemainingClaimBlockCount.execute(player.uniqueId)
         player.sendActionBar(
             Component.text("Claim corner selected. Select a different location to resize. " +
                     "You have $remainingClaimBlockCount blocks remaining.")
@@ -229,54 +249,54 @@ class EditToolListener(private val claims: ClaimRepository,
     /**
      * Selects a new position to resize the claim.
      */
-    fun resizePartition(player: Player, location: Location, partitionResizer: Partition.Resizer) {
-        partitionResizer.setNewCorner(Position2D(location.x.toInt(), location.z.toInt()))
-
-        val remainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
-        val newPartition = partitionResizer.partition.copy()
-        newPartition.area = partitionResizer.newArea
-        val result = partitionService.resize(partitionResizer.partition, partitionResizer.newArea)
-        val newRemainingClaimBlockCount = playerLimitService.getRemainingClaimBlockCount(player)
-        when (result) {
-            PartitionResizeResult.OVERLAP ->
-                player.sendActionBar(Component.text("That selection overlaps an existing claim")
-                        .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.TOO_CLOSE ->
-                player.sendActionBar(Component.text("That selection is too close to another claim")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.EXPOSED_CLAIM_HUB ->
-                player.sendActionBar(Component.text("That selection would result in the claim bell " +
-                        "being outside the claim area")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.TOO_SMALL ->
-                player.sendActionBar(Component.text("The selection must be at least " +
-                        "${config.minimumPartitionSize}x${config.minimumPartitionSize} blocks")
-                    .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.DISCONNECTED ->
+    fun resizePartitionBranch(player: Player, location: Location, partitionResizer: Pair<UUID, Position2D>) {
+        val secondPosition = Position2D(location.x.toInt(), location.z.toInt())
+        val area = Area(partitionResizer.second, secondPosition)
+        when (val result = resizePartition.execute(partitionResizer.first, area)) {
+            is ResizePartitionResult.Success -> {
+                player.sendActionBar(
+                    Component.text("Partition successfully resized. " +
+                            "You have ${result.remainingBlocks} blocks remaining.")
+                        .color(TextColor.color(85, 255, 85)))
+                val event = PartitionModificationEvent(result.partition)
+                event.callEvent()
+                firstSelectedCornerResize.remove(player.uniqueId)
+            }
+            is ResizePartitionResult.Disconnected -> {
                 player.sendActionBar(Component.text("Resizing to that size would result in a gap between " +
                         "claim partitions")
                     .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.INSUFFICIENT_BLOCKS ->
-                player.sendActionBar(Component.text("That resize would require an additional " +
-                        "${partitionResizer.getExtraBlockCount() - remainingClaimBlockCount} blocks")
+            }
+            is ResizePartitionResult.ExposedClaimAnchor -> {
+                player.sendActionBar(Component.text("That selection would result in the claim bell " +
+                        "being outside the claim area")
                     .color(TextColor.color(255, 85, 85)))
-            PartitionResizeResult.SUCCESS ->
-                player.sendActionBar(
-                    Component.text("Claim partition successfully resized. " +
-                            "You have $newRemainingClaimBlockCount blocks remaining.")
-                        .color(TextColor.color(85, 255, 85)))
-        }
-
-        // Update visualiser
-        if (result == PartitionResizeResult.SUCCESS) {
-            claimService.getById(newPartition.claimId) ?: return
-            val event = PartitionModificationEvent(newPartition)
-            event.callEvent()
-            partitionResizers.remove(player)
+            }
+            is ResizePartitionResult.InsufficientBlocks -> {
+                player.sendActionBar(Component.text("That resize would require an additional " +
+                        "${result.requiredExtraBlocks} blocks").color(TextColor.color(255, 85, 85)))
+            }
+            is ResizePartitionResult.Overlaps -> {
+                player.sendActionBar(Component.text("That selection overlaps an existing claim")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is ResizePartitionResult.TooClose -> {
+                player.sendActionBar(Component.text("That selection is too close to another claim")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is ResizePartitionResult.TooSmall -> {
+                player.sendActionBar(Component.text("The selection must be at least " +
+                        "${result.minimumSize}x${result.minimumSize} blocks")
+                    .color(TextColor.color(255, 85, 85)))
+            }
+            is ResizePartitionResult.StorageError -> {
+                player.sendActionBar(Component.text("An internal error has occurred, contact your local administrator.")
+                    .color(TextColor.color(255, 85, 85)))
+            }
         }
     }
 
-    private fun findAdjacentPartitions(location: Location): List<Partition> {
+    private fun findAdjacentClaims(location: Location): List<Claim> {
         val x = location.blockX.toDouble()
         val y = location.blockY.toDouble()
         val z = location.blockZ.toDouble()
@@ -287,6 +307,11 @@ class EditToolListener(private val claims: ClaimRepository,
             Location(world, x, y, z + 1),
             Location(world, x - 1, y, z),
             Location(world, x + 1, y, z))
-        return surroundingLocations.mapNotNull { partitionService.getByLocation(it) }
+        return surroundingLocations.mapNotNull {
+            when (val result = getClaimAtPosition.execute(location.world.uid, location.toPosition2D())) {
+                is GetClaimAtPositionResult.Success -> result.claim
+                else -> null
+            }
+        }
     }
 }
