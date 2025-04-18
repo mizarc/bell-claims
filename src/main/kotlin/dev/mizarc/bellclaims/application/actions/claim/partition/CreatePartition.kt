@@ -37,7 +37,10 @@ class CreatePartition(private val claimRepository: ClaimRepository,
         }
 
         // Check if new area takes too much space
-        if (playerBlockCount + area.getBlockCount() > playerBlockLimit) return CreatePartitionResult.InsufficientBlocks
+        if (playerBlockCount + area.getBlockCount() > playerBlockLimit) {
+            val requiredExtraBlocks = (playerBlockCount + area.getBlockCount()) - playerBlockLimit
+            return CreatePartitionResult.InsufficientBlocks(requiredExtraBlocks)
+        }
 
         // Append partition to existing claim if adjacent partition is part of the same claim
         val adjacentPartitions = getAdjacent(partition)
