@@ -24,8 +24,9 @@ class CreatePartition(private val claimRepository: ClaimRepository,
         if (isPartitionTooClose(partition)) return CreatePartitionResult.TooClose
 
         // Check if claim meets minimum size
-        if (area.getXLength() < config.minimumPartitionSize ||
-            area.getZLength() < config.minimumPartitionSize) return CreatePartitionResult.TooSmall
+        if (area.getXLength() < config.minimumPartitionSize || area.getZLength() < config.minimumPartitionSize) {
+            return CreatePartitionResult.TooSmall(config.minimumPartitionSize)
+        }
 
         // Check if the player has reached their claim block limit
         val claim = claimRepository.getById(claimId) ?: return CreatePartitionResult.StorageError
