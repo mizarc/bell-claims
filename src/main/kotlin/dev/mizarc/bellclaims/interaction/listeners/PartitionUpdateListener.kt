@@ -2,14 +2,11 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
-import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualisedClaimBlocks
 import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVisualising
-import dev.mizarc.bellclaims.application.actions.player.visualisation.UnregisterVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.application.results.player.visualisation.GetVisualisedClaimBlocksResult
 import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
 import dev.mizarc.bellclaims.domain.entities.Claim
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
@@ -18,29 +15,17 @@ import org.bukkit.event.Listener
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class PartitionUpdateListener(private val visualiser: Visualiser): Listener, KoinComponent {
+class PartitionUpdateListener: Listener, KoinComponent {
     private val getClaimDetails: GetClaimDetails by inject()
     private val getClaimPartitions: GetClaimPartitions by inject()
     private val isPlayerVisualising: IsPlayerVisualising by inject()
-    private val unregisterVisualisation: UnregisterVisualisation by inject()
-    private val getVisualisedClaimBlocks: GetVisualisedClaimBlocks by inject()
+    private val refreshVisualisation: RefreshVisualisation by inject()
 
     @EventHandler
     fun onPartitionUpdate(event: PartitionModificationEvent) {
         val claim = getClaimDetails.execute(event.partition.claimId) ?: return
         val nearbyPlayers = getNearbyPlayers(claim)
-        for (player in nearbyPlayers) {
-
-            // Clear and redo visualisation for selected claim
-            when (val result = getVisualisedClaimBlocks.execute(player.uniqueId, claim.id)) {
-                is GetVisualisedClaimBlocksResult.Success -> {
-                    visualiser.revertVisualisedBlocks(player, result.blockPositions)
-                }
-                else -> {}
-            }
-            unregisterVisualisation.execute(player.uniqueId, claim.id)
-            visualiser.show(player, claim)
-        }
+        for (player in nearbyPlayers) refreshVisualisation.execute(player.uniqueId, claim.id, event.partition.id)
     }
 
     /**
