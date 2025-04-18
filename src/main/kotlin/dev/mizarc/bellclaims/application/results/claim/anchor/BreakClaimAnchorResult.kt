@@ -1,6 +1,4 @@
-package dev.mizarc.bellclaims.application.results.claim
-
-import dev.mizarc.bellclaims.domain.entities.Claim
+package dev.mizarc.bellclaims.application.results.claim.anchor
 
 sealed class BreakClaimAnchorResult {
     object Success: BreakClaimAnchorResult()

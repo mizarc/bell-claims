@@ -1,4 +1,4 @@
-package dev.mizarc.bellclaims.application.results.claim
+package dev.mizarc.bellclaims.application.results.claim.anchor
 
 import dev.mizarc.bellclaims.domain.entities.Claim
 

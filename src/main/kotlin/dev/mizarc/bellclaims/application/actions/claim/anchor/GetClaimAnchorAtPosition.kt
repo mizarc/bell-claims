@@ -1,7 +1,7 @@
-package dev.mizarc.bellclaims.application.actions.claim
+package dev.mizarc.bellclaims.application.actions.claim.anchor
 
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
-import dev.mizarc.bellclaims.application.results.claim.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
 import dev.mizarc.bellclaims.domain.values.Position3D
 import java.util.UUID
 

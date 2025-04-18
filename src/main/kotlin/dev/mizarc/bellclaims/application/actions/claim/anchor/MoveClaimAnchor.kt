@@ -1,8 +1,9 @@
-package dev.mizarc.bellclaims.application.actions.claim
+package dev.mizarc.bellclaims.application.actions.claim.anchor
 
+import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
-import dev.mizarc.bellclaims.application.results.claim.MoveClaimAnchorResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position3D
@@ -10,7 +11,8 @@ import java.util.UUID
 
 class MoveClaimAnchor(private val claimRepository: ClaimRepository,
                       private val worldManipulationService: WorldManipulationService,
-                      private val getClaimAtPosition: GetClaimAtPosition) {
+                      private val getClaimAtPosition: GetClaimAtPosition
+) {
     fun execute(claimId: UUID, playerId: UUID, newWorldId: UUID, newPosition: Position3D): MoveClaimAnchorResult {
         // Get the claim that is being moved
         val claim = claimRepository.getById(claimId) ?: return MoveClaimAnchorResult.StorageError
