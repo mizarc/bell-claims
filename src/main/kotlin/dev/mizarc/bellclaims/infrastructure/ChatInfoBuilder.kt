@@ -1,11 +1,8 @@
 package dev.mizarc.bellclaims.infrastructure
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
-import net.md_5.bungee.api.ChatColor
-import net.md_5.bungee.api.chat.BaseComponent
-import net.md_5.bungee.api.chat.ComponentBuilder
+
 
 class ChatInfoBuilder(var title: String) {
     private var elements = Component.text()
