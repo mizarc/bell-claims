@@ -9,6 +9,9 @@ import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import io.papermc.paper.event.block.PlayerShearBlockEvent
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent
 import io.papermc.paper.event.player.PlayerOpenSignEvent
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World.Environment
@@ -561,8 +564,13 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     private fun cancelIfDisallowed(event: Cancellable, player: Player, location: Location, action: PlayerActionType) {
         val worldId = location.world.uid
         val position = location.toPosition2D()
-        when (isPlayerActionAllowed.execute(player.uniqueId, worldId, position, action)) {
-            is Denied -> event.isCancelled = true
+        when (val result = isPlayerActionAllowed.execute(player.uniqueId, worldId, position, action)) {
+            is Denied -> {
+                event.isCancelled = true
+                val playerName = Bukkit.getOfflinePlayer(result.claim.playerId).name ?: "(Name not found)"
+                player.sendActionBar(
+                    Component.text("You can't do that in ${playerName}'s claim!") .color(TextColor.color(255, 85, 85)))
+            }
             else -> return
         }
     }

@@ -28,9 +28,9 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
         // Allow or deny depending on if the claim has the flag or not
         if (playerAccessRepository.doesPlayerHavePermission(playerId, claim.id, relevantPermission)
                 || claimPermissionRepository.doesClaimHavePermission(claim.id, relevantPermission)) {
-            return IsPlayerActionAllowedResult.Allowed
+            return IsPlayerActionAllowedResult.Allowed(claim)
         }
-        return IsPlayerActionAllowedResult.Denied
+        return IsPlayerActionAllowedResult.Denied(claim)
     }
 
     private val actionToPermissionMapping: Map<PlayerActionType, ClaimPermission> = mapOf(
