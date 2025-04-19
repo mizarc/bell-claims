@@ -38,5 +38,6 @@ enum class PlayerActionType {
     DETONATE_BLOCK,
     TRIGGER_RAID,
     SLEEP_IN_BED,
-    SET_RESPAWN_POINT
+    SET_RESPAWN_POINT,
+    STRIKE_LIGHTNING
 }
