@@ -77,7 +77,6 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
 
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent) {
-        println("awoo")
         val action = PlayerActionType.BREAK_BLOCK
         cancelIfDisallowed(event, event.player, event.block.location, action)
     }
