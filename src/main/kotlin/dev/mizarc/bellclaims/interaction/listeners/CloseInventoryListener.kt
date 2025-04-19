@@ -5,8 +5,12 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class CloseInventoryListener(private val unregisterClaimMenuOpening: UnregisterClaimMenuOpening) : Listener {
+class CloseInventoryListener: Listener, KoinComponent {
+    private val unregisterClaimMenuOpening: UnregisterClaimMenuOpening by inject()
+
     @EventHandler
     fun onInventoryClose(event: InventoryCloseEvent) {
         if (event.player !is Player) return
