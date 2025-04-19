@@ -11,18 +11,18 @@ import dev.mizarc.bellclaims.domain.values.Flag
  */
 fun Flag.getIcon(): ItemStack {
     return when (this) {
-        Flag.Explosions -> ItemStack(Material.TNT)
-        Flag.FireSpread -> ItemStack(Material.FLINT_AND_STEEL)
-        Flag.MobGriefing -> ItemStack(Material.CREEPER_HEAD)
-        Flag.Pistons -> ItemStack(Material.PISTON)
-        Flag.Fluids -> ItemStack(Material.WATER_BUCKET)
-        Flag.Trees -> ItemStack(Material.OAK_SAPLING)
-        Flag.Sculk -> ItemStack(Material.SCULK_CATALYST)
-        Flag.Dispensers -> ItemStack(Material.DISPENSER)
-        Flag.Sponge -> ItemStack(Material.SPONGE)
-        Flag.Lightning -> ItemStack(Material.LIGHTNING_ROD)
-        Flag.FallingBlock -> ItemStack(Material.ANVIL)
-        Flag.AnimalVehicle -> ItemStack(Material.OAK_BOAT)
+        Flag.EXPLOSIONS -> ItemStack(Material.TNT)
+        Flag.FIRE_SPREAD -> ItemStack(Material.FLINT_AND_STEEL)
+        Flag.MOB_GRIEFING -> ItemStack(Material.CREEPER_HEAD)
+        Flag.PISTONS -> ItemStack(Material.PISTON)
+        Flag.FLUIDS -> ItemStack(Material.WATER_BUCKET)
+        Flag.TREES -> ItemStack(Material.OAK_SAPLING)
+        Flag.SCULK -> ItemStack(Material.SCULK_CATALYST)
+        Flag.DISPENSERS -> ItemStack(Material.DISPENSER)
+        Flag.SPONGE -> ItemStack(Material.SPONGE)
+        Flag.LIGHTNING -> ItemStack(Material.LIGHTNING_ROD)
+        Flag.FALLING_BLOCK -> ItemStack(Material.ANVIL)
+        Flag.ANIMAL_VEHICLE -> ItemStack(Material.OAK_BOAT)
     }
 }
 
@@ -33,18 +33,18 @@ fun Flag.getIcon(): ItemStack {
  */
 fun Flag.getDisplayName(): String {
     return when (this) {
-        Flag.Explosions -> getLangText("NameFlagExplosions")
-        Flag.FireSpread -> getLangText("NameFlagFireSpread")
-        Flag.MobGriefing -> getLangText("NameFlagMobGriefing")
-        Flag.Pistons -> getLangText("NameFlagPistons")
-        Flag.Fluids -> getLangText("NameFlagFluids")
-        Flag.Trees -> getLangText("NameFlagTrees")
-        Flag.Sculk -> getLangText("NameFlagSculk")
-        Flag.Dispensers -> getLangText("NameFlagDispensers")
-        Flag.Sponge -> getLangText("NameFlagSponge")
-        Flag.Lightning -> getLangText("NameFlagLightning")
-        Flag.FallingBlock -> getLangText("NameFlagFallingBlock")
-        Flag.AnimalVehicle -> getLangText("NameFlagAnimalVehicle")
+        Flag.EXPLOSIONS-> getLangText("NameFlagExplosions")
+        Flag.FIRE_SPREAD -> getLangText("NameFlagFireSpread")
+        Flag.MOB_GRIEFING -> getLangText("NameFlagMobGriefing")
+        Flag.PISTONS -> getLangText("NameFlagPistons")
+        Flag.FLUIDS -> getLangText("NameFlagFluids")
+        Flag.TREES -> getLangText("NameFlagTrees")
+        Flag.SCULK -> getLangText("NameFlagSculk")
+        Flag.DISPENSERS -> getLangText("NameFlagDispensers")
+        Flag.SPONGE -> getLangText("NameFlagSponge")
+        Flag.LIGHTNING -> getLangText("NameFlagLightning")
+        Flag.FALLING_BLOCK -> getLangText("NameFlagFallingBlock")
+        Flag.ANIMAL_VEHICLE -> getLangText("NameFlagAnimalVehicle")
     }
 }
 
@@ -55,17 +55,17 @@ fun Flag.getDisplayName(): String {
  */
 fun Flag.getDescription(): String {
     return when (this) {
-        Flag.Explosions -> getLangText("DescFlagExplosions")
-        Flag.FireSpread -> getLangText("DescFlagFireSpread")
-        Flag.MobGriefing -> getLangText("DescFlagMobGriefing")
-        Flag.Pistons -> getLangText("DescFlagPistons")
-        Flag.Fluids -> getLangText("DescFlagFluids")
-        Flag.Trees -> getLangText("DescFlagTrees")
-        Flag.Sculk -> getLangText("DescFlagSculk")
-        Flag.Dispensers -> getLangText("DescFlagDispensers")
-        Flag.Sponge -> getLangText("DescFlagSponge")
-        Flag.Lightning -> getLangText("DescFlagLightning")
-        Flag.FallingBlock -> getLangText("DescFlagFallingBlock")
-        Flag.AnimalVehicle -> getLangText("DescFlagAnimalVehicle")
+        Flag.EXPLOSIONS -> getLangText("DescFlagExplosions")
+        Flag.FIRE_SPREAD -> getLangText("DescFlagFireSpread")
+        Flag.MOB_GRIEFING -> getLangText("DescFlagMobGriefing")
+        Flag.PISTONS -> getLangText("DescFlagPistons")
+        Flag.FLUIDS -> getLangText("DescFlagFluids")
+        Flag.TREES -> getLangText("DescFlagTrees")
+        Flag.SCULK -> getLangText("DescFlagSculk")
+        Flag.DISPENSERS -> getLangText("DescFlagDispensers")
+        Flag.SPONGE -> getLangText("DescFlagSponge")
+        Flag.LIGHTNING -> getLangText("DescFlagLightning")
+        Flag.FALLING_BLOCK -> getLangText("DescFlagFallingBlock")
+        Flag.ANIMAL_VEHICLE -> getLangText("DescFlagAnimalVehicle")
     }
 }
