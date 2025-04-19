@@ -3,10 +3,11 @@ package dev.mizarc.bellclaims.infrastructure.services
 import dev.mizarc.bellclaims.application.services.ConfigService
 import dev.mizarc.bellclaims.config.MainConfig
 import org.bukkit.configuration.file.FileConfiguration
+import org.eclipse.sisu.launch.Main
 
 class ConfigServiceBukkit(private val config: FileConfiguration): ConfigService {
-    override fun loadConfig() {
-        MainConfig(
+    override fun loadConfig(): MainConfig {
+        return MainConfig(
             claimLimit = config.getInt("claim_limit"),
             claimBlockLimit = config.getInt("claim_block_limit"),
             initialClaimSize = config.getInt("initial_claim_size"),
