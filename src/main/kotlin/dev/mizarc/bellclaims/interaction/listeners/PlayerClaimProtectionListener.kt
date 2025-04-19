@@ -77,6 +77,7 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
 
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent) {
+        println("awoo")
         val action = PlayerActionType.BREAK_BLOCK
         cancelIfDisallowed(event, event.player, event.block.location, action)
     }
@@ -561,7 +562,7 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     private fun cancelIfDisallowed(event: Cancellable, player: Player, location: Location, action: PlayerActionType) {
         val worldId = location.world.uid
         val position = location.toPosition2D()
-        when (isPlayerActionAllowed.execute(worldId, player.uniqueId, position, action)) {
+        when (isPlayerActionAllowed.execute(player.uniqueId, worldId, position, action)) {
             is Denied -> event.isCancelled = true
             else -> return
         }

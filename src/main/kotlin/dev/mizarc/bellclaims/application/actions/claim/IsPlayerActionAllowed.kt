@@ -16,7 +16,7 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
                 playerActionType: PlayerActionType): IsPlayerActionAllowedResult {
         // Get the claim at the current position
         val claim = when (val result = getClaimAtPosition.execute(worldId, position)) {
-            GetClaimAtPositionResult.NoClaimFound ->  return IsPlayerActionAllowedResult.NoClaimFound
+            GetClaimAtPositionResult.NoClaimFound -> return IsPlayerActionAllowedResult.NoClaimFound
             GetClaimAtPositionResult.StorageError -> return IsPlayerActionAllowedResult.StorageError
             is GetClaimAtPositionResult.Success -> result.claim
         }
