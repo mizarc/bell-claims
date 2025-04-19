@@ -9,8 +9,7 @@ import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.WorldActionType
 import java.util.UUID
 
-class IsWorldActionAllowed(private val claimRepository: ClaimRepository,
-                           private val flagRepository: ClaimFlagRepository,
+class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
                            private val getClaimAtPosition: GetClaimAtPosition) {
     fun execute(worldId: UUID, position: Position2D, worldActionType: WorldActionType): IsWorldActionAllowedResult {
         // Get the claim at the current position
