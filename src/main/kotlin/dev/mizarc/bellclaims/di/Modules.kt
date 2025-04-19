@@ -77,6 +77,7 @@ import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
+import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -86,6 +87,11 @@ import java.io.File
 fun appModule(plugin: JavaPlugin) = module {
     // --- Plugin ---
     single<File> { plugin.dataFolder }
+    single<FileConfiguration> { plugin.config }
+
+    // --- Config ---
+    single { get<ConfigService>().loadConfig() }
+
 
     // --- Infrastructure Layer Implementations ---
 
