@@ -3,7 +3,6 @@ package dev.mizarc.bellclaims
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.di.appModule
 import dev.mizarc.bellclaims.infrastructure.persistence.Config
-import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import net.milkbowl.vault.chat.Chat
@@ -23,7 +22,6 @@ class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     private lateinit var metadata: Chat
     internal var config: Config = Config(this)
-    val storage = SQLiteStorage(this)
     private lateinit var scheduler: BukkitScheduler
 
     companion object {
@@ -34,7 +32,7 @@ class BellClaims : JavaPlugin() {
 
     override fun onEnable() {
         scheduler = server.scheduler
-        startKoin { modules(appModule) }
+        startKoin { modules(appModule(this@BellClaims)) }
         initialiseVaultDependency()
         commandManager = PaperCommandManager(this)
         registerCommands()

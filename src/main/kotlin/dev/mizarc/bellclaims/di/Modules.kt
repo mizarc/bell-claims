@@ -72,16 +72,25 @@ import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQ
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
+import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import java.io.File
 
 // Define your Koin module(s) - using a top-level val named appModule is common
-val appModule = module {
+fun appModule(plugin: JavaPlugin) = module {
+    // --- Plugin ---
+    single<File> { plugin.dataFolder }
+
     // --- Infrastructure Layer Implementations ---
+
+    // Storage Types
+    single { SQLiteStorage(get()) }
 
     // Repositories
     single<ClaimFlagRepository> { ClaimFlagRepositorySQLite(get()) }
