@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.application.actions.claim
 
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
 import dev.mizarc.bellclaims.application.results.claim.IsPlayerActionAllowedResult
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
@@ -11,7 +12,8 @@ import java.util.UUID
 
 class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepository,
                             private val claimPermissionRepository: ClaimPermissionRepository,
-                            private val getClaimAtPosition: GetClaimAtPosition) {
+                            private val getClaimAtPosition: GetClaimAtPosition,
+                            private val playerStateRepository: PlayerStateRepository) {
     fun execute(playerId: UUID, worldId: UUID, position: Position2D,
                 playerActionType: PlayerActionType): IsPlayerActionAllowedResult {
         // Get the claim at the current position
@@ -21,11 +23,16 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
             is GetClaimAtPositionResult.Success -> result.claim
         }
 
+        // Always allow if player owns the claim or has override
+        val playerState = playerStateRepository.get(playerId)
+        if (playerId == claim.playerId || (playerState != null && playerState.claimOverride))
+            return IsPlayerActionAllowedResult.Allowed(claim)
+
         // Get the flag associated with the action
         val relevantPermission = actionToPermissionMapping[playerActionType]
             ?: return IsPlayerActionAllowedResult.NoAssociatedPermission
 
-        // Allow or deny depending on if the claim has the flag or not
+        // Allow or deny depending on if the claim has the permission or not
         if (playerAccessRepository.doesPlayerHavePermission(playerId, claim.id, relevantPermission)
                 || claimPermissionRepository.doesClaimHavePermission(claim.id, relevantPermission)) {
             return IsPlayerActionAllowedResult.Allowed(claim)
