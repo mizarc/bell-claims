@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.di
 
+import dev.mizarc.bellclaims.BellClaims
 import dev.mizarc.bellclaims.application.actions.claim.CreateClaim
 import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
 import dev.mizarc.bellclaims.application.actions.claim.IsNewClaimLocationValid
@@ -23,6 +24,7 @@ import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimName
 import dev.mizarc.bellclaims.application.actions.claim.partition.CanRemovePartition
 import dev.mizarc.bellclaims.application.actions.claim.partition.CreatePartition
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
 import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
 import dev.mizarc.bellclaims.application.actions.claim.partition.ResizePartition
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetClaimPermissions
@@ -73,10 +75,12 @@ import dev.mizarc.bellclaims.infrastructure.persistence.claims.PlayerAccessRepos
 import dev.mizarc.bellclaims.infrastructure.persistence.partitions.PartitionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepositoryMemory
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
+import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
 import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
+import net.milkbowl.vault.chat.Chat
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.module.dsl.singleOf
@@ -84,10 +88,12 @@ import org.koin.dsl.module
 import java.io.File
 
 // Define your Koin module(s) - using a top-level val named appModule is common
-fun appModule(plugin: JavaPlugin) = module {
+fun appModule(plugin: BellClaims) = module {
     // --- Plugin ---
     single<File> { plugin.dataFolder }
     single<FileConfiguration> { plugin.config }
+    single<Chat> {plugin.metadata }
+
 
     // --- Config ---
     single { get<ConfigService>().loadConfig() }
@@ -96,6 +102,7 @@ fun appModule(plugin: JavaPlugin) = module {
     // --- Infrastructure Layer Implementations ---
 
     // Storage Types
+    single<Storage<*>> { SQLiteStorage(get()) }
     single { SQLiteStorage(get()) }
 
     // Repositories
@@ -147,6 +154,7 @@ fun appModule(plugin: JavaPlugin) = module {
     singleOf(::CanRemovePartition)
     singleOf(::CreatePartition)
     singleOf(::GetClaimPartitions)
+    singleOf(::GetPartitionByPosition)
     singleOf(::RemovePartition)
     singleOf(::ResizePartition)
 

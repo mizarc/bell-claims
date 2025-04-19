@@ -20,8 +20,8 @@ import java.io.File
  */
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
-    private lateinit var metadata: Chat
-    internal var config: Config = Config(this)
+    lateinit var metadata: Chat
+    internal var conf: Config = Config(this)
     private lateinit var scheduler: BukkitScheduler
 
     companion object {
@@ -54,7 +54,7 @@ class BellClaims : JavaPlugin() {
     fun InitLangConfig() {
         instance = this
         saveDefaultConfig()
-        var selectedLanguage = config.pluginLanguage
+        var selectedLanguage = conf.pluginLanguage
         val langFileName = "lang_${selectedLanguage}.yml"
         langFile = File(dataFolder, langFileName)
         if (!langFile.exists()) {
