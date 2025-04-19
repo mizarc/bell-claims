@@ -7,6 +7,15 @@ import java.util.*
  * A repository that handles the persistence of permissions for specific players in a claim.
  */
 interface PlayerAccessRepository {
+    /**
+     * Checks whether the player has permission to perform an action in a claim.
+     *
+     * @param playerId The id of the player.
+     * @param claimId The id of the claim to query.
+     * @param permission The permission to check for.
+     * @return True if the claim has the permission.
+     */
+    fun doesPlayerHavePermission(playerId: UUID, claimId: UUID, permission: ClaimPermission): Boolean
 
     /**
      * Gets all player permissions linked to a given claim.

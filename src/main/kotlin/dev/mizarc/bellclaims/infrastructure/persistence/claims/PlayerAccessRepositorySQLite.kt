@@ -15,6 +15,10 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         preload()
     }
 
+    override fun doesPlayerHavePermission(playerId: UUID, claimId: UUID, permission: ClaimPermission): Boolean {
+        return playerAccess[claimId]?.get(playerId)?.contains(permission) == true
+    }
+
     override fun getForAllPlayersInClaim(claimId: UUID): Map<UUID, Set<ClaimPermission>> {
         return playerAccess[claimId]?.toMap() ?: emptyMap()
     }
