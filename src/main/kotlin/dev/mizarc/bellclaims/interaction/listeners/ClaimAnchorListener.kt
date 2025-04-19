@@ -73,6 +73,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
 
             val menuNavigator = MenuNavigator(event.player)
             menuNavigator.openMenu(ClaimManagementMenu(menuNavigator, event.player, claim))
+            return
         }
 
         // Open the menu
