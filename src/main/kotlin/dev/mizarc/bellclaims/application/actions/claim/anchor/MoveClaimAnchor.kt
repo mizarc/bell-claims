@@ -25,7 +25,7 @@ class MoveClaimAnchor(private val claimRepository: ClaimRepository,
         }
 
         // Check if the claim at the new position is the same as the current claim
-        if (claimAtPosition.id == claimId) {
+        if (claimAtPosition.id != claimId) {
             return MoveClaimAnchorResult.InvalidPosition
         }
 
