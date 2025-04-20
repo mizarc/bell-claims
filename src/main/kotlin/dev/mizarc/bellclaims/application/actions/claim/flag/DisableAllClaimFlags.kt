@@ -31,7 +31,7 @@ class DisableAllClaimFlags(private val flagRepository: ClaimFlagRepository,
         try {
             val allFlags = Flag.entries
             for (flag in allFlags) {
-                if (flagRepository.add(claimId, flag)) anyFlagEnabled = true
+                if (flagRepository.remove(claimId, flag)) anyFlagEnabled = true
             }
 
             // Return success if at least one flag was disabled
