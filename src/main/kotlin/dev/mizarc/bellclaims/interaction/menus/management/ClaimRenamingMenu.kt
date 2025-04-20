@@ -32,6 +32,13 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
+        gui.setOnNameInputChanged { newName ->
+            if (!isConfirming) {
+                name = newName
+            } else {
+                isConfirming = false
+            }
+        }
 
         // Add bell menu item
         val firstPane = StaticPane(0, 0, 1, 1)
