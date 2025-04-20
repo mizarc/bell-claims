@@ -29,28 +29,28 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
 
         // Write to database
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT NTO claimRules (claimId, rule) VALUES (?,?) " +
-                    "ON CONFLICT (claimId, rule) DO NOTHING;", claimId, flag.name)
+            val rowsAffected = storage.connection.executeUpdate("INSERT NTO claim_flags (claim_id, flag) " +
+                    "VALUES (?,?) ON CONFLICT (claim_id, flag) DO NOTHING;", claimId, flag.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to add flag '$flag' for claimId '$claimId' to the database. " +
+            throw DatabaseOperationException("Failed to add flag '$flag' for claim_id '$claimId' to the database. " +
                     "Cause: ${error.message}", error)
         }
     }
 
     override fun remove(claimId: UUID, flag: Flag): Boolean {
         // Remove from cache
-        val claimRules = flags[claimId] ?: return false
-        claimRules.remove(flag)
-        if (claimRules.isEmpty()) flags.remove(claimId)
+        val claimFlags = flags[claimId] ?: return false
+        claimFlags.remove(flag)
+        if (claimFlags.isEmpty()) flags.remove(claimId)
 
         // Remove from database
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=? AND rule=?",
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_flags WHERE claim_id=? AND flag=?",
                 claimId, flag.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove flag '$flag' for claimId '$claimId' from the " +
+            throw DatabaseOperationException("Failed to remove flag '$flag' for claim_id '$claimId' from the " +
                     "database. Cause: ${error.message}", error)
         }
     }
@@ -61,7 +61,7 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
 
         // Remove from database
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimRules WHERE claimId=?", claimId)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_flags WHERE claim_id=?", claimId)
             return rowsAffected > 0
         } catch (error: SQLException) {
             throw DatabaseOperationException("Failed to remove all flags for claim $claimId from the database. " +
@@ -75,11 +75,11 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
     private fun createTable() {
         try {
             storage.connection.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS claimRules (claimId TEXT, rule TEXT, FOREIGN KEY (claimId) " +
-                        "REFERENCES claims(id), UNIQUE (claimId, rule))"
+                "CREATE TABLE IF NOT EXISTS claim_flags (claim_id TEXT, flag TEXT, FOREIGN KEY (claim_id) " +
+                        "REFERENCES claims(id), UNIQUE (claim_id, flag))"
             )
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to create 'claimRules' table. Cause: ${error.message}", error)
+            throw DatabaseOperationException("Failed to create 'claim_flags' table. Cause: ${error.message}", error)
         }
     }
 
@@ -87,11 +87,11 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
      * Fetches all claim flags from database and saves it to memory.
      */
     private fun preload() {
-        val results = storage.connection.getResults("SELECT * FROM claimRules")
+        val results = storage.connection.getResults("SELECT * FROM claim_flags")
         for (result in results) {
-            val claimId = UUID.fromString(result.getString("claimId"))
-            val rule = Flag.valueOf(result.getString("rule"))
-            flags.getOrPut(claimId) { mutableSetOf() }.add(rule)
+            val claimId = UUID.fromString(result.getString("claim_id"))
+            val flag = Flag.valueOf(result.getString("flag"))
+            flags.getOrPut(claimId) { mutableSetOf() }.add(flag)
         }
     }
 }

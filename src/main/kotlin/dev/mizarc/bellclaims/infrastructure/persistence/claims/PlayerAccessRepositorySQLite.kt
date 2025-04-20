@@ -34,12 +34,12 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
     override fun add(claimId: UUID, playerId: UUID, permission: ClaimPermission): Boolean {
         playerAccess.getOrPut(claimId) { mutableMapOf() }.getOrPut(playerId) { mutableSetOf() }.add(permission)
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, " +
-                    "permission) VALUES (?,?,?) ON CONFLICT (claimId, playerId, permission) DO NOTHING",
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claim_player_permissions (claim_id, " +
+                    "player_id, permission) VALUES (?,?,?) ON CONFLICT (claim_id, player_id, permission) DO NOTHING",
                 claimId, playerId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to add permission '${permission}' for claim id '$claimId' to " +
+            throw DatabaseOperationException("Failed to add permission '${permission}' for claim_id '$claimId' to " +
                     "the database. Cause: ${error.message}", error)
         }
     }
@@ -53,12 +53,12 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         }
 
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? AND " +
-                    "playerId=? AND permission=?", claimId, playerId, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_player_permissions WHERE " +
+                    "claim_id=? AND player_id=? AND permission=?", claimId, playerId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove permission '$permission' for player id '$playerId' " +
-                    "in claim id '$claimId' from the database. Cause: ${error.message}", error)
+            throw DatabaseOperationException("Failed to remove permission '$permission' for player_id '$playerId' " +
+                    "in claim_id '$claimId' from the database. Cause: ${error.message}", error)
         }
     }
 
@@ -67,12 +67,12 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         claimPermissions.remove(playerId)
 
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=? " +
-                    "AND playerId=?", claimId, playerId)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_player_permissions WHERE " +
+                    "claim_id=? AND player_id=?", claimId, playerId)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove permissions for player id '$playerId' " +
-                    "in claimId '$claimId' from the database. Cause: ${error.message}", error)
+            throw DatabaseOperationException("Failed to remove permissions for player_id '$playerId' " +
+                    "in claim_id '$claimId' from the database. Cause: ${error.message}", error)
         }
     }
 
@@ -80,12 +80,12 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         playerAccess.remove(claimId)
 
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM playerAccess WHERE claimId=?",
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_player_permissions WHERE claim_id=?",
                 claimId)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove permissions for claimId '$claimId' from the database. " +
-                    "Cause: ${error.message}", error)
+            throw DatabaseOperationException("Failed to remove permissions for claim_id '$claimId' from the " +
+                    "database. Cause: ${error.message}", error)
         }
     }
 
@@ -94,9 +94,9 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS playerAccess (claimId TEXT, " +
-                    "playerId TEXT, permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id), UNIQUE (claimId, " +
-                    "playerId, permission));")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claim_player_permissions (claim_id TEXT, " +
+                    "player_id TEXT, permission TEXT, FOREIGN KEY(claim_id) REFERENCES claims(id), UNIQUE (claim_id, " +
+                    "player_id, permission));")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -106,10 +106,10 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
      * Fetches all player access permissions from database and saves it to memory.
      */
     private fun preload() {
-        val results = storage.connection.getResults("SELECT * FROM playerAccess")
+        val results = storage.connection.getResults("SELECT * FROM claim_player_permissions")
         for (result in results) {
-            val playerId = UUID.fromString(result.getString("playerId"))
-            val claimId = UUID.fromString(result.getString("claimId"))
+            val playerId = UUID.fromString(result.getString("player_id"))
+            val claimId = UUID.fromString(result.getString("claim_id"))
             try {
                 val permission = ClaimPermission.valueOf(result.getString("permission"))
                 val claimPlayers = playerAccess
