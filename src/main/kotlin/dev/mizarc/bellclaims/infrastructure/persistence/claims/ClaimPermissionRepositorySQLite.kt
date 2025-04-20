@@ -30,7 +30,7 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
         // Add to database
         try {
             val rowsAffected = storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
-                    "VALUES (?,?)", claimId, permission.name)
+                    "VALUES (?,?) ON CONFLICT (claimId, permission) DO NOTHING", claimId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
             throw DatabaseOperationException("Failed to add permission '$permission' for claimId '$claimId' to the " +
