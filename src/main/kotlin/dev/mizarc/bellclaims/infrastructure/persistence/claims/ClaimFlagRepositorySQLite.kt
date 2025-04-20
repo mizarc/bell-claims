@@ -29,7 +29,7 @@ class ClaimFlagRepositorySQLite(private val storage: SQLiteStorage): ClaimFlagRe
 
         // Write to database
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT NTO claim_flags (claim_id, flag) " +
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claim_flags (claim_id, flag) " +
                     "VALUES (?,?) ON CONFLICT (claim_id, flag) DO NOTHING;", claimId, flag.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
