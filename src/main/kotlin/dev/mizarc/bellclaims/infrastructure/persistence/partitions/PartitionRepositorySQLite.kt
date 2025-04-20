@@ -63,8 +63,8 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
     override fun add(partition: Partition): Boolean {
         addToMemory(partition)
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claimPartitions (id, claimId, " +
-                    "lowerPositionX, lowerPositionZ, upperPositionX, upperPositionZ) VALUES (?,?,?,?,?,?);",
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claim_partitions (id, claim_id, " +
+                    "lower_position_x, lower_position_z, upper_position_x, upper_position_z) VALUES (?,?,?,?,?,?);",
                 partition.id, partition.claimId, partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z,
                 partition.area.upperPosition2D.x, partition.area.upperPosition2D.z)
             return rowsAffected > 0
@@ -78,13 +78,13 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         removeFromMemory(partition)
         addToMemory(partition)
         try {
-            val rowsAffected = storage.connection.executeUpdate("UPDATE claimPartitions SET claimId=?, lowerPositionX=?, " +
-                    "lowerPositionZ=?, upperPositionX=?, upperPositionZ=? WHERE id=?;", partition.claimId,
-                partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z, partition.area.upperPosition2D.x,
-                partition.area.upperPosition2D.z, partition.id)
+            val rowsAffected = storage.connection.executeUpdate("UPDATE claim_partitions SET claim_id=?, " +
+                    "lower_position_x=?, lower_position_z=?, upper_position_x=?, upper_position_z=? WHERE id=?;",
+                partition.claimId, partition.area.lowerPosition2D.x, partition.area.lowerPosition2D.z,
+                partition.area.upperPosition2D.x, partition.area.upperPosition2D.z, partition.id)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to add update partition '${partition.id}' in the database. " +
+            throw DatabaseOperationException("Failed to add update partition_id '${partition.id}' in the database. " +
                     "Cause: ${error.message}", error)
         }
     }
@@ -93,7 +93,7 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
         val partition = getById(partitionId) ?: return false
         removeFromMemory(partition)
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE id=?;",
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_partitions WHERE id=?;",
                 partitionId)
             return rowsAffected > 0
         } catch (error: SQLException) {
@@ -108,7 +108,7 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
             removeFromMemory(partition)
         }
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPartitions WHERE claimId=?;",
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_partitions WHERE claim_id=?;",
                 claimId)
             return rowsAffected > 0
         } catch (error: SQLException) {
@@ -141,9 +141,9 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPartitions " +
-                    "(id TEXT, claimId TEXT, lowerPositionX INTEGER NOT NULL, lowerPositionZ INTEGER NOT NULL, " +
-                    "upperPositionX INTEGER NOT NULL, upperPositionZ INTEGER NOT NULL);")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claim_partitions " +
+                    "(id TEXT, claim_id TEXT, lower_position_x INTEGER NOT NULL, lower_position_z INTEGER NOT NULL, " +
+                    "upper_position_x INTEGER NOT NULL, upper_position_z INTEGER NOT NULL);")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -154,15 +154,15 @@ class PartitionRepositorySQLite(private val storage: Storage<Database>): Partiti
      */
     private fun preload() {
         try {
-            val results = storage.connection.getResults("SELECT * FROM claimPartitions")
+            val results = storage.connection.getResults("SELECT * FROM claim_partitions")
             for (result in results) {
                 val area = Area(
-                    Position2D(result.getInt("lowerPositionX"), result.getInt("lowerPositionZ")),
-                    Position2D(result.getInt("upperPositionX"), result.getInt("upperPositionZ"))
+                    Position2D(result.getInt("lower_position_x"), result.getInt("lower_position_z")),
+                    Position2D(result.getInt("upper_position_x"), result.getInt("upper_position_z"))
                 )
                 val partition = Partition(
                     UUID.fromString(result.getString("id")),
-                    UUID.fromString(result.getString("claimId")), area
+                    UUID.fromString(result.getString("claim_id")), area
                 )
                 partitions[partition.id] = partition
 

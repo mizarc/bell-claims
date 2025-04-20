@@ -40,8 +40,8 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
     override fun add(claim: Claim): Boolean {
         claims[claim.id] = claim
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claims (id, worldId, ownerId, " +
-                    "creationTime, name, description, positionX, positionY, positionZ, icon) " +
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claims (id, world_id, owner_id, " +
+                    "creation_time, name, description, position_x, position_y, position_z, icon) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?);",
                 claim.id, claim.worldId, claim.playerId, claim.creationTime, claim.name, claim.description,
                 claim.position.x, claim.position.y, claim.position.z, claim.icon)
@@ -56,8 +56,9 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
         claims.remove(claim.id)
         claims[claim.id] = claim
         try {
-            val rowsAffected = storage.connection.executeUpdate("UPDATE claims SET worldId=?, ownerId=?, " +
-                    "creationTime=?, name=?, description=?, positionX=?, positionY=?, positionZ=?, icon=? WHERE id=?;",
+            val rowsAffected = storage.connection.executeUpdate("UPDATE claims SET world_id=?, owner_id=?, " +
+                    "creation_time=?, name=?, description=?, position_x=?, " +
+                    "position_y=?, position_z=?, icon=? WHERE id=?;",
                 claim.worldId, claim.playerId, claim.creationTime, claim.name, claim.description,
                 claim.position.x, claim.position.y, claim.position.z, claim.icon, claim.id)
             return rowsAffected > 0
@@ -84,8 +85,8 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
     private fun createClaimTable() {
         try {
             storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY, " +
-                    "worldId TEXT NOT NULL, ownerId TEXT NOT NULL, creationTime TEXT NOT NULL, name TEXT, " +
-                    "description TEXT, positionX INT, positionY INT, positionZ INT, icon TEXT);")
+                    "world_id TEXT NOT NULL, owner_id TEXT NOT NULL, creation_time TEXT NOT NULL, name TEXT, " +
+                    "description TEXT, position_x INT, position_y INT, position_z INT, icon TEXT);")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -99,11 +100,11 @@ class ClaimRepositorySQLite(private val storage: SQLiteStorage): ClaimRepository
             val results = storage.connection.getResults("SELECT * FROM claims")
             for (result in results) {
                 val claim = Claim(UUID.fromString(result.getString("id")),
-                    UUID.fromString(result.getString("worldId")),
-                    UUID.fromString(result.getString("ownerId")),
-                    Instant.parse(result.getString("creationTime")), result.getString("name"),
-                    result.getString("description"), Position3D(result.getInt("positionX"),
-                        result.getInt("positionY"), result.getInt("positionZ")),
+                    UUID.fromString(result.getString("world_id")),
+                    UUID.fromString(result.getString("owner_id")),
+                    Instant.parse(result.getString("creation_time")), result.getString("name"),
+                    result.getString("description"), Position3D(result.getInt("position_x"),
+                        result.getInt("position_y"), result.getInt("position_z")),
                     result.getString("icon"))
                 claims[claim.id] = claim
             }

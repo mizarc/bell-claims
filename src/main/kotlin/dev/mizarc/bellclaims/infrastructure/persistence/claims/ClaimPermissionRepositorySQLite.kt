@@ -29,11 +29,12 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
 
         // Add to database
         try {
-            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claimPermissions (claimId, permission) " +
-                    "VALUES (?,?) ON CONFLICT (claimId, permission) DO NOTHING", claimId, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("INSERT INTO claim_default_permissions " +
+                    "(claim_id, permission) VALUES (?,?) ON CONFLICT (claim_id, permission) DO NOTHING",
+                claimId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to add permission '$permission' for claimId '$claimId' to the " +
+            throw DatabaseOperationException("Failed to add permission '$permission' for claim_id '$claimId' to the " +
                     "database. Cause: ${error.message}", error)
         }
     }
@@ -46,11 +47,11 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
 
         // Remove from database
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=? AND " +
-                    "permission=?", claimId, permission.name)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_default_permissions WHERE " +
+                    "claim_id=? AND permission=?", claimId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove permission '$permission' for claimId '$claimId' from " +
+            throw DatabaseOperationException("Failed to remove permission '$permission' for claim_id '$claimId' from " +
                     "the database. Cause: ${error.message}", error)
         }
     }
@@ -61,11 +62,12 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
 
         // Remove from database
         try {
-            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claimPermissions WHERE claimId=?", claimId)
+            val rowsAffected = storage.connection.executeUpdate("DELETE FROM claim_default_permissions WHERE " +
+                    "claim_id=?", claimId)
             return rowsAffected > 0
         } catch (error: SQLException) {
-            throw DatabaseOperationException("Failed to remove all permissions for claim $claimId from the database. " +
-                    "Cause: ${error.message}", error)
+            throw DatabaseOperationException("Failed to remove all permissions for claim_id $claimId from the " +
+                    "database. Cause: ${error.message}", error)
         }
     }
 
@@ -74,8 +76,8 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
      */
     private fun createTable() {
         try {
-            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claimPermissions (claimId TEXT, " +
-                    "permission TEXT, FOREIGN KEY(claimId) REFERENCES claims(id), UNIQUE (claimId, permission))")
+            storage.connection.executeUpdate("CREATE TABLE IF NOT EXISTS claim_default_permissions (claim_id TEXT, " +
+                    "permission TEXT, FOREIGN KEY(claim_id) REFERENCES claims(id), UNIQUE (claim_id, permission))")
         } catch (error: SQLException) {
             error.printStackTrace()
         }
@@ -85,11 +87,11 @@ class ClaimPermissionRepositorySQLite(private val storage: SQLiteStorage): Claim
      * Fetches all player access permissions from database and saves it to memory.
      */
     private fun preload() {
-        val results = storage.connection.getResults("SELECT * FROM claimPermissions")
+        val results = storage.connection.getResults("SELECT * FROM claim_default_permissions")
         for (result in results) {
             try {
                 val permission = ClaimPermission.valueOf(result.getString("permission"))
-                permissions.getOrPut(UUID.fromString(result.getString("claimId"))) { mutableSetOf() }.add(permission)
+                permissions.getOrPut(UUID.fromString(result.getString("claim_id"))) { mutableSetOf() }.add(permission)
             }
             catch (error: IllegalArgumentException) {
                 continue
