@@ -35,7 +35,8 @@ class PlayerAccessRepositorySQLite(private val storage: SQLiteStorage): PlayerAc
         playerAccess.getOrPut(claimId) { mutableMapOf() }.getOrPut(playerId) { mutableSetOf() }.add(permission)
         try {
             val rowsAffected = storage.connection.executeUpdate("INSERT INTO playerAccess (claimId, playerId, " +
-                    "permission) VALUES (?,?,?)", claimId, playerId, permission.name)
+                    "permission) VALUES (?,?,?) ON CONFLICT (claimId, playerId, permission) DO NOTHING",
+                claimId, playerId, permission.name)
             return rowsAffected > 0
         } catch (error: SQLException) {
             throw DatabaseOperationException("Failed to add permission '${permission}' for claim id '$claimId' to " +
