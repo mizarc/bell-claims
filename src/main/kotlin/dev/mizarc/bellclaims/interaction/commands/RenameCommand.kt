@@ -18,8 +18,8 @@ class RenameCommand : ClaimCommand(), KoinComponent {
     private val updateClaimName: UpdateClaimName by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
-    @Subcommand("description")
-    @CommandPermission("bellclaims.command.claim.description")
+    @Subcommand("rename")
+    @CommandPermission("bellclaims.command.claim.rename")
     fun onRename(player: Player, name: String) {
         // Gets the partition at the player's current location
         val partition = getPartitionAtPlayer(player) ?: return
