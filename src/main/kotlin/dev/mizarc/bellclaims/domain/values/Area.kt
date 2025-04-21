@@ -223,7 +223,7 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
     /**
      * Sorts the position sizes to ensure that the upper position contains values larger than the lower position.
      */
-    protected fun sortPositionSizes() {
+    private fun sortPositionSizes() {
         if (lowerPosition2D.x > upperPosition2D.x) {
             val newLowerPosition2D = Position2D(upperPosition2D.x, lowerPosition2D.z)
             val newUpperPosition2D = Position2D(lowerPosition2D.x, upperPosition2D.z)
