@@ -15,7 +15,7 @@ class MoveClaimAnchor(private val claimRepository: ClaimRepository,
 ) {
     fun execute(claimId: UUID, playerId: UUID, newWorldId: UUID, newPosition: Position3D): MoveClaimAnchorResult {
         // Get the claim that is being moved
-        val claim = claimRepository.getById(claimId) ?: return MoveClaimAnchorResult.StorageError
+        val existingClaim = claimRepository.getById(claimId) ?: return MoveClaimAnchorResult.StorageError
 
         // Get the claim at new position
         val claimAtPosition: Claim = when(val result = getClaimAtPosition.execute(newWorldId, newPosition)) {
@@ -30,14 +30,14 @@ class MoveClaimAnchor(private val claimRepository: ClaimRepository,
         }
 
         // Check if the player moving the claim bell is the owner of the claim
-        if (claim.playerId != playerId) {
+        if (existingClaim.playerId != playerId) {
             return MoveClaimAnchorResult.NoPermission
         }
 
         // Move the claim anchor
-        worldManipulationService.breakWithoutItemDrop(claim.worldId, claim.position)
-        claim.position = newPosition
-        claimRepository.update(claim)
+        worldManipulationService.breakWithoutItemDrop(existingClaim.worldId, existingClaim.position)
+        val newClaim = existingClaim.copy(position = newPosition)
+        claimRepository.update(newClaim)
         return MoveClaimAnchorResult.Success
     }
 }

@@ -25,8 +25,13 @@ import kotlin.concurrent.thread
  * @property position The position in the world the claim exists in.
  * @property icon The name of the material the claim is using as an icon.
  */
-class Claim(var id: UUID, var worldId: UUID, var playerId: UUID, val creationTime: Instant,
-            name: String, description: String, var position: Position3D, var icon: String) {
+data class Claim(var id: UUID, var worldId: UUID, var playerId: UUID, val creationTime: Instant,
+            val name: String, val description: String, val position: Position3D, val icon: String) {
+    init {
+        require(name.length in 1..50) { "Name must be between 1 and 50 characters." }
+        require(description.length <= 300) { "Description cannot exceed 300 characters." }
+    }
+
     var breakCount = 3
 
     private val defaultBreakCount = 3
@@ -46,28 +51,6 @@ class Claim(var id: UUID, var worldId: UUID, var playerId: UUID, val creationTim
      */
     constructor(worldId: UUID, playerId: UUID, position: Position3D, name: String) : this(
         UUID.randomUUID(), worldId, playerId, Instant.now(), name, "", position, "BELL")
-
-    /**
-     * The name of the claim.
-     *
-     * - Must be between 1 and 50 characters.
-     */
-    var name: String = name
-        set(value) {
-            require(value.length in 1..50) { "Name must be between 1 and 50 characters." }
-            field = value
-        }
-
-    /**
-     * A brief description of the claim.
-     *
-     * - Cannot exceed 300 characters.
-     */
-    var description: String = description
-        set(value) {
-            require(value.length <= 300) { "Description cannot exceed 300 characters." }
-            field = value
-        }
 
     /**
      * Resets the break count after a set period of time.
