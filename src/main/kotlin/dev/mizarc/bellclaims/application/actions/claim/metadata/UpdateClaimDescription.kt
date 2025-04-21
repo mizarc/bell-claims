@@ -11,9 +11,9 @@ class UpdateClaimDescription(private val claimRepository: ClaimRepository) {
         val existingClaim = claimRepository.getById(claimId) ?: return UpdateClaimAttributeResult.ClaimNotFound
 
         // Change description and persist to storage
-        existingClaim.description = description
+        val newClaim = existingClaim.copy(description = description)
         try {
-            claimRepository.update(existingClaim)
+            claimRepository.update(newClaim)
             return UpdateClaimAttributeResult.Success
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")

@@ -15,9 +15,9 @@ class UpdateClaimName(private val claimRepository: ClaimRepository) {
             return UpdateClaimNameResult.NameAlreadyExists
 
         // Change Name and persist to storage
-        existingClaim.name = name
+        val newClaim = existingClaim.copy(name = name)
         try {
-            claimRepository.update(existingClaim)
+            claimRepository.update(newClaim)
             return UpdateClaimNameResult.Success
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")

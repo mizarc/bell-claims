@@ -8,12 +8,12 @@ import java.util.UUID
 class UpdateClaimIcon(private val claimRepository: ClaimRepository) {
     fun execute(claimId: UUID, materialName: String): UpdateClaimIconResult {
         // Check if claim exists
-        val claim = claimRepository.getById(claimId) ?: return UpdateClaimIconResult.NoClaimFound
+        val existingClaim = claimRepository.getById(claimId) ?: return UpdateClaimIconResult.NoClaimFound
 
         // Change icon and persist to storage
-        claim.icon = materialName
+        val newClaim = existingClaim.copy(icon = materialName)
         try {
-            claimRepository.update(claim)
+            claimRepository.update(newClaim)
             return UpdateClaimIconResult.Success
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
