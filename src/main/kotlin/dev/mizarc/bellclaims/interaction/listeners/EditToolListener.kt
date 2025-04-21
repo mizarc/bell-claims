@@ -308,7 +308,7 @@ class EditToolListener: Listener, KoinComponent {
             Location(world, x - 1, y, z),
             Location(world, x + 1, y, z))
         return surroundingLocations.mapNotNull {
-            when (val result = getClaimAtPosition.execute(location.world.uid, location.toPosition2D())) {
+            when (val result = getClaimAtPosition.execute(it.world.uid, it.toPosition2D())) {
                 is GetClaimAtPositionResult.Success -> result.claim
                 else -> null
             }
