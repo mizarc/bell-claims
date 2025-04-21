@@ -19,6 +19,7 @@ class ResizePartition(private val claimRepository: ClaimRepository,
         val partition = partitionRepository.getById(partitionId) ?: return ResizePartitionResult.StorageError
         val newPartition = partition.copy()
         val newArea = setNewCorner(selectedCorner, newCorner, partition.area)
+        newPartition.area = newArea
 
         // Check if selection overlaps an existing claim
         if (isPartitionOverlap(newPartition)) return ResizePartitionResult.Overlaps
