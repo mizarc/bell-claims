@@ -250,9 +250,8 @@ class EditToolListener: Listener, KoinComponent {
      * Selects a new position to resize the claim.
      */
     fun resizePartitionBranch(player: Player, location: Location, partitionResizer: Pair<UUID, Position2D>) {
-        val secondPosition = Position2D(location.x.toInt(), location.z.toInt())
-        val area = Area(partitionResizer.second, secondPosition)
-        when (val result = resizePartition.execute(partitionResizer.first, area)) {
+        when (val result = resizePartition.execute(partitionResizer.first, partitionResizer.second,
+                location.toPosition2D())) {
             is ResizePartitionResult.Success -> {
                 player.sendActionBar(
                     Component.text("Partition successfully resized. " +

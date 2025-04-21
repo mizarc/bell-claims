@@ -15,10 +15,10 @@ class ResizePartition(private val claimRepository: ClaimRepository,
                       private val partitionRepository: PartitionRepository,
                       private val playerMetadataService: PlayerMetadataService,
                       private val config: MainConfig) {
-    fun execute(partitionId: UUID, newArea: Area): ResizePartitionResult {
+    fun execute(partitionId: UUID, selectedCorner: Position2D, newCorner: Position2D): ResizePartitionResult {
         val partition = partitionRepository.getById(partitionId) ?: return ResizePartitionResult.StorageError
         val newPartition = partition.copy()
-        newPartition.area = newArea
+        val newArea = setNewCorner(selectedCorner, newCorner, partition.area)
 
         // Check if selection overlaps an existing claim
         if (isPartitionOverlap(newPartition)) return ResizePartitionResult.Overlaps
@@ -27,7 +27,7 @@ class ResizePartition(private val claimRepository: ClaimRepository,
         if (isPartitionTooClose(newPartition)) return ResizePartitionResult.TooClose
 
         // Check if selection would result in it being disconnected from the claim
-        val claim = claimRepository.getById(newPartition.claimId) ?: return ResizePartitionResult.Disconnected
+        val claim = claimRepository.getById(newPartition.claimId) ?: return ResizePartitionResult.StorageError
         if (isResizeResultInAnyDisconnected(newPartition)) return ResizePartitionResult.Disconnected
 
         // Check if claim bell would be outside partition
@@ -148,7 +148,7 @@ class ResizePartition(private val claimRepository: ClaimRepository,
     }
 
     private fun getLinked(partition: Partition, testPartitions: Set<Partition>): Set<Partition> {
-        return testPartitions.filter { it.isPartitionLinked(partition) && it.claimId == partition.claimId }.toSet()
+        return testPartitions.filter { it.isPartitionLinked(partition) }.toSet()
     }
 
     /**
@@ -187,5 +187,38 @@ class ResizePartition(private val claimRepository: ClaimRepository,
             }
         }
         return outputPartitions
+    }
+
+    /**
+     * Assigns a new position for the selected corner.
+     *
+     * @param newPosition2D The new position to be moved to.
+     */
+    private fun setNewCorner(selectedCorner: Position2D, newCorner: Position2D, area: Area): Area {
+        var firstPosition2D = if (selectedCorner.x == area.lowerPosition2D.x) {
+            Position2D(newCorner.x, 0)
+        } else {
+            Position2D(area.lowerPosition2D.x, 0)
+        }
+
+        var secondPosition2D = if (selectedCorner.x == area.upperPosition2D.x) {
+            Position2D(newCorner.x, 0)
+        } else {
+            Position2D(area.upperPosition2D.x, 0)
+        }
+
+        firstPosition2D = if (selectedCorner.z == area.lowerPosition2D.z) {
+            Position2D(firstPosition2D.x, newCorner.z)
+        } else {
+            Position2D(firstPosition2D.x, area.lowerPosition2D.z)
+        }
+
+        secondPosition2D = if (selectedCorner.z == area.upperPosition2D.z) {
+            Position2D(secondPosition2D.x, newCorner.z)
+        } else {
+            Position2D(secondPosition2D.x, area.upperPosition2D.z)
+        }
+
+        return Area(firstPosition2D, secondPosition2D)
     }
 }
