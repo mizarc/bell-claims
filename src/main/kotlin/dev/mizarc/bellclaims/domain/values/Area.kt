@@ -238,12 +238,4 @@ data class Area(var lowerPosition2D: Position2D, var upperPosition2D: Position2D
             upperPosition2D = newUpperPosition2D
         }
     }
-
-    class Builder(val firstPosition: Position2D) {
-        var secondPosition: Position2D? = null
-
-        fun build(): Area? {
-            return secondPosition?.let { Area(firstPosition, it) }
-        }
-    }
 }
