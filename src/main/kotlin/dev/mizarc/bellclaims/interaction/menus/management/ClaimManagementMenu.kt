@@ -26,7 +26,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val player: Player,
-                          private val claim: Claim): Menu, KoinComponent {
+                          private var claim: Claim): Menu, KoinComponent {
     private val getClaimFlags: GetClaimFlags by inject()
     private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
     private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
@@ -96,6 +96,10 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
         // Register the player being in the menu and open it
         registerClaimMenuOpening.execute(player.uniqueId, claim.id)
         gui.show(player)
+    }
+
+    override fun passData(data: Any?) {
+        claim = data as? Claim ?: return
     }
 
     private fun givePlayerTool(player: Player) {
