@@ -14,7 +14,7 @@ class UpdateClaimIcon(private val claimRepository: ClaimRepository) {
         val newClaim = existingClaim.copy(icon = materialName)
         try {
             claimRepository.update(newClaim)
-            return UpdateClaimIconResult.Success
+            return UpdateClaimIconResult.Success(newClaim)
         } catch (error: DatabaseOperationException) {
             println("Error has occurred trying to save to the database")
             return UpdateClaimIconResult.StorageError
