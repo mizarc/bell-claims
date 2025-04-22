@@ -4,6 +4,7 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.FurnaceGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimIcon
+import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimIconResult
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
@@ -69,8 +70,11 @@ class ClaimIconMenu(private val player: Player, private val menuNavigator: MenuN
 
             // Set icon if item in slot
             if (newIcon != null) {
-                updateClaimIcon.execute(claim.id, newIcon.type.name)
-                menuNavigator.goBack()
+                when (val result = updateClaimIcon.execute(claim.id, newIcon.type.name)) {
+                    is UpdateClaimIconResult.Success -> menuNavigator.goBackWithData(result.claim)
+                    else -> menuNavigator.goBack()
+                }
+                return@GuiItem
             }
 
             // Go back to edit menu if no item in slot

@@ -66,7 +66,7 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
             // Attempt renaming
             val result = updateClaimName.execute(claim.id, name)
             when (result) {
-                UpdateClaimNameResult.Success -> menuNavigator.goBack()
+                is UpdateClaimNameResult.Success -> menuNavigator.goBackWithData(result.claim)
                 UpdateClaimNameResult.ClaimNotFound -> {
                     val paperItem = ItemStack(Material.PAPER)
                         .name("The claim you are trying to rename does not exist anymore")
