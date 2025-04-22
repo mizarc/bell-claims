@@ -18,6 +18,7 @@ import dev.mizarc.bellclaims.interaction.menus.management.ClaimManagementMenu
 import dev.mizarc.bellclaims.interaction.menus.management.ClaimNamingMenu
 import dev.mizarc.bellclaims.interaction.menus.management.ClaimTransferMenu
 import org.bukkit.Bukkit
+import org.bukkit.inventory.EquipmentSlot
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -27,6 +28,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
 
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
+        if (event.hand != EquipmentSlot.HAND) return
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
         if (!event.player.isSneaking) return
         val clickedBlock = event.clickedBlock ?: return
