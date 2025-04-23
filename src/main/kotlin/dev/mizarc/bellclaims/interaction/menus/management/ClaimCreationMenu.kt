@@ -19,7 +19,9 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
+import org.koin.core.parameter.parametersOf
 
 class ClaimCreationMenu(private val player: Player, private val menuNavigator: MenuNavigator,
                         private val location: Location): Menu, KoinComponent {
@@ -58,7 +60,10 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
                     .lore(getLangText("RemainingClaims1")
                             + "${playerMetadataService.getPlayerClaimLimit(player.uniqueId) - playerClaimCount}"
                             + getLangText("RemainingClaims2"))
-                val guiIconEditorItem = GuiItem(iconEditorItem) { ClaimNamingMenu(player, menuNavigator, location) }
+                val guiIconEditorItem = GuiItem(iconEditorItem) {
+                    val namingMenu = get<ClaimNamingMenu> { parametersOf(player, menuNavigator, location) }
+                    menuNavigator.openMenu(namingMenu)
+                }
                 pane.addItem(guiIconEditorItem, 4, 0)
                 gui.show(player)
             }
