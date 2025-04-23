@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.utils
 
+import net.kyori.adventure.text.Component
 import org.bukkit.*
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
@@ -18,7 +19,7 @@ fun ItemStack.amount(amount: Int): ItemStack {
 
 fun ItemStack.name(name: String): ItemStack {
     val meta = itemMeta
-    meta.setDisplayName(name)
+    meta.itemName(Component.text(name))
     itemMeta = meta
     return this
 }
