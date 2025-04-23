@@ -23,6 +23,7 @@ class ScheduleClearVisualisation(private val playerStateRepository: PlayerStateR
 
         // Only schedule a new timer if the player currently has a visualization active
         if (playerState.isVisualisingClaims) {
+            playerState.isVisualisingClaims = false
             val delayTicks = 20L * 3 // 3 seconds delay
             val task = schedulerService.schedule(delayTicks) { clearVisualisation.execute(playerId) }
             playerState.scheduledVisualiserHide = task

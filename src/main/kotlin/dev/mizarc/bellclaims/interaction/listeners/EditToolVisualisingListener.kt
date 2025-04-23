@@ -2,7 +2,9 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVisualising
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleClearVisualisation
+import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import org.bukkit.entity.EntityType
@@ -23,6 +25,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     private val displayVisualisation: DisplayVisualisation by inject()
     private val clearVisualisation: ClearVisualisation by inject()
     private val scheduleClearVisualisation: ScheduleClearVisualisation by inject()
+    private val isPlayerVisualising: IsPlayerVisualising by inject()
 
     /**
      * Triggers when the player swaps to the claim tool in their inventory.
@@ -79,7 +82,14 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
             clearVisualisation.execute(player.uniqueId)
             displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
         } else {
-            scheduleClearVisualisation.execute(player.uniqueId)
+            when (val result = isPlayerVisualising.execute(player.uniqueId)) {
+                is IsPlayerVisualisingResult.Success -> {
+                    if (result.isVisualising) {
+                        scheduleClearVisualisation.execute(player.uniqueId)
+                    }
+                }
+                else -> {}
+            }
         }
     }
 }
