@@ -55,10 +55,8 @@ import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisuali
 import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualiserMode
 import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVisualising
 import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
-import dev.mizarc.bellclaims.application.actions.player.visualisation.RegisterVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ToggleVisualiserMode
-import dev.mizarc.bellclaims.application.actions.player.visualisation.UnregisterVisualisation
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
@@ -199,8 +197,6 @@ fun appModule(plugin: BellClaims) = module {
     singleOf(::GetVisualiserMode)
     singleOf(::IsPlayerVisualising)
     singleOf(::RefreshVisualisation)
-    singleOf(::RegisterVisualisation)
     singleOf(::ScheduleClearVisualisation)
     singleOf(::ToggleVisualiserMode)
-    singleOf(::UnregisterVisualisation)
 }
