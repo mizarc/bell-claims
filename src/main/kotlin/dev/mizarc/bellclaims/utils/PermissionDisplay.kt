@@ -1,10 +1,8 @@
 package dev.mizarc.bellclaims.utils
 
-import dev.mizarc.bellclaims.domain.claims.Claim
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import org.bukkit.entity.Item
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
 
 /**
  * Associates claim permissions with a specific in-game item.
@@ -13,19 +11,19 @@ import org.bukkit.entity.Item
  */
 fun ClaimPermission.getIcon(): ItemStack {
     return when (this) {
-        ClaimPermission.Build -> ItemStack(Material.DIAMOND_PICKAXE)
-        ClaimPermission.Harvest -> ItemStack(Material.WHEAT)
-        ClaimPermission.ContainerInspect -> ItemStack(Material.CHEST)
-        ClaimPermission.DisplayManipulate -> ItemStack(Material.ARMOR_STAND)
-        ClaimPermission.VehicleDeploy -> ItemStack(Material.MINECART)
-        ClaimPermission.SignEdit -> ItemStack(Material.OAK_SIGN)
-        ClaimPermission.RedstoneInteract -> ItemStack(Material.LEVER)
-        ClaimPermission.DoorOpen -> ItemStack(Material.ACACIA_DOOR)
-        ClaimPermission.VillagerTrade -> ItemStack(Material.EMERALD)
-        ClaimPermission.Husbandry -> ItemStack(Material.LEAD)
-        ClaimPermission.Detonate -> ItemStack(Material.TNT)
-        ClaimPermission.EventStart -> ItemStack(Material.OMINOUS_BOTTLE)
-        ClaimPermission.Sleep -> ItemStack(Material.RED_BED)
+        ClaimPermission.BUILD -> ItemStack(Material.DIAMOND_PICKAXE)
+        ClaimPermission.HARVEST -> ItemStack(Material.WHEAT)
+        ClaimPermission.CONTAINER -> ItemStack(Material.CHEST)
+        ClaimPermission.DISPLAY -> ItemStack(Material.ARMOR_STAND)
+        ClaimPermission.VEHICLE -> ItemStack(Material.MINECART)
+        ClaimPermission.SIGN -> ItemStack(Material.OAK_SIGN)
+        ClaimPermission.REDSTONE -> ItemStack(Material.LEVER)
+        ClaimPermission.DOOR -> ItemStack(Material.ACACIA_DOOR)
+        ClaimPermission.TRADE -> ItemStack(Material.EMERALD)
+        ClaimPermission.HUSBANDRY -> ItemStack(Material.LEAD)
+        ClaimPermission.EXPLOSIONS -> ItemStack(Material.TNT)
+        ClaimPermission.EVENT -> ItemStack(Material.OMINOUS_BOTTLE)
+        ClaimPermission.SLEEP -> ItemStack(Material.RED_BED)
     }
 }
 
@@ -36,19 +34,19 @@ fun ClaimPermission.getIcon(): ItemStack {
  */
 fun ClaimPermission.getDisplayName(): String {
     return when (this) {
-        ClaimPermission.Build -> getLangText("NameClaimPermissionBuild")
-        ClaimPermission.Harvest -> getLangText("NameClaimPermissionHarvest")
-        ClaimPermission.ContainerInspect -> getLangText("NameClaimPermissionContainerInspect")
-        ClaimPermission.DisplayManipulate -> getLangText("NameClaimPermissionDisplayManipulate")
-        ClaimPermission.VehicleDeploy -> getLangText("NameClaimPermissionVehicleDeploy")
-        ClaimPermission.SignEdit -> getLangText("NameClaimPermissionSignEdit")
-        ClaimPermission.RedstoneInteract -> getLangText("NameClaimPermissionRedstoneInteract")
-        ClaimPermission.DoorOpen -> getLangText("NameClaimPermissionDoorOpen")
-        ClaimPermission.VillagerTrade -> getLangText("NameClaimPermissionVillagerTrade")
-        ClaimPermission.Husbandry -> getLangText("NameClaimPermissionHusbandry")
-        ClaimPermission.Detonate -> getLangText("NameClaimPermissionDetonate")
-        ClaimPermission.EventStart -> getLangText("NameClaimPermissionEventStart")
-        ClaimPermission.Sleep -> getLangText("NameClaimPermissionSleep")
+        ClaimPermission.BUILD -> getLangText("NameClaimPermissionBuild")
+        ClaimPermission.HARVEST -> getLangText("NameClaimPermissionHarvest")
+        ClaimPermission.CONTAINER -> getLangText("NameClaimPermissionContainerInspect")
+        ClaimPermission.DISPLAY -> getLangText("NameClaimPermissionDisplayManipulate")
+        ClaimPermission.VEHICLE -> getLangText("NameClaimPermissionVehicleDeploy")
+        ClaimPermission.SIGN -> getLangText("NameClaimPermissionSignEdit")
+        ClaimPermission.REDSTONE -> getLangText("NameClaimPermissionRedstoneInteract")
+        ClaimPermission.DOOR -> getLangText("NameClaimPermissionDoorOpen")
+        ClaimPermission.TRADE -> getLangText("NameClaimPermissionVillagerTrade")
+        ClaimPermission.HUSBANDRY -> getLangText("NameClaimPermissionHusbandry")
+        ClaimPermission.EXPLOSIONS -> getLangText("NameClaimPermissionDetonate")
+        ClaimPermission.EVENT -> getLangText("NameClaimPermissionEventStart")
+        ClaimPermission.SLEEP -> getLangText("NameClaimPermissionSleep")
     }
 }
 
@@ -59,18 +57,18 @@ fun ClaimPermission.getDisplayName(): String {
  */
 fun ClaimPermission.getDescription(): String {
     return when (this) {
-        ClaimPermission.Build -> getLangText("DescClaimPermissionBuild")
-        ClaimPermission.Harvest -> getLangText("DescClaimPermissionHarvest")
-        ClaimPermission.ContainerInspect -> getLangText("DescClaimPermissionContainerInspect")
-        ClaimPermission.DisplayManipulate -> getLangText("DescClaimPermissionDisplayManipulate")
-        ClaimPermission.VehicleDeploy -> getLangText("DescClaimPermissionVehicleDeploy")
-        ClaimPermission.SignEdit -> getLangText("DescClaimPermissionSignEdit")
-        ClaimPermission.RedstoneInteract -> getLangText("DescClaimPermissionRedstoneInteract")
-        ClaimPermission.DoorOpen -> getLangText("DescClaimPermissionDoorOpen")
-        ClaimPermission.VillagerTrade -> getLangText("DescClaimPermissionVillagerTrade")
-        ClaimPermission.Husbandry -> getLangText("DescClaimPermissionHusbandry")
-        ClaimPermission.Detonate -> getLangText("DescClaimPermissionDetonate")
-        ClaimPermission.EventStart -> getLangText("DescClaimPermissionEventStart")
-        ClaimPermission.Sleep -> getLangText("DescClaimPermissionSleep")
+        ClaimPermission.BUILD -> getLangText("DescClaimPermissionBuild")
+        ClaimPermission.HARVEST -> getLangText("DescClaimPermissionHarvest")
+        ClaimPermission.CONTAINER -> getLangText("DescClaimPermissionContainerInspect")
+        ClaimPermission.DISPLAY -> getLangText("DescClaimPermissionDisplayManipulate")
+        ClaimPermission.VEHICLE -> getLangText("DescClaimPermissionVehicleDeploy")
+        ClaimPermission.SIGN -> getLangText("DescClaimPermissionSignEdit")
+        ClaimPermission.REDSTONE -> getLangText("DescClaimPermissionRedstoneInteract")
+        ClaimPermission.DOOR -> getLangText("DescClaimPermissionDoorOpen")
+        ClaimPermission.TRADE -> getLangText("DescClaimPermissionVillagerTrade")
+        ClaimPermission.HUSBANDRY -> getLangText("DescClaimPermissionHusbandry")
+        ClaimPermission.EXPLOSIONS -> getLangText("DescClaimPermissionDetonate")
+        ClaimPermission.EVENT -> getLangText("DescClaimPermissionEventStart")
+        ClaimPermission.SLEEP -> getLangText("DescClaimPermissionSleep")
     }
 }

@@ -1,17 +1,22 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent
+import dev.mizarc.bellclaims.application.actions.claim.anchor.BreakClaimAnchor
+import dev.mizarc.bellclaims.application.actions.claim.anchor.GetClaimAnchorAtPosition
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
+import dev.mizarc.bellclaims.application.results.claim.anchor.BreakClaimAnchorResult
+import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.block.data.type.Bell
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
-import dev.mizarc.bellclaims.api.ClaimService
-import dev.mizarc.bellclaims.api.ClaimWorldService
-import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.utils.getStringMeta
+import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toLocation
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
@@ -28,40 +33,54 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.world.StructureGrowEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.UUID
 
-class ClaimDestructionListener(val claimService: ClaimService,
-                               private val claimWorldService: ClaimWorldService,
-                               private val playerStateService: PlayerStateService
-): Listener {
+class ClaimDestructionListener: Listener, KoinComponent {
+    private val getClaimAnchorAtPosition: GetClaimAnchorAtPosition by inject()
+    private val breakClaimAnchor: BreakClaimAnchor by inject()
+    private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
+
     @EventHandler
     fun onClaimHubDestroy(event: BlockBreakEvent) {
         if (event.block.blockData !is Bell) return
-        val claim = claimWorldService.getByLocation(event.block.location) ?: return
+        val claim = when (
+            val result = getClaimAnchorAtPosition.execute(event.block.location.toPosition3D(), event.block.world.uid)) {
+            is GetClaimAnchorAtPositionResult.Success -> result.claim
+            else -> return
+        }
 
-        val playerState = playerStateService.getByPlayer(event.player)
+        val hasOverride = when (val result = doesPlayerHaveClaimOverride.execute(event.player.uniqueId)) {
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
+            else -> {}
+        }
 
         // No permission to break bell
-        if (event.player.uniqueId != claim.owner.uniqueId && playerState?.claimOverride != true) {
+        if (event.player.uniqueId != claim.playerId && hasOverride != true) {
+            val playerName = Bukkit.getPlayer(claim.playerId)?.name ?: "(Name not found)"
             event.player.sendActionBar(
-                Component.text("This claim belongs to ${claim.owner.name}")
+                Component.text("This claim belongs to $playerName")
                     .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
             return
         }
 
-        claim.resetBreakCount()
-
-        if (claim.breakCount > 1) {
-            claim.breakCount -= 1
-            event.player.sendActionBar(
-                Component.text("Break ${claim.breakCount} more times in 10 seconds to destroy this claim")
-                .color(TextColor.color(255, 201, 14)))
-            event.isCancelled = true
-            return
+        when(val result = breakClaimAnchor.execute(event.block.world.uid, event.block.location.toPosition3D())) {
+            is BreakClaimAnchorResult.ClaimBreaking -> {
+                event.player.sendActionBar(
+                    Component.text("Break ${result.remainingBreaks} more times in 10 seconds to destroy this claim")
+                        .color(TextColor.color(255, 201, 14)))
+                event.isCancelled = true
+                return
+            }
+            is BreakClaimAnchorResult.Success -> {
+                event.player.sendActionBar(
+                    Component.text("Claim '${claim.name}' has been destroyed")
+                        .color(TextColor.color(85, 255, 85)))
+            }
+            else -> {}
         }
-
-        claimService.destroy(claim)
 
         for ((index, item) in event.player.inventory.withIndex()) {
             if (item == null) continue
@@ -79,9 +98,7 @@ class ClaimDestructionListener(val claimService: ClaimService,
             }
         }
 
-        event.player.sendActionBar(
-            Component.text("Claim '${claim.name}' has been destroyed")
-            .color(TextColor.color(85, 255, 85)))
+
     }
 
     @EventHandler
@@ -110,8 +127,12 @@ class ClaimDestructionListener(val claimService: ClaimService,
     @EventHandler
     fun onPistolPush(event: BlockPistonExtendEvent) {
         for (block in event.blocks) {
-            if (claimWorldService.getByLocation(block.location) != null) {
-                event.isCancelled = true
+            when (getClaimAnchorAtPosition.execute(block.location.toPosition3D(), block.location.world.uid)) {
+                is GetClaimAnchorAtPositionResult.Success -> {
+                    event.isCancelled = true
+                    return
+                }
+                else -> {}
             }
         }
     }
@@ -119,8 +140,12 @@ class ClaimDestructionListener(val claimService: ClaimService,
     @EventHandler
     fun onPistolPull(event: BlockPistonRetractEvent) {
         for (block in event.blocks) {
-            if (claimWorldService.getByLocation(block.location) != null) {
-                event.isCancelled = true
+            when (getClaimAnchorAtPosition.execute(block.location.toPosition3D(), block.location.world.uid)) {
+                is GetClaimAnchorAtPositionResult.Success -> {
+                    event.isCancelled = true
+                    return
+                }
+                else -> {}
             }
         }
     }
@@ -179,16 +204,24 @@ class ClaimDestructionListener(val claimService: ClaimService,
 
     @EventHandler
     fun onBlockDestroy(event: BlockDestroyEvent) {
-        if (claimWorldService.getByLocation(event.block.location) != null) {
-            event.isCancelled = true
+        when (getClaimAnchorAtPosition.execute(event.block.location.toPosition3D(), event.block.location.world.uid)) {
+            is GetClaimAnchorAtPositionResult.Success -> {
+                event.isCancelled = true
+                return
+            }
+            else -> {}
         }
     }
 
     @EventHandler
     fun onTreeGrowth(event: StructureGrowEvent) {
         for (block in event.blocks) {
-            if (claimWorldService.getByLocation(block.location) != null) {
-                event.isCancelled = true
+            when (getClaimAnchorAtPosition.execute(block.location.toPosition3D(), block.location.world.uid)) {
+                is GetClaimAnchorAtPositionResult.Success -> {
+                    event.isCancelled = true
+                    return
+                }
+                else -> {}
             }
         }
     }
@@ -196,8 +229,9 @@ class ClaimDestructionListener(val claimService: ClaimService,
     fun explosionHandler(blocks: MutableList<Block>): List<Block> {
         val cancelledBlocks = mutableListOf<Block>()
         for (block in blocks) {
-            if (claimWorldService.getByLocation(block.location) != null) {
-                cancelledBlocks.add(block)
+            when (getClaimAnchorAtPosition.execute(block.location.toPosition3D(), block.location.world.uid)) {
+                is GetClaimAnchorAtPositionResult.Success -> cancelledBlocks.add(block)
+                else -> {}
             }
 
             if (wouldBlockBreakBell(block)) {
@@ -221,8 +255,11 @@ class ClaimDestructionListener(val claimService: ClaimService,
     }
 
     fun wouldBlockBreakBell(block: Block): Boolean {
-        for (position in getSurroundingPositions(Position3D(block.location))) {
-            claimWorldService.getByLocation(position.toLocation(block.world)) ?: continue
+        for (position in getSurroundingPositions(block.location.toPosition3D())) {
+            when (getClaimAnchorAtPosition.execute(block.location.toPosition3D(), block.location.world.uid)) {
+                is GetClaimAnchorAtPositionResult.Success -> continue
+                else -> {}
+            }
             val blockAt = block.world.getBlockAt(position.toLocation(block.world))
             val bell = blockAt.blockData as? Bell ?: continue
 

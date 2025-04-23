@@ -1,10 +1,11 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.api.enums.PlayerRegisterResult
-import dev.mizarc.bellclaims.api.enums.PlayerUnregisterResult
-import dev.mizarc.bellclaims.domain.players.PlayerState
-import dev.mizarc.bellclaims.domain.players.PlayerStateRepository
+import dev.mizarc.bellclaims.application.services.old.PlayerStateService
+import dev.mizarc.bellclaims.application.results.old.PlayerRegisterResult
+import dev.mizarc.bellclaims.application.results.old.PlayerUnregisterResult
+import dev.mizarc.bellclaims.domain.entities.PlayerState
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.PlayerStateServiceImpl
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

@@ -4,12 +4,13 @@ import co.aikar.idb.Database
 import co.aikar.idb.DatabaseOptions
 import co.aikar.idb.PooledDatabaseOptions
 import org.bukkit.plugin.Plugin
+import java.io.File
 
-class SQLiteStorage(plugin: Plugin): Storage<Database> {
+class SQLiteStorage(dataFolder: File): Storage<Database> {
     override val connection: Database
 
     init {
-        val options = DatabaseOptions.builder().sqlite(plugin.dataFolder.toString() + "/claims.db").build()
+        val options = DatabaseOptions.builder().sqlite("$dataFolder/claims.db").build()
         connection = PooledDatabaseOptions.builder().options(options).createHikariDatabase()
     }
 }

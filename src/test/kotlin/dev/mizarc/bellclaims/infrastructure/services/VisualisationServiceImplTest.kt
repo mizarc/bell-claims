@@ -1,12 +1,13 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.PartitionService
-import dev.mizarc.bellclaims.api.VisualisationService
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Area
-import dev.mizarc.bellclaims.domain.partitions.Partition
-import dev.mizarc.bellclaims.domain.partitions.Position2D
-import dev.mizarc.bellclaims.domain.partitions.Position3D
+import dev.mizarc.bellclaims.application.services.old.PartitionService
+import dev.mizarc.bellclaims.application.services.old.VisualisationService
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Area
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.Position2D
+import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.infrastructure.services.old.VisualisationServiceImpl
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.Location

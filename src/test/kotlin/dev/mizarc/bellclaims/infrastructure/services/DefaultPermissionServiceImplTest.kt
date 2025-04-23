@@ -1,11 +1,11 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.api.enums.FlagChangeResult
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
+import dev.mizarc.bellclaims.application.results.old.DefaultPermissionChangeResult
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.DefaultPermissionServiceImpl
 import io.mockk.*
 import org.bukkit.OfflinePlayer
 import org.junit.jupiter.api.Test
@@ -33,7 +33,7 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `getByClaim - returns expected permissions`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
 
         // When
@@ -46,12 +46,12 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `add - when permission already linked to claim - returns UNCHANGED`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.add(claim, any()) } just runs
 
         // When
-        val result = defaultPermissionService.add(claim, ClaimPermission.ContainerInspect)
+        val result = defaultPermissionService.add(claim, ClaimPermission.CONTAINER)
 
         // Then
         assertEquals(DefaultPermissionChangeResult.UNCHANGED, result)
@@ -61,12 +61,12 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `add - when permission is new - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.add(claim, any()) } just runs
 
         // When
-        val result = defaultPermissionService.add(claim, ClaimPermission.Build)
+        val result = defaultPermissionService.add(claim, ClaimPermission.BUILD)
 
         // Then
         assertEquals(DefaultPermissionChangeResult.SUCCESS, result)
@@ -90,7 +90,7 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `addAll - when some permissions are in repo - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.add(claim, any()) } just runs
 
@@ -120,12 +120,12 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `remove - when permission not linked to claim - returns UNCHANGED`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.remove(claim, any()) } just runs
 
         // When
-        val result = defaultPermissionService.remove(claim, ClaimPermission.Build)
+        val result = defaultPermissionService.remove(claim, ClaimPermission.BUILD)
 
         // Then
         assertEquals(DefaultPermissionChangeResult.UNCHANGED, result)
@@ -135,12 +135,12 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `remove - when permission is linked to claim - returns UNCHANGED`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.remove(claim, any()) } just runs
 
         // When
-        val result = defaultPermissionService.remove(claim, ClaimPermission.SignEdit)
+        val result = defaultPermissionService.remove(claim, ClaimPermission.SIGN)
 
         // Then
         assertEquals(DefaultPermissionChangeResult.SUCCESS, result)
@@ -164,7 +164,7 @@ class DefaultPermissionServiceImplTest {
     @Test
     fun `removeAll - when some permissions are in repo - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
         every { permissionRepo.getByClaim(claim) } returns permissions
         every { permissionRepo.remove(claim, any()) } just runs
 
