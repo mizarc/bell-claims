@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.domain.entities
 
+import dev.mizarc.bellclaims.application.services.scheduling.Task
 import dev.mizarc.bellclaims.domain.values.Position3D
 import org.bukkit.scheduler.BukkitRunnable
 import java.time.Instant
@@ -16,7 +17,7 @@ class PlayerState(val playerId: UUID) {
     var isHoldingClaimTool = false
     var isVisualisingClaims = false
     var isInClaimMenu: UUID? = null
-    var scheduledVisualiserHide: BukkitRunnable? = null
+    var scheduledVisualiserHide: Task? = null
     var lastVisualisationTime: Instant? = null
 
     // Map claim id to block positions

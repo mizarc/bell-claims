@@ -56,6 +56,7 @@ import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisuali
 import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVisualising
 import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.RegisterVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ToggleVisualiserMode
 import dev.mizarc.bellclaims.application.actions.player.visualisation.UnregisterVisualisation
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
@@ -68,6 +69,8 @@ import dev.mizarc.bellclaims.application.services.ConfigService
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
+import dev.mizarc.bellclaims.application.services.scheduling.SchedulerService
+import dev.mizarc.bellclaims.application.services.scheduling.Task
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
@@ -80,9 +83,10 @@ import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
+import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.plugin.Plugin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import java.io.File
@@ -90,6 +94,7 @@ import java.io.File
 // Define your Koin module(s) - using a top-level val named appModule is common
 fun appModule(plugin: BellClaims) = module {
     // --- Plugin ---
+    single<Plugin> {plugin}
     single<File> { plugin.dataFolder }
     single<FileConfiguration> { plugin.config }
     single<Chat> {plugin.metadata }
@@ -118,6 +123,7 @@ fun appModule(plugin: BellClaims) = module {
     single<PlayerMetadataService> { PlayerMetadataServiceVault(get(), get()) }
     single<VisualisationService> { VisualisationServiceBukkit() }
     single<WorldManipulationService> { WorldManipulationServiceBukkit() }
+    single<SchedulerService> { SchedulerServiceBukkit(get()) }
 
 
     // --- Application Layer Actions ---
@@ -194,6 +200,7 @@ fun appModule(plugin: BellClaims) = module {
     singleOf(::IsPlayerVisualising)
     singleOf(::RefreshVisualisation)
     singleOf(::RegisterVisualisation)
+    singleOf(::ScheduleClearVisualisation)
     singleOf(::ToggleVisualiserMode)
     singleOf(::UnregisterVisualisation)
 }
