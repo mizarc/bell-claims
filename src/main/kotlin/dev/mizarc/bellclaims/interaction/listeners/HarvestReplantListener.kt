@@ -1,6 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.infrastructure.persistence.Config
+import dev.mizarc.bellclaims.config.MainConfig
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.data.Ageable
@@ -9,8 +9,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerHarvestBlockEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class HarvestReplantListener(private val config: Config): Listener {
+class HarvestReplantListener: Listener, KoinComponent {
+    private val config: MainConfig by inject()
+
     @EventHandler
     fun onInventoryClose(event: PlayerInteractEvent) {
         // Check if clicked block in set

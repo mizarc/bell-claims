@@ -3,28 +3,44 @@ package dev.mizarc.bellclaims.interaction.commands
 import co.aikar.commands.annotation.CommandAlias
 import co.aikar.commands.annotation.CommandPermission
 import co.aikar.commands.annotation.Subcommand
-import dev.mizarc.bellclaims.api.enums.PartitionDestroyResult
-import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
+import dev.mizarc.bellclaims.application.results.claim.partition.RemovePartitionResult
 import org.bukkit.entity.Player
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
 
 @CommandAlias("claim")
-class RemoveCommand : ClaimCommand() {
+class RemoveCommand : ClaimCommand(), KoinComponent {
+    private val removePartition: RemovePartition by inject()
+    private val getClaimDetails: GetClaimDetails by inject()
+
     @Subcommand("remove")
     @CommandPermission("bellclaims.command.claim.remove")
     fun onRemove(player: Player) {
+        // Get the partition at the player's current location
         val partition = getPartitionAtPlayer(player) ?: return
-        val claim = claimService.getById(partition.claimId) ?: return
-        if (!isPlayerHasClaimPermission(player, partition)) {
-            return
-        }
+        if (!isPlayerHasClaimPermission(player, partition)) return
 
-        when (partitionService.delete(partition)) {
-            PartitionDestroyResult.DISCONNECTED ->
-                player.sendMessage("§cCan't remove partition as it would result in a fragmented claim.")
-            PartitionDestroyResult.SUCCESS -> {
-                player.sendMessage("§aPartition removed for claim §6${claim.name}§a.")
-                PartitionModificationEvent(partition).callEvent()
+        // Remove flag from the claim and notify player of result
+        when (removePartition.execute(partition.id)) {
+            RemovePartitionResult.DoesNotExist -> {
+                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
+                player.sendMessage("This partition for claim §6${claimName}§c does not exist.")
             }
+            RemovePartitionResult.Success -> {
+                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
+                player.sendMessage("Partition has been removed for claim §6${claimName}§a.")
+            }
+            RemovePartitionResult.Disconnected -> {
+                player.sendMessage("Cannot remove this partition as it would result in a fragmented claim.")
+            }
+            RemovePartitionResult.ExposedClaimAnchor -> {
+                player.sendMessage("Cannot remove this partition as the claim bell is in it.")
+            }
+            RemovePartitionResult.StorageError ->
+                player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
 }

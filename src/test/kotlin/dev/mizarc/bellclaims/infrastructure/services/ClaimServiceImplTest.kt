@@ -1,12 +1,15 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.ClaimService
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.claims.ClaimRepository
-import dev.mizarc.bellclaims.domain.flags.ClaimFlagRepository
-import dev.mizarc.bellclaims.domain.partitions.*
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermissionRepository
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.services.old.ClaimService
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
+import dev.mizarc.bellclaims.domain.values.*
+import dev.mizarc.bellclaims.application.persistence.ClaimPermissionRepository
+import dev.mizarc.bellclaims.application.persistence.PartitionRepository
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.infrastructure.services.old.ClaimServiceImpl
 import io.mockk.*
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -39,8 +42,10 @@ class ClaimServiceImplTest {
         claimFlagRepo = mockk()
         claimPermissionRepo = mockk()
         playerPermissionRepo = mockk()
-        claimService = ClaimServiceImpl(claimRepo, partitionRepo,
-            claimFlagRepo, claimPermissionRepo, playerPermissionRepo)
+        claimService = ClaimServiceImpl(
+            claimRepo, partitionRepo,
+            claimFlagRepo, claimPermissionRepo, playerPermissionRepo
+        )
 
         claim = Claim(UUID.randomUUID(), playerOne, Position3D(15,85,10), "Test")
         claimCollection = arrayOf(
@@ -58,7 +63,8 @@ class ClaimServiceImplTest {
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(16, 17), Position2D(25, 24))),
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(2, -5), Position2D(7, 8))),
             Partition(UUID.randomUUID(), claim.id, Area(Position2D(-5, -6), Position2D(1, -1))),
-            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5))))
+            Partition(UUID.randomUUID(), claim.id, Area(Position2D(-14, -9), Position2D(-6, -5)))
+        )
     }
 
     @Test

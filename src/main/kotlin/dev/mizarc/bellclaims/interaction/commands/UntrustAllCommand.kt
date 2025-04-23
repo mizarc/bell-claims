@@ -1,31 +1,40 @@
 package dev.mizarc.bellclaims.interaction.commands
 
 import co.aikar.commands.annotation.*
-import co.aikar.commands.bukkit.contexts.OnlinePlayer
-import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.permission.RevokeClaimWidePermission
+import dev.mizarc.bellclaims.application.results.claim.permission.RevokeClaimWidePermissionResult
 import org.bukkit.entity.Player
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @CommandAlias("claim")
-class UntrustAllCommand : ClaimCommand() {
+class UntrustAllCommand : ClaimCommand(), KoinComponent {
+    private val revokeClaimWidePermission: RevokeClaimWidePermission by inject()
+    private val getClaimDetails: GetClaimDetails by inject()
+
     @Subcommand("untrustall")
     @CommandPermission("bellclaims.command.claim.untrustall")
-    fun onUntrustAll(player: Player, claimPermission: ClaimPermission) {
+    fun onUntrustAll(player: Player, permission: ClaimPermission) {
+        // Gets the partition at the player's current location
         val partition = getPartitionAtPlayer(player) ?: return
-        val claim = claimService.getById(partition.claimId) ?: return
-        if (!isPlayerHasClaimPermission(player, partition)) {
-            return
-        }
+        if (!isPlayerHasClaimPermission(player, partition)) return
 
-        // Remove permission for player and output result
-        when (defaultPermissionService.remove(claim, claimPermission)) {
-            DefaultPermissionChangeResult.UNCHANGED ->
-                player.sendMessage("§cClaim doesn't have §6${claimPermission.name} §cset as a default permission.")
-            DefaultPermissionChangeResult.SUCCESS ->
-                player.sendMessage("§aPlayers no longer have §6${claimPermission.name} §apermissions for this claim.")
-            else ->
-                player.sendMessage("Unknown Error.")
+        // Add permission for player and output result
+        when (revokeClaimWidePermission.execute(partition.claimId, permission)) {
+            RevokeClaimWidePermissionResult.Success -> {
+                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
+                player.sendMessage("Permission $permission has been revoked claim wide in claim $claimName.")
+            }
+            RevokeClaimWidePermissionResult.DoesNotExist -> {
+                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
+                player.sendMessage("Claim $claimName does not have $permission granted claim wide.")
+            }
+            RevokeClaimWidePermissionResult.ClaimNotFound ->
+                player.sendMessage("Claim was not found.")
+            RevokeClaimWidePermissionResult.StorageError ->
+                player.sendMessage("An internal error has occurred, contact your administrator for support.")
         }
     }
 }

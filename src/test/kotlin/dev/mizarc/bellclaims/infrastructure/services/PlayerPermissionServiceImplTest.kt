@@ -1,11 +1,11 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
-import dev.mizarc.bellclaims.api.enums.DefaultPermissionChangeResult
-import dev.mizarc.bellclaims.api.enums.PlayerPermissionChangeResult
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.domain.partitions.Position3D
-import dev.mizarc.bellclaims.domain.permissions.ClaimPermission
-import dev.mizarc.bellclaims.domain.permissions.PlayerAccessRepository
+import dev.mizarc.bellclaims.application.results.old.PlayerPermissionChangeResult
+import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.Position3D
+import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
+import dev.mizarc.bellclaims.infrastructure.services.old.PlayerPermissionServiceImpl
 import io.mockk.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -46,11 +46,11 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `doesPlayerHavePermission - when player doesn't have permission - returns False`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.Husbandry, ClaimPermission.Build)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns playerOnePermissions
+        val playerOnePermissions = setOf(ClaimPermission.HUSBANDRY, ClaimPermission.BUILD)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns playerOnePermissions
 
         // When
-        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.VehicleDeploy)
+        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.VEHICLE)
 
         // Then
         assertFalse(result)
@@ -59,13 +59,13 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `doesPlayerHavePermission - when player does have permission - returns True`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.Husbandry, ClaimPermission.Build)
-        val playerTwoPermissions = setOf(ClaimPermission.ContainerInspect,
-            ClaimPermission.SignEdit, ClaimPermission.RedstoneInteract)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns playerOnePermissions
+        val playerOnePermissions = setOf(ClaimPermission.HUSBANDRY, ClaimPermission.BUILD)
+        val playerTwoPermissions = setOf(ClaimPermission.CONTAINER,
+            ClaimPermission.SIGN, ClaimPermission.REDSTONE)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns playerOnePermissions
 
         // When
-        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.Build)
+        val result = playerPermissionService.doesPlayerHavePermission(claim, playerOne, ClaimPermission.BUILD)
 
         // Then
         assertTrue(result)
@@ -74,12 +74,12 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `getByClaim - returns expected Permission Map`() {
         // Given
-        val playerOnePermissions = setOf(ClaimPermission.SignEdit, ClaimPermission.Build)
-        val playerTwoPermissions = setOf(ClaimPermission.ContainerInspect,
-            ClaimPermission.SignEdit, ClaimPermission.RedstoneInteract)
+        val playerOnePermissions = setOf(ClaimPermission.SIGN, ClaimPermission.BUILD)
+        val playerTwoPermissions = setOf(ClaimPermission.CONTAINER,
+            ClaimPermission.SIGN, ClaimPermission.REDSTONE)
         val permissions = mapOf(uuidOne to playerOnePermissions, uuidTwo to playerTwoPermissions)
         mockkStatic(Bukkit::class)
-        every { permissionRepo.getByClaim(claim) } returns permissions
+        every { permissionRepo.getForAllPlayersInClaim(claim) } returns permissions
         every { Bukkit.getOfflinePlayer(uuidOne) } returns playerOne
         every { Bukkit.getOfflinePlayer(uuidTwo) } returns playerTwo
 
@@ -93,8 +93,8 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `getByPlayer - returns expected Permission Set`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.Build)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.BUILD)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
 
         // When
         val result = playerPermissionService.getByPlayer(claim, playerOne)
@@ -106,11 +106,11 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `addForPlayer - when player already has permission - returns UNCHANGED`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
 
         // When
-        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.ContainerInspect)
+        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.CONTAINER)
 
         // Then
         assertEquals(PlayerPermissionChangeResult.UNCHANGED, result)
@@ -120,12 +120,12 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `addForPlayer - when player doesn't have has permission - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.add(claim, playerOne, any()) } just runs
 
         // When
-        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.Husbandry)
+        val result = playerPermissionService.addForPlayer(claim, playerOne, ClaimPermission.HUSBANDRY)
 
         // Then
         assertEquals(PlayerPermissionChangeResult.SUCCESS, result)
@@ -135,7 +135,7 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `addAllForPlayer - when player has no permissions - returns SUCCESS`() {
         // Given
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns emptySet()
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns emptySet()
         every { permissionRepo.add(claim, playerOne, any()) } just runs
 
         // When
@@ -149,8 +149,8 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `addAllForPlayer - when player has some permissions - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.add(claim, playerOne, any()) } just runs
 
         // When
@@ -165,7 +165,7 @@ class PlayerPermissionServiceImplTest {
     fun `addAllForPlayer - when player has all permissions - returns UNCHANGED`() {
         // Given
         val permissions = ClaimPermission.entries.toSet()
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.add(claim, playerOne, any()) } just runs
 
         // When
@@ -179,12 +179,12 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `removeForPlayer - when player doesn't have the permission - returns UNCHANGED`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.remove(claim, playerOne, any()) } just runs
 
         // When
-        val result = playerPermissionService.removeForPlayer(claim, playerOne, ClaimPermission.Build)
+        val result = playerPermissionService.removeForPlayer(claim, playerOne, ClaimPermission.BUILD)
 
         // Then
         assertEquals(PlayerPermissionChangeResult.UNCHANGED, result)
@@ -194,12 +194,12 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `removeForPlayer - when player has the permission - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.remove(claim, playerOne, any()) } just runs
 
         // When
-        val result = playerPermissionService.removeForPlayer(claim, playerOne, ClaimPermission.SignEdit)
+        val result = playerPermissionService.removeForPlayer(claim, playerOne, ClaimPermission.SIGN)
 
         // Then
         assertEquals(PlayerPermissionChangeResult.SUCCESS, result)
@@ -209,7 +209,7 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `removeAllForPlayer - when player has no permissions - returns UNCHANGED`() {
         // Given
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns emptySet()
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns emptySet()
         every { permissionRepo.remove(claim, playerOne, any()) } just runs
 
         // When
@@ -223,8 +223,8 @@ class PlayerPermissionServiceImplTest {
     @Test
     fun `removeAllForPlayer - when player has some permissions - returns SUCCESS`() {
         // Given
-        val permissions = setOf(ClaimPermission.SignEdit, ClaimPermission.DoorOpen, ClaimPermission.ContainerInspect)
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        val permissions = setOf(ClaimPermission.SIGN, ClaimPermission.DOOR, ClaimPermission.CONTAINER)
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.remove(claim, playerOne, any()) } just runs
 
         // When
@@ -239,7 +239,7 @@ class PlayerPermissionServiceImplTest {
     fun `removeAllForPlayer - when player has all permissions - returns SUCCESS`() {
         // Given
         val permissions = ClaimPermission.entries.toSet()
-        every { permissionRepo.getByPlayer(claim, playerOne) } returns permissions
+        every { permissionRepo.getForPlayerInClaim(claim, playerOne) } returns permissions
         every { permissionRepo.remove(claim, playerOne, any()) } just runs
 
         // When

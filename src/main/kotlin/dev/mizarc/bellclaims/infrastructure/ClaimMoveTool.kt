@@ -4,7 +4,7 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import dev.mizarc.bellclaims.domain.claims.Claim
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 

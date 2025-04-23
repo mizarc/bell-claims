@@ -1,34 +1,31 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import dev.mizarc.bellclaims.api.ClaimService
-import dev.mizarc.bellclaims.api.PartitionService
-import dev.mizarc.bellclaims.api.PlayerStateService
-import dev.mizarc.bellclaims.api.events.PartitionModificationEvent
-import dev.mizarc.bellclaims.domain.claims.Claim
-import dev.mizarc.bellclaims.interaction.visualisation.Visualiser
+import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
+import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
+import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVisualising
+import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
+import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
+import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
+import dev.mizarc.bellclaims.domain.entities.Claim
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PartitionUpdateListener(private val claimService: ClaimService,
-                              private val partitionService: PartitionService,
-                              private val playerStateService: PlayerStateService,
-                              private val visualiser: Visualiser): Listener {
+class PartitionUpdateListener: Listener, KoinComponent {
+    private val getClaimDetails: GetClaimDetails by inject()
+    private val getClaimPartitions: GetClaimPartitions by inject()
+    private val isPlayerVisualising: IsPlayerVisualising by inject()
+    private val refreshVisualisation: RefreshVisualisation by inject()
+
     @EventHandler
     fun onPartitionUpdate(event: PartitionModificationEvent) {
-        val claim = claimService.getById(event.partition.claimId) ?: return
+        val claim = getClaimDetails.execute(event.partition.claimId) ?: return
         val nearbyPlayers = getNearbyPlayers(claim)
-        for (player in nearbyPlayers) {
-            val playerState = playerStateService.getByPlayer(player) ?: continue
-            val visualisedClaim = playerState.visualisedBlockPositions[claim] ?: continue
-
-            // Clear and redo visualisation for selected claim
-            visualiser.revertVisualisedBlocks(player, visualisedClaim)
-            playerState.visualisedBlockPositions.remove(claim)
-            visualiser.show(player, claim)
-        }
+        for (player in nearbyPlayers) refreshVisualisation.execute(player.uniqueId, claim.id, event.partition.id)
     }
 
     /**
@@ -39,8 +36,8 @@ class PartitionUpdateListener(private val claimService: ClaimService,
 
         // Get list of chunks that the claim occupies
         val startingChunks: MutableSet<Chunk> = mutableSetOf()
-        val partitions = partitionService.getByClaim(claim)
-        val world = claim.getWorld() ?: return arrayOf()
+        val partitions = getClaimPartitions.execute(claim.id)
+        val world = Bukkit.getWorld(claim.worldId) ?: return arrayOf()
         for (partition in partitions) {
             startingChunks.addAll(partition.getChunks().map { world.getChunkAt(it.x, it.z) })
         }
@@ -54,8 +51,12 @@ class PartitionUpdateListener(private val claimService: ClaimService,
         // Get players in chunks
         for (player in Bukkit.getOnlinePlayers()) {
             if (player.location.world != world) continue
-            val playerState = playerStateService.getByPlayer(player) ?: continue
-            if (finalChunks.contains(player.chunk) && playerState.isVisualisingClaims) {
+            if (finalChunks.contains(player.chunk)) {
+                val result = isPlayerVisualising.execute(player.uniqueId)
+                when (result) {
+                    is IsPlayerVisualisingResult.Success -> players.add(player)
+                    else -> {}
+                }
                 players.add(player)
             }
         }
