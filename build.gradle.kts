@@ -23,6 +23,10 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
+    maven {
+        name = "codemc-snapshots"
+        url = uri("https://repo.codemc.io/repository/maven-snapshots/")
+    }
     mavenLocal()
 }
 
@@ -41,6 +45,7 @@ dependencies {
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.19")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    implementation("net.wesjd:anvilgui:1.10.5-SNAPSHOT")
 }
 
 java {
