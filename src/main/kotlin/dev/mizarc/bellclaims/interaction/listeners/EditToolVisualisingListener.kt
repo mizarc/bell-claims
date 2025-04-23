@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleClearVisualisation
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import org.bukkit.entity.EntityType
@@ -21,6 +22,7 @@ import kotlin.concurrent.thread
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val displayVisualisation: DisplayVisualisation by inject()
     private val clearVisualisation: ClearVisualisation by inject()
+    private val scheduleClearVisualisation: ScheduleClearVisualisation by inject()
 
     /**
      * Triggers when the player swaps to the claim tool in their inventory.
@@ -76,6 +78,8 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         if (holdingClaimTool) {
             clearVisualisation.execute(player.uniqueId)
             displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
+        } else {
+            scheduleClearVisualisation.execute(player.uniqueId)
         }
     }
 }
