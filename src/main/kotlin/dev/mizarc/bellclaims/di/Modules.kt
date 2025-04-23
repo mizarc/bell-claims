@@ -82,8 +82,13 @@ import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
+import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
+import dev.mizarc.bellclaims.interaction.menus.management.ClaimNamingMenu
+import dev.mizarc.bellclaims.interaction.menus.management.naming.ClaimNamingMenuAnvilGUI
 import net.milkbowl.vault.chat.Chat
+import org.bukkit.Location
 import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -199,4 +204,8 @@ fun appModule(plugin: BellClaims) = module {
     singleOf(::RefreshVisualisation)
     singleOf(::ScheduleClearVisualisation)
     singleOf(::ToggleVisualiserMode)
+
+    factory<ClaimNamingMenu> { (player: Player, menuNavigator: MenuNavigator, location: Location) ->
+        ClaimNamingMenuAnvilGUI(player, menuNavigator, location)
+    }
 }
