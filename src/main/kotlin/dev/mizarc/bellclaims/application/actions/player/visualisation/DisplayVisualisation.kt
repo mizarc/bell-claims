@@ -35,8 +35,9 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         else {
             borders.putAll(displayComplete(playerId, playerPosition))
         }
-
+        
         // Set visualisation in player state
+        playerState.scheduledVisualiserHide?.cancel()
         playerState.visualisedClaims = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
