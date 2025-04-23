@@ -4,10 +4,12 @@ import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.VisualisationService
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.PlayerState
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import kotlin.collections.set
@@ -16,7 +18,9 @@ import kotlin.math.floor
 class DisplayVisualisation(private val playerStateRepository: PlayerStateRepository,
                            private val claimRepository: ClaimRepository,
                            private val partitionRepository: PartitionRepository,
-                           private val visualisationService: VisualisationService) {
+                           private val visualisationService: VisualisationService,
+                           private val clearVisualisation: ClearVisualisation,
+                           private val config: MainConfig) {
     /**
      * Display claim visualisation to target player
      */
@@ -27,6 +31,16 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             playerStateRepository.add(playerState)
         }
 
+        // Check if allowed to refresh visualisation based on last visualisation time
+        val refreshPeriodInMillis = (config.visualiserRefreshPeriod * 1000).toLong()
+        val lastVisualisation = playerState.lastVisualisationTime
+        if (lastVisualisation != null
+                && lastVisualisation.plus(Duration.ofMillis(refreshPeriodInMillis)).isAfter(Instant.now()))
+            return mutableMapOf()
+
+        // Clear the active visualisation
+        clearVisualisation.execute(playerId)
+
         // Change visualiser depending on view mode
         val borders: MutableMap<UUID, Set<Position3D>> = mutableMapOf()
         if (playerState.claimToolMode == 1) {
@@ -35,7 +49,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         else {
             borders.putAll(displayComplete(playerId, playerPosition))
         }
-        
+
         // Set visualisation in player state
         playerState.scheduledVisualiserHide?.cancel()
         playerState.visualisedClaims = borders
