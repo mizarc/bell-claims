@@ -79,7 +79,6 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         // Visualise if player isn't already holding the claim tool (e.g. swapping hands)
         val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
         if (holdingClaimTool) {
-            clearVisualisation.execute(player.uniqueId)
             displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
         } else {
             when (val result = isPlayerVisualising.execute(player.uniqueId)) {

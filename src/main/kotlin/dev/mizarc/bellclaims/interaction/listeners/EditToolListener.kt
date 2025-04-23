@@ -72,7 +72,6 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
-        clearVisualisation.execute(event.player.uniqueId)
         displayVisualisation.execute(event.player.uniqueId, event.player.location.toPosition3D())
 
         // Resizes an existing partition
