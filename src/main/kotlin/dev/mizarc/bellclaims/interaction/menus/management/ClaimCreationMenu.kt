@@ -61,8 +61,7 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
                             + "${playerMetadataService.getPlayerClaimLimit(player.uniqueId) - playerClaimCount}"
                             + getLangText("RemainingClaims2"))
                 val guiIconEditorItem = GuiItem(iconEditorItem) {
-                    val namingMenu = get<ClaimNamingMenu> { parametersOf(player, menuNavigator, location) }
-                    menuNavigator.openMenu(namingMenu)
+                    menuNavigator.openMenu(ClaimNamingMenu(player, menuNavigator, location))
                 }
                 pane.addItem(guiIconEditorItem, 4, 0)
                 gui.show(player)

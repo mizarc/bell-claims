@@ -48,7 +48,6 @@ dependencies {
     implementation("dev.mizarc.inventoryframework:if:0.10.19")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    implementation("net.wesjd:anvilgui:1.10.5-SNAPSHOT")
 }
 
 java {
