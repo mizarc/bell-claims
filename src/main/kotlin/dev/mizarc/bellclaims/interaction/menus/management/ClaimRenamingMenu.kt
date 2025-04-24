@@ -58,7 +58,7 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
         val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             // Go back to edit menu if the name hasn't changed
-            if (name == claim.name) {
+            if (name == claim.name || name.isBlank()) {
                 menuNavigator.goBack()
                 return@GuiItem
             }
