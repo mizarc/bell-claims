@@ -7,7 +7,11 @@ group = "dev.mizarc"
 version = "0.4.0-dev"
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/mizarc/IF")
+    }
     maven {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
@@ -23,11 +27,14 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-    mavenLocal()
+    maven {
+        name = "codemc-snapshots"
+        url = uri("https://repo.codemc.io/repository/maven-snapshots/")
+    }
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
@@ -38,7 +45,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.19")
+    implementation("dev.mizarc.inventoryframework:if:0.10.19")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
