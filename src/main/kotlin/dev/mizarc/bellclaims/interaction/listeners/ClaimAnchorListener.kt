@@ -14,8 +14,8 @@ import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
+import dev.mizarc.bellclaims.interaction.menus.management.ClaimCreationMenu
 import dev.mizarc.bellclaims.interaction.menus.management.ClaimManagementMenu
-import dev.mizarc.bellclaims.interaction.menus.management.ClaimNamingMenu
 import dev.mizarc.bellclaims.interaction.menus.management.ClaimTransferMenu
 import org.bukkit.Bukkit
 import org.bukkit.inventory.EquipmentSlot
@@ -81,6 +81,6 @@ class ClaimAnchorListener(): Listener, KoinComponent {
         // Open the menu
         event.isCancelled = true
         val menuNavigator = MenuNavigator(event.player)
-        menuNavigator.openMenu(ClaimNamingMenu(event.player, menuNavigator, clickedBlock.location))
+        menuNavigator.openMenu(ClaimCreationMenu(event.player, menuNavigator, clickedBlock.location))
     }
 }
