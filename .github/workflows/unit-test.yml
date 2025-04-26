@@ -31,6 +31,6 @@ jobs:
         distribution: 'temurin'
         
     - name: Test with Gradle
-      run: ./gradlew test
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./gradlew test
