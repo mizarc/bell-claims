@@ -26,9 +26,9 @@ jobs:
         distribution: 'temurin'
 
     - name: Build Gradle using shadowJar
-      run: ./gradlew shadowJar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./gradlew shadowJar
 
     - name: Save Artifact
       uses: actions/upload-artifact@v4
