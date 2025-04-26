@@ -10,13 +10,15 @@ on:
     branches:
       - '**'
 
-permissions:
-  contents: read
-  packages: read
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
 
     steps:
     - name: Checkout Repository
