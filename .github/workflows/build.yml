@@ -7,6 +7,10 @@ on:
       - staging
       - release/*
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
