@@ -11,6 +11,10 @@ repositories {
     mavenCentral()
     maven {
         url = uri("https://maven.pkg.github.com/mizarc/IF")
+        credentials {
+            username = (project.findProperty("gpr.user") as? String) ?: System.getenv("USERNAME")
+            password = (project.findProperty("gpr.key") as? String) ?: System.getenv("TOKEN")
+        }
     }
     maven {
         url = uri("https://repo.papermc.io/repository/maven-public/")
@@ -34,7 +38,7 @@ repositories {
 }
 
 dependencies {
-     testImplementation(kotlin("test"))
+    testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
