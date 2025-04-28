@@ -178,12 +178,20 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     fun onInventoryOpenEvent(event: InventoryOpenEvent) {
         val player = event.player as? Player ?: return
         val location = event.inventory.location ?: return
+
+        // Filter to blocks that hold state (or break like anvils)
         val types = setOf(
             InventoryType.CHEST, InventoryType.SHULKER_BOX, InventoryType.BARREL, InventoryType.FURNACE,
             InventoryType.BLAST_FURNACE, InventoryType.SMOKER, InventoryType.ANVIL, InventoryType.BEACON,
             InventoryType.HOPPER, InventoryType.BREWING, InventoryType.DISPENSER, InventoryType.DROPPER)
         val inventoryType = event.inventory.type
         if (inventoryType !in types) return
+
+        // Special check for anvil from custom GUIs implementing the anvils interface. Location is possibly set to
+        // (0, 0, 0) instead of null, which conflicts with claims created there. Anvil is not a tile entity so this
+        // shouldn't be a problem for performance.
+        if (inventoryType == InventoryType.ANVIL && event.inventory.holder == null) return
+
         val action = PlayerActionType.OPEN_CONTAINER
         cancelIfDisallowed(event, player, location, action)
     }
