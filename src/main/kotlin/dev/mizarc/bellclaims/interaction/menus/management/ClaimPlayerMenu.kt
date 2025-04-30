@@ -57,8 +57,8 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
                 continue
             }
 
-            val warpItem = createHead(Bukkit.getOfflinePlayer(player.uniqueId))
-                .name("${Bukkit.getOfflinePlayer(player.uniqueId).name}")
+            val warpItem = createHead(Bukkit.getOfflinePlayer(targetPlayer.uniqueId))
+                .name("${Bukkit.getOfflinePlayer(targetPlayer.uniqueId).name}")
             val guiWarpItem = GuiItem(warpItem) {
                 menuNavigator.openMenu(ClaimPlayerPermissionsMenu(menuNavigator, player, claim, targetPlayer))
             }
