@@ -14,6 +14,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
 
+### Fixed
+- Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
+
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.
 
