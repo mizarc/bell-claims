@@ -49,7 +49,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
 
     override fun open() {
         // Create player permissions menu
-        val gui = ChestGui(6, "${player.name}'s Permissions")
+        val gui = ChestGui(6, "${targetPlayer.name}'s Permissions")
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -58,18 +58,19 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         val controlsPane = addControlsSection(gui) { menuNavigator.goBack() }
 
         val deselectAction: () -> Unit = {
-            revokeAllPlayerClaimPermissions.execute(claim.id, player.uniqueId)
+            revokeAllPlayerClaimPermissions.execute(claim.id, targetPlayer.uniqueId)
             open()
         }
 
         val selectAction: () -> Unit = {
-            grantAllPlayerClaimPermissions.execute(claim.id, player.uniqueId)
+            grantAllPlayerClaimPermissions.execute(claim.id, targetPlayer.uniqueId)
             open()
         }
 
-        addSelector(controlsPane, createHead(player).name(player.name), deselectAction, selectAction)
+        addSelector(controlsPane, createHead(targetPlayer).name(targetPlayer.name ?: "(Name not found)"),
+            deselectAction, selectAction)
 
-        val transferRequestResult = doesPlayerHaveTransferRequest.execute(claim.id, player.uniqueId)
+        val transferRequestResult = doesPlayerHaveTransferRequest.execute(claim.id, targetPlayer.uniqueId)
 
         val guiTransferRequestItem: GuiItem
         when (transferRequestResult) {
@@ -92,7 +93,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                         .name("§4${getLangText("CancelTransferClaim")}")
                         .lore(getLangText("CancelTransferClaimDescription"))
                     guiTransferRequestItem = GuiItem(transferClaimItem) {
-                        withdrawPlayerTransferRequest.execute(claim.id, player.uniqueId)
+                        withdrawPlayerTransferRequest.execute(claim.id, targetPlayer.uniqueId)
                         open()
                     }
                 } else {
@@ -118,11 +119,11 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                     }
 
 
-                    when(canPlayerReceiveTransferRequest.execute(claim.id, player.uniqueId)) {
+                    when(canPlayerReceiveTransferRequest.execute(claim.id, targetPlayer.uniqueId)) {
                         CanPlayerReceiveTransferRequestResult.Success -> {
                             val transferClaimItem = ItemStack(Material.BELL)
                                 .name("§4${getLangText("TransferClaim")}")
-                                .lore("This will transfer the current claim to ${player.name}!")
+                                .lore("This will transfer the current claim to ${targetPlayer.name}!")
                             guiTransferRequestItem = GuiItem(transferClaimItem) { transferClaimAction() }
                         }
                         CanPlayerReceiveTransferRequestResult.ClaimLimitExceeded -> {
@@ -171,7 +172,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledPermissions = getPlayerClaimPermissions.execute(claim.id, player.uniqueId)
+        val enabledPermissions = getPlayerClaimPermissions.execute(claim.id, targetPlayer.uniqueId)
         val disabledPermissions = ClaimPermission.entries.toTypedArray().subtract(enabledPermissions)
 
         // Add list of disabled permissions
@@ -185,7 +186,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                grantPlayerClaimPermission.execute(claim.id, player.uniqueId, permission)
+                grantPlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)
                 open()
             }
 
@@ -209,7 +210,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                 .lore(permission.getDescription())
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                revokePlayerClaimPermission.execute(claim.id, player.uniqueId, permission)
+                revokePlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)
                 open()
             }
 
