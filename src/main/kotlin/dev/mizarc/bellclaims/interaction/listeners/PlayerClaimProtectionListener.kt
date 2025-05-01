@@ -438,12 +438,10 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (event.entity !is ArmorStand) return
 
         // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
-        val player: Player? = when (event.hitBy) {
-            is Player -> event.hitBy as Player
-            is Projectile -> {
-                val projectile = event.hitBy as Projectile
-                projectile.shooter as Player
-            }
+        val hitBy = event.hitBy
+        val player: Player? = when (hitBy) {
+            is Player -> hitBy
+            is Projectile -> hitBy.shooter as? Player
             else -> null
         }
         if (player == null) return
@@ -457,17 +455,15 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (event.entity !is Animals && event.entity !is Villager) return
 
         // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
-        val player: Player? = when (event.hitBy) {
-            is Player -> event.hitBy as Player
-            is Projectile -> {
-                val projectile = event.hitBy as Projectile
-                projectile.shooter as Player
-            }
+        val hitBy = event.hitBy
+        val player: Player? = when (hitBy) {
+            is Player -> hitBy
+            is Projectile -> hitBy.shooter as? Player
             else -> null
         }
         if (player == null) return
 
-        val action = PlayerActionType.PUSH_ARMOUR_STAND
+        val action = PlayerActionType.DAMAGE_ANIMAL
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
 
