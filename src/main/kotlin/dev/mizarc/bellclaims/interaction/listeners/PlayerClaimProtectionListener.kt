@@ -108,7 +108,17 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     @EventHandler
     fun onEntityDamageByEntityEvent(event: EntityDamageByEntityEvent) {
         if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is GlowItemFrame) return
-        val player = event.damager as? Player ?: return
+
+        // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
+        val hitBy = event.damager
+        val player: Player? = when (hitBy) {
+            is Player -> hitBy
+            is Projectile -> hitBy.shooter as? Player
+            else -> null
+        }
+        if (player == null) return
+
+
         val action = PlayerActionType.DAMAGE_STATIC_ENTITY
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
@@ -209,7 +219,16 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     @EventHandler
     fun onAnimalDamageByPlayerEvent(event: EntityDamageByEntityEvent) {
         if (event.entity !is Animals && event.entity !is AbstractVillager) return
-        val player = event.damager as? Player ?: return
+
+        // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
+        val hitBy = event.damager
+        val player: Player? = when (hitBy) {
+            is Player -> hitBy
+            is Projectile -> hitBy.shooter as? Player
+            else -> null
+        }
+        if (player == null) return
+
         val action = PlayerActionType.DAMAGE_ANIMAL
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
