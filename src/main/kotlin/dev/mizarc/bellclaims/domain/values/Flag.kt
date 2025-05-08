@@ -7,32 +7,32 @@ enum class Flag {
     /**
      * When fire can spread from one block to another in the claim.
      */
-    FIRE_SPREAD,
+    FIRE,
 
     /**
      * When a mob destroys or otherwise changes blocks in the claim.
      */
-    MOB_GRIEFING,
+    MOB,
 
     /**
      * When TNT or other entities explode blocks in the claim.
      */
-    EXPLOSIONS,
+    EXPLOSION,
 
     /**
      * When a piston placed outside of the claim can pull and push blocks in the claim.
      */
-    PISTONS,
+    PISTON,
 
     /**
      * When fluids can flow into the claim.
      */
-    FLUIDS,
+    FLUID,
 
     /**
      * When trees planted outside a claim grows into the claim.
      */
-    TREES,
+    TREE,
 
     /**
      * When sculk placed outside a claim spreads into the claim.
@@ -42,7 +42,7 @@ enum class Flag {
     /**
      * When dispensers dispense into the claim.
      */
-    DISPENSERS,
+    DISPENSER,
 
     /**
      * When sponge placed outside the claim can drain water in the claim.
@@ -60,7 +60,7 @@ enum class Flag {
     FALLING_BLOCK,
 
     /**
-     * When animals can be placed in vehicles in a claim.
+     * When passive entities can be placed in vehicles in a claim.
      */
-    ANIMAL_VEHICLE
+    PASSIVE_ENTITY_VEHICLE
 }
