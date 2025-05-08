@@ -57,7 +57,7 @@ enum class ClaimPermission {
     /**
      * When an explosive is detonated by a player.
      */
-    DETONATION,
+    DETONATE,
 
     /**
      * When an event is triggered by an omen effect.
