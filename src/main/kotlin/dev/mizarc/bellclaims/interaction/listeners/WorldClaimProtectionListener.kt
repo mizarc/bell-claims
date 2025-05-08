@@ -460,7 +460,7 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
 
     @EventHandler
     fun onVehicleEnter(event: VehicleEnterEvent) {
-        if (event.entered is Monster) return
+        if (event.entered is Monster || event.entered is Player) return
         val action = WorldActionType.ANIMAL_ENTER_VEHICLE
         cancelIfDisallowed(event, event.entered.location, action)
     }
