@@ -31,41 +31,41 @@ class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
 
     private val actionToFlagMapping: Map<WorldActionType, Flag> = mapOf(
         // Fire spread
-        WorldActionType.FIRE_BURN to Flag.FIRE_SPREAD,
-        WorldActionType.FIRE_SPREAD to Flag.FIRE_SPREAD,
+        WorldActionType.FIRE_BURN to Flag.FIRE,
+        WorldActionType.FIRE_SPREAD to Flag.FIRE,
 
         // Sponge
         WorldActionType.FLUID_ABSORB to Flag.SPONGE,
 
         // Pistons
-        WorldActionType.PISTON_EXTEND to Flag.PISTONS,
-        WorldActionType.PISTON_RETRACT to Flag.PISTONS,
+        WorldActionType.PISTON_EXTEND to Flag.PISTON,
+        WorldActionType.PISTON_RETRACT to Flag.PISTON,
 
         // Animal Vehicle
-        WorldActionType.ANIMAL_ENTER_VEHICLE to Flag.ANIMAL_VEHICLE,
+        WorldActionType.ANIMAL_ENTER_VEHICLE to Flag.PASSIVE_ENTITY_VEHICLE,
 
         // Explosions
-        WorldActionType.BLOCK_EXPLOSION_DAMAGE_ENTITY to Flag.EXPLOSIONS,
-        WorldActionType.BLOCK_EXPLOSION_DESTROY_BLOCK to Flag.EXPLOSIONS,
-        WorldActionType.ENTITY_EXPLOSION_DAMAGE_ENTITY to Flag.EXPLOSIONS,
-        WorldActionType.ENTITY_EXPLOSION_DESTROY_BLOCK to Flag.EXPLOSIONS,
+        WorldActionType.BLOCK_EXPLOSION_DAMAGE_ENTITY to Flag.EXPLOSION,
+        WorldActionType.BLOCK_EXPLOSION_DESTROY_BLOCK to Flag.EXPLOSION,
+        WorldActionType.ENTITY_EXPLOSION_DAMAGE_ENTITY to Flag.EXPLOSION,
+        WorldActionType.ENTITY_EXPLOSION_DESTROY_BLOCK to Flag.EXPLOSION,
 
         // Dispensers
-        WorldActionType.DISPENSE to Flag.DISPENSERS,
+        WorldActionType.DISPENSE to Flag.DISPENSER,
 
         // Falling Block
         WorldActionType.FALLING_BLOCK_MATERIALISE to Flag.FALLING_BLOCK,
 
         // Mob Griefing
-        WorldActionType.MOB_DESTROY_BLOCK to Flag.MOB_GRIEFING,
-        WorldActionType.MOB_DAMAGE_ENTITY to Flag.MOB_GRIEFING,
+        WorldActionType.MOB_DESTROY_BLOCK to Flag.MOB,
+        WorldActionType.MOB_DAMAGE_ENTITY to Flag.MOB,
 
         // Fluids
-        WorldActionType.FLUID_FLOW to Flag.FLUIDS,
-        WorldActionType.FLUID_FORM_BLOCK to Flag.FLUIDS,
+        WorldActionType.FLUID_FLOW to Flag.FLUID,
+        WorldActionType.FLUID_FORM_BLOCK to Flag.FLUID,
 
         // Trees
-        WorldActionType.TREE_GROWTH to Flag.TREES,
+        WorldActionType.TREE_GROWTH to Flag.TREE,
 
         // Sculk
         WorldActionType.SPREAD to Flag.SCULK,

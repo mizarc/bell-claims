@@ -94,12 +94,12 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
         PlayerActionType.PUSH_ANIMAL to ClaimPermission.HUSBANDRY,
 
         // Detonate
-        PlayerActionType.PRIME_TNT to ClaimPermission.EXPLOSIONS,
-        PlayerActionType.DETONATE_ENTITY to ClaimPermission.EXPLOSIONS,
-        PlayerActionType.DETONATE_BLOCK to ClaimPermission.EXPLOSIONS,
-        PlayerActionType.TRIGGER_RAID to ClaimPermission.EXPLOSIONS,
-        PlayerActionType.SLEEP_IN_BED to ClaimPermission.EXPLOSIONS,
-        PlayerActionType.SET_RESPAWN_POINT to ClaimPermission.EXPLOSIONS,
+        PlayerActionType.PRIME_TNT to ClaimPermission.DETONATE,
+        PlayerActionType.DETONATE_ENTITY to ClaimPermission.DETONATE,
+        PlayerActionType.DETONATE_BLOCK to ClaimPermission.DETONATE,
+        PlayerActionType.TRIGGER_RAID to ClaimPermission.DETONATE,
+        PlayerActionType.SLEEP_IN_BED to ClaimPermission.DETONATE,
+        PlayerActionType.SET_RESPAWN_POINT to ClaimPermission.DETONATE,
 
         // Event
         PlayerActionType.TRIGGER_RAID to ClaimPermission.EVENT,
