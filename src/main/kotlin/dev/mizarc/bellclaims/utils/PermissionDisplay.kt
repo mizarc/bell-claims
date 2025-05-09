@@ -21,7 +21,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.DOOR -> ItemStack(Material.ACACIA_DOOR)
         ClaimPermission.TRADE -> ItemStack(Material.EMERALD)
         ClaimPermission.HUSBANDRY -> ItemStack(Material.LEAD)
-        ClaimPermission.EXPLOSIONS -> ItemStack(Material.TNT)
+        ClaimPermission.DETONATE -> ItemStack(Material.TNT)
         ClaimPermission.EVENT -> ItemStack(Material.OMINOUS_BOTTLE)
         ClaimPermission.SLEEP -> ItemStack(Material.RED_BED)
     }
@@ -44,7 +44,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.DOOR -> getLangText("NameClaimPermissionDoorOpen")
         ClaimPermission.TRADE -> getLangText("NameClaimPermissionVillagerTrade")
         ClaimPermission.HUSBANDRY -> getLangText("NameClaimPermissionHusbandry")
-        ClaimPermission.EXPLOSIONS -> getLangText("NameClaimPermissionDetonate")
+        ClaimPermission.DETONATE -> getLangText("NameClaimPermissionDetonate")
         ClaimPermission.EVENT -> getLangText("NameClaimPermissionEventStart")
         ClaimPermission.SLEEP -> getLangText("NameClaimPermissionSleep")
     }
@@ -67,7 +67,7 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.DOOR -> getLangText("DescClaimPermissionDoorOpen")
         ClaimPermission.TRADE -> getLangText("DescClaimPermissionVillagerTrade")
         ClaimPermission.HUSBANDRY -> getLangText("DescClaimPermissionHusbandry")
-        ClaimPermission.EXPLOSIONS -> getLangText("DescClaimPermissionDetonate")
+        ClaimPermission.DETONATE -> getLangText("DescClaimPermissionDetonate")
         ClaimPermission.EVENT -> getLangText("DescClaimPermissionEventStart")
         ClaimPermission.SLEEP -> getLangText("DescClaimPermissionSleep")
     }
