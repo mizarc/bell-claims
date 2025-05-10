@@ -52,6 +52,7 @@ import org.bukkit.event.block.TNTPrimeEvent
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityPlaceEvent
 import org.bukkit.event.entity.PotionSplashEvent
@@ -107,7 +108,7 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
 
     @EventHandler
     fun onEntityDamageByEntityEvent(event: EntityDamageByEntityEvent) {
-        if (event.entity !is ArmorStand && event.entity !is ItemFrame && event.entity !is GlowItemFrame) return
+        if (event.entity !is ItemFrame && event.entity !is GlowItemFrame) return
 
         // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
         val hitBy = event.damager
@@ -119,6 +120,15 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (player == null) return
 
 
+        val action = PlayerActionType.DAMAGE_STATIC_ENTITY
+        cancelIfDisallowed(event, player, event.entity.location, action)
+    }
+
+    @Suppress("UnstableApiUsage")
+    @EventHandler
+    fun onEntityDeathEvent(event: EntityDeathEvent) {
+        if (event.entity !is ArmorStand) return
+        val player = event.damageSource.causingEntity as? Player ?: return
         val action = PlayerActionType.DAMAGE_STATIC_ENTITY
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
