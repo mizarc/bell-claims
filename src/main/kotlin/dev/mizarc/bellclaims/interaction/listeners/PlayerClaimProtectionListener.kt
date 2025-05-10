@@ -106,7 +106,7 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (player == null) return
 
         val action = PlayerActionType.DAMAGE_STATIC_ENTITY
-        cancelIfDisallowed(event, player, event.entity.location, action)
+        cancelIfDisallowedNoMessage(event, player, event.entity.location, action)
     }
 
     @EventHandler
@@ -452,7 +452,7 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (player == null) return
 
         val action = PlayerActionType.PUSH_ARMOUR_STAND
-        cancelIfDisallowed(event, player, event.entity.location, action)
+        cancelIfDisallowedNoMessage(event, player, event.entity.location, action)
     }
 
     @EventHandler
@@ -579,6 +579,18 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
                 val playerName = Bukkit.getOfflinePlayer(result.claim.playerId).name ?: "(Name not found)"
                 player.sendActionBar(
                     Component.text("You can't do that in ${playerName}'s claim!") .color(TextColor.color(255, 85, 85)))
+            }
+            else -> return
+        }
+    }
+
+    private fun cancelIfDisallowedNoMessage(event: Cancellable, player: Player, location: Location,
+                                            action: PlayerActionType) {
+        val worldId = location.world.uid
+        val position = location.toPosition2D()
+        when (isPlayerActionAllowed.execute(player.uniqueId, worldId, position, action)) {
+            is Denied -> {
+                event.isCancelled = true
             }
             else -> return
         }
