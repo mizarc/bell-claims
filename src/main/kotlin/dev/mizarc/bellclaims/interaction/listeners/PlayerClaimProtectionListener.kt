@@ -18,63 +18,23 @@ import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
 import org.bukkit.block.data.Powerable
-import org.bukkit.block.data.type.Bed
-import org.bukkit.block.data.type.DecoratedPot
-import org.bukkit.block.data.type.Farmland
-import org.bukkit.block.data.type.RespawnAnchor
-import org.bukkit.block.data.type.Sign
-import org.bukkit.block.data.type.Switch
-import org.bukkit.entity.AbstractVillager
-import org.bukkit.entity.Animals
-import org.bukkit.entity.ArmorStand
-import org.bukkit.entity.EnderCrystal
-import org.bukkit.entity.Entity
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.GlowItemFrame
-import org.bukkit.entity.ItemFrame
-import org.bukkit.entity.LeashHitch
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Monster
-import org.bukkit.entity.Player
-import org.bukkit.entity.Projectile
-import org.bukkit.entity.Vehicle
-import org.bukkit.entity.Villager
+import org.bukkit.block.data.type.*
+import org.bukkit.entity.*
 import org.bukkit.entity.minecart.ExplosiveMinecart
 import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockFertilizeEvent
-import org.bukkit.event.block.BlockMultiPlaceEvent
-import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.block.TNTPrimeEvent
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent
-import org.bukkit.event.entity.EntityChangeBlockEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDeathEvent
-import org.bukkit.event.entity.EntityInteractEvent
-import org.bukkit.event.entity.EntityPlaceEvent
-import org.bukkit.event.entity.PotionSplashEvent
-import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.block.*
+import org.bukkit.event.entity.*
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent
-import org.bukkit.event.player.PlayerBedEnterEvent
-import org.bukkit.event.player.PlayerBucketEmptyEvent
-import org.bukkit.event.player.PlayerBucketFillEvent
-import org.bukkit.event.player.PlayerFishEvent
-import org.bukkit.event.player.PlayerHarvestBlockEvent
-import org.bukkit.event.player.PlayerInteractEntityEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerTakeLecternBookEvent
+import org.bukkit.event.player.*
 import org.bukkit.event.raid.RaidTriggerEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
 import org.bukkit.event.weather.LightningStrikeEvent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.getValue
 
 class PlayerClaimProtectionListener: Listener, KoinComponent {
     private val isPlayerActionAllowed: IsPlayerActionAllowed by inject()
@@ -119,7 +79,6 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         }
         if (player == null) return
 
-
         val action = PlayerActionType.DAMAGE_STATIC_ENTITY
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
@@ -129,6 +88,23 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     fun onEntityDeathEvent(event: EntityDeathEvent) {
         if (event.entity !is ArmorStand) return
         val player = event.damageSource.causingEntity as? Player ?: return
+        val action = PlayerActionType.DAMAGE_STATIC_ENTITY
+        cancelIfDisallowed(event, player, event.entity.location, action)
+    }
+
+    @EventHandler
+    fun onEntityCombustByEntity(event: EntityCombustByEntityEvent) {
+        if (event.entity !is ArmorStand) return
+
+        // Get the entity as a player, or if entity is projectile get the projectile's shooter if it's a player
+        val hitBy = event.combuster
+        val player: Player? = when (hitBy) {
+            is Player -> hitBy
+            is Projectile -> hitBy.shooter as? Player
+            else -> null
+        }
+        if (player == null) return
+
         val action = PlayerActionType.DAMAGE_STATIC_ENTITY
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
