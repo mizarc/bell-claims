@@ -13,6 +13,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
+- Armor stands can now be hit without a permission, but are still protected from destruction by Build permission.
 
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
