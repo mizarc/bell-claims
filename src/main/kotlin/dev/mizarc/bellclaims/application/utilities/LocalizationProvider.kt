@@ -8,5 +8,5 @@ interface LocalizationProvider {
      * @param args Optional arguments for formatting the message.
      * @return The localized and formatted message. Handles missing keys internally.
      */
-    fun get(key: String, vararg args: Any?)
+    fun get(key: String, vararg args: Any?): String
 }
