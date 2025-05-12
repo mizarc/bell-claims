@@ -99,23 +99,13 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                 } else {
                     // Send the transfer request if there is none pending
                     val transferClaimAction: () -> Unit = {
-                        val cancelAction: () -> Unit = {
-                            open()
-                        }
-
                         val confirmAction: () -> Unit = {
                             offerPlayerTransferRequest.execute(claim.id, targetPlayer.uniqueId)
                             open()
                         }
 
-                        val parameters = ConfirmationMenu.Companion.ConfirmationMenuParameters(
-                            menuTitle = getLangText("TransferClaimQuestion"),
-                            cancelAction = cancelAction,
-                            confirmAction = confirmAction,
-                            confirmActionDescription = getLangText("TransferClaimConfirmQuestionDescription")
-                        )
-
-                        ConfirmationMenu.Companion.openConfirmationMenu(player, parameters)
+                        menuNavigator.openMenu(ConfirmationMenu(menuNavigator, player,
+                            getLangText("TransferClaimQuestion"), confirmAction))
                     }
 
 
