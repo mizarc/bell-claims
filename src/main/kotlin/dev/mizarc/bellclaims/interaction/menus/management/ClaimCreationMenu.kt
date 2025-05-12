@@ -7,6 +7,8 @@ import dev.mizarc.bellclaims.application.actions.claim.IsNewClaimLocationValid
 import dev.mizarc.bellclaims.application.actions.claim.ListPlayerClaims
 import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
@@ -25,12 +27,13 @@ import org.koin.core.parameter.parametersOf
 
 class ClaimCreationMenu(private val player: Player, private val menuNavigator: MenuNavigator,
                         private val location: Location): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val playerMetadataService: PlayerMetadataService by inject()
     private val listPlayerClaims: ListPlayerClaims by inject()
     private val isNewClaimLocationValid: IsNewClaimLocationValid by inject()
 
     override fun open() {
-        val gui = ChestGui(1, "Claim Creation")
+        val gui = ChestGui(1, localizationProvider.get(LocalizationKeys.MENU_CREATION_TITLE))
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -42,9 +45,8 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
         if (playerClaimCount >=
                 playerMetadataService.getPlayerClaimLimit(player.uniqueId)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name(getLangText("CannotCreateClaim1"))
-                .lore(getLangText("YouHaveRunOutOfClaims"))
-                .lore(getLangText("DeleteExistingClaim"))
+                .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
+                .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_LORE_CLAIMS))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
             gui.show(player)
@@ -55,11 +57,10 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
         when (isNewClaimLocationValid.execute(location.toPosition2D(), location.world.uid)) {
             IsNewClaimLocationValidResult.Valid -> {
                 val iconEditorItem = ItemStack(Material.BELL)
-                    .name(getLangText("CreateClaim"))
-                    .lore(getLangText("ProtectedFromGriefing"))
-                    .lore(getLangText("RemainingClaims1")
-                            + "${playerMetadataService.getPlayerClaimLimit(player.uniqueId) - playerClaimCount}"
-                            + getLangText("RemainingClaims2"))
+                    .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_NAME))
+                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_PROTECTED))
+                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_REMAINING,
+                        playerMetadataService.getPlayerClaimLimit(player.uniqueId) - playerClaimCount))
                 val guiIconEditorItem = GuiItem(iconEditorItem) {
                     menuNavigator.openMenu(ClaimNamingMenu(player, menuNavigator, location))
                 }
@@ -68,9 +69,8 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
             }
             IsNewClaimLocationValidResult.Overlap -> {
                 val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(getLangText("CannotCreateClaim2"))
-                    .lore(getLangText("OverlapAnotherClaim"))
-                    .lore(getLangText("PlaceBellElsewhere"))
+                    .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
+                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_LORE_OVERLAP))
                 val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
                 pane.addItem(guiIconEditorItem, 4, 0)
                 gui.show(player)

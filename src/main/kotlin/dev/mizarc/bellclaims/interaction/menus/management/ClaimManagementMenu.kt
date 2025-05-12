@@ -6,7 +6,9 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
 import dev.mizarc.bellclaims.application.actions.player.RegisterClaimMenuOpening
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.getClaimMoveTool
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.interaction.menus.Menu
@@ -27,12 +29,13 @@ import org.koin.core.component.inject
 
 class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                           private var claim: Claim): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getClaimFlags: GetClaimFlags by inject()
     private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
     private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
 
     override fun open() {
-        val gui = ChestGui(1, "Claim '${claim.name}'")
+        val gui = ChestGui(1, localizationProvider.get(LocalizationKeys.MENU_MANAGEMENT_TITLE, claim.name))
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||

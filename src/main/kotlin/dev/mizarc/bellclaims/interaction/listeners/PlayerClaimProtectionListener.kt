@@ -4,6 +4,8 @@ import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent
 import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent
 import dev.mizarc.bellclaims.application.actions.claim.IsPlayerActionAllowed
 import dev.mizarc.bellclaims.application.results.claim.IsPlayerActionAllowedResult.Denied
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.domain.values.PlayerActionType
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import io.papermc.paper.event.block.PlayerShearBlockEvent
@@ -37,6 +39,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class PlayerClaimProtectionListener: Listener, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val isPlayerActionAllowed: IsPlayerActionAllowed by inject()
 
     @EventHandler
@@ -577,8 +580,8 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
             is Denied -> {
                 event.isCancelled = true
                 val playerName = Bukkit.getOfflinePlayer(result.claim.playerId).name ?: "(Name not found)"
-                player.sendActionBar(
-                    Component.text("You can't do that in ${playerName}'s claim!") .color(TextColor.color(255, 85, 85)))
+                val outputMessage = localizationProvider.get(LocalizationKeys.FEEDBACK_CLAIM_DENIED, playerName)
+                player.sendActionBar(Component.text(outputMessage).color(TextColor.color(255, 85, 85)))
             }
             else -> return
         }
