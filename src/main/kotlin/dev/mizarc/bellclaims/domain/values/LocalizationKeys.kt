@@ -20,9 +20,10 @@ object LocalizationKeys {
 
     // Claim Creation Menu Items
     const val MENU_CREATION_ITEM_CANNOT_CREATE_NAME = "menu.creation.item.cannot_create.name"
-    const val MENU_CREATION_ITEM_CANNOT_CREATE_INSUFFICIENT_CLAIMS_LORE = "menu.creation.item.insufficient_claims.lore"
-    const val MENU_CREATION_ITEM_CANNOT_CREATE_INSUFFICIENT_BLOCKS_LORE = "menu.creation.item.insufficient_blocks.lore"
-    const val MENU_CREATION_ITEM_CANNOT_CREATE_OVERLAP_LORE = "menu.creation.item.overlap.lore"
+    const val MENU_CREATION_ITEM_CANNOT_CREATE_LORE_CLAIMS = "menu.creation.item.cannot_create.lore.claims"
+    const val MENU_CREATION_ITEM_CANNOT_CREATE_LORE_BLOCKS = "menu.creation.item.cannot_create.lore.blocks"
+    const val MENU_CREATION_ITEM_CANNOT_CREATE_LORE_OVERLAP = "menu.creation.item.cannot_create.lore.overlap"
     const val MENU_CREATION_ITEM_CREATE_NAME = "menu.creation.item.create.name"
-    const val MENU_CREATION_ITEM_CREATE_LORE = "menu.creation.item.create.lore"
+    const val MENU_CREATION_ITEM_CREATE_LORE_PROTECTED = "menu.creation.item.create.lore.protected"
+    const val MENU_CREATION_ITEM_CREATE_LORE_REMAINING = "menu.creation.item.create.lore.remaining"
 }
