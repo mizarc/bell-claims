@@ -67,5 +67,10 @@ enum class ClaimPermission {
     /**
      * When a player sleeps in a bed or uses a respawn anchor.
      */
-    SLEEP
+    SLEEP,
+
+    /**
+     *
+     */
+    VIEW
 }
