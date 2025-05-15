@@ -303,6 +303,15 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     }
 
     @EventHandler
+    fun onPlayerLecternInteract(event: PlayerInteractEvent) {
+        if (event.action == Action.LEFT_CLICK_BLOCK) return
+        val block = event.clickedBlock ?: return
+        if (block.state.blockData !is Lectern) return
+        val action = PlayerActionType.VIEW_LECTERN_BOOK
+        cancelIfDisallowed(event, event.player, block.location, action)
+    }
+
+    @EventHandler
     fun onPlayerFishEvent(event: PlayerFishEvent) {
         val caught = event.caught ?: return
         if (caught is Monster || caught is Player) return
