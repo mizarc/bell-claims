@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
 import dev.mizarc.bellclaims.application.results.claim.IsPlayerActionAllowedResult
+import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.domain.values.PlayerActionType
 import dev.mizarc.bellclaims.domain.values.Position2D
@@ -106,6 +107,9 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
 
         // Sleep
         PlayerActionType.SLEEP_IN_BED to ClaimPermission.SLEEP,
-        PlayerActionType.SET_RESPAWN_POINT to ClaimPermission.SLEEP
+        PlayerActionType.SET_RESPAWN_POINT to ClaimPermission.SLEEP,
+
+        // View
+        PlayerActionType.VIEW_LECTERN_BOOK to ClaimPermission.VIEW
     )
 }
