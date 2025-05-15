@@ -24,6 +24,7 @@ fun ClaimPermission.getIcon(): ItemStack {
         ClaimPermission.DETONATE -> ItemStack(Material.TNT)
         ClaimPermission.EVENT -> ItemStack(Material.OMINOUS_BOTTLE)
         ClaimPermission.SLEEP -> ItemStack(Material.RED_BED)
+        ClaimPermission.VIEW -> ItemStack(Material.LECTERN)
     }
 }
 
@@ -47,6 +48,7 @@ fun ClaimPermission.getDisplayName(): String {
         ClaimPermission.DETONATE -> getLangText("NameClaimPermissionDetonate")
         ClaimPermission.EVENT -> getLangText("NameClaimPermissionEventStart")
         ClaimPermission.SLEEP -> getLangText("NameClaimPermissionSleep")
+        ClaimPermission.VIEW -> "View"
     }
 }
 
@@ -70,5 +72,6 @@ fun ClaimPermission.getDescription(): String {
         ClaimPermission.DETONATE -> getLangText("DescClaimPermissionDetonate")
         ClaimPermission.EVENT -> getLangText("DescClaimPermissionEventStart")
         ClaimPermission.SLEEP -> getLangText("DescClaimPermissionSleep")
+        ClaimPermission.VIEW -> "Allows you to view lecterns"
     }
 }
