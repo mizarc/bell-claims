@@ -5,10 +5,11 @@ import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.CreateClaim
 import dev.mizarc.bellclaims.application.results.claim.CreateClaimResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Location
@@ -24,13 +25,14 @@ import kotlin.getValue
 
 class ClaimNamingMenu(private val player: Player, private val menuNavigator: MenuNavigator,
                         private val location: Location): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val createClaim: CreateClaim by inject()
     private var name = ""
     private var isConfirming = false
 
     override fun open() {
         // Create homes menu
-        val gui = AnvilGui("Naming Claim")
+        val gui = AnvilGui(localizationProvider.get(LocalizationKeys.MENU_NAMING_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -57,7 +59,8 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
+        val confirmItem = ItemStack(Material.NETHER_STAR)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             val result = createClaim.execute(player.uniqueId, name, location.toPosition3D(), location.world.uid)
             when (result) {
@@ -74,7 +77,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.LimitExceeded -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name("You've already hit your maximum warp limit")
+                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_CLAIMS))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)
@@ -89,7 +92,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.NameAlreadyExists -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name(getLangText("AlreadyHaveClaimWithName"))
+                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_EXISTING))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)
@@ -104,7 +107,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.NameCannotBeBlank -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name("Name cannot be blank")
+                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_UNNAMED))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)

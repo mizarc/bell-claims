@@ -8,14 +8,15 @@ import dev.mizarc.bellclaims.application.actions.claim.flag.DisableClaimFlag
 import dev.mizarc.bellclaims.application.actions.claim.flag.EnableAllClaimFlags
 import dev.mizarc.bellclaims.application.actions.claim.flag.EnableClaimFlag
 import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Flag
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getDescription
 import dev.mizarc.bellclaims.utils.getDisplayName
 import dev.mizarc.bellclaims.utils.getIcon
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
@@ -27,6 +28,7 @@ import org.koin.core.component.inject
 
 class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                     private val claim: Claim): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getClaimFlags: GetClaimFlags by inject()
     private val enableClaimFlag: EnableClaimFlag by inject()
     private val disableClaimFlag: DisableClaimFlag by inject()
@@ -36,7 +38,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
     override fun open() {
         // Create claim flags menu
-        val gui = ChestGui(6, "Claim Flags")
+        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_FLAGS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -47,13 +49,13 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(getLangText("GoBack1"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
         val guiExitItem = GuiItem(exitItem) { menuNavigator.goBack() }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add deselect all button
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
-            .name(getLangText("DeselectAll1"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_DESELECT_ALL_NAME))
         val guiDeselectItem = GuiItem(deselectItem) {
             disableAllClaimFlags.execute(claim.id)
             open()
@@ -62,7 +64,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
         // Add select all button
         val selectItem = ItemStack(Material.SLIME_BLOCK)
-            .name(getLangText("SelectAll1"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_SELECT_ALL_NAME))
         val guiSelectItem = GuiItem(selectItem) {
             enableAllClaimFlags.execute(claim.id)
             open()
