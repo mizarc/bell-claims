@@ -12,7 +12,6 @@ import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Location
@@ -21,9 +20,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
 
 class ClaimCreationMenu(private val player: Player, private val menuNavigator: MenuNavigator,
                         private val location: Location): Menu, KoinComponent {
@@ -46,7 +43,7 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
                 playerMetadataService.getPlayerClaimLimit(player.uniqueId)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                 .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
-                .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_LORE_CLAIMS))
+                .lore(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_CLAIMS))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
             gui.show(player)
@@ -70,16 +67,16 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
             IsNewClaimLocationValidResult.Overlap -> {
                 val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
                     .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
-                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_LORE_OVERLAP))
+                    .lore(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_OVERLAP))
                 val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
                 pane.addItem(guiIconEditorItem, 4, 0)
                 gui.show(player)
                 return
             }
             IsNewClaimLocationValidResult.StorageError ->
-                player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
             else ->
-                player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
 
         }
     }

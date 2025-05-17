@@ -4,11 +4,12 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.createHead
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Bukkit
@@ -22,6 +23,7 @@ import kotlin.math.ceil
 
 class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                       private val claim: Claim): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
 
     private var page = 0
@@ -30,7 +32,7 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
         val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
 
         // Create trust menu
-        val gui = ChestGui(6, "All Players")
+        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -41,8 +43,8 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
 
         // Add player search item
         val playerSearchItem = ItemStack(Material.NAME_TAG)
-            .name(getLangText("Search"))
-            .lore(getLangText("FindPlayerByName"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_NAME))
+            .lore(localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_LORE))
         val guiPlayerSearchItem = GuiItem(playerSearchItem) {
             menuNavigator.openMenu(ClaimPlayerSearchMenu(menuNavigator, claim, player)) }
         controlsPane.addItem(guiPlayerSearchItem, 3, 0)
@@ -91,7 +93,7 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(getLangText("GoBack2"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
 
         val guiExitItem = GuiItem(exitItem) { backButtonAction() }
         controlsPane.addItem(guiExitItem, 0, 0)
@@ -100,17 +102,20 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
 
     private fun addPaginator(controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
         // Add prev item
-        val prevItem = ItemStack(Material.ARROW).name(getLangText("Prev"))
+        val prevItem = ItemStack(Material.ARROW)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PREV_NAME))
         val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPrevItem, 6, 0)
 
         // Add page item
-        val pageItem = ItemStack(Material.PAPER).name(getLangText("PageInfo1") + "$currentPage" + getLangText("PageInfo2") + "$totalPages")
+        val pageItem = ItemStack(Material.PAPER)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PAGE_NAME, currentPage, totalPages))
         val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPageItem, 7, 0)
 
         // Add next item
-        val nextItem = ItemStack(Material.ARROW).name(getLangText("Next"))
+        val nextItem = ItemStack(Material.ARROW)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_NEXT_NAME))
         val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiNextItem, 8, 0)
     }

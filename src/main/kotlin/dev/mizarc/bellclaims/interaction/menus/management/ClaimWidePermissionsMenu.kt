@@ -8,14 +8,15 @@ import dev.mizarc.bellclaims.application.actions.claim.permission.GrantAllClaimW
 import dev.mizarc.bellclaims.application.actions.claim.permission.GrantClaimWidePermission
 import dev.mizarc.bellclaims.application.actions.claim.permission.RevokeAllClaimWidePermissions
 import dev.mizarc.bellclaims.application.actions.claim.permission.RevokeClaimWidePermission
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getDescription
 import dev.mizarc.bellclaims.utils.getDisplayName
 import dev.mizarc.bellclaims.utils.getIcon
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
@@ -27,6 +28,7 @@ import org.koin.core.component.inject
 
 class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                                private val claim: Claim): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val grantAllClaimWidePermissions : GrantAllClaimWidePermissions by inject()
     private val revokeAllClaimWidePermissions: RevokeAllClaimWidePermissions by inject()
     private val getClaimPermissions: GetClaimPermissions by inject()
@@ -35,7 +37,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
 
     override fun open() {
         // Create player permissions menu
-        val gui = ChestGui(6, "Default Claim Permissions")
+        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_CLAIM_WIDE_PERMISSIONS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -53,8 +55,9 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
             open()
         }
 
-        addSelector(controlsPane, ItemStack(Material.BELL).name(getLangText("Default"))
-            , deselectAction, selectAction)
+        addSelector(controlsPane, ItemStack(Material.BELL)
+            .name(localizationProvider.get(LocalizationKeys.MENU_CLAIM_WIDE_PERMISSIONS_ITEM_INFO_NAME)),
+            deselectAction, selectAction)
 
         // Add horizontal divider
         val dividerItem = ItemStack(Material.BLACK_STAINED_GLASS_PANE).name(" ")
@@ -138,7 +141,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(getLangText("GoBack2"))
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
 
         val guiExitItem = GuiItem(exitItem) { backButtonAction() }
         controlsPane.addItem(guiExitItem, 0, 0)
@@ -152,12 +155,14 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
         controlsPane.addItem(guiDisplayItem, 4, 0)
 
         // Add deselect all button
-        val deselectItem = ItemStack(Material.HONEY_BLOCK).name(getLangText("DeselectAll2"))
+        val deselectItem = ItemStack(Material.HONEY_BLOCK)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_DESELECT_ALL_NAME))
         val guiDeselectItem = GuiItem(deselectItem) { deselectAction() }
         controlsPane.addItem(guiDeselectItem, 2, 0)
 
         // Add select all button
-        val selectItem = ItemStack(Material.SLIME_BLOCK).name(getLangText("SelectAll2"))
+        val selectItem = ItemStack(Material.SLIME_BLOCK)
+            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_SELECT_ALL_NAME))
         val guiSelectItem = GuiItem(selectItem) { selectAction() }
         controlsPane.addItem(guiSelectItem, 6, 0)
     }
