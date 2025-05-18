@@ -6,8 +6,8 @@ import java.io.File
 import java.text.MessageFormat
 import java.util.*
 
-class LocalizationProviderResourceBundle(private val config: MainConfig,
-                                         private val dataFolder: File): LocalizationProvider {
+class LocalizationProviderProperties(private val config: MainConfig,
+                                     private val dataFolder: File): LocalizationProvider {
     private val languages: MutableMap<String, Properties> = mutableMapOf()
     private val baseDefaultLanguageCode = "en"
 
