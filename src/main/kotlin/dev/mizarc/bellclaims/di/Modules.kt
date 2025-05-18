@@ -68,7 +68,6 @@ import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.application.services.scheduling.SchedulerService
-import dev.mizarc.bellclaims.application.services.scheduling.Task
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
@@ -83,7 +82,7 @@ import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
-import dev.mizarc.bellclaims.infrastructure.utilities.LocalizationProviderResourceBundle
+import dev.mizarc.bellclaims.infrastructure.utilities.LocalizationProviderProperties
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.Plugin
@@ -126,7 +125,7 @@ fun appModule(plugin: BellClaims) = module {
     single<SchedulerService> { SchedulerServiceBukkit(get()) }
 
     // Utilities
-    single<LocalizationProvider> { LocalizationProviderResourceBundle(get(), get()) }
+    single<LocalizationProvider> { LocalizationProviderProperties(get(), get()) }
 
 
     // --- Application Layer Actions ---
