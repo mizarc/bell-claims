@@ -14,10 +14,7 @@ import dev.mizarc.bellclaims.domain.values.Flag
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getDescription
-import dev.mizarc.bellclaims.utils.getDisplayName
 import dev.mizarc.bellclaims.utils.getIcon
-import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -87,21 +84,19 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledRules = getClaimFlags.execute(claim.id)
-        val disabledRules = Flag.entries.toTypedArray().subtract(enabledRules)
+        val enabledFlags = getClaimFlags.execute(claim.id)
+        val disabledFlags = Flag.entries.toTypedArray().subtract(enabledFlags)
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 3)
         gui.addPane(disabledPermissionsPane)
         var xSlot = 0
         var ySlot = 0
-        for (rule in disabledRules) {
-            val permissionItem = rule.getIcon()
-                .name(rule.getDisplayName())
-                .lore(rule.getDescription())
+        for (flag in disabledFlags) {
+            val permissionItem = flag.getIcon(localizationProvider)
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                enableClaimFlag.execute(rule, claim.id)
+                enableClaimFlag.execute(flag, claim.id)
                 open()
             }
 
@@ -119,13 +114,11 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         gui.addPane(enabledPermissionsPane)
         xSlot = 0
         ySlot = 0
-        for (rule in enabledRules) {
-            val permissionItem = rule.getIcon()
-                .name(rule.getDisplayName())
-                .lore(rule.getDescription())
+        for (flag in enabledFlags) {
+            val permissionItem = flag.getIcon(localizationProvider)
 
             val guiPermissionItem = GuiItem(permissionItem) {
-                disableClaimFlag.execute(rule, claim.id)
+                disableClaimFlag.execute(flag, claim.id)
                 open()
             }
 

@@ -14,10 +14,7 @@ import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getDescription
-import dev.mizarc.bellclaims.utils.getDisplayName
 import dev.mizarc.bellclaims.utils.getIcon
-import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -79,9 +76,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
         var xSlot = 0
         var ySlot = 0
         for (permission in disabledPermissions) {
-            val permissionItem = permission.getIcon()
-                .name(permission.getDisplayName())
-                .lore(permission.getDescription())
+            val permissionItem = permission.getIcon(localizationProvider)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 grantClaimWidePermission.execute(claim.id, permission)
@@ -103,9 +98,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
         xSlot = 0
         ySlot = 0
         for (permission in enabledPermissions) {
-            val permissionItem = permission.getIcon()
-                .name(permission.getDisplayName())
-                .lore(permission.getDescription())
+            val permissionItem = permission.getIcon(localizationProvider)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 revokeClaimWidePermission.execute(claim.id, permission)
