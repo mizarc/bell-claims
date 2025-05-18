@@ -33,6 +33,7 @@ class BellClaims : JavaPlugin() {
     override fun onEnable() {
         scheduler = server.scheduler
         startKoin { modules(appModule(this@BellClaims)) }
+        initLang()
         initialiseVaultDependency()
         commandManager = PaperCommandManager(this)
         registerCommands()
@@ -43,7 +44,23 @@ class BellClaims : JavaPlugin() {
         InitLangConfig()
         loadLangConfig()
 
+
         logger.info("Bell Claims has been Enabled")
+    }
+
+    fun initLang() {
+        val defaultLanguageFilenames = listOf(
+            "en.properties",
+            "fr.properties",
+            "es.properties"
+        )
+
+        // Move languages to the required folder and add readme for override instructions
+        defaultLanguageFilenames.forEach { filename ->
+            val resourcePathInJar = "lang/defaults/$filename"
+            saveResource(resourcePathInJar, true)
+        }
+        saveResource("lang/overrides/README.txt", true)
     }
     
 //---Maybe Put It Somewhere else?---//
