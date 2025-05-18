@@ -2,6 +2,8 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.anchor.MoveClaimAnchor
 import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -16,6 +18,7 @@ import org.koin.core.component.inject
 import java.util.UUID
 
 class MoveToolListener: Listener, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val moveClaimAnchor: MoveClaimAnchor by inject()
 
     @EventHandler
@@ -28,20 +31,20 @@ class MoveToolListener: Listener, KoinComponent {
             event.blockPlaced.world.uid, event.blockPlaced.location.toPosition3D())) {
             MoveClaimAnchorResult.Success -> {
                 event.player.sendActionBar(
-                    Component.text("Claim position has been moved")
+                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_SUCCESS))
                         .color(TextColor.color(85, 255, 85)))
                 return
             }
             MoveClaimAnchorResult.InvalidPosition -> {
                 event.player.sendActionBar(
-                    Component.text("Place this block within the claim borders")
+                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER))
                         .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
                 return
             }
             MoveClaimAnchorResult.NoPermission -> {
                 event.player.sendActionBar(
-                    Component.text("You cannot move this claim bell")
+                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_NO_PERMISSION))
                         .color(TextColor.color(255, 85, 85)))
                 event.player.inventory.setItemInMainHand(ItemStack.empty())
                 event.isCancelled = true
@@ -49,7 +52,7 @@ class MoveToolListener: Listener, KoinComponent {
             }
             MoveClaimAnchorResult.StorageError -> {
                 event.player.sendActionBar(
-                    Component.text("An internal error has occurred, contact your local administrator.")
+                    Component.text(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
                         .color(TextColor.color(255, 85, 85)))
                 event.player.inventory.setItemInMainHand(ItemStack.empty())
                 event.isCancelled = true

@@ -4,6 +4,7 @@ import dev.mizarc.bellclaims.application.actions.claim.transfer.DoesPlayerHaveTr
 import dev.mizarc.bellclaims.application.actions.claim.anchor.GetClaimAnchorAtPosition
 import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
 import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
@@ -12,6 +13,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.interaction.menus.management.ClaimCreationMenu
@@ -23,6 +25,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ClaimAnchorListener(): Listener, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getClaimAnchorAtPosition: GetClaimAnchorAtPosition by inject()
     private val doesPlayerHaveTransferRequest: DoesPlayerHaveTransferRequest by inject()
 
@@ -42,7 +45,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
             is GetClaimAnchorAtPositionResult.Success -> claim = claimResult.claim
             is GetClaimAnchorAtPositionResult.NoClaimAnchorFound -> {}
             is GetClaimAnchorAtPositionResult.StorageError -> {
-                event.player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                event.player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
                 return
             }
         }
@@ -54,14 +57,15 @@ class ClaimAnchorListener(): Listener, KoinComponent {
             when (transferResult) {
                 is DoesPlayerHaveTransferRequestResult.Success -> playerHasTransferRequest = transferResult.hasRequest
                 else -> {
-                    event.player.sendMessage("An internal error has occurred, contact your administrator for support.")
+                    event.player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
                 }
             }
 
             // Notify no ability to interact with claim without being owner or without an active transfer request
             if (claim.playerId != event.player.uniqueId && !playerHasTransferRequest) {
                 val playerName = Bukkit.getOfflinePlayer(claim.playerId)
-                event.player.sendActionBar(Component.text("This claim bell is owned by $playerName")
+                event.player.sendActionBar(Component.text(
+                    localizationProvider.get(LocalizationKeys.FEEDBACK_CLAIM_OWNER, playerName))
                     .color(TextColor.color(255, 85, 85)))
                 return
             }
