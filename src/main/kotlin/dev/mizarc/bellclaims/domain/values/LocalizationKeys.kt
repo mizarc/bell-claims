@@ -10,7 +10,38 @@ object LocalizationKeys {
     // -------------------------------------
     // Action Feedback
     // -------------------------------------
+
+    // Claim
     const val FEEDBACK_CLAIM_DENIED = "feedback.claim.denied"
+    const val FEEDBACK_CLAIM_OWNER = "feedback.claim.owner"
+
+    // Destruction
+    const val FEEDBACK_DESTRUCTION_ATTACHED = "feedback.destruction.attached"
+    const val FEEDBACK_DESTRUCTION_PERMISSION = "feedback.destruction.permission"
+    const val FEEDBACK_DESTRUCTION_PENDING = "feedback.destruction.pending"
+    const val FEEDBACK_DESTRUCTION_SUCCESS = "feedback.destruction.success"
+
+    // Edit Tool
+    const val FEEDBACK_EDIT_TOOL_IN_CLAIM = "feedback.edit_tool.in_claim"
+    const val FEEDBACK_EDIT_TOOL_INSUFFICIENT = "feedback.edit_tool.insufficient"
+    const val FEEDBACK_EDIT_TOOL_INVALID = "feedback.edit_tool.invalid"
+    const val FEEDBACK_EDIT_TOOL_MINIMUM_SIZE = "feedback.edit_tool.minimum_size"
+    const val FEEDBACK_EDIT_TOOL_NEW_PARTITION = "feedback.edit_tool.new_partition"
+    const val FEEDBACK_EDIT_TOOL_NOT_CONNECTED = "feedback.edit_tool.not_connected"
+    const val FEEDBACK_EDIT_TOOL_OVERLAP = "feedback.edit_tool.overlap"
+    const val FEEDBACK_EDIT_TOOL_PERMISSION = "feedback_edit_tool.permission"
+    const val FEEDBACK_EDIT_TOOL_START_EXTENSION = "feedback.edit_tool.start_extension"
+    const val FEEDBACK_EDIT_TOOL_START_RESIZE = "feedback_edit_tool.start_resize"
+    const val FEEDBACK_EDIT_TOOL_SUCCESSFUL_RESIZE = "feedback_edit_tool.successful_resize"
+    const val FEEDBACK_EDIT_TOOL_TOO_CLOSE = "feedback.edit_tool.too_close"
+    const val FEEDBACK_EDIT_TOOL_UNEQUIP_BUILD = "feedback.edit_tool.unequip_build"
+    const val FEEDBACK_EDIT_TOOL_UNEQUIP_RESIZE = "feedback.edit_tool.unequip_resize"
+
+    // Move Tool
+    const val FEEDBACK_MOVE_TOOL_SUCCESS = "feedback.move_tool.success"
+    const val FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER = "feedback.move_tool.outside_border"
+    const val FEEDBACK_MOVE_TOOL_NO_PERMISSION = "feedback.move_tool.no_permission"
+
 
     // -------------------------------------
     // Conditions
