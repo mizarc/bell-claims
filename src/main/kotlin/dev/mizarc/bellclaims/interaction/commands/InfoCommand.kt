@@ -9,9 +9,9 @@ import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetClaimPermissions
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
-import dev.mizarc.bellclaims.utils.getDisplayName
 import org.bukkit.Bukkit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -23,6 +23,7 @@ import java.util.*
 
 @CommandAlias("claim")
 class InfoCommand : ClaimCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getClaimDetails: GetClaimDetails by inject()
     private val getClaimFlags: GetClaimFlags by inject()
     private val getClaimPermissions: GetClaimPermissions by inject()
@@ -52,9 +53,10 @@ class InfoCommand : ClaimCommand(), KoinComponent {
         chatInfo.addLinked("Creation Date", dateTimeFormatter.format(claim.creationTime))
         chatInfo.addLinked("Partition Count", getClaimPartitions.execute(claimId).count().toString())
         chatInfo.addLinked("Block Count", getClaimBlockCount.execute(claimId).toString())
-        chatInfo.addLinked("Flags", getClaimFlags.execute(claimId).map { it.getDisplayName() }.toString())
-        chatInfo.addLinked("Default Permissions",
-            getClaimPermissions.execute(claimId).map { it.getDisplayName() }.toString())
+        chatInfo.addLinked("Flags", getClaimFlags.execute(claimId)
+            .map { localizationProvider.get(it.nameKey) }.toString())
+        chatInfo.addLinked("Default Permissions", getClaimPermissions.execute(claimId)
+            .map { localizationProvider.get(it.nameKey) }.toString())
         chatInfo.addLinked("Trusted Users", getPlayersWithPermissionInClaim.execute(claimId).count().toString())
         chatInfo.addSpace()
 
