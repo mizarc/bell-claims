@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.domain.values
 /**
  * Represents the expected behaviour of certain events in claims and the hierarchy of one permission to any others.
  */
-enum class ClaimPermission(private val nameKey: String, private val loreKey: String) {
+enum class ClaimPermission(val nameKey: String, val loreKey: String) {
     /**
      * When a block is broken/placed by a player.
      */

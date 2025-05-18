@@ -3,7 +3,7 @@ package dev.mizarc.bellclaims.domain.values
 /**
  * Represents the expected behaviour of certain events in claims that do not pertain to players.
  */
-enum class Flag(private val nameKey: String, private val loreKey: String) {
+enum class Flag(val nameKey: String, val loreKey: String) {
     /**
      * When fire can spread from one block to another in the claim.
      */
