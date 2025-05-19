@@ -50,9 +50,7 @@ class BellClaims : JavaPlugin() {
 
     fun initLang() {
         val defaultLanguageFilenames = listOf(
-            "en.properties",
-            "fr.properties",
-            "es.properties"
+            "en.properties"
         )
 
         // Move languages to the required folder and add readme for override instructions
