@@ -15,13 +15,9 @@ class LocalizationProviderProperties(private val config: MainConfig,
         loadLayeredProperties()
     }
 
-    override fun get(key: String, vararg args: Any?): String {
-        return get(config.pluginLanguage, key, *args)
-    }
-
     override fun get(locale: String, key: String, vararg args: Any?): String {
         // Step 1: Try to get the bundle for the exact requested language code
-        var properties =languages[locale]
+        var properties = languages[locale]
 
         // Step 2: If the exact language code bundle is not found, try the base language
         if (properties == null) {
@@ -72,6 +68,10 @@ class LocalizationProviderProperties(private val config: MainConfig,
                     "${args.joinToString()} - ${e.message}")
             return pattern
         }
+    }
+
+    override fun getConsole(key: String, vararg args: Any?): String {
+        return get(config.pluginLanguage, key, *args)
     }
 
     // Private function to handle the layered loading process
