@@ -20,19 +20,36 @@ class LocalizationProviderProperties(private val config: MainConfig,
     }
 
     override fun get(locale: String, key: String, vararg args: Any?): String {
-        // --- Get the raw pattern string ---
-        // Try to get the properties for the requested language code from the loaded languages.
-        val properties = languages[locale]
-        // If the requested language is not loaded, fallback to the server's configured default language.
-            ?: languages[config.pluginLanguage]
-            // If the server default is also not loaded, fallback to the base default language ("en").
-            ?: languages[baseDefaultLanguageCode]
-            // If even the base default is missing (a severe issue), return a critical error message.
-            ?: run {
-                println("Localization properties for language code '$locale', server default " +
-                        "'${config.pluginLanguage}', and base default '$baseDefaultLanguageCode' not found!")
-                return key
+        // Step 1: Try to get the bundle for the exact requested language code
+        var properties =languages[locale]
+
+        // Step 2: If the exact language code bundle is not found, try the base language
+        if (properties == null) {
+            // Derive the base language code (e.g., "en" from "en_UK").
+            val requestedLocale = Locale.forLanguageTag(locale.replace('_', '-'))
+            val baseLanguage = requestedLocale.language
+
+            // If the derived base language code is different from the requested code and is not empty,
+            // try to get the bundle for this base language.
+            if (baseLanguage != locale && baseLanguage.isNotEmpty()) {
+                properties = languages[baseLanguage]
             }
+        }
+
+        // Step 3: If still not found, fallback to the server's configured default language.
+        if (properties == null) {
+            properties = languages[config.pluginLanguage]
+        }
+
+        // Step 4: If still not found, fallback to the hardcoded base default language ("en").
+        if (properties == null) {
+            properties = languages[baseDefaultLanguageCode]
+        }
+
+        // If propertiesForLang is still null here, it means none of the fallback languages were successfully loaded.
+        if (properties == null) {
+            return key
+        }
 
         // Get the string pattern for the selected language
         val pattern = properties.getProperty(key) ?: return key
@@ -66,58 +83,31 @@ class LocalizationProviderProperties(private val config: MainConfig,
         // Find all language codes present in the defaults and overrides folders
         val availableLanguages = findAvailableLanguages(defaultsFolder, overridesFolder)
 
-        // Layer 1: Load the base default language (e.g., en.properties from defaults)
         availableLanguages.forEach { locale ->
             val properties = Properties()
-            val baseDefaultFile = File(defaultsFolder, "$baseDefaultLanguageCode.properties")
-            if (baseDefaultFile.exists()) {
-                try {
-                    baseDefaultFile.inputStream().use { properties.load(it) }
-                    println("Loaded base default language: $baseDefaultLanguageCode")
-                } catch (e: Exception) {
-                    println(
-                        "Failed to load base default language file " +
-                                "'lang/defaults/$baseDefaultLanguageCode.properties': ${e.message}"
-                    )
-                }
-            } else {
-                println(
-                    "Base default language file 'lang/defaults/$baseDefaultLanguageCode.properties' not found! " +
-                            "Using default messages (keys)."
-                )
-            }
 
-            // Layer 2: If the requested language is different from base, load its default version
+            // Layer 1: If the requested language is different from base, load its default version
             val setLanguage = config.pluginLanguage
             if (setLanguage != baseDefaultLanguageCode) {
                 val specificDefaultFile = File(defaultsFolder, "$setLanguage.properties")
                 if (specificDefaultFile.exists()) {
                     try {
                         specificDefaultFile.inputStream().use { properties.load(it) }
-                        println("Loaded specific default language: $setLanguage")
+                        println("Loaded language: $setLanguage")
                     } catch (e: Exception) {
-                        println(
-                            "Failed to load specific default language file " +
-                                    "'lang/defaults/$setLanguage.properties': ${e.message}"
-                        )
+                        println("Failed to load default language file for $setLanguage")
                     }
-                } else {
-                    println(
-                        "Specific default language file 'lang/defaults/$setLanguage.properties' not found for " +
-                                "'$setLanguage'. Falling back to base default."
-                    )
                 }
             }
 
-            // Layer 3: Load the override language file
+            // Layer 2: Load the override language file
             val overrideFile = File(overridesFolder, "$setLanguage.properties")
             if (overrideFile.exists()) {
                 try {
                     overrideFile.inputStream().use { properties.load(it) }
                     println("Loaded override language file: $setLanguage")
                 } catch (e: Exception) {
-                    println("Failed to load override language file 'lang/overrides/$setLanguage.properties': " +
-                            "${e.message}")
+                    println("Failed to load override language file for $setLanguage")
                 }
             }
 
