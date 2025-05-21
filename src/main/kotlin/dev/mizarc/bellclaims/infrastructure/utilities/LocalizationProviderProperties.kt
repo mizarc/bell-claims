@@ -15,7 +15,7 @@ class LocalizationProviderProperties(private val config: MainConfig,
         loadLayeredProperties()
     }
 
-    override fun get(locale: String, key: String, vararg args: Any?): String {
+    override fun get(playerId: UUID, key: String, vararg args: Any?): String {
         // Step 1: Try to get the bundle for the exact requested language code
         var properties = languages[locale]
 
