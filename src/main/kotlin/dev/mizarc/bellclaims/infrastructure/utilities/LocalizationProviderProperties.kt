@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.utilities
 
+import dev.mizarc.bellclaims.application.services.PlayerLocaleService
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.config.MainConfig
 import java.io.File
@@ -7,7 +8,8 @@ import java.text.MessageFormat
 import java.util.*
 
 class LocalizationProviderProperties(private val config: MainConfig,
-                                     private val dataFolder: File): LocalizationProvider {
+                                     private val dataFolder: File,
+                                     private val playerLocaleService: PlayerLocaleService): LocalizationProvider {
     private val languages: MutableMap<String, Properties> = mutableMapOf()
     private val baseDefaultLanguageCode = "en"
 
@@ -16,6 +18,16 @@ class LocalizationProviderProperties(private val config: MainConfig,
     }
 
     override fun get(playerId: UUID, key: String, vararg args: Any?): String {
+        val locale = playerLocaleService.getLocale(playerId)
+        return fetchMessageString(locale, key, *args)
+
+    }
+
+    override fun getConsole(key: String, vararg args: Any?): String {
+        return fetchMessageString(config.pluginLanguage, key, *args)
+    }
+
+    private fun fetchMessageString(locale: String, key: String, vararg args: Any?): String {
         // Step 1: Try to get the bundle for the exact requested language code
         var properties = languages[locale]
 
@@ -68,10 +80,6 @@ class LocalizationProviderProperties(private val config: MainConfig,
                     "${args.joinToString()} - ${e.message}")
             return pattern
         }
-    }
-
-    override fun getConsole(key: String, vararg args: Any?): String {
-        return get(config.pluginLanguage, key, *args)
     }
 
     // Private function to handle the layered loading process
