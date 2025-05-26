@@ -218,4 +218,14 @@ object LocalizationKeys {
     const val MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_NAME = "menu.trusted_players.item.default_permissions.name"
     const val MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_LORE = "menu.trusted_players.item.default_permissions.lore"
     const val MENU_TRUSTED_PLAYERS_ITEM_HAS_PERMISSION_LORE = "menu.trusted_players.item.has_permission.lore"
+
+
+    // -------------------------------------
+    // Commands
+    // -------------------------------------
+
+    // Add Flag
+    const val COMMAND_ADD_FLAG_UNKNOWN_CLAIM = "command.add_flag.unknown_claim"
+    const val COMMAND_ADD_FLAG_ALREADY_EXISTS = "command.add_flag.already_exists"
+    const val COMMAND_ADD_FLAG_SUCCESS = "command.add_flag.success"
 }
