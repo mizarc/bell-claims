@@ -294,9 +294,9 @@ object LocalizationKeys {
 
     // Claim Untrust All
     const val COMMAND_CLAIM_UNTRUST_ALL_SUCCESS = "command.claim.untrust_all.success"
-    const val COMMAND_CLAIM_UNTRUST_ALL_ALREADY_EXISTS = "command.claim.untrust_all.already_exists"
+    const val COMMAND_CLAIM_UNTRUST_ALL_DOES_NOT_EXIST = "command.claim.untrust_all.does_not_exist"
 
     // Claim Untrust
     const val COMMAND_CLAIM_UNTRUST_SUCCESS = "command.claim.untrust.success"
-    const val COMMAND_CLAIM_UNTRUST_ALREADY_EXISTS = "command.claim.untrust.already_exists"
+    const val COMMAND_CLAIM_UNTRUST_DOES_NOT_EXIST = "command.claim.untrust.does_not_exist"
 }
