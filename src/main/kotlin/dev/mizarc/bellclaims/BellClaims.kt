@@ -24,12 +24,6 @@ class BellClaims : JavaPlugin() {
     internal var conf: Config = Config(this)
     private lateinit var scheduler: BukkitScheduler
 
-    companion object {
-        lateinit var instance: BellClaims
-    }
-    private lateinit var langConfig: FileConfiguration
-    private lateinit var langFile: File
-
     override fun onEnable() {
         scheduler = server.scheduler
         startKoin { modules(appModule(this@BellClaims)) }
@@ -38,12 +32,6 @@ class BellClaims : JavaPlugin() {
         commandManager = PaperCommandManager(this)
         registerCommands()
         registerEvents()
-
-//NOTE: new language functions
-//I don't know where to put them
-        InitLangConfig()
-        loadLangConfig()
-
 
         logger.info("Bell Claims has been Enabled")
     }
@@ -60,42 +48,6 @@ class BellClaims : JavaPlugin() {
         }
         saveResource("lang/overrides/README.txt", true)
     }
-    
-//---Maybe Put It Somewhere else?---//
-
-    /**
-     * Initializes lang system.
-     */
-    fun InitLangConfig() {
-        instance = this
-        saveDefaultConfig()
-        var selectedLanguage = conf.pluginLanguage
-        val langFileName = "lang_${selectedLanguage}.yml"
-        langFile = File(dataFolder, langFileName)
-        if (!langFile.exists()) {
-            saveResource(langFileName, false)
-        }
-    }
-
-    /**
-     * Load lang config.
-     */
-    fun loadLangConfig() {
-        try {
-            langConfig = YamlConfiguration.loadConfiguration(langFile)
-        } catch (e: IllegalArgumentException) {
-            langConfig = YamlConfiguration()
-        }
-    }
-
-    /**
-     * apiFunction for getLangText() in utils.
-     */
-    fun getText(key: String): String {
-    return langConfig.getString(key, "String key not found") ?: "String key not found"
-    }
-
-//---------------------------------------
 
     override fun onDisable() {
         logger.info("Bell Claims has been Disabled")
