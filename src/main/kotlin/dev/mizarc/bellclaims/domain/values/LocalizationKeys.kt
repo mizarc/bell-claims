@@ -224,8 +224,79 @@ object LocalizationKeys {
     // Commands
     // -------------------------------------
 
+    // Common
+    const val COMMAND_COMMON_INVALID_PAGE = "command.common.invalid_page"
+    const val COMMAND_COMMON_UNKNOWN_CLAIM = "command.common.unknown_claim"
+
     // Add Flag
-    const val COMMAND_ADD_FLAG_UNKNOWN_CLAIM = "command.add_flag.unknown_claim"
-    const val COMMAND_ADD_FLAG_ALREADY_EXISTS = "command.add_flag.already_exists"
-    const val COMMAND_ADD_FLAG_SUCCESS = "command.add_flag.success"
+    const val COMMAND_ADD_FLAG_SUCCESS = "command.claim.add_flag.success"
+    const val COMMAND_ADD_FLAG_ALREADY_EXISTS = "command.claim.add_flag.already_exists"
+
+    // Claim List
+    const val COMMAND_CLAIM_LIST_NO_CLAIMS = "command.claim_list.no_claims"
+    const val COMMAND_CLAIM_LIST_CLAIMS = "command.claim_list.claims"
+    const val COMMAND_CLAIM_LIST_BLOCKS = "command.claim_list.blocks"
+
+    // Claim Override
+    const val COMMAND_CLAIM_OVERRIDE_ENABLED = "command.claim_override.enabled"
+    const val COMMAND_CLAIM_OVERRIDE_DISABLED = "command.claim_override.disabled"
+
+    // Claim Description
+    const val COMMAND_CLAIM_DESCRIPTION_SUCCESS = "command.claim.description.success"
+    const val COMMAND_CLAIM_DESCRIPTION_EXCEED_LIMIT = "command.claim.description.exceed_limit"
+    const val COMMAND_CLAIM_DESCRIPTION_INVALID_CHARACTER = "command.claim.description.invalid_character"
+    const val COMMAND_CLAIM_DESCRIPTION_BLACKLISTED_WORD = "command.claim.description.blacklisted_word"
+    const val COMMAND_CLAIM_DESCRIPTION_BLANK = "command.claim.description.blank"
+
+    // Claim Info
+    const val COMMAND_CLAIM_INFO_SUMMARY = "command.claim.info.summary"
+    const val COMMAND_CLAIM_INFO_OWNER = "command.claim.info.owner"
+    const val COMMAND_CLAIM_INFO_CREATION_DATE = "command.claim.info.creation_date"
+    const val COMMAND_CLAIM_INFO_PARTITION_COUNT = "command.claim.info.partition_count"
+    const val COMMAND_CLAIM_INFO_BLOCK_COUNT = "command.claim.info.block_count"
+    const val COMMAND_CLAIM_INFO_FLAGS = "command.claim.info.flags"
+    const val COMMAND_CLAIM_INFO_DEFAULT_PERMISSIONS = "command.claim.info.default_permissions"
+    const val COMMAND_CLAIM_INFO_TRUSTED_USERS = "command.claim.info.trusted_users"
+
+    // Claim Partitions
+    const val COMMAND_PARTITIONS_PARTITIONS = "command.partitions.partitions"
+    const val COMMAND_PARTITIONS_ROW = "command.partitions.row"
+
+    // Claim Remove
+    const val COMMAND_CLAIM_REMOVE_SUCCESS = "command.claim.remove.success"
+    const val COMMAND_CLAIM_REMOVE_UNKNOWN_PARTITION = "command.claim.remove.unknown_partition"
+    const val COMMAND_CLAIM_REMOVE_DISCONNECTED = "command.claim.remove.disconnected"
+    const val COMMAND_CLAIM_REMOVE_EXPOSED_ANCHOR = "command.claim.remove.exposed_anchor"
+
+    // Claim Remove Flag
+    const val COMMAND_CLAIM_REMOVE_FLAG_SUCCESS = "command.claim.remove_flag.success"
+    const val COMMAND_CLAIM_REMOVE_FLAG_DOES_NOT_EXIST = "command.claim.remove_flag.does_not_exist"
+
+    // Claim Rename
+    const val COMMAND_CLAIM_RENAME_SUCCESS = "command.claim.rename.success"
+    const val COMMAND_CLAIM_RENAME_ALREADY_EXISTS = "command.claim.rename.already_exists"
+    const val COMMAND_CLAIM_RENAME_EXCEED_LIMIT = "command.claim.rename.exceed_limit"
+    const val COMMAND_CLAIM_RENAME_INVALID_CHARACTER = "command.claim.rename.invalid_character"
+    const val COMMAND_CLAIM_RENAME_BLACKLISTED_WORD = "command.claim.rename.blacklisted_word"
+    const val COMMAND_CLAIM_RENAME_BLANK = "command.claim.rename.blank"
+
+    // Claim Trust All
+    const val COMMAND_CLAIM_TRUST_ALL_SUCCESS = "command.claim.trust_all.success"
+    const val COMMAND_CLAIM_TRUST_ALL_ALREADY_EXISTS = "command.claim.trust_all.already_exists"
+
+    // Claim Trust
+    const val COMMAND_CLAIM_TRUST_SUCCESS = "command.claim.trust.success"
+    const val COMMAND_CLAIM_TRUST_ALREADY_EXISTS = "command.claim.trust.already_exists"
+
+    // Claim Trust List
+    const val COMMAND_CLAIM_TRUST_LIST_NO_PLAYERS = "command.claim.trust_list.no_players"
+    const val COMMAND_CLAIM_TRUST_LIST_TRUSTED_PLAYERS = "command.claim.trust_list.trusted_players"
+
+    // Claim Untrust All
+    const val COMMAND_CLAIM_UNTRUST_ALL_SUCCESS = "command.claim.untrust_all.success"
+    const val COMMAND_CLAIM_UNTRUST_ALL_ALREADY_EXISTS = "command.claim.untrust_all.already_exists"
+
+    // Claim Untrust
+    const val COMMAND_CLAIM_UNTRUST_SUCCESS = "command.claim.untrust.success"
+    const val COMMAND_CLAIM_UNTRUST_ALREADY_EXISTS = "command.claim.untrust.already_exists"
 }
