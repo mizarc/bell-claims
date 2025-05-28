@@ -43,11 +43,11 @@ class UntrustAllCommand : ClaimCommand(), KoinComponent {
             )
             is RevokeClaimWidePermissionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
-                emptyArray()
+                emptyArray<String>()
             )
             is RevokeClaimWidePermissionResult.StorageError -> Pair(
                 LocalizationKeys.GENERAL_ERROR,
-                emptyArray()
+                emptyArray<String>()
             )
         }
 

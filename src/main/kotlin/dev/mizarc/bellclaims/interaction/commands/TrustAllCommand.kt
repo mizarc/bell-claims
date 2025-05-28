@@ -32,21 +32,21 @@ class TrustAllCommand : ClaimCommand(), KoinComponent {
 
         // Add permission for player and output result
         when (grantClaimWidePermission.execute(partition.claimId, permission)) {
-            GrantClaimWidePermissionResult.Success -> Pair(
+            is GrantClaimWidePermissionResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_TRUST_ALL_SUCCESS,
                 arrayOf(getPermissionName(playerId, permission), getClaimName(playerId, claimId))
             )
-            GrantClaimWidePermissionResult.AlreadyExists -> Pair(
+            is GrantClaimWidePermissionResult.AlreadyExists -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_TRUST_ALL_ALREADY_EXISTS,
                 arrayOf(getClaimName(playerId, claimId), getPermissionName(playerId, permission))
             )
-            GrantClaimWidePermissionResult.ClaimNotFound -> Pair(
+            is GrantClaimWidePermissionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
-                emptyArray()
+                emptyArray<String>()
             )
-            GrantClaimWidePermissionResult.StorageError -> Pair(
+            is GrantClaimWidePermissionResult.StorageError -> Pair(
                 LocalizationKeys.GENERAL_ERROR,
-                emptyArray()
+                emptyArray<String>()
             )
         }
     }
