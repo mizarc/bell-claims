@@ -30,7 +30,8 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
     private val isNewClaimLocationValid: IsNewClaimLocationValid by inject()
 
     override fun open() {
-        val gui = ChestGui(1, localizationProvider.get(LocalizationKeys.MENU_CREATION_TITLE))
+        val playerId = player.uniqueId
+        val gui = ChestGui(1, localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_TITLE))
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -38,12 +39,12 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
         gui.addPane(pane)
 
         // Notify if player doesn't have enough claims
-        val playerClaimCount = listPlayerClaims.execute(player.uniqueId).count()
+        val playerClaimCount = listPlayerClaims.execute(playerId).count()
         if (playerClaimCount >=
-                playerMetadataService.getPlayerClaimLimit(player.uniqueId)) {
+                playerMetadataService.getPlayerClaimLimit(playerId)) {
             val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
-                .lore(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_CLAIMS))
+                .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
+                .lore(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_CLAIMS))
             val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
             pane.addItem(guiIconEditorItem, 4, 0)
             gui.show(player)
@@ -54,10 +55,10 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
         when (isNewClaimLocationValid.execute(location.toPosition2D(), location.world.uid)) {
             IsNewClaimLocationValidResult.Valid -> {
                 val iconEditorItem = ItemStack(Material.BELL)
-                    .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_NAME))
-                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_PROTECTED))
-                    .lore(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_REMAINING,
-                        playerMetadataService.getPlayerClaimLimit(player.uniqueId) - playerClaimCount))
+                    .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CREATE_NAME))
+                    .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_PROTECTED))
+                    .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CREATE_LORE_REMAINING,
+                        playerMetadataService.getPlayerClaimLimit(playerId) - playerClaimCount))
                 val guiIconEditorItem = GuiItem(iconEditorItem) {
                     menuNavigator.openMenu(ClaimNamingMenu(player, menuNavigator, location))
                 }
@@ -66,17 +67,17 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
             }
             IsNewClaimLocationValidResult.Overlap -> {
                 val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(localizationProvider.get(LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
-                    .lore(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_OVERLAP))
+                    .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
+                    .lore(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_OVERLAP))
                 val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
                 pane.addItem(guiIconEditorItem, 4, 0)
                 gui.show(player)
                 return
             }
             IsNewClaimLocationValidResult.StorageError ->
-                player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
+                player.sendMessage(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
             else ->
-                player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
+                player.sendMessage(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
 
         }
     }

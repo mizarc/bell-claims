@@ -27,7 +27,8 @@ class ClaimPlayerSearchMenu(private val menuNavigator: MenuNavigator, private va
 
     override fun open() {
         // Create homes menu
-        val gui = AnvilGui(localizationProvider.get(LocalizationKeys.MENU_PLAYER_SEARCH_TITLE))
+        val playerId = player.uniqueId
+        val gui = AnvilGui(localizationProvider.get(playerId, LocalizationKeys.MENU_PLAYER_SEARCH_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -35,7 +36,7 @@ class ClaimPlayerSearchMenu(private val menuNavigator: MenuNavigator, private va
         // Add lodestone menu item
         val firstPane = StaticPane(0, 0, 1, 1)
         val headItem = ItemStack(Material.PLAYER_HEAD)
-            .name(localizationProvider.get(LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_NAME))
         val guiHeadItem = GuiItem(headItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiHeadItem, 0, 0)
         gui.firstItemComponent.addPane(firstPane)
@@ -44,8 +45,8 @@ class ClaimPlayerSearchMenu(private val menuNavigator: MenuNavigator, private va
         if (playerDoesNotExist) {
             val secondPane = StaticPane(0, 0, 1, 1)
             val paperItem = ItemStack(Material.PAPER)
-                .name(localizationProvider.get(LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_UNKNOWN_NAME))
-                .lore(localizationProvider.get(LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_UNKNOWN_LORE))
+                .name(localizationProvider.get(playerId, LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_UNKNOWN_NAME))
+                .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_PLAYER_SEARCH_ITEM_PLAYER_UNKNOWN_LORE))
 
             val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
             secondPane.addItem(guiPaperItem, 0, 0)
@@ -55,7 +56,7 @@ class ClaimPlayerSearchMenu(private val menuNavigator: MenuNavigator, private va
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
         val confirmItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { _ ->
             val player = Bukkit.getOfflinePlayer(gui.renameText)
             if (!player.hasPlayedBefore()) {

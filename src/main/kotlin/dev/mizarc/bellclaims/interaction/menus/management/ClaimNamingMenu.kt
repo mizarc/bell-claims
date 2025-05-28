@@ -32,7 +32,8 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
     override fun open() {
         // Create homes menu
-        val gui = AnvilGui(localizationProvider.get(LocalizationKeys.MENU_NAMING_TITLE))
+        val playerId = player.uniqueId
+        val gui = AnvilGui(localizationProvider.get(playerId, LocalizationKeys.MENU_NAMING_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -60,7 +61,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
         val confirmItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             val result = createClaim.execute(player.uniqueId, name, location.toPosition3D(), location.world.uid)
             when (result) {
@@ -77,7 +78,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.LimitExceeded -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_CLAIMS))
+                        .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_CLAIMS))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)
@@ -92,7 +93,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.NameAlreadyExists -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_EXISTING))
+                        .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_EXISTING))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)
@@ -107,7 +108,7 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
 
                 is CreateClaimResult.NameCannotBeBlank -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name(localizationProvider.get(LocalizationKeys.CREATION_CONDITION_UNNAMED))
+                        .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_UNNAMED))
                     val guiPaperItem = GuiItem(paperItem) { guiEvent ->
                         secondPane.removeItem(0, 0)
                         bellItem.name(name)

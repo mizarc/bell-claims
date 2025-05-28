@@ -35,7 +35,8 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
     override fun open() {
         // Create claim flags menu
-        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_FLAGS_TITLE))
+        val playerId = player.uniqueId
+        val gui = ChestGui(6, localizationProvider.get(playerId, LocalizationKeys.MENU_FLAGS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -46,13 +47,13 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
         val guiExitItem = GuiItem(exitItem) { menuNavigator.goBack() }
         controlsPane.addItem(guiExitItem, 0, 0)
 
         // Add deselect all button
         val deselectItem = ItemStack(Material.HONEY_BLOCK)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_DESELECT_ALL_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_DESELECT_ALL_NAME))
         val guiDeselectItem = GuiItem(deselectItem) {
             disableAllClaimFlags.execute(claim.id)
             open()
@@ -61,7 +62,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
 
         // Add select all button
         val selectItem = ItemStack(Material.SLIME_BLOCK)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_SELECT_ALL_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_SELECT_ALL_NAME))
         val guiSelectItem = GuiItem(selectItem) {
             enableAllClaimFlags.execute(claim.id)
             open()
