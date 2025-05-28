@@ -5,39 +5,67 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import dev.mizarc.bellclaims.application.actions.claim.permission.GrantPlayerClaimPermission
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.results.claim.permission.GrantPlayerClaimPermissionResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 
 @CommandAlias("claim")
 class TrustCommand : ClaimCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val grantPlayerClaimPermission: GrantPlayerClaimPermission by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
     @Subcommand("trust")
     @CommandPermission("bellclaims.command.claim.trust")
-    fun onTrust(player: Player, otherPlayer: OnlinePlayer, permission: ClaimPermission) {
+    fun onTrust(player: Player, targetPlayer: OnlinePlayer, permission: ClaimPermission) {
         // Gets the partition at the player's current location
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) return
 
+        // Assign common variables
+        val claimId = partition.claimId
+        val playerId = player.uniqueId
+        val targetPlayerId = targetPlayer.player.uniqueId
+        val targetPlayerName = targetPlayer.player.displayName()
+
         // Add permission for player and output result
-        when (grantPlayerClaimPermission.execute(partition.claimId, otherPlayer.player.uniqueId, permission)) {
-            GrantPlayerClaimPermissionResult.Success -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("Permission $permission has been assigned to player " +
-                        "${otherPlayer.player.displayName()} in claim $claimName.")
-            }
-            GrantPlayerClaimPermissionResult.AlreadyExists -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("${otherPlayer.player.displayName()} already has $permission " +
-                        "permissions in claim $claimName.")
-            }
-            GrantPlayerClaimPermissionResult.ClaimNotFound ->
-                player.sendMessage("Claim was not found.")
-            GrantPlayerClaimPermissionResult.StorageError ->
-                player.sendMessage("An internal error has occurred, contact your administrator for support.")
+        when (grantPlayerClaimPermission.execute(partition.claimId, targetPlayerId, permission)) {
+            is GrantPlayerClaimPermissionResult.Success -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_TRUST_SUCCESS,
+                arrayOf(getPermissionName(playerId, permission), targetPlayerName, getClaimName(playerId, claimId))
+            )
+            is GrantPlayerClaimPermissionResult.AlreadyExists -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_TRUST_ALREADY_EXISTS,
+                arrayOf(targetPlayerName, permission, getClaimName(playerId, claimId))
+            )
+            is GrantPlayerClaimPermissionResult.ClaimNotFound -> Pair(
+                LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
+                emptyArray()
+            )
+            is GrantPlayerClaimPermissionResult.StorageError -> Pair(
+                LocalizationKeys.GENERAL_ERROR,
+                emptyArray()
+            )
         }
+    }
+
+    /**
+     * Helper function to retrieve the claim name or a default error message if not found.
+     */
+    private fun getClaimName(playerId: UUID, claimId: UUID): String {
+        return getClaimDetails.execute(claimId)?.name ?: localizationProvider.get(
+            playerId, LocalizationKeys.GENERAL_NAME_ERROR
+        )
+    }
+
+    /**
+     * Helper function to retrieve the name of the permission.
+     */
+    private fun getPermissionName(playerId: UUID, permission: ClaimPermission): String {
+        return localizationProvider.get(playerId, permission.nameKey)
     }
 }
