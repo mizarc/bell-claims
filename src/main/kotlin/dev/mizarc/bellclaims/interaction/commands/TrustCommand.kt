@@ -33,7 +33,7 @@ class TrustCommand : ClaimCommand(), KoinComponent {
         val targetPlayerName = targetPlayer.player.displayName()
 
         // Add permission for player and output result
-        when (grantPlayerClaimPermission.execute(partition.claimId, targetPlayerId, permission)) {
+        val (messageKey, messageArgs) = when (grantPlayerClaimPermission.execute(claimId, targetPlayerId, permission)) {
             is GrantPlayerClaimPermissionResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_TRUST_SUCCESS,
                 arrayOf(getPermissionName(playerId, permission), targetPlayerName, getClaimName(playerId, claimId))
@@ -51,6 +51,9 @@ class TrustCommand : ClaimCommand(), KoinComponent {
                 emptyArray<String>()
             )
         }
+
+        // Output to player chat
+        player.sendMessage(localizationProvider.get(player.uniqueId, messageKey, *messageArgs))
     }
 
     /**

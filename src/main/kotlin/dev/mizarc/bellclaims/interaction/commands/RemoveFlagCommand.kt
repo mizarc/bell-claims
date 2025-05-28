@@ -32,7 +32,7 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
         val playerId = player.uniqueId
 
         // Remove flag from the claim and notify player of result
-        when (disableClaimFlag.execute(flag, partition.claimId)) {
+        val (messageKey, messageArgs) = when (disableClaimFlag.execute(flag, partition.claimId)) {
             is DisableClaimFlagResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_REMOVE_FLAG_SUCCESS,
                 arrayOf(getFlagName(playerId, flag), getClaimName(playerId, claimId))
@@ -50,6 +50,9 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
                 emptyArray<String>()
             )
         }
+
+        // Output to player chat
+        player.sendMessage(localizationProvider.get(player.uniqueId, messageKey, *messageArgs))
     }
 
     /**
