@@ -6,13 +6,17 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.flag.DisableClaimFlag
 import dev.mizarc.bellclaims.application.enums.DisableClaimFlagResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.domain.values.Flag
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 
 @CommandAlias("claim")
 class RemoveFlagCommand : ClaimCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val disableClaimFlag: DisableClaimFlag by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
@@ -23,20 +27,44 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) return
 
+        // Assign common variables
+        val claimId = partition.claimId
+        val playerId = player.uniqueId
+
         // Remove flag from the claim and notify player of result
         when (disableClaimFlag.execute(flag, partition.claimId)) {
-            DisableClaimFlagResult.DoesNotExist -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("Claim §6${claimName}§c does not have §6$flag.")
-            }
-            DisableClaimFlagResult.Success -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("§6$flag §adisabled for claim §6${claimName}§a.")
-            }
-            DisableClaimFlagResult.ClaimNotFound ->
-                player.sendMessage("Claim was not found.")
-            DisableClaimFlagResult.StorageError ->
-                player.sendMessage("An internal error has occurred, contact your administrator for support.")
+            is DisableClaimFlagResult.Success -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_FLAG_SUCCESS,
+                arrayOf(getFlagName(playerId, flag), getClaimName(playerId, claimId))
+            )
+            is DisableClaimFlagResult.DoesNotExist -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_FLAG_SUCCESS,
+                arrayOf(getClaimName(playerId, claimId), getFlagName(playerId, flag))
+            )
+            is DisableClaimFlagResult.ClaimNotFound -> Pair(
+                LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
+                emptyArray<String>()
+            )
+            is DisableClaimFlagResult.StorageError ->Pair(
+                LocalizationKeys.GENERAL_ERROR,
+                emptyArray<String>()
+            )
         }
+    }
+
+    /**
+     * Helper function to retrieve the claim name or a default error message if not found.
+     */
+    private fun getClaimName(playerId: UUID, claimId: UUID): String {
+        return getClaimDetails.execute(claimId)?.name ?: localizationProvider.get(
+            playerId, LocalizationKeys.GENERAL_NAME_ERROR
+        )
+    }
+
+    /**
+     * Helper function to retrieve the name of the permission.
+     */
+    private fun getFlagName(playerId: UUID, flag: Flag): String {
+        return localizationProvider.get(playerId, flag.nameKey)
     }
 }
