@@ -211,6 +211,9 @@ object LocalizationKeys {
     // Transfer Menu
     const val MENU_TRANSFER_TITLE = "menu.transfer.title"
 
+    // Transfer Send Menu
+    const val MENU_TRANSFER_SEND_TITLE = "menu.transfer_send.title"
+
     // Trusted Players Menu
     const val MENU_TRUSTED_PLAYERS_TITLE = "menu.trusted_players.title"
     const val MENU_TRUSTED_PLAYERS_ITEM_ALL_PLAYERS_NAME = "menu.trusted_players.item.all_players.name"
