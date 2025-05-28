@@ -15,10 +15,11 @@ class ClaimTransferMenu(private val menuNavigator: MenuNavigator, private val cl
                         private val player: Player): Menu, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
     override fun open() {
+        val playerId = player.uniqueId
         val confirmAction: () -> Unit = {
             menuNavigator.openMenu(ClaimTransferNamingMenu(menuNavigator, claim, player))
         }
         menuNavigator.openMenu(ConfirmationMenu(menuNavigator, player,
-            localizationProvider.get(LocalizationKeys.MENU_TRANSFER_TITLE), confirmAction))
+            localizationProvider.get(playerId, LocalizationKeys.MENU_TRANSFER_TITLE), confirmAction))
     }
 }

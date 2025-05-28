@@ -19,6 +19,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 import kotlin.math.ceil
 
 class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val player: Player,
@@ -29,22 +30,22 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
     private var page = 0
 
     override fun open() {
-        val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
-
         // Create trust menu
-        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_TITLE))
+        val playerId = player.uniqueId
+        val gui = ChestGui(6, localizationProvider.get(playerId, LocalizationKeys.MENU_ALL_PLAYERS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls
-        val controlsPane = addControlsSection(gui) { menuNavigator.goBack() }
-        addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
+        val controlsPane = addControlsSection(playerId, gui) { menuNavigator.goBack() }
+        val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
+        addPaginator(playerId, controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
 
         // Add player search item
         val playerSearchItem = ItemStack(Material.NAME_TAG)
-            .name(localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_LORE))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_ALL_PLAYERS_ITEM_SEARCH_LORE))
         val guiPlayerSearchItem = GuiItem(playerSearchItem) {
             menuNavigator.openMenu(ClaimPlayerSearchMenu(menuNavigator, claim, player)) }
         controlsPane.addItem(guiPlayerSearchItem, 3, 0)
@@ -77,7 +78,7 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
         gui.show(player)
     }
 
-    private fun addControlsSection(gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
+    private fun addControlsSection(playerId: UUID, gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
         // Add divider
         val dividerPane = StaticPane(0, 1, 9, 1)
         gui.addPane(dividerPane)
@@ -93,29 +94,30 @@ class ClaimPlayerMenu(private val menuNavigator: MenuNavigator, private val play
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
 
         val guiExitItem = GuiItem(exitItem) { backButtonAction() }
         controlsPane.addItem(guiExitItem, 0, 0)
         return controlsPane
     }
 
-    private fun addPaginator(controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
+    private fun addPaginator(playerId: UUID, controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
         // Add prev item
         val prevItem = ItemStack(Material.ARROW)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PREV_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_PREV_NAME))
         val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPrevItem, 6, 0)
 
         // Add page item
         val pageItem = ItemStack(Material.PAPER)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PAGE_NAME, currentPage, totalPages))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_PAGE_NAME,
+                currentPage, totalPages))
         val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPageItem, 7, 0)
 
         // Add next item
         val nextItem = ItemStack(Material.ARROW)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_NEXT_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_NEXT_NAME))
         val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiNextItem, 8, 0)
     }

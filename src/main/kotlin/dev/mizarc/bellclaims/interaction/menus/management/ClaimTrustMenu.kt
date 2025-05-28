@@ -20,6 +20,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 import kotlin.math.ceil
 
 class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val player: Player,
@@ -31,30 +32,32 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
     private var page = 1
 
     override fun open() {
-        val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
-
         // Create trust menu
-        val gui = ChestGui(6, localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_TITLE))
+        val playerId = player.uniqueId
+        val gui = ChestGui(6, localizationProvider.get(playerId, LocalizationKeys.MENU_TRUSTED_PLAYERS_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
 
         // Add controls pane
-        val controlsPane = addControlsSection(gui) { menuNavigator.goBack() }
-        addPaginator(controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
+        val controlsPane = addControlsSection(playerId, gui) { menuNavigator.goBack() }
+        val trustedPlayers = getPlayersWithPermissionInClaim.execute(claim.id)
+        addPaginator(playerId, controlsPane, page, ceil(trustedPlayers.count() / 36.0).toInt())
 
         // Add default permissions button
         val defaultPermsItem = ItemStack(Material.LECTERN)
-            .name(localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_LORE))
+            .name(localizationProvider.get(playerId,
+                LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_NAME))
+            .lore(localizationProvider.get(playerId,
+                LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_DEFAULT_PERMISSIONS_LORE))
         val guiDefaultPermsItem = GuiItem(defaultPermsItem) {
             menuNavigator.openMenu(ClaimWidePermissionsMenu(menuNavigator, player, claim)) }
         controlsPane.addItem(guiDefaultPermsItem, 2, 0)
 
         // Add all players menu
         val allPlayersItem = ItemStack(Material.PLAYER_HEAD)
-            .name(localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_ALL_PLAYERS_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_ALL_PLAYERS_LORE))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_ALL_PLAYERS_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_ALL_PLAYERS_LORE))
         val guiAllPlayersItem = GuiItem(allPlayersItem) {
             menuNavigator.openMenu(ClaimPlayerMenu(menuNavigator, player, claim)) }
         controlsPane.addItem(guiAllPlayersItem, 4, 0)
@@ -69,7 +72,7 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
             val playerPermissions = getClaimPlayerPermissions.execute(claim.id, trustedPlayer)
             val warpItem = createHead(targetPlayer)
                 .name("${targetPlayer.name}")
-                .lore(localizationProvider.get(LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_HAS_PERMISSION_LORE,
+                .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_TRUSTED_PLAYERS_ITEM_HAS_PERMISSION_LORE,
                     playerPermissions.count()))
             val guiWarpItem = GuiItem(warpItem) {
                 menuNavigator.openMenu(ClaimPlayerPermissionsMenu(menuNavigator, player, claim, targetPlayer)) }
@@ -86,7 +89,7 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
         gui.show(player)
     }
 
-    private fun addControlsSection(gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
+    private fun addControlsSection(playerId: UUID, gui: ChestGui, backButtonAction: () -> Unit): StaticPane {
         // Add divider
         val dividerPane = StaticPane(0, 1, 9, 1)
         gui.addPane(dividerPane)
@@ -102,29 +105,30 @@ class ClaimTrustMenu(private val menuNavigator: MenuNavigator, private val playe
 
         // Add go back item
         val exitItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
 
         val guiExitItem = GuiItem(exitItem) { backButtonAction() }
         controlsPane.addItem(guiExitItem, 0, 0)
         return controlsPane
     }
 
-    private fun addPaginator(controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
+    private fun addPaginator(playerId: UUID, controlsPane: StaticPane, currentPage: Int, totalPages: Int) {
         // Add prev item
         val prevItem = ItemStack(Material.ARROW)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PREV_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_PREV_NAME))
         val guiPrevItem = GuiItem(prevItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPrevItem, 6, 0)
 
         // Add page item
         val pageItem = ItemStack(Material.PAPER)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_PAGE_NAME, currentPage, totalPages))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_PAGE_NAME,
+                currentPage, totalPages))
         val guiPageItem = GuiItem(pageItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiPageItem, 7, 0)
 
         // Add next item
         val nextItem = ItemStack(Material.ARROW)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_NEXT_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_NEXT_NAME))
         val guiNextItem = GuiItem(nextItem) { guiEvent -> guiEvent.isCancelled = true }
         controlsPane.addItem(guiNextItem, 8, 0)
     }

@@ -26,7 +26,8 @@ class ClaimIconMenu(private val player: Player, private val menuNavigator: MenuN
     private val updateClaimIcon: UpdateClaimIcon by inject()
 
     override fun open() {
-        val gui = FurnaceGui(localizationProvider.get(LocalizationKeys.MENU_ICON_TITLE))
+        val playerId = player.uniqueId
+        val gui = FurnaceGui(localizationProvider.get(playerId, LocalizationKeys.MENU_ICON_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -35,8 +36,8 @@ class ClaimIconMenu(private val player: Player, private val menuNavigator: MenuN
 
         // Add info paper menu item
         val paperItem = ItemStack(Material.PAPER)
-            .name(localizationProvider.get(LocalizationKeys.MENU_ICON_ITEM_INFO_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_ICON_ITEM_INFO_LORE))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_ICON_ITEM_INFO_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_ICON_ITEM_INFO_LORE))
         val guiIconEditorItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
         fuelPane.addItem(guiIconEditorItem, 0, 0)
         gui.fuelComponent.addPane(fuelPane)
@@ -66,7 +67,7 @@ class ClaimIconMenu(private val player: Player, private val menuNavigator: MenuN
         // Add confirm menu item
         val outputPane = StaticPane(0, 0, 1, 1)
         val confirmItem = ItemStack(Material.NETHER_STAR)
-            .name(localizationProvider.get(LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             guiEvent.isCancelled = true
             val newIcon = gui.ingredientComponent.getItem(0, 0)
