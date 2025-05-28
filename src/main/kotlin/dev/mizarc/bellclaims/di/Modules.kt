@@ -125,7 +125,7 @@ fun appModule(plugin: BellClaims) = module {
     single<SchedulerService> { SchedulerServiceBukkit(get()) }
 
     // Utilities
-    single<LocalizationProvider> { LocalizationProviderProperties(get(), get()) }
+    single<LocalizationProvider> { LocalizationProviderProperties(get(), get(), get()) }
 
 
     // --- Application Layer Actions ---
