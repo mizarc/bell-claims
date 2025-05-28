@@ -3,12 +3,10 @@ package dev.mizarc.bellclaims.interaction.menus.common
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.HopperGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import dev.mizarc.bellclaims.application.actions.claim.IsNewClaimLocationValid
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
@@ -23,20 +21,19 @@ class ConfirmationMenu(val menuNavigator: MenuNavigator, val player: Player, val
                        val callbackAction: () -> Unit): Menu, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
 
-    // Generic confirmation menu which takes cancel and confirm functions as argument
     override fun open() {
-        // GetLangText in function which is calling confirmationMenu to make addition
         val gui = HopperGui(title)
         val pane = StaticPane(1, 0, 3, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.slotsComponent.addPane(pane)
+        val playerId = player.uniqueId
 
         // Add no menu item
         val noItem = ItemStack(Material.RED_CONCRETE)
-            .name(localizationProvider.get(LocalizationKeys.MENU_CONFIRMATION_ITEM_NO_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_CONFIRMATION_ITEM_NO_LORE))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CONFIRMATION_ITEM_NO_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_CONFIRMATION_ITEM_NO_LORE))
 
         val guiNoItem = GuiItem(noItem) { guiEvent ->
             menuNavigator.goBack()
@@ -45,8 +42,8 @@ class ConfirmationMenu(val menuNavigator: MenuNavigator, val player: Player, val
 
         // Add yes menu item
         val yesItem = ItemStack(Material.GREEN_CONCRETE)
-            .name(localizationProvider.get(LocalizationKeys.MENU_CONFIRMATION_ITEM_YES_NAME))
-            .lore(localizationProvider.get(LocalizationKeys.MENU_CONFIRMATION_ITEM_YES_LORE))
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CONFIRMATION_ITEM_YES_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_CONFIRMATION_ITEM_YES_LORE))
         val guiYesItem = GuiItem(yesItem) { guiEvent ->
             callbackAction()
             menuNavigator.goBack()
