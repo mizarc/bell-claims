@@ -39,13 +39,14 @@ class ClaimAnchorListener(): Listener, KoinComponent {
         if (!event.player.hasPermission("bellclaims.action.bell")) return
 
         // Get the claim if it exists at the clicked location
+        val playerId = event.player.uniqueId
         var claim: Claim? = null
         val claimResult = getClaimAnchorAtPosition.execute(clickedBlock.location.toPosition3D(), clickedBlock.world.uid)
         when (claimResult) {
             is GetClaimAnchorAtPositionResult.Success -> claim = claimResult.claim
             is GetClaimAnchorAtPositionResult.NoClaimAnchorFound -> {}
             is GetClaimAnchorAtPositionResult.StorageError -> {
-                event.player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
+                event.player.sendMessage(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
                 return
             }
         }
@@ -57,7 +58,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
             when (transferResult) {
                 is DoesPlayerHaveTransferRequestResult.Success -> playerHasTransferRequest = transferResult.hasRequest
                 else -> {
-                    event.player.sendMessage(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
+                    event.player.sendMessage(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
                 }
             }
 
@@ -65,7 +66,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
             if (claim.playerId != event.player.uniqueId && !playerHasTransferRequest) {
                 val playerName = Bukkit.getOfflinePlayer(claim.playerId)
                 event.player.sendActionBar(Component.text(
-                    localizationProvider.get(LocalizationKeys.FEEDBACK_CLAIM_OWNER, playerName))
+                    localizationProvider.get(playerId, LocalizationKeys.FEEDBACK_CLAIM_OWNER, playerName))
                     .color(TextColor.color(255, 85, 85)))
                 return
             }

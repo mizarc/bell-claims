@@ -23,40 +23,41 @@ class MoveToolListener: Listener, KoinComponent {
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
+        val playerId = event.player.uniqueId
         val claimId = event.itemInHand.itemMeta.persistentDataContainer.get(
             NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: return
 
         when (moveClaimAnchor.execute(
             UUID.fromString(claimId), event.player.uniqueId,
             event.blockPlaced.world.uid, event.blockPlaced.location.toPosition3D())) {
-            MoveClaimAnchorResult.Success -> {
+            is MoveClaimAnchorResult.Success -> {
                 event.player.sendActionBar(
-                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_SUCCESS))
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_MOVE_TOOL_SUCCESS))
                         .color(TextColor.color(85, 255, 85)))
-                return
             }
-            MoveClaimAnchorResult.InvalidPosition -> {
+            is MoveClaimAnchorResult.InvalidPosition -> {
                 event.player.sendActionBar(
-                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER))
+                    Component.text(localizationProvider.get(
+                        playerId, LocalizationKeys.FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER))
                         .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
-                return
             }
-            MoveClaimAnchorResult.NoPermission -> {
+            is MoveClaimAnchorResult.NoPermission -> {
                 event.player.sendActionBar(
-                    Component.text(localizationProvider.get(LocalizationKeys.FEEDBACK_MOVE_TOOL_NO_PERMISSION))
-                        .color(TextColor.color(255, 85, 85)))
-                event.player.inventory.setItemInMainHand(ItemStack.empty())
-                event.isCancelled = true
-                return
-            }
-            MoveClaimAnchorResult.StorageError -> {
-                event.player.sendActionBar(
-                    Component.text(localizationProvider.get(LocalizationKeys.GENERAL_ERROR))
+                    Component.text(localizationProvider.get(playerId,
+                        LocalizationKeys.FEEDBACK_MOVE_TOOL_NO_PERMISSION))
                         .color(TextColor.color(255, 85, 85)))
                 event.player.inventory.setItemInMainHand(ItemStack.empty())
                 event.isCancelled = true
-                return
+            }
+            is MoveClaimAnchorResult.StorageError -> {
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(playerId,
+                        LocalizationKeys.GENERAL_ERROR))
+                        .color(TextColor.color(255, 85, 85)))
+                event.player.inventory.setItemInMainHand(ItemStack.empty())
+                event.isCancelled = true
             }
         }
     }

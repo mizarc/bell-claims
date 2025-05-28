@@ -580,7 +580,8 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
             is Denied -> {
                 event.isCancelled = true
                 val playerName = Bukkit.getOfflinePlayer(result.claim.playerId).name ?: "(Name not found)"
-                val outputMessage = localizationProvider.get(LocalizationKeys.FEEDBACK_CLAIM_DENIED, playerName)
+                val outputMessage = localizationProvider.get(
+                    player.uniqueId, LocalizationKeys.FEEDBACK_CLAIM_DENIED, playerName)
                 player.sendActionBar(Component.text(outputMessage).color(TextColor.color(255, 85, 85)))
             }
             else -> return
