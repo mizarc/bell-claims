@@ -6,10 +6,8 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimName
 import dev.mizarc.bellclaims.application.results.common.TextValidationErrorResult
-import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimAttributeResult
 import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimNameResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
-import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
@@ -36,7 +34,7 @@ class RenameCommand : ClaimCommand(), KoinComponent {
 
         // Update name and notify player of result
         val result = updateClaimName.execute(partition.claimId, name)
-        when (result) {
+        val (messageKey, messageArgs) = when (result) {
             is UpdateClaimNameResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_RENAME_SUCCESS,
                 arrayOf(getClaimName(playerId, claimId), name)
@@ -50,25 +48,28 @@ class RenameCommand : ClaimCommand(), KoinComponent {
                 emptyArray<String>()
             )
             is UpdateClaimNameResult.InputTextInvalid -> {
-                result.errors.forEach { error ->
-                    when (error) {
-                        is TextValidationErrorResult.ExceededCharacterLimit -> Pair(
-                            LocalizationKeys.COMMAND_CLAIM_RENAME_EXCEED_LIMIT,
-                            arrayOf(name.count().toString(), error.maxCharacters)
-                        )
-                        is TextValidationErrorResult.InvalidCharacters -> Pair(
-                            LocalizationKeys.COMMAND_CLAIM_RENAME_INVALID_CHARACTER,
-                            arrayOf(error.invalidCharacters)
-                        )
-                        is TextValidationErrorResult.ContainsBlacklistedWord -> Pair(
-                            LocalizationKeys.COMMAND_CLAIM_RENAME_BLACKLISTED_WORD,
-                            arrayOf(error.blacklistedWord)
-                        )
-                        is TextValidationErrorResult.NoCharactersProvided -> Pair(
-                            LocalizationKeys.COMMAND_CLAIM_RENAME_BLANK,
-                            emptyArray<String>()
-                        )
-                    }
+                val firstError = result.errors.firstOrNull()
+                when (firstError) {
+                    is TextValidationErrorResult.ExceededCharacterLimit -> Pair(
+                        LocalizationKeys.COMMAND_CLAIM_RENAME_EXCEED_LIMIT,
+                        arrayOf(name.count().toString(), firstError.maxCharacters)
+                    )
+                    is TextValidationErrorResult.InvalidCharacters -> Pair(
+                        LocalizationKeys.COMMAND_CLAIM_RENAME_INVALID_CHARACTER,
+                        arrayOf(firstError.invalidCharacters)
+                    )
+                    is TextValidationErrorResult.ContainsBlacklistedWord -> Pair(
+                        LocalizationKeys.COMMAND_CLAIM_RENAME_BLACKLISTED_WORD,
+                        arrayOf(firstError.blacklistedWord)
+                    )
+                    is TextValidationErrorResult.NoCharactersProvided -> Pair(
+                        LocalizationKeys.COMMAND_CLAIM_RENAME_BLANK,
+                        emptyArray<String>()
+                    )
+                    null -> Pair(
+                        LocalizationKeys.GENERAL_ERROR,
+                        emptyArray<String>()
+                    )
                 }
             }
             is UpdateClaimNameResult.StorageError -> Pair(
@@ -76,6 +77,9 @@ class RenameCommand : ClaimCommand(), KoinComponent {
                 emptyArray<String>()
             )
         }
+
+        // Output to player chat
+        player.sendMessage(localizationProvider.get(player.uniqueId, messageKey, *messageArgs))
     }
 
     /**
