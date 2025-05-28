@@ -23,7 +23,6 @@ import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu
 import dev.mizarc.bellclaims.utils.createHead
 import dev.mizarc.bellclaims.utils.getIcon
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
@@ -219,8 +218,8 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                     open()
                 }
 
-                menuNavigator.openMenu(ConfirmationMenu(menuNavigator, player,
-                    getLangText("TransferClaimQuestion"), confirmAction))
+                menuNavigator.openMenu(ConfirmationMenu(menuNavigator, player, localizationProvider.get(
+                    player.uniqueId, LocalizationKeys.MENU_TRANSFER_SEND_TITLE), confirmAction))
             }
             when (canPlayerReceiveTransferRequest.execute(claim.id, targetPlayer.uniqueId)) {
                 CanPlayerReceiveTransferRequestResult.Success -> {
