@@ -27,16 +27,22 @@ class UntrustCommand : ClaimCommand(), KoinComponent {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) return
 
+        // Assign common variables
+        val claimId = partition.claimId
+        val playerId = player.uniqueId
+        val targetPlayerId = targetPlayer.player.uniqueId
+        val targetPlayerName = targetPlayer.player.displayName()
+
         // Execute action to revoke permission and fetch associated locale text
-        val outcome = revokePlayerClaimPermission.execute(partition.claimId, targetPlayer.player.uniqueId, permission)
+        val outcome = revokePlayerClaimPermission.execute(claimId, targetPlayerId, permission)
         val (messageKey, messageArgs) = when (outcome) {
             is RevokePlayerClaimPermissionResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_UNTRUST_SUCCESS,
-                arrayOf(targetPlayer.player.displayName(), getClaimName(player.uniqueId, partition.claimId))
+                arrayOf(getPermissionName(playerId, permission), targetPlayerName, getClaimName(playerId, claimId))
             )
             is RevokePlayerClaimPermissionResult.DoesNotExist -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_UNTRUST_DOES_NOT_EXIST,
-                arrayOf(permission, targetPlayer.player.displayName(), getClaimName(player.uniqueId, partition.claimId))
+                arrayOf(targetPlayerName, permission, getClaimName(playerId, claimId))
             )
             is RevokePlayerClaimPermissionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
@@ -59,5 +65,12 @@ class UntrustCommand : ClaimCommand(), KoinComponent {
         return getClaimDetails.execute(claimId)?.name ?: localizationProvider.get(
             playerId, LocalizationKeys.GENERAL_NAME_ERROR
         )
+    }
+
+    /**
+     * Helper function to retrieve the name of the permission.
+     */
+    private fun getPermissionName(playerId: UUID, permission: ClaimPermission): String {
+        return localizationProvider.get(playerId, permission.nameKey)
     }
 }
