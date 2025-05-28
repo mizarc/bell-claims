@@ -229,8 +229,12 @@ object LocalizationKeys {
     const val COMMAND_COMMON_UNKNOWN_CLAIM = "command.common.unknown_claim"
 
     // Add Flag
-    const val COMMAND_ADD_FLAG_SUCCESS = "command.claim.add_flag.success"
-    const val COMMAND_ADD_FLAG_ALREADY_EXISTS = "command.claim.add_flag.already_exists"
+    const val COMMAND_CLAIM_ADD_FLAG_SUCCESS = "command.claim.add_flag.success"
+    const val COMMAND_CLAIM_ADD_FLAG_ALREADY_EXISTS = "command.claim.add_flag.already_exists"
+
+    // Claim
+    const val COMMAND_CLAIM_SUCCESS = "command.claim.success"
+    const val COMMAND_CLAIM_ALREADY_HAVE_TOOL = "command.claim.already_have_tool"
 
     // Claim List
     const val COMMAND_CLAIM_LIST_NO_CLAIMS = "command.claim_list.no_claims"

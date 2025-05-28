@@ -8,10 +8,12 @@ import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverr
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 
 import dev.mizarc.bellclaims.utils.getLangText
@@ -19,6 +21,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 open class ClaimCommand : BaseCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getPartitionByPosition: GetPartitionByPosition by inject()
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val getClaimDetails: GetClaimDetails by inject()
@@ -28,12 +31,14 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {
-            player.sendMessage(getLangText("AlreadyHaveClaimTool"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_CLAIM_ALREADY_HAVE_TOOL))
             return
         }
 
         player.inventory.addItem(getClaimTool())
-        player.sendMessage(getLangText("ClaimToolGiven"))
+        player.sendMessage(localizationProvider.get(
+            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_SUCCESS))
     }
 
     /**
