@@ -44,11 +44,11 @@ class TrustCommand : ClaimCommand(), KoinComponent {
             )
             is GrantPlayerClaimPermissionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
-                emptyArray()
+                emptyArray<String>()
             )
             is GrantPlayerClaimPermissionResult.StorageError -> Pair(
                 LocalizationKeys.GENERAL_ERROR,
-                emptyArray()
+                emptyArray<String>()
             )
         }
     }

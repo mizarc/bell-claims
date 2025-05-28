@@ -46,11 +46,11 @@ class UntrustCommand : ClaimCommand(), KoinComponent {
             )
             is RevokePlayerClaimPermissionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
-                emptyArray()
+                emptyArray<String>()
             )
             is RevokePlayerClaimPermissionResult.StorageError -> Pair(
                 LocalizationKeys.GENERAL_ERROR,
-                emptyArray()
+                emptyArray<String>()
             )
         }
 
