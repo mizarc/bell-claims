@@ -4,13 +4,14 @@ import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.domain.values.Flag
+import java.util.UUID
 
 /**
  * Associates claim flags with a specific in-game item.
  *
  * @return ItemStack of the associated item for the given flag enum.
  */
-fun Flag.getIcon(localizationProvider: LocalizationProvider): ItemStack {
+fun Flag.getIcon(localizationProvider: LocalizationProvider, playerId: UUID): ItemStack {
     var item = when (this) {
         Flag.EXPLOSION -> ItemStack(Material.TNT)
         Flag.FIRE -> ItemStack(Material.FLINT_AND_STEEL)
@@ -27,7 +28,7 @@ fun Flag.getIcon(localizationProvider: LocalizationProvider): ItemStack {
     }
 
     // Get localized name and lore using the keys from the domain enum
-    item = item.name(localizationProvider.get(this.nameKey))
-    item = item.lore(localizationProvider.get(this.loreKey))
+    item = item.name(localizationProvider.get(playerId, this.nameKey))
+    item = item.lore(localizationProvider.get(playerId, this.loreKey))
     return item
 }

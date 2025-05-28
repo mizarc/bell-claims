@@ -78,7 +78,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
         var xSlot = 0
         var ySlot = 0
         for (permission in disabledPermissions) {
-            val permissionItem = permission.getIcon(localizationProvider)
+            val permissionItem = permission.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 grantClaimWidePermission.execute(claim.id, permission)
@@ -100,7 +100,7 @@ class ClaimWidePermissionsMenu(private val menuNavigator: MenuNavigator, private
         xSlot = 0
         ySlot = 0
         for (permission in enabledPermissions) {
-            val permissionItem = permission.getIcon(localizationProvider)
+            val permissionItem = permission.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 revokeClaimWidePermission.execute(claim.id, permission)

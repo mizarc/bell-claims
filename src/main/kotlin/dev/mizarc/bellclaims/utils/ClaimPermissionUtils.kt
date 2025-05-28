@@ -4,13 +4,14 @@ import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
+import java.util.UUID
 
 /**
  * Associates claim permissions with a specific in-game item.
  *
  * @return ItemStack of the associated item for the given permission enum.
  */
-fun ClaimPermission.getIcon(localizationProvider: LocalizationProvider): ItemStack {
+fun ClaimPermission.getIcon(localizationProvider: LocalizationProvider, playerId: UUID): ItemStack {
     var item = when (this) {
         ClaimPermission.BUILD -> ItemStack(Material.DIAMOND_PICKAXE)
         ClaimPermission.HARVEST -> ItemStack(Material.WHEAT)
@@ -28,7 +29,7 @@ fun ClaimPermission.getIcon(localizationProvider: LocalizationProvider): ItemSta
     }
 
     // Get localized name and lore using the keys from the domain enum
-    item = item.name(localizationProvider.get(this.nameKey))
-    item = item.lore(localizationProvider.get(this.loreKey))
+    item = item.name(localizationProvider.get(playerId, this.nameKey))
+    item = item.lore(localizationProvider.get(playerId, this.loreKey))
     return item
 }
