@@ -12,7 +12,6 @@ import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import net.kyori.adventure.text.Component
@@ -119,7 +118,8 @@ class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private 
                                 val previousOwner = Bukkit.getPlayer(previousOwnerId)
                                 previousOwner?.closeInventory()
                                 previousOwner?.sendActionBar(
-                                    Component.text(getLangText("ClaimHasBeenTransferred"))
+                                    Component.text(localizationProvider.get(
+                                        playerId, LocalizationKeys.FEEDBACK_TRANSFER_SUCCESS))
                                         .color(TextColor.color(255, 85, 85)))
                             }
                         }

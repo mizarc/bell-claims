@@ -42,6 +42,9 @@ object LocalizationKeys {
     const val FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER = "feedback.move_tool.outside_border"
     const val FEEDBACK_MOVE_TOOL_NO_PERMISSION = "feedback.move_tool.no_permission"
 
+    // Transfer
+    const val FEEDBACK_TRANSFER_SUCCESS = "feedback.transfer.success"
+
 
     // -------------------------------------
     // Conditions
