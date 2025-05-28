@@ -113,7 +113,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         var xSlot = 0
         var ySlot = 0
         for (permission in disabledPermissions) {
-            val permissionItem = permission.getIcon(localizationProvider)
+            val permissionItem = permission.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 grantPlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)
@@ -135,7 +135,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         xSlot = 0
         ySlot = 0
         for (permission in enabledPermissions) {
-            val permissionItem = permission.getIcon(localizationProvider)
+            val permissionItem = permission.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 revokePlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)
