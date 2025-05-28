@@ -94,7 +94,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         var xSlot = 0
         var ySlot = 0
         for (flag in disabledFlags) {
-            val permissionItem = flag.getIcon(localizationProvider)
+            val permissionItem = flag.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 enableClaimFlag.execute(flag, claim.id)
@@ -116,7 +116,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         xSlot = 0
         ySlot = 0
         for (flag in enabledFlags) {
-            val permissionItem = flag.getIcon(localizationProvider)
+            val permissionItem = flag.getIcon(localizationProvider, playerId)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 disableClaimFlag.execute(flag, claim.id)
