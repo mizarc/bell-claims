@@ -6,13 +6,17 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
 import dev.mizarc.bellclaims.application.results.claim.partition.RemovePartitionResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 import kotlin.getValue
 
 @CommandAlias("claim")
 class RemoveCommand : ClaimCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val removePartition: RemovePartition by inject()
     private val getClaimDetails: GetClaimDetails by inject()
 
@@ -23,24 +27,44 @@ class RemoveCommand : ClaimCommand(), KoinComponent {
         val partition = getPartitionAtPlayer(player) ?: return
         if (!isPlayerHasClaimPermission(player, partition)) return
 
+        // Assign common variables
+        val claimId = partition.claimId
+        val playerId = player.uniqueId
+
         // Remove flag from the claim and notify player of result
-        when (removePartition.execute(partition.id)) {
-            RemovePartitionResult.DoesNotExist -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("This partition for claim §6${claimName}§c does not exist.")
-            }
-            RemovePartitionResult.Success -> {
-                val claimName = getClaimDetails.execute(partition.claimId)?.name ?: "(Could not retrieve name)"
-                player.sendMessage("Partition has been removed for claim §6${claimName}§a.")
-            }
-            RemovePartitionResult.Disconnected -> {
-                player.sendMessage("Cannot remove this partition as it would result in a fragmented claim.")
-            }
-            RemovePartitionResult.ExposedClaimAnchor -> {
-                player.sendMessage("Cannot remove this partition as the claim bell is in it.")
-            }
-            RemovePartitionResult.StorageError ->
-                player.sendMessage("An internal error has occurred, contact your administrator for support.")
+        val (messageKey, messageArgs) = when (removePartition.execute(partition.id)) {
+            is RemovePartitionResult.Success -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_SUCCESS,
+                arrayOf(getClaimName(playerId, claimId))
+            )
+            RemovePartitionResult.DoesNotExist -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_UNKNOWN_PARTITION,
+                arrayOf(getClaimName(playerId, claimId))
+            )
+            RemovePartitionResult.Disconnected -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_DISCONNECTED,
+                emptyArray<String>()
+            )
+            RemovePartitionResult.ExposedClaimAnchor -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_EXPOSED_ANCHOR,
+                emptyArray<String>()
+            )
+            RemovePartitionResult.StorageError -> Pair(
+                LocalizationKeys.GENERAL_ERROR,
+                emptyArray<String>()
+            )
         }
+
+        // Output to player chat
+        player.sendMessage(localizationProvider.get(player.uniqueId, messageKey, *messageArgs))
+    }
+
+    /**
+     * Helper function to retrieve the claim name or a default error message if not found.
+     */
+    private fun getClaimName(playerId: UUID, claimId: UUID): String {
+        return getClaimDetails.execute(claimId)?.name ?: localizationProvider.get(
+            playerId, LocalizationKeys.GENERAL_NAME_ERROR
+        )
     }
 }
