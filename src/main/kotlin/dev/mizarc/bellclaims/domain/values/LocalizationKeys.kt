@@ -234,6 +234,10 @@ object LocalizationKeys {
     const val COMMAND_COMMON_INVALID_PAGE = "command.common.invalid_page"
     const val COMMAND_COMMON_UNKNOWN_CLAIM = "command.common.unknown_claim"
 
+    // Info Box
+    const val COMMAND_INFO_BOX_ROW = "command.info_box.row"
+    const val COMMAND_INFO_BOX_PAGED = "command.info_box.paged"
+
     // Add Flag
     const val COMMAND_CLAIM_ADD_FLAG_SUCCESS = "command.claim.add_flag.success"
     const val COMMAND_CLAIM_ADD_FLAG_ALREADY_EXISTS = "command.claim.add_flag.already_exists"
@@ -260,13 +264,13 @@ object LocalizationKeys {
 
     // Claim Info
     const val COMMAND_CLAIM_INFO_SUMMARY = "command.claim.info.summary"
-    const val COMMAND_CLAIM_INFO_OWNER = "command.claim.info.owner"
-    const val COMMAND_CLAIM_INFO_CREATION_DATE = "command.claim.info.creation_date"
-    const val COMMAND_CLAIM_INFO_PARTITION_COUNT = "command.claim.info.partition_count"
-    const val COMMAND_CLAIM_INFO_BLOCK_COUNT = "command.claim.info.block_count"
-    const val COMMAND_CLAIM_INFO_FLAGS = "command.claim.info.flags"
-    const val COMMAND_CLAIM_INFO_DEFAULT_PERMISSIONS = "command.claim.info.default_permissions"
-    const val COMMAND_CLAIM_INFO_TRUSTED_USERS = "command.claim.info.trusted_users"
+    const val COMMAND_CLAIM_INFO_ROW_OWNER = "command.claim.info.row.owner"
+    const val COMMAND_CLAIM_INFO_ROW_CREATION_DATE = "command.claim.info.row.creation_date"
+    const val COMMAND_CLAIM_INFO_ROW_PARTITION_COUNT = "command.claim.info.row.partition_count"
+    const val COMMAND_CLAIM_INFO_ROW_BLOCK_COUNT = "command.claim.info.row.block_count"
+    const val COMMAND_CLAIM_INFO_ROW_FLAGS = "command.claim.info.row.flags"
+    const val COMMAND_CLAIM_INFO_ROW_DEFAULT_PERMISSIONS = "command.claim.info.row.default_permissions"
+    const val COMMAND_CLAIM_INFO_ROW_TRUSTED_USERS = "command.claim.info.row.trusted_users"
 
     // Claim Partitions
     const val COMMAND_PARTITIONS_PARTITIONS = "command.partitions.partitions"
