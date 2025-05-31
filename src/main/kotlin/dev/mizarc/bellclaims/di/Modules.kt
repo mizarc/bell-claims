@@ -64,6 +64,7 @@ import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.ConfigService
+import dev.mizarc.bellclaims.application.services.PlayerLocaleService
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
@@ -78,6 +79,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepos
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
 import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
+import dev.mizarc.bellclaims.infrastructure.services.PlayerLocaleServicePaper
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
@@ -119,6 +121,7 @@ fun appModule(plugin: BellClaims) = module {
 
     // Services
     single<ConfigService> { ConfigServiceBukkit(get()) }
+    single<PlayerLocaleService> { PlayerLocaleServicePaper() }
     single<PlayerMetadataService> { PlayerMetadataServiceVault(get(), get()) }
     single<VisualisationService> { VisualisationServiceBukkit() }
     single<WorldManipulationService> { WorldManipulationServiceBukkit() }
