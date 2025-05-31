@@ -273,7 +273,7 @@ object LocalizationKeys {
     const val COMMAND_CLAIM_INFO_ROW_TRUSTED_USERS = "command.claim.info.row.trusted_users"
 
     // Claim Partitions
-    const val COMMAND_PARTITIONS_PARTITIONS = "command.partitions.partitions"
+    const val COMMAND_PARTITIONS_HEADER = "command.partitions.header"
     const val COMMAND_PARTITIONS_ROW = "command.partitions.row"
 
     // Claim Remove
