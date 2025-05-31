@@ -295,7 +295,7 @@ object LocalizationKeys {
     const val COMMAND_CLAIM_DESCRIPTION_BLANK = "command.claim.description.blank"
 
     // Claim Info
-    const val COMMAND_CLAIM_INFO_SUMMARY = "command.claim.info.summary"
+    const val COMMAND_CLAIM_INFO_HEADER = "command.claim.info.header"
     const val COMMAND_CLAIM_INFO_ROW_OWNER = "command.claim.info.row.owner"
     const val COMMAND_CLAIM_INFO_ROW_CREATION_DATE = "command.claim.info.row.creation_date"
     const val COMMAND_CLAIM_INFO_ROW_PARTITION_COUNT = "command.claim.info.row.partition_count"
@@ -336,7 +336,7 @@ object LocalizationKeys {
 
     // Claim Trust List
     const val COMMAND_CLAIM_TRUST_LIST_NO_PLAYERS = "command.claim.trust_list.no_players"
-    const val COMMAND_CLAIM_TRUST_LIST_TRUSTED_PLAYERS = "command.claim.trust_list.trusted_players"
+    const val COMMAND_CLAIM_TRUST_LIST_HEADER = "command.claim.trust_list.header"
     const val COMMAND_CLAIM_TRUST_LIST_ROW = "command.claim.trust_list.row"
 
     // Claim Untrust All

@@ -47,7 +47,7 @@ class InfoCommand : ClaimCommand(), KoinComponent {
 
         // Add header and description
         val chatInfo = ChatInfoBuilder(localizationProvider, player.uniqueId,
-            localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_INFO_SUMMARY, claim.name))
+            localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_INFO_HEADER, claim.name))
         if (claim.description.isNotEmpty()) chatInfo.addParagraph("${claim.description}\n")
 
         // Add metadata values

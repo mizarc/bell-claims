@@ -55,7 +55,7 @@ class TrustListCommand : ClaimCommand(), KoinComponent {
         // Generate chat output header
         val claimName = getClaimDetails.execute(partition.claimId)
         val chatInfo = ChatInfoBuilder(localizationProvider, player.uniqueId, localizationProvider.get(
-            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_TRUST_LIST_TRUSTED_PLAYERS))
+            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_TRUST_LIST_HEADER))
 
         // Output 5 players at a time per page
         val entries = trustedPlayerInfo.withIndex().toList().subList(0 + ((page - 1) * 5),
