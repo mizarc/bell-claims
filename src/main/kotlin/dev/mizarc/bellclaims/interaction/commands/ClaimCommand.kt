@@ -15,6 +15,7 @@ import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.infrastructure.isClaimTool
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -48,7 +49,7 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     fun isItemInInventory(inventory: PlayerInventory) : Boolean {
         for (item in inventory.contents) {
             if (item == null) continue
-            if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
+            if (isClaimTool(item)) {
                 return true
             }
         }
@@ -58,7 +59,8 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     fun getPartitionAtPlayer(player: Player): Partition? {
         val claimPartition = getPartitionByPosition.execute(player.location.toPosition3D(), player.world.uid)
         if (claimPartition == null) {
-            player.sendMessage(getLangText("NoClaimPartitionHere"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_COMMON_UNKNOWN_PARTITION))
             return null
         }
         return claimPartition
@@ -75,7 +77,8 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
         // Check if player owns claim
         val claim = getClaimDetails.execute(partition.claimId) ?: return false
         if (player.uniqueId != claim.playerId) {
-            player.sendMessage(getLangText("NoPermissionToModifyClaim"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_COMMON_NO_CLAIM_PERMISSION))
             return false
         }
         return true
