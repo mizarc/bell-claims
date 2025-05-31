@@ -17,7 +17,7 @@ val move_tool_key = NamespacedKey("bellclaims", "move_tool")
 fun isClaimMoveTool(itemStack: ItemStack): Boolean {
     val itemMeta = itemStack.itemMeta ?: return false
     val container = itemMeta.persistentDataContainer
-    return container.has(move_tool_key, PersistentDataType.BOOLEAN)
+    return container.has(move_tool_key, PersistentDataType.STRING)
 }
 
 fun getClaimMoveTool(localizationProvider: LocalizationProvider,
