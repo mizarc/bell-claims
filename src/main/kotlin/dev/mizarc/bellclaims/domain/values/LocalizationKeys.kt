@@ -151,6 +151,9 @@ object LocalizationKeys {
     const val MENU_ALL_PLAYERS_ITEM_SEARCH_NAME = "menu.all_players.item.search.name"
     const val MENU_ALL_PLAYERS_ITEM_SEARCH_LORE = "menu.all_players.item.search.lore"
 
+    // Claim List
+    const val MENU_CLAIM_LIST_TITLE = "menu.claim_list.title"
+
     // Claim Wide Permissions Menu
     const val MENU_CLAIM_WIDE_PERMISSIONS_TITLE = "menu.claim_wide_permissions.title"
     const val MENU_CLAIM_WIDE_PERMISSIONS_ITEM_INFO_NAME = "menu.claim_wide_permissions.item.info.name"
