@@ -155,6 +155,9 @@ object LocalizationKeys {
     const val MENU_CLAIM_WIDE_PERMISSIONS_TITLE = "menu.claim_wide_permissions.title"
     const val MENU_CLAIM_WIDE_PERMISSIONS_ITEM_INFO_NAME = "menu.claim_wide_permissions.item.info.name"
 
+    // Confirm Partition Delete
+    const val MENU_CONFIRM_PARTITION_DELETE_TITLE = "menu.confirm_partition_delete.title"
+
     // Confirmation Menu
     const val MENU_CONFIRMATION_ITEM_NO_NAME = "menu.confirmation.item.no.name"
     const val MENU_CONFIRMATION_ITEM_NO_LORE = "menu.confirmation.item.no.lore"
@@ -167,6 +170,29 @@ object LocalizationKeys {
     const val MENU_CREATION_ITEM_CREATE_NAME = "menu.creation.item.create.name"
     const val MENU_CREATION_ITEM_CREATE_LORE_PROTECTED = "menu.creation.item.create.lore.protected"
     const val MENU_CREATION_ITEM_CREATE_LORE_REMAINING = "menu.creation.item.create.lore.remaining"
+
+    // Edit Tool Menu
+    const val MENU_EDIT_TOOL_TITLE = "menu.edit_tool.title"
+    const val MENU_EDIT_TOOL_ITEM_CHANGE_MODE_NAME = "menu.edit_tool.item.change_mode.name"
+    const val MENU_EDIT_TOOL_ITEM_CHANGE_MODE_LORE_VIEW = "menu.edit_tool.item.change_mode.lore.view"
+    const val MENU_EDIT_TOOL_ITEM_CHANGE_MODE_LORE_EDIT = "menu.edit_tool.item.change_mode.lore.edit"
+    const val MENU_EDIT_TOOL_ITEM_CHANGE_MODE_LORE_VIEW_ACTIVE = "menu.edit_tool.item.change_mode.lore.view_active"
+    const val MENU_EDIT_TOOL_ITEM_CHANGE_MODE_LORE_EDIT_ACTIVE = "menu.edit_tool.item.change_mode.lore.edit_active"
+    const val MENU_EDIT_TOOL_ITEM_NO_CLAIM_NAME = "menu.edit_tool.item.no_claim.name"
+    const val MENU_EDIT_TOOL_ITEM_NO_CLAIM_LORE = "menu.edit_tool.item.no_claim.lore"
+    const val MENU_EDIT_TOOL_ITEM_NO_PERMISSION_NAME = "menu.edit_tool.item.no_permission.name"
+    const val MENU_EDIT_TOOL_ITEM_NO_PERMISSION_LORE = "menu.edit_tool.item.no_permission.lore"
+    const val MENU_EDIT_TOOL_ITEM_CLAIM_NAME = "menu.edit_tool.item.claim.name"
+    const val MENU_EDIT_TOOL_ITEM_CLAIM_LORE_CLAIM_NAME = "menu.edit_tool.item.claim.lore.claim_name"
+    const val MENU_EDIT_TOOL_ITEM_CLAIM_LORE_LOCATION = "menu.edit_tool.item.claim.lore.location"
+    const val MENU_EDIT_TOOL_ITEM_CLAIM_LORE_PARTITIONS = "menu.edit_tool.item.claim.lore.partitions"
+    const val MENU_EDIT_TOOL_ITEM_CLAIM_LORE_BLOCKS = "menu.edit_tool.item.claim.lore.blocks"
+    const val MENU_EDIT_TOOL_ITEM_PARTITION_NAME = "menu.edit_tool.item.partition.name"
+    const val MENU_EDIT_TOOL_ITEM_PARTITION_LORE_LOCATION = "menu.edit_tool.item.partition.lore.location"
+    const val MENU_EDIT_TOOL_ITEM_PARTITION_LORE_BLOCKS = "menu.edit_tool.item.partition.lore.blocks"
+    const val MENU_EDIT_TOOL_ITEM_DELETE_NAME = "menu.edit_tool.item.delete.name"
+    const val MENU_EDIT_TOOL_ITEM_CANNOT_DELETE_NAME = "menu.edit_tool.item.cannot_delete.name"
+    const val MENU_EDIT_TOOL_ITEM_CANNOT_DELETE_LORE = "menu.edit_tool.item.cannot_delete.lore"
 
     // Flags Menu
     const val MENU_FLAGS_TITLE = "menu.flags.title"
