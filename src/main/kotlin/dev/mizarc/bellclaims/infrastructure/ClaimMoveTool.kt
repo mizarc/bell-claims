@@ -1,21 +1,25 @@
 package dev.mizarc.bellclaims.infrastructure
 
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
+import java.util.UUID
 
-fun getClaimMoveTool(claim: Claim) : ItemStack {
+fun getClaimMoveTool(localizationProvider: LocalizationProvider,
+                     playerId: UUID, claim: Claim): ItemStack {
     val tool = ItemStack(Material.BELL)
-        .name("§bMove Claim '${claim.name}'")
-        .lore("Place this where you want the new location to be.")
+        .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_NAME))
+        .lore(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_LORE))
     val itemMeta = tool.itemMeta
     itemMeta?.setCustomModelData(1)
     itemMeta.persistentDataContainer.set(
-        NamespacedKey("bellclaims","claim"), PersistentDataType.STRING, claim.id.toString())
+        NamespacedKey("bellclaims", "move_tool"), PersistentDataType.STRING, claim.id.toString())
     tool.itemMeta = itemMeta
     return tool
 }
