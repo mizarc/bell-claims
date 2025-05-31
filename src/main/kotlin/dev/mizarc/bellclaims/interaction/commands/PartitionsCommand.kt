@@ -38,14 +38,15 @@ class PartitionsCommand : ClaimCommand(), KoinComponent {
 
         // Output list of partitions
         val claimName = getClaimName(player.uniqueId, partition.claimId)
-        val header = localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_PARTITIONS_HEADER, claimName)
+        val header = localizationProvider.get(
+            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_PARTITIONS_HEADER, claimName)
         val chatInfo = ChatInfoBuilder(localizationProvider, player.uniqueId, header)
         for (i in 0..9 + page) {
             if (i > partitions.count() - 1) {
                 break
             }
 
-            chatInfo.addRow(localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_LIST_ROW,
+            chatInfo.addRow(localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_PARTITIONS_ROW,
                 partitions[i].area.lowerPosition2D.x, partitions[i].area.lowerPosition2D.z,
                 partitions[i].area.upperPosition2D.x, partitions[i].area.upperPosition2D.z))
         }

@@ -38,7 +38,7 @@ class RemoveFlagCommand : ClaimCommand(), KoinComponent {
                 arrayOf(getFlagName(playerId, flag), getClaimName(playerId, claimId))
             )
             is DisableClaimFlagResult.DoesNotExist -> Pair(
-                LocalizationKeys.COMMAND_CLAIM_REMOVE_FLAG_SUCCESS,
+                LocalizationKeys.COMMAND_CLAIM_REMOVE_FLAG_DOES_NOT_EXIST,
                 arrayOf(getClaimName(playerId, claimId), getFlagName(playerId, flag))
             )
             is DisableClaimFlagResult.ClaimNotFound -> Pair(
