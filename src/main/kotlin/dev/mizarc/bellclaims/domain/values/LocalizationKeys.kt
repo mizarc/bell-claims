@@ -313,4 +313,17 @@ object LocalizationKeys {
     // Claim Untrust
     const val COMMAND_CLAIM_UNTRUST_SUCCESS = "command.claim.untrust.success"
     const val COMMAND_CLAIM_UNTRUST_DOES_NOT_EXIST = "command.claim.untrust.does_not_exist"
+
+    // -------------------------------------
+    // Items
+    // -------------------------------------
+
+    // Claim Tool
+    const val ITEM_CLAIM_TOOL_NAME = "item.claim_tool.name"
+    const val ITEM_CLAIM_TOOL_LORE_MAIN_HAND = "item.claim_tool.lore.main_hand"
+    const val ITEM_CLAIM_TOOL_LORE_OFF_HAND = "item.claim_tool.lore.off_hand"
+
+    // Move Tool
+    const val ITEM_MOVE_TOOL_NAME = "item.move_tool.name"
+    const val ITEM_MOVE_TOOL_LORE = "item.move_tool.lore"
 }
