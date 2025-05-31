@@ -45,13 +45,13 @@ class ClaimListCommand : BaseCommand(), KoinComponent {
         val totalClaims = playerClaims.size
         val startIndex = page * 10
         val endIndex = minOf(startIndex + 10, totalClaims)
-        playerClaims.subList(startIndex, endIndex).forEach { claim ->
+        playerClaims.subList(startIndex, endIndex).forEachIndexed { index, claim ->
             val name = claim.name.ifEmpty { claim.id.toString().take(7) }
             val blockCount = getClaimBlockCount.execute(claim.id)
             val rowString = localizationProvider.get(
                 player.uniqueId, LocalizationKeys.COMMAND_CLAIM_LIST_ROW, name,
                 claim.position.x, claim.position.y, claim.position.z, blockCount)
-            chatInfo.addRow(rowString)
+            chatInfo.addIndexed(index, rowString)
         }
 
         // Send the page of claims to player
