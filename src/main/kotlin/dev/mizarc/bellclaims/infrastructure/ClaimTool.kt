@@ -14,7 +14,7 @@ import java.util.UUID
 val claim_tool_key = NamespacedKey("bellclaims", "claim_tool")
 
 fun isClaimTool(itemStack: ItemStack): Boolean {
-    val itemMeta = itemStack.itemMeta
+    val itemMeta = itemStack.itemMeta ?: return false
     val container = itemMeta.persistentDataContainer
     return container.has(claim_tool_key, PersistentDataType.BOOLEAN)
 }
