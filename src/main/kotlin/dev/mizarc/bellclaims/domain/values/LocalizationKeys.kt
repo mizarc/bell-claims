@@ -248,8 +248,8 @@ object LocalizationKeys {
 
     // Claim List
     const val COMMAND_CLAIM_LIST_NO_CLAIMS = "command.claim_list.no_claims"
-    const val COMMAND_CLAIM_LIST_CLAIMS = "command.claim_list.claims"
-    const val COMMAND_CLAIM_LIST_BLOCKS = "command.claim_list.blocks"
+    const val COMMAND_CLAIM_LIST_HEADER = "command.claim_list.header"
+    const val COMMAND_CLAIM_LIST_ROW = "command.claim_list.row"
 
     // Claim Override
     const val COMMAND_CLAIM_OVERRIDE_ENABLED = "command.claim_override.enabled"
