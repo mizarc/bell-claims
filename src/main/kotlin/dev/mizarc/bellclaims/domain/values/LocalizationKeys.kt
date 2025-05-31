@@ -6,6 +6,7 @@ object LocalizationKeys {
     // -------------------------------------
     const val GENERAL_ERROR = "general.error"
     const val GENERAL_NAME_ERROR = "general.name_error"
+    const val GENERAL_LIST_SEPARATOR = "general.list_separator"
 
     // -------------------------------------
     // Action Feedback
@@ -305,6 +306,7 @@ object LocalizationKeys {
     // Claim Trust List
     const val COMMAND_CLAIM_TRUST_LIST_NO_PLAYERS = "command.claim.trust_list.no_players"
     const val COMMAND_CLAIM_TRUST_LIST_TRUSTED_PLAYERS = "command.claim.trust_list.trusted_players"
+    const val COMMAND_CLAIM_TRUST_LIST_ROW = "command.claim.trust_list.row"
 
     // Claim Untrust All
     const val COMMAND_CLAIM_UNTRUST_ALL_SUCCESS = "command.claim.untrust_all.success"

@@ -7,6 +7,8 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetClaimPlayerPermissions
 import dev.mizarc.bellclaims.application.actions.claim.permission.GetPlayersWithPermissionInClaim
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import dev.mizarc.bellclaims.infrastructure.ChatInfoBuilder
@@ -16,6 +18,7 @@ import kotlin.math.ceil
 
 @CommandAlias("claim")
 class TrustListCommand : ClaimCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getPlayersWithPermissionInClaim: GetPlayersWithPermissionInClaim by inject()
     private val getClaimDetails: GetClaimDetails by inject()
     private val getClaimPlayerPermissions: GetClaimPlayerPermissions by inject()
@@ -32,13 +35,14 @@ class TrustListCommand : ClaimCommand(), KoinComponent {
 
         // Notify if claim has no trusted players
         if (trustedPlayers.isEmpty()) {
-            player.sendMessage("§cThis claim has no trusted players.")
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_CLAIM_TRUST_LIST_NO_PLAYERS))
             return
         }
 
         // Check if page is empty
         if (page * 10 - 9 > trustedPlayers.count() || page < 1) {
-            player.sendMessage("§cInvalid page specified.")
+            player.sendMessage(localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_COMMON_INVALID_PAGE))
             return
         }
 
@@ -50,14 +54,18 @@ class TrustListCommand : ClaimCommand(), KoinComponent {
 
         // Generate chat output header
         val claimName = getClaimDetails.execute(partition.claimId)
-        val chatInfo = ChatInfoBuilder("$claimName Trusted Players")
+        val chatInfo = ChatInfoBuilder(localizationProvider, player.uniqueId, localizationProvider.get(
+            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_TRUST_LIST_TRUSTED_PLAYERS))
 
         // Output 5 players at a time per page
         val entries = trustedPlayerInfo.withIndex().toList().subList(0 + ((page - 1) * 5),
             (4 + ((page - 1) * 5)).coerceAtMost(trustedPlayers.size))
+        val listSeparator = localizationProvider.get(player.uniqueId, LocalizationKeys.GENERAL_LIST_SEPARATOR)
         entries.forEach { (_, entry) ->
             val permissions = getClaimPlayerPermissions.execute(partition.claimId, entry.first)
-            chatInfo.addLinked(entry.second ?: "N/A", permissions.joinToString(", "))
+            val row = localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_TRUST_LIST_ROW,
+                entry.second, permissions.joinToString(listSeparator))
+            chatInfo.addRow(row)
         }
         player.sendMessage(chatInfo.createPaged(page, ceil(trustedPlayers.count() / 5.0).toInt()))
     }
