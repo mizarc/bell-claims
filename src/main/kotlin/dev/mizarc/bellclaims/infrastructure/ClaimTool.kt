@@ -11,6 +11,13 @@ import org.bukkit.persistence.PersistentDataType
 
 import java.util.UUID
 
+val claim_tool_key = NamespacedKey("bellclaims", "claim_tool")
+
+fun isClaimTool(itemStack: ItemStack): Boolean {
+    val itemMeta = itemStack.itemMeta
+    val container = itemMeta.persistentDataContainer
+    return container.has(claim_tool_key, PersistentDataType.BOOLEAN)
+}
 
 fun getClaimTool(localizationProvider: LocalizationProvider,
                  playerId: UUID): ItemStack {
@@ -22,8 +29,7 @@ fun getClaimTool(localizationProvider: LocalizationProvider,
 
     val itemMeta = tool.itemMeta
     itemMeta?.setCustomModelData(1)
-    itemMeta.persistentDataContainer.set(
-        NamespacedKey("bellclaims", "claim_tool"), PersistentDataType.BOOLEAN, true)
+    itemMeta.persistentDataContainer.set(claim_tool_key, PersistentDataType.BOOLEAN, true)
     tool.itemMeta = itemMeta
     return tool
 }
