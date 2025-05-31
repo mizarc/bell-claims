@@ -234,6 +234,8 @@ object LocalizationKeys {
     // Common
     const val COMMAND_COMMON_INVALID_PAGE = "command.common.invalid_page"
     const val COMMAND_COMMON_UNKNOWN_CLAIM = "command.common.unknown_claim"
+    const val COMMAND_COMMON_UNKNOWN_PARTITION = "command.common.unknown_partition"
+    const val COMMAND_COMMON_NO_CLAIM_PERMISSION = "command.common.no_claim_permission"
 
     // Info Box
     const val COMMAND_INFO_BOX_ROW = "command.info_box.row"
