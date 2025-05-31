@@ -32,6 +32,12 @@ class ChatInfoBuilder(private val localizationProvider: LocalizationProvider, pr
         elements.append(Component.text(text, NamedTextColor.WHITE))
     }
 
+    fun addIndexed(index: Int, text: String) {
+        newLine()
+        val indexedRow = localizationProvider.get(playerId, LocalizationKeys.COMMAND_INFO_BOX_INDEX, index, text)
+        elements.append(Component.text(indexedRow, NamedTextColor.WHITE))
+    }
+
     fun addSpace() {
         newLine()
     }
