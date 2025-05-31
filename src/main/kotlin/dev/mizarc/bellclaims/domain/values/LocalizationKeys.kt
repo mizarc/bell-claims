@@ -267,7 +267,7 @@ object LocalizationKeys {
     const val COMMAND_COMMON_NO_CLAIM_PERMISSION = "command.common.no_claim_permission"
 
     // Info Box
-    const val COMMAND_INFO_BOX_ROW = "command.info_box.row"
+    const val COMMAND_INFO_BOX_INDEX = "command.info_box.index"
     const val COMMAND_INFO_BOX_PAGED = "command.info_box.paged"
 
     // Add Flag
