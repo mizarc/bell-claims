@@ -108,20 +108,22 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
     private fun givePlayerTool(player: Player) {
         for (item in player.inventory.contents) {
             if (item == null) continue
-            if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
+            if (item.itemMeta != null && item.itemMeta
+                    == getClaimTool(localizationProvider, player.uniqueId).itemMeta) {
                 return
             }
         }
-        player.inventory.addItem(getClaimTool())
+        player.inventory.addItem(getClaimTool(localizationProvider, player.uniqueId))
     }
 
     private fun givePlayerMoveTool(player: Player, claim: Claim) {
         for (item in player.inventory.contents) {
             if (item == null) continue
-            if (item.itemMeta != null && item.itemMeta == getClaimMoveTool(claim).itemMeta) {
+            if (item.itemMeta != null && item.itemMeta
+                    == getClaimMoveTool(localizationProvider, player.uniqueId, claim).itemMeta) {
                 return
             }
         }
-        player.inventory.addItem(getClaimMoveTool(claim))
+        player.inventory.addItem(getClaimMoveTool(localizationProvider, player.uniqueId, claim))
     }
 }

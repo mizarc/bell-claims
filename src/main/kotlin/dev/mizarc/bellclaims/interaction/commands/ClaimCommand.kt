@@ -16,7 +16,6 @@ import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 
-import dev.mizarc.bellclaims.utils.getLangText
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -36,7 +35,7 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
             return
         }
 
-        player.inventory.addItem(getClaimTool())
+        player.inventory.addItem(getClaimTool(localizationProvider, player.uniqueId))
         player.sendMessage(localizationProvider.get(
             player.uniqueId, LocalizationKeys.COMMAND_CLAIM_SUCCESS))
     }

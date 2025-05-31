@@ -31,6 +31,7 @@ import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.infrastructure.isClaimTool
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -60,7 +61,7 @@ class EditToolListener: Listener, KoinComponent {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
         val item = event.item ?: return
         val clickedBlock = event.clickedBlock ?: return
-        if (item.itemMeta != getClaimTool().itemMeta) return
+        if (isClaimTool(item)) return
 
         // Open menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
@@ -98,7 +99,8 @@ class EditToolListener: Listener, KoinComponent {
 
     @EventHandler
     fun onToolSwitch(event: PlayerItemHeldEvent) {
-        if (event.player.inventory.getItem(event.previousSlot) != getClaimTool()) return
+        val item = event.player.inventory.getItem(event.previousSlot) ?: return
+        if (isClaimTool(item)) return
 
         // Cancel claim building on unequip
         val partitionBuilder = firstSelectedCornerResize[event.player.uniqueId]
