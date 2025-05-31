@@ -46,7 +46,8 @@ class PartitionsCommand : ClaimCommand(), KoinComponent {
                 break
             }
 
-            chatInfo.addRow(localizationProvider.get(player.uniqueId, LocalizationKeys.COMMAND_CLAIM_PARTITIONS_ROW,
+            chatInfo.addIndexed(i, localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_CLAIM_PARTITIONS_ROW,
                 partitions[i].area.lowerPosition2D.x, partitions[i].area.lowerPosition2D.z,
                 partitions[i].area.upperPosition2D.x, partitions[i].area.upperPosition2D.z))
         }
