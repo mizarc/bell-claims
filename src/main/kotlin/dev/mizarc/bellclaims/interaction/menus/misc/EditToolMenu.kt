@@ -24,7 +24,6 @@ import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.interaction.menus.common.ConfirmationMenu
-import dev.mizarc.bellclaims.interaction.menus.management.ClaimTransferNamingMenu
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
