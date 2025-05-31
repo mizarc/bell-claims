@@ -134,7 +134,9 @@ class EditToolMenu(private val menuNavigator: MenuNavigator, private val player:
         val blockCount = getClaimBlockCount.execute(claim.id)
         val claimItem = ItemStack(Material.BELL)
             .name(localizationProvider.get(
-                player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_ITEM_CLAIM_NAME, claim.name))
+                player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_ITEM_CLAIM_NAME))
+            .lore(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_ITEM_CLAIM_LORE_CLAIM_NAME, claim.name))
             .lore(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_ITEM_CLAIM_LORE_LOCATION,
                 claim.position.x, claim.position.y, claim.position.z))
