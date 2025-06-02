@@ -99,6 +99,8 @@ object LocalizationKeys {
     const val PERMISSION_SIGN_LORE = "permission.sign.lore"
     const val PERMISSION_TRADE_NAME = "permission.trade.name"
     const val PERMISSION_TRADE_LORE = "permission.trade.lore"
+    const val PERMISSION_VIEW_NAME = "permission.view.name"
+    const val PERMISSION_VIEW_LORE = "permission.view.lore"
 
 
     // -------------------------------------
