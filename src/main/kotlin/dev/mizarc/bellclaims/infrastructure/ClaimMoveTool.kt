@@ -23,11 +23,16 @@ fun isClaimMoveTool(itemStack: ItemStack): Boolean {
 fun getClaimMoveTool(localizationProvider: LocalizationProvider,
                      playerId: UUID, claim: Claim): ItemStack {
     val tool = ItemStack(Material.BELL)
-        .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_NAME))
+        .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_NAME, claim.name))
         .lore(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_LORE))
     val itemMeta = tool.itemMeta
     itemMeta?.setCustomModelData(1)
     itemMeta.persistentDataContainer.set(move_tool_key, PersistentDataType.STRING, claim.id.toString())
     tool.itemMeta = itemMeta
     return tool
+}
+
+fun getClaimIdFromMoveTool(itemStack: ItemStack): String? {
+    val itemMeta = itemStack.itemMeta ?: return null
+    return itemMeta.persistentDataContainer.get(move_tool_key, PersistentDataType.STRING)
 }

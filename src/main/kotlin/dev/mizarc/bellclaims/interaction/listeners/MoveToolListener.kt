@@ -5,14 +5,13 @@ import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorRes
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.infrastructure.getClaimIdFromMoveTool
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
@@ -24,8 +23,7 @@ class MoveToolListener: Listener, KoinComponent {
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
         val playerId = event.player.uniqueId
-        val claimId = event.itemInHand.itemMeta.persistentDataContainer.get(
-            NamespacedKey("bellclaims","claim"), PersistentDataType.STRING) ?: return
+        val claimId = getClaimIdFromMoveTool(event.itemInHand) ?: return
 
         when (moveClaimAnchor.execute(
             UUID.fromString(claimId), event.player.uniqueId,
