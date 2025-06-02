@@ -68,4 +68,9 @@ enum class ClaimPermission(val nameKey: String, val loreKey: String) {
      * When a player sleeps in a bed or uses a respawn anchor.
      */
     SLEEP(LocalizationKeys.PERMISSION_SLEEP_NAME, LocalizationKeys.PERMISSION_SLEEP_LORE)
+
+    /**
+     * When a player views the contents of an interactable block.
+     */
+    VIEW(LocalizationKeys.PERMISSION_VIEW_NAME, LocalizationKeys.PERMISSION_VIEW_LORE)
 }

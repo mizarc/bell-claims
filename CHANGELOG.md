@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
+- New "View" permission added for viewing contents without being able to modify.
 - Crops such as wheat, carrots, and cocoa beans can now be right click harvested which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
 - Localizations can now automatically detect player's own locale, falling back to the server locale if not available.
 - All known missing localizations added to the english localization file.
@@ -21,6 +22,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Removed
 - Machine generated translations removed, only suitable for testing but doubtful of their accuracy.
+- Viewing lecterns moved from redstone trigger to View permission.
 
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
