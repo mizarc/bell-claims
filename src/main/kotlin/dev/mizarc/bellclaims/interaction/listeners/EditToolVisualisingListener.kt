@@ -7,6 +7,7 @@ import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleCl
 import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.infrastructure.isClaimTool
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -72,12 +73,12 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         }
     }
 
+    /**
+     * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
+     */
     private fun autoClaimToolVisualisation(player: Player) {
-        val mainItemMeta = player.inventory.itemInMainHand.itemMeta
-        val offhandItemMeta = player.inventory.itemInOffHand.itemMeta
-
-        // Visualise if player isn't already holding the claim tool (e.g. swapping hands)
-        val holdingClaimTool = (mainItemMeta == getClaimTool().itemMeta) || (offhandItemMeta == getClaimTool().itemMeta)
+        val holdingClaimTool = (isClaimTool(player.inventory.itemInMainHand)
+                || (isClaimTool(player.inventory.itemInOffHand)))
         if (holdingClaimTool) {
             displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
         } else {

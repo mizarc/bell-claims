@@ -8,17 +8,20 @@ import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverr
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import dev.mizarc.bellclaims.infrastructure.isClaimTool
 
-import dev.mizarc.bellclaims.utils.getLangText
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 open class ClaimCommand : BaseCommand(), KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getPartitionByPosition: GetPartitionByPosition by inject()
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val getClaimDetails: GetClaimDetails by inject()
@@ -28,12 +31,14 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     @Syntax("claim")
     fun onClaim(player: Player) {
         if (isItemInInventory(player.inventory)) {
-            player.sendMessage(getLangText("AlreadyHaveClaimTool"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_CLAIM_ALREADY_HAVE_TOOL))
             return
         }
 
-        player.inventory.addItem(getClaimTool())
-        player.sendMessage(getLangText("ClaimToolGiven"))
+        player.inventory.addItem(getClaimTool(localizationProvider, player.uniqueId))
+        player.sendMessage(localizationProvider.get(
+            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_SUCCESS))
     }
 
     /**
@@ -44,7 +49,7 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     fun isItemInInventory(inventory: PlayerInventory) : Boolean {
         for (item in inventory.contents) {
             if (item == null) continue
-            if (item.itemMeta != null && item.itemMeta == getClaimTool().itemMeta) {
+            if (isClaimTool(item)) {
                 return true
             }
         }
@@ -54,7 +59,8 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     fun getPartitionAtPlayer(player: Player): Partition? {
         val claimPartition = getPartitionByPosition.execute(player.location.toPosition3D(), player.world.uid)
         if (claimPartition == null) {
-            player.sendMessage(getLangText("NoClaimPartitionHere"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_COMMON_UNKNOWN_PARTITION))
             return null
         }
         return claimPartition
@@ -71,7 +77,8 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
         // Check if player owns claim
         val claim = getClaimDetails.execute(partition.claimId) ?: return false
         if (player.uniqueId != claim.playerId) {
-            player.sendMessage(getLangText("NoPermissionToModifyClaim"))
+            player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_COMMON_NO_CLAIM_PERMISSION))
             return false
         }
         return true
