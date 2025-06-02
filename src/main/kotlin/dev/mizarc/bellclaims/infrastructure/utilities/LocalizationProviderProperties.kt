@@ -95,27 +95,24 @@ class LocalizationProviderProperties(private val config: MainConfig,
             val properties = Properties()
 
             // Layer 1: If the requested language is different from base, load its default version
-            val setLanguage = config.pluginLanguage
-            if (setLanguage != baseDefaultLanguageCode) {
-                val specificDefaultFile = File(defaultsFolder, "$setLanguage.properties")
-                if (specificDefaultFile.exists()) {
-                    try {
-                        specificDefaultFile.inputStream().use { properties.load(it) }
-                        println("Loaded language: $setLanguage")
-                    } catch (e: Exception) {
-                        println("Failed to load default language file for $setLanguage")
-                    }
+            val specificDefaultFile = File(defaultsFolder, "$locale.properties")
+            if (specificDefaultFile.exists()) {
+                try {
+                    specificDefaultFile.inputStream().use { properties.load(it) }
+                    println("Loaded language: $locale")
+                } catch (_: Exception) {
+                    println("Failed to load default language file for $locale")
                 }
             }
 
             // Layer 2: Load the override language file
-            val overrideFile = File(overridesFolder, "$setLanguage.properties")
+            val overrideFile = File(overridesFolder, "$locale.properties")
             if (overrideFile.exists()) {
                 try {
                     overrideFile.inputStream().use { properties.load(it) }
-                    println("Loaded override language file: $setLanguage")
-                } catch (e: Exception) {
-                    println("Failed to load override language file for $setLanguage")
+                    println("Loaded override language file: $locale")
+                } catch (_: Exception) {
+                    println("Failed to load override language file for $locale")
                 }
             }
 
