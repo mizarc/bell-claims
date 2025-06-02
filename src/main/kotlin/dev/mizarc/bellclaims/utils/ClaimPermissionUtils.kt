@@ -26,6 +26,7 @@ fun ClaimPermission.getIcon(localizationProvider: LocalizationProvider, playerId
         ClaimPermission.DETONATE -> ItemStack(Material.TNT)
         ClaimPermission.EVENT -> ItemStack(Material.OMINOUS_BOTTLE)
         ClaimPermission.SLEEP -> ItemStack(Material.RED_BED)
+        ClaimPermission.VIEW -> ItemStack(Material.LECTERN)
     }
 
     // Get localized name and lore using the keys from the domain enum
