@@ -294,14 +294,23 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         if (event.action == Action.LEFT_CLICK_BLOCK) return
         val block = event.clickedBlock ?: return
 
-        // Block is of type switch, analogue powerable, or a powerable that isn't a door
+        // Block is of type switch, analogue powerable, or a powerable that isn't a door or lectern
         if (!(block.state.blockData is Switch
-                    || (block.state.blockData is Powerable && block.state.blockData !is Openable)
-                    || block.state.blockData is AnaloguePowerable)) {
+                    || (block.state.blockData is Powerable && block.state.blockData !is Openable
+                    && block.state.blockData !is Lectern) || (block.state.blockData is AnaloguePowerable))) {
             return
         }
 
         val action = PlayerActionType.USE_REDSTONE
+        cancelIfDisallowed(event, event.player, block.location, action)
+    }
+
+    @EventHandler
+    fun onPlayerLecternInteract(event: PlayerInteractEvent) {
+        if (event.action == Action.LEFT_CLICK_BLOCK) return
+        val block = event.clickedBlock ?: return
+        if (block.state.blockData !is Lectern) return
+        val action = PlayerActionType.VIEW_LECTERN_BOOK
         cancelIfDisallowed(event, event.player, block.location, action)
     }
 
