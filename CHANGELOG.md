@@ -10,10 +10,17 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
 - Crops such as wheat, carrots, and cocoa beans can now be right click harvested which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
+- Localizations can now automatically detect player's own locale, falling back to the server locale if not available.
+- All known missing localizations added to the english localization file.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
 - Armor stands can now be hit without a permission, but are still protected from destruction by Build permission.
+- All languages are now included in the default lang folder on server start, with an override folder for specific admin specifiable overrides.
+- Localization file format now makes use of properties files instead of yml, using a standard key format which should better enforce localization usage over fixed strings.
+
+### Removed
+- Machine generated translations removed, only suitable for testing but doubtful of their accuracy.
 
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
