@@ -5,10 +5,11 @@ import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimName
 import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimNameResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
@@ -21,6 +22,7 @@ import kotlin.getValue
 
 class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                         private val claim: Claim): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val updateClaimName: UpdateClaimName by inject()
 
     private var name = ""
@@ -28,7 +30,8 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
 
     override fun open() {
         // Create homes menu
-        val gui = AnvilGui(getLangText("RenamingClaim"))
+        val playerId = player.uniqueId
+        val gui = AnvilGui(localizationProvider.get(playerId, LocalizationKeys.MENU_RENAMING_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -55,7 +58,8 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name("Confirm")
+        val confirmItem = ItemStack(Material.NETHER_STAR)
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             // Go back to edit menu if the name hasn't changed
             if (name == claim.name || name.isBlank()) {
@@ -69,7 +73,7 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
                 is UpdateClaimNameResult.Success -> menuNavigator.goBackWithData(result.claim)
                 UpdateClaimNameResult.ClaimNotFound -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name("The claim you are trying to rename does not exist anymore")
+                        .name(localizationProvider.get(playerId, LocalizationKeys.MENU_RENAMING_ITEM_UNKNOWN_NAME))
                     val guiPaperItem = GuiItem(paperItem)
                     secondPane.addItem(guiPaperItem, 0, 0)
                     lodestoneItem.name(name)
@@ -78,7 +82,7 @@ class ClaimRenamingMenu(private val menuNavigator: MenuNavigator, private val pl
                 }
                 UpdateClaimNameResult.NameAlreadyExists -> {
                     val paperItem = ItemStack(Material.PAPER)
-                        .name("That name has already been taken")
+                        .name(localizationProvider.get(playerId, LocalizationKeys.MENU_RENAMING_ITEM_EXISTING_NAME))
                     val guiPaperItem = GuiItem(paperItem) {guiEvent ->
                         secondPane.removeItem(0, 0)
                         lodestoneItem.name(name)

@@ -64,11 +64,12 @@ import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.ConfigService
+import dev.mizarc.bellclaims.application.services.PlayerLocaleService
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.application.services.scheduling.SchedulerService
-import dev.mizarc.bellclaims.application.services.scheduling.Task
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimFlagRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimPermissionRepositorySQLite
 import dev.mizarc.bellclaims.infrastructure.persistence.claims.ClaimRepositorySQLite
@@ -78,10 +79,12 @@ import dev.mizarc.bellclaims.infrastructure.persistence.players.PlayerStateRepos
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.SQLiteStorage
 import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
 import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
+import dev.mizarc.bellclaims.infrastructure.services.PlayerLocaleServicePaper
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
+import dev.mizarc.bellclaims.infrastructure.utilities.LocalizationProviderProperties
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.Plugin
@@ -118,10 +121,14 @@ fun appModule(plugin: BellClaims) = module {
 
     // Services
     single<ConfigService> { ConfigServiceBukkit(get()) }
+    single<PlayerLocaleService> { PlayerLocaleServicePaper() }
     single<PlayerMetadataService> { PlayerMetadataServiceVault(get(), get()) }
     single<VisualisationService> { VisualisationServiceBukkit() }
     single<WorldManipulationService> { WorldManipulationServiceBukkit() }
     single<SchedulerService> { SchedulerServiceBukkit(get()) }
+
+    // Utilities
+    single<LocalizationProvider> { LocalizationProviderProperties(get(), get(), get()) }
 
 
     // --- Application Layer Actions ---

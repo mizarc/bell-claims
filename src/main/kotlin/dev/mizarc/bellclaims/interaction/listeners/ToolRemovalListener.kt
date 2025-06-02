@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.ItemStack
 import dev.mizarc.bellclaims.infrastructure.getClaimTool
+import dev.mizarc.bellclaims.infrastructure.isClaimMoveTool
+import dev.mizarc.bellclaims.infrastructure.isClaimTool
 import dev.mizarc.bellclaims.utils.getStringMeta
 import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.event.player.PlayerInteractEvent
@@ -132,11 +134,8 @@ class ToolRemovalListener : Listener {
     }
 
     private fun isKeyItem(itemStack: ItemStack): Boolean {
-        if (itemStack.getStringMeta("claim") != null) {
-            return true
-        }
-
-        val itemMeta = itemStack.itemMeta
-        return itemMeta == getClaimTool().itemMeta
+        if (isClaimTool(itemStack)) return true
+        if (isClaimMoveTool(itemStack)) return true
+        return false
     }
 }

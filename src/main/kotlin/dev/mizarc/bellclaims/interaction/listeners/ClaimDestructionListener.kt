@@ -7,6 +7,8 @@ import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverr
 import dev.mizarc.bellclaims.application.results.claim.anchor.BreakClaimAnchorResult
 import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.block.data.type.Bell
@@ -38,6 +40,7 @@ import org.koin.core.component.inject
 import java.util.UUID
 
 class ClaimDestructionListener: Listener, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val getClaimAnchorAtPosition: GetClaimAnchorAtPosition by inject()
     private val breakClaimAnchor: BreakClaimAnchor by inject()
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
@@ -57,10 +60,13 @@ class ClaimDestructionListener: Listener, KoinComponent {
         }
 
         // No permission to break bell
-        if (event.player.uniqueId != claim.playerId && hasOverride != true) {
-            val playerName = Bukkit.getPlayer(claim.playerId)?.name ?: "(Name not found)"
+        val playerId = event.player.uniqueId
+        if (playerId != claim.playerId && hasOverride != true) {
+            val playerName = Bukkit.getPlayer(claim.playerId)?.name ?:
+                localizationProvider.get(playerId, LocalizationKeys.GENERAL_NAME_ERROR)
             event.player.sendActionBar(
-                Component.text("This claim belongs to $playerName")
+                Component.text(localizationProvider.get(
+                    playerId, LocalizationKeys.FEEDBACK_DESTRUCTION_PERMISSION, playerName))
                     .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
             return
@@ -69,14 +75,15 @@ class ClaimDestructionListener: Listener, KoinComponent {
         when(val result = breakClaimAnchor.execute(event.block.world.uid, event.block.location.toPosition3D())) {
             is BreakClaimAnchorResult.ClaimBreaking -> {
                 event.player.sendActionBar(
-                    Component.text("Break ${result.remainingBreaks} more times in 10 seconds to destroy this claim")
-                        .color(TextColor.color(255, 201, 14)))
+                    Component.text(localizationProvider.get(playerId, LocalizationKeys.FEEDBACK_DESTRUCTION_PENDING,
+                        result.remainingBreaks, 10)).color(TextColor.color(255, 201, 14)))
                 event.isCancelled = true
                 return
             }
             is BreakClaimAnchorResult.Success -> {
                 event.player.sendActionBar(
-                    Component.text("Claim '${claim.name}' has been destroyed")
+                    Component.text(localizationProvider.get(
+                        playerId, LocalizationKeys.FEEDBACK_DESTRUCTION_SUCCESS, claim.name))
                         .color(TextColor.color(85, 255, 85)))
             }
             else -> {}
@@ -105,7 +112,8 @@ class ClaimDestructionListener: Listener, KoinComponent {
     fun onClaimHubAttachedDestroy(event: BlockBreakEvent) {
         if (wouldBlockBreakBell(event.block)) {
             event.player.sendActionBar(
-                Component.text("That block is attached to the claim bell")
+                Component.text(localizationProvider.get(
+                    event.player.uniqueId, LocalizationKeys.FEEDBACK_DESTRUCTION_ATTACHED))
                     .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
             return
@@ -157,7 +165,8 @@ class ClaimDestructionListener: Listener, KoinComponent {
 
             val player = event.primingEntity as? Player ?: return
             player.sendActionBar(
-                Component.text("That block is attached to the claim bell")
+                Component.text(localizationProvider.get(
+                    player.uniqueId, LocalizationKeys.FEEDBACK_DESTRUCTION_ATTACHED))
                     .color(TextColor.color(255, 85, 85)))
         }
     }
@@ -167,7 +176,8 @@ class ClaimDestructionListener: Listener, KoinComponent {
         val block = event.clickedBlock ?: return
         if (wouldBlockBreakBell(block)) {
             event.player.sendActionBar(
-                Component.text("That block is attached to the claim bell")
+                Component.text(localizationProvider.get(
+                    event.player.uniqueId, LocalizationKeys.FEEDBACK_DESTRUCTION_ATTACHED))
                     .color(TextColor.color(255, 85, 85)))
             event.isCancelled = true
         }
@@ -178,7 +188,8 @@ class ClaimDestructionListener: Listener, KoinComponent {
             otherLocation.y = otherLocation.y + 1
             if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
                 event.player.sendActionBar(
-                    Component.text("That block is attached to the claim bell")
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_DESTRUCTION_ATTACHED))
                         .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
             }
@@ -188,7 +199,8 @@ class ClaimDestructionListener: Listener, KoinComponent {
             otherLocation.y = otherLocation.y - 1
             if (wouldBlockBreakBell(block.world.getBlockAt(otherLocation))) {
                 event.player.sendActionBar(
-                    Component.text("That block is attached to the claim bell")
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_DESTRUCTION_ATTACHED))
                         .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
             }

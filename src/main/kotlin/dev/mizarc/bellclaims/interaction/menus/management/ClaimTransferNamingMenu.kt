@@ -7,10 +7,11 @@ import dev.mizarc.bellclaims.application.actions.claim.transfer.AcceptTransferRe
 import dev.mizarc.bellclaims.application.actions.player.IsPlayerInClaimMenu
 import dev.mizarc.bellclaims.application.results.claim.transfer.AcceptTransferRequestResult
 import dev.mizarc.bellclaims.application.results.player.IsPlayerInClaimMenuResult
+import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
+import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
-import dev.mizarc.bellclaims.utils.getLangText
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import net.kyori.adventure.text.Component
@@ -25,6 +26,7 @@ import org.koin.core.component.inject
 
 class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private val claim: Claim,
                               private val player: Player): Menu, KoinComponent {
+    private val localizationProvider: LocalizationProvider by inject()
     private val acceptTransferRequest: AcceptTransferRequest by inject()
     private val isPlayerInClaimMenu: IsPlayerInClaimMenu by inject()
 
@@ -32,8 +34,9 @@ class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private 
     var previousResult: AcceptTransferRequestResult? = null
 
     override fun open() {
-        // Create homes menu
-        val gui = AnvilGui("Naming Claim")
+        // Create transfer naming menu
+        val playerId = player.uniqueId
+        val gui = AnvilGui(localizationProvider.get(playerId, LocalizationKeys.MENU_NAMING_TITLE))
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
@@ -53,43 +56,44 @@ class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private 
         when (previousResult) {
             AcceptTransferRequestResult.NoActiveTransferRequest -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("There is no longer an active transfer request")
+                    .name(localizationProvider.get(playerId,
+                        LocalizationKeys.ACCEPT_TRANSFER_CONDITION_INVALID_REQUEST))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.ClaimNotFound -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("The claim you are trying to accept can no longer be found")
+                    .name(localizationProvider.get(playerId, LocalizationKeys.ACCEPT_TRANSFER_CONDITION_INVALID_CLAIM))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.BlockLimitExceeded -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(getLangText("YouHaveRunOutOfClaimBlocks"))
+                    .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_BLOCKS))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.ClaimLimitExceeded -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(getLangText("YouHaveRunOutOfClaims"))
+                    .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_CLAIMS))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.NameAlreadyExists -> {
                 val paperItem = ItemStack(Material.PAPER)
-                    .name(getLangText("AlreadyHaveClaimWithName"))
+                    .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_EXISTING))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.PlayerOwnsClaim -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("You already own this claim.")
+                    .name(localizationProvider.get(playerId, LocalizationKeys.ACCEPT_TRANSFER_CONDITION_OWNER))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
             AcceptTransferRequestResult.StorageError -> {
                 val paperItem = ItemStack(Material.MAGMA_CREAM)
-                    .name("An internal error has occurred, contact your local administrator for support.")
+                    .name(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
                 val guiPaperItem = GuiItem(paperItem) { guiEvent -> guiEvent.isCancelled = true }
                 secondPane.addItem(guiPaperItem, 0, 0)
             }
@@ -98,7 +102,8 @@ class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private 
 
         // Add confirm menu item.
         val thirdPane = StaticPane(0, 0, 1, 1)
-        val confirmItem = ItemStack(Material.NETHER_STAR).name(getLangText("Confirm1"))
+        val confirmItem = ItemStack(Material.NETHER_STAR)
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             val previousOwnerId = claim.playerId
 
@@ -113,7 +118,8 @@ class ClaimTransferNamingMenu(private val menuNavigator: MenuNavigator, private 
                                 val previousOwner = Bukkit.getPlayer(previousOwnerId)
                                 previousOwner?.closeInventory()
                                 previousOwner?.sendActionBar(
-                                    Component.text(getLangText("ClaimHasBeenTransferred"))
+                                    Component.text(localizationProvider.get(
+                                        playerId, LocalizationKeys.FEEDBACK_TRANSFER_SUCCESS))
                                         .color(TextColor.color(255, 85, 85)))
                             }
                         }
