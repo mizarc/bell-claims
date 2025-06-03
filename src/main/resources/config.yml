@@ -20,10 +20,12 @@ visualiser_hide_delay_period: 2
 visualiser_refresh_period: 1
 
 # The language of text elements.
-# NOT COMPLETED
 # EN - Original
-# RU - Machine translation (Temporary)
-# DE - Machine translation (Temporary)
-# CN - Machine translation (Temporary)
-# add more lang_<?>.yml files in this folder and change plugin_language: <?>
+# add more <?>.properties files in the override folder to
 plugin_language: EN
+
+# The id to use for resource packs that change the model of the claim tool.
+custom_claim_tool_model_id: 732000
+
+# The id to use for resource packs that change the model of the move tool.
+custom_move_tool_model_id: 732001
