@@ -15,7 +15,7 @@ object ItemKeys {
     /**
      * Identifies the claim tool.
      */
-    val CLAIM_ITEM: NamespacedKey by lazy {
+    val CLAIM_TOOL_KEY: NamespacedKey by lazy {
         NamespacedKey(PLUGIN_NAMESPACE_ID, "claim_tool")
     }
 
