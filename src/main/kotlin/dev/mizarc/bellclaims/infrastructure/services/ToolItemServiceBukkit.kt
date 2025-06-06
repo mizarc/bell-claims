@@ -16,14 +16,6 @@ import java.util.UUID
 
 class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvider): ToolItemService {
     override fun giveClaimTool(playerId: UUID): Boolean {
-        // Check if player's inventory already contains the tool
-        val player = Bukkit.getPlayer(playerId) ?: return false
-        val inventory = player.inventory
-        for (item in inventory) {
-            val itemData = item.toCustomItemData() ?: continue
-            if (isClaimTool(itemData)) return false
-        }
-
         // Create tool with special metadata
         val tool = ItemStack(Material.STICK)
             .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_CLAIM_TOOL_NAME))
@@ -35,19 +27,13 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         tool.itemMeta = itemMeta
 
         // Give player the item
+        val player = Bukkit.getPlayer(playerId) ?: return false
+        val inventory = player.inventory
         inventory.addItem(tool)
         return true
     }
 
     override fun giveMoveTool(playerId: UUID, claim: Claim): Boolean {
-        // Check if player's inventory already contains the tool
-        val player = Bukkit.getPlayer(playerId) ?: return false
-        val inventory = player.inventory
-        for (item in inventory) {
-            val itemData = item.toCustomItemData() ?: continue
-            if (isMoveTool(itemData)) return false
-        }
-
         // Create tool with special metadata
         val tool = ItemStack(Material.BELL)
             .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_NAME, claim.name))
@@ -58,8 +44,30 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         tool.itemMeta = itemMeta
 
         // Give player the tool
+        val player = Bukkit.getPlayer(playerId) ?: return false
+        val inventory = player.inventory
         inventory.addItem(tool)
         return true
+    }
+
+    override fun doesPlayerHaveClaimTool(playerId: UUID): Boolean {
+        val player = Bukkit.getPlayer(playerId) ?: return false
+        val inventory = player.inventory
+        for (item in inventory) {
+            val itemData = item.toCustomItemData() ?: continue
+            if (isClaimTool(itemData)) return true
+        }
+        return false
+    }
+
+    override fun doesPlayerHaveMoveTool(playerId: UUID, claim: Claim): Boolean {
+        val player = Bukkit.getPlayer(playerId) ?: return false
+        val inventory = player.inventory
+        for (item in inventory) {
+            val itemData = item.toCustomItemData() ?: continue
+            if (getClaimIdFromPlayerMoveTool(itemData) == claim.id.toString()) return true
+        }
+        return false
     }
 
     override fun isClaimTool(itemData: Map<String, String>): Boolean {
