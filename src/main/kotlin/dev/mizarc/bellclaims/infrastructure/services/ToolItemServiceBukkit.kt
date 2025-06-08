@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
+import dev.mizarc.bellclaims.application.errors.PlayerNotFoundException
 import dev.mizarc.bellclaims.application.services.ToolItemService
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
@@ -51,7 +52,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
     }
 
     override fun doesPlayerHaveClaimTool(playerId: UUID): Boolean {
-        val player = Bukkit.getPlayer(playerId) ?: return false
+        val player = Bukkit.getPlayer(playerId) ?: throw PlayerNotFoundException(playerId)
         val inventory = player.inventory
         for (item in inventory) {
             val itemData = item.toCustomItemData() ?: continue
