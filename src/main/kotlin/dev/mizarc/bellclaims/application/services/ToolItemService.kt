@@ -10,5 +10,5 @@ interface ToolItemService {
     fun doesPlayerHaveMoveTool(playerId: UUID, claim: Claim): Boolean
     fun isClaimTool(itemData: Map<String, String>?): Boolean
     fun isMoveTool(itemData: Map<String, String>?): Boolean
-    fun getClaimIdFromPlayerMoveTool(itemData: Map<String, String>): String?
+    fun getClaimIdFromPlayerMoveTool(itemData: Map<String, String>?): String?
 }
