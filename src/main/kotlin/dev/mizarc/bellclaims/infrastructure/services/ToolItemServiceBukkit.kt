@@ -79,7 +79,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         return itemData?.get(ItemKeys.MOVE_TOOL_KEY.key) != null
     }
 
-    override fun getClaimIdFromPlayerMoveTool(itemData: Map<String, String>): String? {
-        return itemData[ItemKeys.MOVE_TOOL_KEY.key]
+    override fun getClaimIdFromPlayerMoveTool(itemData: Map<String, String>?): String? {
+        return itemData?.get(ItemKeys.MOVE_TOOL_KEY.key)
     }
 }
