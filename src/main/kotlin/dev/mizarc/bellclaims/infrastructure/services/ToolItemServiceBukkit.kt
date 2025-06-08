@@ -70,12 +70,12 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         return false
     }
 
-    override fun isClaimTool(itemData: Map<String, String>): Boolean {
-        return itemData.containsKey(ItemKeys.CLAIM_TOOL_KEY.key) && itemData[ItemKeys.CLAIM_TOOL_KEY.key] != null
+    override fun isClaimTool(itemData: Map<String, String>?): Boolean {
+        return itemData?.get(ItemKeys.MOVE_TOOL_KEY.key) != null
     }
 
-    override fun isMoveTool(itemData: Map<String, String>): Boolean {
-        return itemData.containsKey(ItemKeys.MOVE_TOOL_KEY.key) && itemData[ItemKeys.MOVE_TOOL_KEY.key] != null
+    override fun isMoveTool(itemData: Map<String, String>?): Boolean {
+        return itemData?.get(ItemKeys.MOVE_TOOL_KEY.key) != null
     }
 
     override fun getClaimIdFromPlayerMoveTool(itemData: Map<String, String>): String? {
