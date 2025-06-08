@@ -5,7 +5,7 @@ import dev.mizarc.bellclaims.application.services.ToolItemService
 import java.util.UUID
 
 class GetClaimIdFromMoveTool(private val toolItemService: ToolItemService) {
-    fun execute(itemData: Map<String, String>): GetClaimIdFromMoveToolResult {
+    fun execute(itemData: Map<String, String>?): GetClaimIdFromMoveToolResult {
         val claimIdString = toolItemService.getClaimIdFromPlayerMoveTool(itemData)
         if (claimIdString != null) {
             val claimId = UUID.fromString(claimIdString)
