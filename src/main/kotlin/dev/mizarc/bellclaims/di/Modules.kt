@@ -134,7 +134,7 @@ fun appModule(plugin: BellClaims) = module {
     single<VisualisationService> { VisualisationServiceBukkit() }
     single<WorldManipulationService> { WorldManipulationServiceBukkit() }
     single<SchedulerService> { SchedulerServiceBukkit(get()) }
-    single<ToolItemService> { ToolItemServiceBukkit(get()) }
+    single<ToolItemService> { ToolItemServiceBukkit(get(), get()) }
 
     // Utilities
     single<LocalizationProvider> { LocalizationProviderProperties(get(), get(), get()) }
