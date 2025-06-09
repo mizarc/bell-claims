@@ -17,7 +17,7 @@ import java.util.UUID
 
 class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvider): ToolItemService {
     override fun giveClaimTool(playerId: UUID): Boolean {
-        // Create tool with special metadata
+        // Create the claim tool with special metadata
         val tool = ItemStack(Material.STICK)
             .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_CLAIM_TOOL_NAME))
             .lore(localizationProvider.get(playerId, LocalizationKeys.ITEM_CLAIM_TOOL_LORE_MAIN_HAND))
@@ -27,7 +27,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         itemMeta.persistentDataContainer.set(ItemKeys.CLAIM_TOOL_KEY, PersistentDataType.BOOLEAN, true)
         tool.itemMeta = itemMeta
 
-        // Give player the item
+        // Give the player the item
         val player = Bukkit.getPlayer(playerId) ?: return false
         val inventory = player.inventory
         inventory.addItem(tool)
@@ -35,7 +35,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
     }
 
     override fun giveMoveTool(playerId: UUID, claim: Claim): Boolean {
-        // Create tool with special metadata
+        // Create the claim tool with special metadata
         val tool = ItemStack(Material.BELL)
             .name(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_NAME, claim.name))
             .lore(localizationProvider.get(playerId, LocalizationKeys.ITEM_MOVE_TOOL_LORE))
@@ -44,7 +44,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
         itemMeta.persistentDataContainer.set(ItemKeys.MOVE_TOOL_KEY, PersistentDataType.STRING, claim.id.toString())
         tool.itemMeta = itemMeta
 
-        // Give player the tool
+        // Give the player the tool
         val player = Bukkit.getPlayer(playerId) ?: return false
         val inventory = player.inventory
         inventory.addItem(tool)
@@ -72,7 +72,7 @@ class ToolItemServiceBukkit(private val localizationProvider: LocalizationProvid
     }
 
     override fun isClaimTool(itemData: Map<String, String>?): Boolean {
-        return itemData?.get(ItemKeys.MOVE_TOOL_KEY.key) != null
+        return itemData?.get(ItemKeys.CLAIM_TOOL_KEY.key) != null
     }
 
     override fun isMoveTool(itemData: Map<String, String>?): Boolean {
