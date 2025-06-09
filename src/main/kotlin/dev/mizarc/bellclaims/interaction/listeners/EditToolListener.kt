@@ -6,6 +6,7 @@ import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByP
 import dev.mizarc.bellclaims.application.actions.claim.partition.ResizePartition
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.GetRemainingClaimBlockCount
+import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -28,16 +29,16 @@ import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.interaction.menus.misc.EditToolMenu
 import dev.mizarc.bellclaims.domain.values.Area
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
-import dev.mizarc.bellclaims.infrastructure.isClaimTool
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
 
 /**
- * Actions based on utilising the claim tool.
+ * Actions based on utilizing the claim tool.
  */
 class EditToolListener: Listener, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
@@ -48,11 +49,12 @@ class EditToolListener: Listener, KoinComponent {
     private val getClaimAtPosition: GetClaimAtPosition by inject()
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val resizePartition: ResizePartition by inject()
+    private val isItemClaimTool: IsItemClaimTool by inject()
 
-    // Map of player id to the partition and first selected corner to resize a partition
+    // Map of player id to the partition and the first selected corner to resize a partition
     private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
 
-    // Map of player id to the claim and first selected corner to create a partition
+    // Map of player id to the claim and the first selected corner to create a partition
     private val firstSelectedCornerCreate: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
 
     @EventHandler
@@ -60,9 +62,9 @@ class EditToolListener: Listener, KoinComponent {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
         val item = event.item ?: return
         val clickedBlock = event.clickedBlock ?: return
-        if (!isClaimTool(item)) return
+        if (!isItemClaimTool.execute(item.toCustomItemData())) return
 
-        // Open menu if in offhand
+        // Open the menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
             val location = event.clickedBlock?.location ?: return
             val partition = getPartitionByPosition.execute(location.toPosition2D(), location.world.uid)
@@ -99,7 +101,7 @@ class EditToolListener: Listener, KoinComponent {
     @EventHandler
     fun onToolSwitch(event: PlayerItemHeldEvent) {
         val item = event.player.inventory.getItem(event.previousSlot) ?: return
-        if (!isClaimTool(item)) return
+        if (!isItemClaimTool.execute(item.toCustomItemData())) return
 
         // Cancel claim building on unequip
         val partitionBuilder = firstSelectedCornerResize[event.player.uniqueId]
