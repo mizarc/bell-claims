@@ -18,7 +18,7 @@ class GivePlayerMoveTool(private val claimRepository: ClaimRepository, private v
             return GivePlayerMoveToolResult.PlayerNotFound
         }
 
-        toolItemService.giveClaimTool(playerId)
+        toolItemService.giveMoveTool(playerId, claim)
         return GivePlayerMoveToolResult.Success
     }
 }
