@@ -9,5 +9,7 @@ data class MainConfig(
     var visualiserHideDelayPeriod: Double = 0.0,
     var visualiserRefreshPeriod: Double = 0.0,
     var rightClickHarvest: Boolean = true,
-    var pluginLanguage: String = "EN"
+    var pluginLanguage: String = "EN",
+    var customClaimToolModelId: Int = 732000,
+    var customMoveToolModelId: Int = 732001
 )
