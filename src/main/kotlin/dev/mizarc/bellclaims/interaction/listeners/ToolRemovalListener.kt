@@ -1,5 +1,8 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
+import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
+import dev.mizarc.bellclaims.application.actions.player.tool.IsItemMoveTool
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import org.bukkit.Material
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.EventHandler
@@ -10,15 +13,16 @@ import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.ItemStack
-import dev.mizarc.bellclaims.infrastructure.getClaimTool
-import dev.mizarc.bellclaims.infrastructure.isClaimMoveTool
-import dev.mizarc.bellclaims.infrastructure.isClaimTool
-import dev.mizarc.bellclaims.utils.getStringMeta
 import org.bukkit.block.data.type.DecoratedPot
 import org.bukkit.event.player.PlayerInteractEvent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
-class ToolRemovalListener : Listener {
+class ToolRemovalListener : Listener, KoinComponent {
+    private val isItemClaimTool: IsItemClaimTool by inject()
+    private val isItemMoveTool: IsItemMoveTool by inject()
+
 
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
@@ -134,8 +138,8 @@ class ToolRemovalListener : Listener {
     }
 
     private fun isKeyItem(itemStack: ItemStack): Boolean {
-        if (isClaimTool(itemStack)) return true
-        if (isClaimMoveTool(itemStack)) return true
+        if (isItemClaimTool.execute(itemStack.toCustomItemData())) return true
+        if (isItemMoveTool.execute(itemStack.toCustomItemData())) return true
         return false
     }
 }
