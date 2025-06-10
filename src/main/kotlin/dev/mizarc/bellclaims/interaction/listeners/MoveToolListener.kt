@@ -1,11 +1,13 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.anchor.MoveClaimAnchor
+import dev.mizarc.bellclaims.application.actions.player.tool.GetClaimIdFromMoveTool
 import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
+import dev.mizarc.bellclaims.application.results.player.tool.GetClaimIdFromMoveToolResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
+import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
-import dev.mizarc.bellclaims.infrastructure.getClaimIdFromMoveTool
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.event.EventHandler
@@ -19,14 +21,20 @@ import java.util.UUID
 class MoveToolListener: Listener, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
     private val moveClaimAnchor: MoveClaimAnchor by inject()
+    private val getClaimIdFromMoveTool: GetClaimIdFromMoveTool by inject()
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
         val playerId = event.player.uniqueId
-        val claimId = getClaimIdFromMoveTool(event.itemInHand) ?: return
+        val result = getClaimIdFromMoveTool.execute(event.itemInHand.toCustomItemData())
+        val claimId: UUID
+        when (result) {
+            GetClaimIdFromMoveToolResult.NotMoveTool -> return
+            is GetClaimIdFromMoveToolResult.Success -> claimId = result.claimId
+        }
 
         when (moveClaimAnchor.execute(
-            UUID.fromString(claimId), event.player.uniqueId,
+            claimId, event.player.uniqueId,
             event.blockPlaced.world.uid, event.blockPlaced.location.toPosition3D())) {
             is MoveClaimAnchorResult.Success -> {
                 event.player.sendActionBar(

@@ -49,6 +49,12 @@ import dev.mizarc.bellclaims.application.actions.player.IsPlayerInClaimMenu
 import dev.mizarc.bellclaims.application.actions.player.RegisterClaimMenuOpening
 import dev.mizarc.bellclaims.application.actions.player.ToggleClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.UnregisterClaimMenuOpening
+import dev.mizarc.bellclaims.application.actions.player.tool.GetClaimIdFromMoveTool
+import dev.mizarc.bellclaims.application.actions.player.tool.GivePlayerClaimTool
+import dev.mizarc.bellclaims.application.actions.player.tool.GivePlayerMoveTool
+import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
+import dev.mizarc.bellclaims.application.actions.player.tool.IsItemMoveTool
+import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualisedClaimBlocks
@@ -66,6 +72,7 @@ import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.application.services.ConfigService
 import dev.mizarc.bellclaims.application.services.PlayerLocaleService
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
+import dev.mizarc.bellclaims.application.services.ToolItemService
 import dev.mizarc.bellclaims.application.services.VisualisationService
 import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.application.services.scheduling.SchedulerService
@@ -81,6 +88,7 @@ import dev.mizarc.bellclaims.infrastructure.persistence.storage.Storage
 import dev.mizarc.bellclaims.infrastructure.services.ConfigServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.PlayerLocaleServicePaper
 import dev.mizarc.bellclaims.infrastructure.services.PlayerMetadataServiceVault
+import dev.mizarc.bellclaims.infrastructure.services.ToolItemServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
@@ -126,6 +134,7 @@ fun appModule(plugin: BellClaims) = module {
     single<VisualisationService> { VisualisationServiceBukkit() }
     single<WorldManipulationService> { WorldManipulationServiceBukkit() }
     single<SchedulerService> { SchedulerServiceBukkit(get()) }
+    single<ToolItemService> { ToolItemServiceBukkit(get(), get()) }
 
     // Utilities
     single<LocalizationProvider> { LocalizationProviderProperties(get(), get(), get()) }
@@ -196,6 +205,14 @@ fun appModule(plugin: BellClaims) = module {
     singleOf(::RegisterClaimMenuOpening)
     singleOf(::ToggleClaimOverride)
     singleOf(::UnregisterClaimMenuOpening)
+
+    // Player / Tool
+    singleOf(::GetClaimIdFromMoveTool)
+    singleOf(::GivePlayerClaimTool)
+    singleOf(::GivePlayerMoveTool)
+    singleOf(::IsItemClaimTool)
+    singleOf(::IsItemMoveTool)
+    singleOf(::SyncToolVisualization)
 
     // Player / Visualisation
     singleOf(::ClearVisualisation)

@@ -15,7 +15,9 @@ class ConfigServiceBukkit(private val config: FileConfiguration): ConfigService 
             distanceBetweenClaims = config.getInt("distance_between_claims"),
             visualiserHideDelayPeriod = config.getDouble("visualiser_hide_delay_period"),
             visualiserRefreshPeriod = config.getDouble("visualiser_refresh_period"),
-            pluginLanguage = config.getString("plugin_language") ?: ""
+            pluginLanguage = config.getString("plugin_language") ?: "",
+            customClaimToolModelId = config.getInt("custom_claim_tool_model_id"),
+            customMoveToolModelId = config.getInt("custom_move_tool_model_id")
         )
     }
 }
