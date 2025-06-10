@@ -13,16 +13,18 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Crops such as wheat, carrots, and cocoa beans can now be right click harvested which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
 - Localizations can now automatically detect player's own locale, falling back to the server locale if not available.
 - All known missing localizations added to the english localization file.
+- Custom models can be used via resource pack to change the model of the claim and move tools,
+- Custom model ids are editable via conig.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
 - Armor stands can now be hit without a permission, but are still protected from destruction by Build permission.
 - All languages are now included in the default lang folder on server start, with an override folder for specific admin specifiable overrides.
 - Localization file format now makes use of properties files instead of yml, using a standard key format which should better enforce localization usage over fixed strings.
+- Viewing lecterns moved from redstone trigger to View permission.
 
 ### Removed
 - Machine generated translations removed, only suitable for testing but doubtful of their accuracy.
-- Viewing lecterns moved from redstone trigger to View permission.
 
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
