@@ -7,15 +7,15 @@ import co.aikar.commands.annotation.Syntax
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetPartitionByPosition
+import dev.mizarc.bellclaims.application.actions.player.tool.GivePlayerClaimTool
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.results.player.tool.GivePlayerClaimToolResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import org.bukkit.entity.Player
 import org.bukkit.inventory.PlayerInventory
-import dev.mizarc.bellclaims.infrastructure.getClaimTool
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
-import dev.mizarc.bellclaims.infrastructure.isClaimTool
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -25,35 +25,20 @@ open class ClaimCommand : BaseCommand(), KoinComponent {
     private val getPartitionByPosition: GetPartitionByPosition by inject()
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val getClaimDetails: GetClaimDetails by inject()
+    private val givePlayerClaimTool: GivePlayerClaimTool by inject()
 
     @CommandAlias("claim")
     @CommandPermission("bellclaims.command.claim")
     @Syntax("claim")
     fun onClaim(player: Player) {
-        if (isItemInInventory(player.inventory)) {
-            player.sendMessage(localizationProvider.get(
+        when (givePlayerClaimTool.execute(player.uniqueId)) {
+            GivePlayerClaimToolResult.PlayerAlreadyHasTool -> player.sendMessage(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.COMMAND_CLAIM_ALREADY_HAVE_TOOL))
-            return
+            GivePlayerClaimToolResult.Success -> player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.COMMAND_CLAIM_SUCCESS))
+            GivePlayerClaimToolResult.PlayerNotFound -> player.sendMessage(localizationProvider.get(
+                player.uniqueId, LocalizationKeys.GENERAL_ERROR))
         }
-
-        player.inventory.addItem(getClaimTool(localizationProvider, player.uniqueId))
-        player.sendMessage(localizationProvider.get(
-            player.uniqueId, LocalizationKeys.COMMAND_CLAIM_SUCCESS))
-    }
-
-    /**
-     * Check if item is already in the player's inventory
-     * @param inventory The provided inventory
-     * @return True if the item exists in the inventory
-     */
-    fun isItemInInventory(inventory: PlayerInventory) : Boolean {
-        for (item in inventory.contents) {
-            if (item == null) continue
-            if (isClaimTool(item)) {
-                return true
-            }
-        }
-        return false
     }
 
     fun getPartitionAtPlayer(player: Player): Partition? {
