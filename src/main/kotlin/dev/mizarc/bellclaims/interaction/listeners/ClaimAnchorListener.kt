@@ -52,7 +52,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
         }
 
         if (claim != null) {
-            // Check if player has an active claim transfer request
+            // Check if the player has an active claim transfer request
             var playerHasTransferRequest = false
             val transferResult = doesPlayerHaveTransferRequest.execute(claim.id, event.player.uniqueId)
             when (transferResult) {
@@ -62,9 +62,9 @@ class ClaimAnchorListener(): Listener, KoinComponent {
                 }
             }
 
-            // Notify no ability to interact with claim without being owner or without an active transfer request
+            // Notify no ability to interact with the claim without being owner or without an active transfer request
             if (claim.playerId != event.player.uniqueId && !playerHasTransferRequest) {
-                val playerName = Bukkit.getOfflinePlayer(claim.playerId)
+                val playerName = Bukkit.getOfflinePlayer(claim.playerId).name ?: LocalizationKeys.GENERAL_NAME_ERROR
                 event.player.sendActionBar(Component.text(
                     localizationProvider.get(playerId, LocalizationKeys.FEEDBACK_CLAIM_OWNER, playerName))
                     .color(TextColor.color(255, 85, 85)))
