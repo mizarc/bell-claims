@@ -6,6 +6,10 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitRunnable
 
 class SchedulerServiceBukkit(private val plugin: Plugin): SchedulerService {
+    override fun executeOnMain(task: () -> Unit) {
+        plugin.server.scheduler.runTask(plugin, Runnable(task))
+    }
+
     override fun schedule(delayTicks: Long, task: () -> Unit): Task {
         val runnable = object : BukkitRunnable() {
             override fun run() {

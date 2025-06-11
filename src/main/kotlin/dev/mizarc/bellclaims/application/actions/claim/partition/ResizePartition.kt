@@ -15,7 +15,7 @@ class ResizePartition(private val claimRepository: ClaimRepository,
                       private val partitionRepository: PartitionRepository,
                       private val playerMetadataService: PlayerMetadataService,
                       private val config: MainConfig) {
-    fun execute(partitionId: UUID, selectedCorner: Position2D, newCorner: Position2D): ResizePartitionResult {
+    suspend fun execute(partitionId: UUID, selectedCorner: Position2D, newCorner: Position2D): ResizePartitionResult {
         val partition = partitionRepository.getById(partitionId) ?: return ResizePartitionResult.StorageError
         val newArea = setNewCorner(selectedCorner, newCorner, partition.area)
         val newPartition = partition.copy(area = newArea)
@@ -40,7 +40,7 @@ class ResizePartition(private val claimRepository: ClaimRepository,
             return ResizePartitionResult.TooSmall(config.minimumPartitionSize)
 
         // Check if the player has reached their claim block limit
-        val playerBlockLimit = playerMetadataService.getPlayerClaimBlockLimit(claim.playerId)
+        val playerBlockLimit = playerMetadataService.getPlayerClaimBlockLimitAsync(claim.playerId)
         val playerBlockCount = claimRepository.getByPlayer(claim.playerId).flatMap { playerClaim ->
             partitionRepository.getByClaim(playerClaim.id)
         }.sumOf { partition ->

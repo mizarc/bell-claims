@@ -23,6 +23,7 @@ import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
 import dev.mizarc.bellclaims.application.results.claim.partition.CreatePartitionResult
 import dev.mizarc.bellclaims.application.results.claim.partition.ResizePartitionResult
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
+import dev.mizarc.bellclaims.application.services.scheduling.SchedulerService
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Position2D
@@ -33,12 +34,14 @@ import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
 
 /**
- * Actions based on utilizing the claim tool.
+ * Actions based on using the claim tool.
  */
 class EditToolListener: Listener, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
@@ -50,6 +53,8 @@ class EditToolListener: Listener, KoinComponent {
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val resizePartition: ResizePartition by inject()
     private val isItemClaimTool: IsItemClaimTool by inject()
+    private val coroutineScope: CoroutineScope by inject()
+    private val schedulerService: SchedulerService by inject()
 
     // Map of player id to the partition and the first selected corner to resize a partition
     private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
@@ -89,7 +94,7 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
-        // Select corner of existing claim for resize operation
+        // Select the corner of an existing claim for resize operation
         if (selectExistingCorner(event.player, clickedBlock.location)) {
             return
         }
@@ -134,18 +139,30 @@ class EditToolListener: Listener, KoinComponent {
         if (partition != null) {
             player.sendActionBar(
                 Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_IN_CLAIM))
+                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
                     .color(TextColor.color(255, 85, 85)))
             return
         }
 
+        // Get claim override value
+        val result = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        val hasOverride = when (result) {
+            DoesPlayerHaveClaimOverrideResult.StorageError -> false
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
+        }
+
         // Find claims next to the current selection
+        // Players with override can select any claim, otherwise only allow claims that player owns
         var selectedClaim: Claim? = null
         val adjacentClaims = findAdjacentClaims(location)
-        for (claim in adjacentClaims) {
-            if (claim.playerId == player.uniqueId) {
-                selectedClaim = claim
-                break
+        if (hasOverride) {
+            selectedClaim = adjacentClaims.firstOrNull()
+        } else {
+            for (claim in adjacentClaims) {
+                if (claim.playerId == player.uniqueId) {
+                    selectedClaim = claim
+                    break
+                }
             }
         }
 
@@ -159,7 +176,7 @@ class EditToolListener: Listener, KoinComponent {
 
         val remainingClaimBlockCount = getRemainingClaimBlockCount.execute(player.uniqueId)
 
-        // Check if the player already hit claim block limit
+        // Check if the player already hit their claim block limit
         if (remainingClaimBlockCount < 1) {
             return player.sendActionBar(
                 Component.text(localizationProvider.get(
@@ -181,44 +198,103 @@ class EditToolListener: Listener, KoinComponent {
     fun createPartitionBranch(player: Player, location: Location, partitionBuilder: Pair<UUID, Position2D>) {
         val secondPosition = Position2D(location.x.toInt(), location.z.toInt())
         val area = Area(partitionBuilder.second, secondPosition)
-        when (val result = createPartition.execute(partitionBuilder.first, area)) {
-            is CreatePartitionResult.Success -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_NEW_PARTITION, result.claim.name, 0))
-                    .color(TextColor.color(85, 255, 85)))
-                firstSelectedCornerCreate.remove(player.uniqueId)
-                val event = PartitionModificationEvent(result.partition)
-                event.callEvent()
-            }
-            is CreatePartitionResult.Disconnected -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_NOT_CONNECTED))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is CreatePartitionResult.InsufficientBlocks -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INSUFFICIENT, result.requiredExtraBlocks))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is CreatePartitionResult.Overlaps -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_OVERLAP))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is CreatePartitionResult.TooClose -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_TOO_CLOSE))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is CreatePartitionResult.TooSmall -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_MINIMUM_SIZE, result.minimumSize))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is CreatePartitionResult.StorageError -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.GENERAL_ERROR))
-                    .color(TextColor.color(255, 85, 85)))
+
+        coroutineScope.launch {
+            when (val result = createPartition.execute(partitionBuilder.first, area)) {
+                is CreatePartitionResult.Success -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId,
+                                    LocalizationKeys.FEEDBACK_EDIT_TOOL_NEW_PARTITION,
+                                    result.claim.name,
+                                    0
+                                )
+                            )
+                                .color(TextColor.color(85, 255, 85))
+                        )
+                        firstSelectedCornerCreate.remove(player.uniqueId)
+                        val event = PartitionModificationEvent(result.partition)
+                        event.callEvent()
+                    }
+                }
+                is CreatePartitionResult.Disconnected -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_NOT_CONNECTED
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
+                is CreatePartitionResult.InsufficientBlocks -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId,
+                                    LocalizationKeys.FEEDBACK_EDIT_TOOL_INSUFFICIENT,
+                                    result.requiredExtraBlocks
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
+                is CreatePartitionResult.Overlaps -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_OVERLAP
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
+                is CreatePartitionResult.TooClose -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_TOO_CLOSE
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
+                is CreatePartitionResult.TooSmall -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId,
+                                    LocalizationKeys.FEEDBACK_EDIT_TOOL_MINIMUM_SIZE,
+                                    result.minimumSize
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
+                is CreatePartitionResult.StorageError -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.GENERAL_ERROR
+                                )
+                            )
+                                .color(TextColor.color(255, 85, 85))
+                        )
+                    }
+                }
             }
         }
     }
@@ -233,11 +309,14 @@ class EditToolListener: Listener, KoinComponent {
             else -> return false
         }
 
-        // Check for permission to modify claim.
-        val hasOverride = when (doesPlayerHaveClaimOverride.execute(player.uniqueId)) {
+        // Get claim override value
+        val result = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        val hasOverride = when (result) {
             DoesPlayerHaveClaimOverrideResult.StorageError -> false
-            is DoesPlayerHaveClaimOverrideResult.Success -> true
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
         }
+
+        // Alert player if they don't have permission to modify
         if (hasOverride) {}
         else if (claim.playerId != player.uniqueId) {
             player.sendActionBar(
@@ -264,51 +343,86 @@ class EditToolListener: Listener, KoinComponent {
      * Selects a new position to resize the claim.
      */
     fun resizePartitionBranch(player: Player, location: Location, partitionResizer: Pair<UUID, Position2D>) {
-        when (val result = resizePartition.execute(partitionResizer.first, partitionResizer.second,
+        coroutineScope.launch {
+            when (val result = resizePartition.execute(partitionResizer.first, partitionResizer.second,
                 location.toPosition2D())) {
-            is ResizePartitionResult.Success -> {
-                player.sendActionBar(
-                    Component.text(localizationProvider.get(
-                        player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_SUCCESSFUL_RESIZE, result.remainingBlocks))
-                        .color(TextColor.color(85, 255, 85)))
-                val event = PartitionModificationEvent(result.partition)
-                event.callEvent()
-                firstSelectedCornerResize.remove(player.uniqueId)
-            }
-            is ResizePartitionResult.Disconnected -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_NOT_CONNECTED))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.ExposedClaimAnchor -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_IN_CLAIM))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.InsufficientBlocks -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INSUFFICIENT))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.Overlaps -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_OVERLAP))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.TooClose -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_TOO_CLOSE))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.TooSmall -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_MINIMUM_SIZE, result.minimumSize))
-                    .color(TextColor.color(255, 85, 85)))
-            }
-            is ResizePartitionResult.StorageError -> {
-                player.sendActionBar(Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.GENERAL_ERROR))
-                    .color(TextColor.color(255, 85, 85)))
+                    is ResizePartitionResult.Success -> {
+                        schedulerService.executeOnMain {
+                            player.sendActionBar(
+                                Component.text(
+                                    localizationProvider.get(
+                                        player.uniqueId,
+                                        LocalizationKeys.FEEDBACK_EDIT_TOOL_SUCCESSFUL_RESIZE,
+                                        result.remainingBlocks))
+                                    .color(TextColor.color(85, 255, 85)))
+                            val event = PartitionModificationEvent(result.partition)
+                            event.callEvent()
+                            firstSelectedCornerResize.remove(player.uniqueId)
+                        }
+                }
+                is ResizePartitionResult.Disconnected -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(Component.text(localizationProvider.get(
+                            player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_NOT_CONNECTED))
+                            .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.ExposedClaimAnchor -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_IN_CLAIM))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.InsufficientBlocks -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INSUFFICIENT))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.Overlaps -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_OVERLAP))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.TooClose -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_TOO_CLOSE))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.TooSmall -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId,
+                                    LocalizationKeys.FEEDBACK_EDIT_TOOL_MINIMUM_SIZE,
+                                    result.minimumSize))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
+                is ResizePartitionResult.StorageError -> {
+                    schedulerService.executeOnMain {
+                        player.sendActionBar(
+                            Component.text(
+                                localizationProvider.get(
+                                    player.uniqueId, LocalizationKeys.GENERAL_ERROR))
+                                .color(TextColor.color(255, 85, 85)))
+                    }
+                }
             }
         }
     }
