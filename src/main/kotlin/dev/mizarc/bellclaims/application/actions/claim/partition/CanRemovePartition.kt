@@ -16,11 +16,10 @@ class CanRemovePartition(private val claimRepository: ClaimRepository,
         // Check if removal would result in partitions being disconnected to the claim anchor
         if (isRemoveResultInAnyDisconnected(partition)) return CanRemovePartitionResult.Disconnected
 
-        // Check if claim bell would be outside partition
+        // Check if the claim bell would be outside partition
         val claim = claimRepository.getById(partition.claimId) ?: return CanRemovePartitionResult.StorageError
         if (partitionId == getPrimaryPartition(claim).id) return CanRemovePartitionResult.ExposedClaimAnchor
 
-        partitionRepository.remove(partition.id)
         return CanRemovePartitionResult.Success
     }
 
