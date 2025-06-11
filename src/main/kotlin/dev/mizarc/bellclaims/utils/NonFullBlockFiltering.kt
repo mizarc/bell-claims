@@ -432,7 +432,8 @@ val transparentMaterials = arrayOf(
     Material.CAVE_VINES_PLANT,
     Material.BIG_DRIPLEAF_STEM,
     Material.POTTED_AZALEA_BUSH,
-    Material.POTTED_FLOWERING_AZALEA_BUSH
+    Material.POTTED_FLOWERING_AZALEA_BUSH,
+    Material.LEAF_LITTER
 )
 
 /**
