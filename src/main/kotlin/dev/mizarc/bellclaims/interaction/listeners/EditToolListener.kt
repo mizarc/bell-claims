@@ -41,7 +41,7 @@ import org.koin.core.component.inject
 import java.util.UUID
 
 /**
- * Actions based on utilizing the claim tool.
+ * Actions based on using the claim tool.
  */
 class EditToolListener: Listener, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
@@ -68,6 +68,7 @@ class EditToolListener: Listener, KoinComponent {
         val item = event.item ?: return
         val clickedBlock = event.clickedBlock ?: return
         if (!isItemClaimTool.execute(item.toCustomItemData())) return
+        println("niner")
 
         // Open the menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
@@ -83,6 +84,7 @@ class EditToolListener: Listener, KoinComponent {
         // Resizes an existing partition
         val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
+            println("okay")
             resizePartitionBranch(event.player, clickedBlock.location, partitionResizer)
             return
         }
@@ -94,7 +96,7 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
-        // Select corner of existing claim for resize operation
+        // Select the corner of an existing claim for resize operation
         if (selectExistingCorner(event.player, clickedBlock.location)) {
             return
         }
@@ -164,7 +166,7 @@ class EditToolListener: Listener, KoinComponent {
 
         val remainingClaimBlockCount = getRemainingClaimBlockCount.execute(player.uniqueId)
 
-        // Check if the player already hit claim block limit
+        // Check if the player already hit their claim block limit
         if (remainingClaimBlockCount < 1) {
             return player.sendActionBar(
                 Component.text(localizationProvider.get(
@@ -238,11 +240,14 @@ class EditToolListener: Listener, KoinComponent {
             else -> return false
         }
 
-        // Check for permission to modify claim.
-        val hasOverride = when (doesPlayerHaveClaimOverride.execute(player.uniqueId)) {
+        // Get claim override value
+        val result = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        val hasOverride = when (result) {
             DoesPlayerHaveClaimOverrideResult.StorageError -> false
-            is DoesPlayerHaveClaimOverrideResult.Success -> true
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
         }
+
+        // Alert player if they don't have permission to modify
         if (hasOverride) {}
         else if (claim.playerId != player.uniqueId) {
             player.sendActionBar(
