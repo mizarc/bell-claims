@@ -2,13 +2,13 @@ package dev.mizarc.bellclaims.interaction.menus.misc
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.gui.type.HopperGui
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimBlockCount
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.partition.CanRemovePartition
 import dev.mizarc.bellclaims.application.actions.claim.partition.GetClaimPartitions
 import dev.mizarc.bellclaims.application.actions.claim.partition.RemovePartition
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.RegisterClaimMenuOpening
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
@@ -16,6 +16,7 @@ import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisuali
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ToggleVisualiserMode
 import dev.mizarc.bellclaims.application.events.PartitionModificationEvent
 import dev.mizarc.bellclaims.application.results.claim.partition.CanRemovePartitionResult
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.application.results.player.visualisation.GetVisualiserModeResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.entities.Partition
@@ -46,6 +47,7 @@ class EditToolMenu(private val menuNavigator: MenuNavigator, private val player:
     private val removePartition: RemovePartition by inject()
     private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
     private val canRemovePartition: CanRemovePartition by inject()
+    private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
 
     override fun open() {
         val title = localizationProvider.get(player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_TITLE)
@@ -100,7 +102,7 @@ class EditToolMenu(private val menuNavigator: MenuNavigator, private val player:
         val guiDividerItem = GuiItem(dividerItem) { guiEvent -> guiEvent.isCancelled = true }
         pane.addItem(guiDividerItem, 1, 0)
 
-        // Add message item if selection is out of any claim
+        // Add a message item if selection is out of any claim
         if (partition == null) {
             val messageItem = ItemStack(Material.COAL)
                 .name(localizationProvider.get(
@@ -114,9 +116,16 @@ class EditToolMenu(private val menuNavigator: MenuNavigator, private val player:
             return
         }
 
-        // Add message if player doesn't own claim
+        // Get claim override value
+        val result = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        val hasOverride = when (result) {
+            DoesPlayerHaveClaimOverrideResult.StorageError -> false
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
+        }
+
+        // Add a message if the player doesn't own the claim
         val claim = getClaimDetails.execute(partition.claimId) ?: return
-        if (claim.playerId != player.uniqueId) {
+        if (claim.playerId != player.uniqueId && !hasOverride) {
             val messageItem = ItemStack(Material.COAL)
                 .name(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.MENU_EDIT_TOOL_ITEM_NO_PERMISSION_NAME))
@@ -129,7 +138,7 @@ class EditToolMenu(private val menuNavigator: MenuNavigator, private val player:
             return
         }
 
-        // Add claim information item
+        // Add a claim information item
         val partitions = getClaimPartitions.execute(claim.id)
         val blockCount = getClaimBlockCount.execute(claim.id)
         val claimItem = ItemStack(Material.BELL)
