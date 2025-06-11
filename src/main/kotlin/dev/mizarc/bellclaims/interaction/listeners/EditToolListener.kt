@@ -144,13 +144,25 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
+        // Get claim override value
+        val result = doesPlayerHaveClaimOverride.execute(player.uniqueId)
+        val hasOverride = when (result) {
+            DoesPlayerHaveClaimOverrideResult.StorageError -> false
+            is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
+        }
+
         // Find claims next to the current selection
+        // Players with override can select any claim, otherwise only allow claims that player owns
         var selectedClaim: Claim? = null
         val adjacentClaims = findAdjacentClaims(location)
-        for (claim in adjacentClaims) {
-            if (claim.playerId == player.uniqueId) {
-                selectedClaim = claim
-                break
+        if (hasOverride) {
+            selectedClaim = adjacentClaims.firstOrNull()
+        } else {
+            for (claim in adjacentClaims) {
+                if (claim.playerId == player.uniqueId) {
+                    selectedClaim = claim
+                    break
+                }
             }
         }
 
