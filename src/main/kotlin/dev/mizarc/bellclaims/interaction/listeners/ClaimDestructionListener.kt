@@ -62,7 +62,7 @@ class ClaimDestructionListener: Listener, KoinComponent {
         // No permission to break bell
         val playerId = event.player.uniqueId
         if (playerId != claim.playerId && !hasOverride) {
-            val playerName = Bukkit.getPlayer(claim.playerId)?.name ?:
+            val playerName = Bukkit.getOfflinePlayer(claim.playerId).name ?:
                 localizationProvider.get(playerId, LocalizationKeys.GENERAL_NAME_ERROR)
             event.player.sendActionBar(
                 Component.text(localizationProvider.get(
