@@ -40,10 +40,10 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib")
     implementation ("org.slf4j:slf4j-nop:2.0.13")
     implementation("com.zaxxer:HikariCP:5.1.0")
@@ -51,7 +51,9 @@ dependencies {
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
     implementation("dev.mizarc.inventoryframework:if:0.10.19-fork-1")
     implementation("io.insert-koin:koin-core:4.0.2")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+        exclude(group = "org.bukkit", module = "bukkit")
+    }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
 }
