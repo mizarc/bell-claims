@@ -2,8 +2,10 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.transfer.DoesPlayerHaveTransferRequest
 import dev.mizarc.bellclaims.application.actions.claim.anchor.GetClaimAnchorAtPosition
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
 import dev.mizarc.bellclaims.application.results.claim.anchor.GetClaimAnchorAtPositionResult
+import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -28,6 +30,7 @@ class ClaimAnchorListener(): Listener, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
     private val getClaimAnchorAtPosition: GetClaimAnchorAtPosition by inject()
     private val doesPlayerHaveTransferRequest: DoesPlayerHaveTransferRequest by inject()
+    private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
 
     @EventHandler
     fun onPlayerClaimHubInteract(event: PlayerInteractEvent) {
@@ -62,8 +65,15 @@ class ClaimAnchorListener(): Listener, KoinComponent {
                 }
             }
 
+            // Get the player's claim override state
+            val result = doesPlayerHaveClaimOverride.execute(event.player.uniqueId)
+            val claimOverride = when (result) {
+                DoesPlayerHaveClaimOverrideResult.StorageError -> false
+                is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
+            }
+
             // Notify no ability to interact with the claim without being owner or without an active transfer request
-            if (claim.playerId != event.player.uniqueId && !playerHasTransferRequest) {
+            if (claim.playerId != event.player.uniqueId && !playerHasTransferRequest && !claimOverride) {
                 val playerName = Bukkit.getOfflinePlayer(claim.playerId).name ?: LocalizationKeys.GENERAL_NAME_ERROR
                 event.player.sendActionBar(Component.text(
                     localizationProvider.get(playerId, LocalizationKeys.FEEDBACK_CLAIM_OWNER, playerName))
