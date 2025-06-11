@@ -52,6 +52,8 @@ dependencies {
     implementation("dev.mizarc.inventoryframework:if:0.10.19-fork-1")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
 }
 
 java {

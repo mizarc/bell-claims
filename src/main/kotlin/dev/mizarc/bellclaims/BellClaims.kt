@@ -2,17 +2,17 @@ package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.di.appModule
-import dev.mizarc.bellclaims.infrastructure.persistence.Config
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
-import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitScheduler
 import org.koin.core.context.GlobalContext.startKoin
-import java.io.File
 
 
 /**
@@ -21,10 +21,11 @@ import java.io.File
 class BellClaims : JavaPlugin() {
     private lateinit var commandManager: PaperCommandManager
     lateinit var metadata: Chat
-    internal var conf: Config = Config(this)
     private lateinit var scheduler: BukkitScheduler
+    lateinit var pluginScope: CoroutineScope
 
     override fun onEnable() {
+        pluginScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scheduler = server.scheduler
         startKoin { modules(appModule(this@BellClaims)) }
         initLang()
@@ -50,6 +51,7 @@ class BellClaims : JavaPlugin() {
     }
 
     override fun onDisable() {
+        pluginScope.cancel()
         logger.info("Bell Claims has been Disabled")
     }
 
