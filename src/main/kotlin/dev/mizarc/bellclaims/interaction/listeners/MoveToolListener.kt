@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.claim.anchor.MoveClaimAnchor
+import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.tool.GetClaimIdFromMoveTool
 import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
 import dev.mizarc.bellclaims.application.results.player.tool.GetClaimIdFromMoveToolResult
@@ -25,14 +26,16 @@ class MoveToolListener: Listener, KoinComponent {
 
     @EventHandler
     fun onClaimMoveBlockPlace(event: BlockPlaceEvent) {
-        val playerId = event.player.uniqueId
-        val result = getClaimIdFromMoveTool.execute(event.itemInHand.toCustomItemData())
+        // Get the claim id from the move tool
         val claimId: UUID
+        val result = getClaimIdFromMoveTool.execute(event.itemInHand.toCustomItemData())
         when (result) {
             GetClaimIdFromMoveToolResult.NotMoveTool -> return
             is GetClaimIdFromMoveToolResult.Success -> claimId = result.claimId
         }
 
+        // Perform action to move the claim bell
+        val playerId = event.player.uniqueId
         when (moveClaimAnchor.execute(
             claimId, event.player.uniqueId,
             event.blockPlaced.world.uid, event.blockPlaced.location.toPosition3D())) {
