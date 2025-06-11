@@ -68,7 +68,6 @@ class EditToolListener: Listener, KoinComponent {
         val item = event.item ?: return
         val clickedBlock = event.clickedBlock ?: return
         if (!isItemClaimTool.execute(item.toCustomItemData())) return
-        println("niner")
 
         // Open the menu if in offhand
         if (event.hand == EquipmentSlot.OFF_HAND) {
@@ -84,7 +83,6 @@ class EditToolListener: Listener, KoinComponent {
         // Resizes an existing partition
         val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
-            println("okay")
             resizePartitionBranch(event.player, clickedBlock.location, partitionResizer)
             return
         }
@@ -141,7 +139,7 @@ class EditToolListener: Listener, KoinComponent {
         if (partition != null) {
             player.sendActionBar(
                 Component.text(localizationProvider.get(
-                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_IN_CLAIM))
+                    player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
                     .color(TextColor.color(255, 85, 85)))
             return
         }
