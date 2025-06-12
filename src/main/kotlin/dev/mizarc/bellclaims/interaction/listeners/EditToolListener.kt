@@ -7,6 +7,8 @@ import dev.mizarc.bellclaims.application.actions.claim.partition.ResizePartition
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.GetRemainingClaimBlockCount
 import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearSelectionVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplaySelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -36,6 +38,7 @@ import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
+import kotlin.concurrent.thread
 
 /**
  * Actions based on utilizing the claim tool.
@@ -50,6 +53,8 @@ class EditToolListener: Listener, KoinComponent {
     private val doesPlayerHaveClaimOverride: DoesPlayerHaveClaimOverride by inject()
     private val resizePartition: ResizePartition by inject()
     private val isItemClaimTool: IsItemClaimTool by inject()
+    private val displaySelectionVisualisation: DisplaySelectionVisualisation by inject()
+    private val clearSelectionVisualisation: ClearSelectionVisualisation by inject()
 
     // Map of player id to the partition and the first selected corner to resize a partition
     private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
@@ -169,6 +174,10 @@ class EditToolListener: Listener, KoinComponent {
 
         // Start partition building
         firstSelectedCornerCreate[player.uniqueId] = Pair(selectedClaim.id, location.toPosition2D())
+        thread(start = true) {
+            Thread.sleep(1)
+            displaySelectionVisualisation.execute(player.uniqueId, location.toPosition3D())
+        }
         return player.sendActionBar(
             Component.text(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_START_EXTENSION,
@@ -257,6 +266,10 @@ class EditToolListener: Listener, KoinComponent {
             Component.text(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_START_RESIZE, remainingClaimBlockCount))
                 .color(TextColor.color(85, 255, 85)))
+        thread(start = true) {
+            Thread.sleep(1)
+            displaySelectionVisualisation.execute(player.uniqueId, location.toPosition3D())
+        }
         return true
     }
 
