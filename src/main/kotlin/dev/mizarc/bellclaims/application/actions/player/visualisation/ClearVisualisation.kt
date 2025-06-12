@@ -8,7 +8,7 @@ import java.util.UUID
 class ClearVisualisation(private val playerStateRepository: PlayerStateRepository,
                          private val visualisationService: VisualisationService) {
     /**
-     * Clears the claim visualisation for target player
+     * Clears the claim visualisation for the target player
      */
     fun execute(playerId: UUID) {
         var playerState = playerStateRepository.get(playerId)
@@ -17,7 +17,13 @@ class ClearVisualisation(private val playerStateRepository: PlayerStateRepositor
             playerStateRepository.add(playerState)
         }
 
-        visualisationService.clear(playerId, playerState.visualisedClaims.values.flatten().toSet())
+        // Get all the blocks to unvisualise, including partition-based and currently selected
+        val blocksToUnvisualise = playerState.visualisedClaims.values.flatten().toMutableSet()
+
+        // Unvisualise
+        visualisationService.clear(playerId, blocksToUnvisualise)
+
+        // Nullify visualizations in the player state
         playerState.visualisedClaims.clear()
         playerState.isVisualisingClaims = false
         playerStateRepository.update(playerState)
