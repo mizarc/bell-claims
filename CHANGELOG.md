@@ -15,6 +15,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - All known missing localizations added to the english localization file.
 - Custom models can be used via resource pack to change the model of the claim and move tools.
 - Custom model ids are editable via config.
+- A new block now indicates the actively selected block while editing partitions.
+- The current partition resize or add operation can be canceled by clicking on the actively selected block.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
