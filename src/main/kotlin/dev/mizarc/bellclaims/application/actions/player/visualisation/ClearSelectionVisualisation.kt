@@ -10,7 +10,7 @@ class ClearSelectionVisualisation(
     private val playerStateRepository: PlayerStateRepository,
     private val visualisationService: VisualisationService
 ) {
-    fun execute(playerId: UUID, position: Position3D) {
+    fun execute(playerId: UUID) {
         var playerState = playerStateRepository.get(playerId)
         if (playerState == null) {
             playerState = PlayerState(playerId)
@@ -23,7 +23,7 @@ class ClearSelectionVisualisation(
         visualisationService.clear(playerId, setOf(selectedBlock))
 
         // Set visualization in the player state
-        playerState.selectedBlock = position
+        playerState.selectedBlock = null
         playerStateRepository.update(playerState)
     }
 }
