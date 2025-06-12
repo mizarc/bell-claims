@@ -14,7 +14,7 @@ class CreatePartition(private val claimRepository: ClaimRepository,
                       private val partitionRepository: PartitionRepository,
                       private val playerMetadataService: PlayerMetadataService,
                       private val config: MainConfig) {
-    fun execute(claimId: UUID, area: Area): CreatePartitionResult {
+    suspend fun execute(claimId: UUID, area: Area): CreatePartitionResult {
         val partition = Partition(claimId, area)
 
         // Check if selection overlaps an existing claim
@@ -30,7 +30,7 @@ class CreatePartition(private val claimRepository: ClaimRepository,
 
         // Check if the player has reached their claim block limit
         val claim = claimRepository.getById(claimId) ?: return CreatePartitionResult.StorageError
-        val playerBlockLimit = playerMetadataService.getPlayerClaimBlockLimit(claim.playerId)
+        val playerBlockLimit = playerMetadataService.getPlayerClaimBlockLimitAsync(claim.playerId)
         val playerBlockCount = claimRepository.getByPlayer(claim.playerId).flatMap { playerClaim ->
             partitionRepository.getByClaim(playerClaim.id)
         }.sumOf { partition ->

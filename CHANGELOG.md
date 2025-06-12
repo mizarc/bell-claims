@@ -9,28 +9,32 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
-- New "View" permission added for viewing contents without being able to modify.
-- Crops such as wheat, carrots, and cocoa beans can now be right click harvested which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
-- Localizations can now automatically detect player's own locale, falling back to the server locale if not available.
-- All known missing localizations added to the english localization file.
+- New "View" permission is added for viewing contents without being able to modify.
+- Crops such as wheat, carrots, and cocoa beans can now be harvested with a right-click which auto replants the seeds. This can be disabled in config but allows the harvest permission to work to its fullest.
+- Localizations can now automatically detect the player's own locale, falling back to the server locale if not available.
+- All known missing localizations are added to the English localization file.
 - Custom models can be used via resource pack to change the model of the claim and move tools.
 - Custom model ids are editable via config.
+- Override allows you to modify partitions as well as access and manage the claim menu.
+- Leaf litter is now included in the transparency block filter.
 - A new block now indicates the actively selected block while editing partitions.
 - The current partition resize or add operation can be canceled by clicking on the actively selected block.
 
 ### Changed
-- Using bone meal on crops is now covered by the harvest permission. Bone meal usage on non crops still covered by the build permission.
+- Using bone meal on crops is now covered by the harvest permission. The build permission still covers bone meal usage on non-crops.
 - Armor stands can now be hit without a permission, but are still protected from destruction by Build permission.
-- All languages are now included in the default lang folder on server start, with an override folder for specific admin specifiable overrides.
+- All languages are now included in the default lang folder on server start, with an override folder for specific admin-specifiable overrides.
 - Localization file format now makes use of properties files instead of yml, using a standard key format which should better enforce localization usage over fixed strings.
 - Viewing lecterns moved from redstone trigger to View permission.
 
 ### Removed
-- Machine generated translations removed, only suitable for testing but doubtful of their accuracy.
+- Machine-generated translations removed, only suitable for testing but doubtful of their accuracy.
 
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
 - Bell being duplicated when using the move tool.
+- Claims owned by other players were being rendered as if it's your own claim.
+- Able to select the corner of claims owned by other players even if you can't modify them.
 
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.
