@@ -83,6 +83,16 @@ class EditToolListener: Listener, KoinComponent {
         // Resizes an existing partition
         val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
+            if (partitionResizer.second == clickedBlock.location.toPosition2D()) {
+                clearSelectionVisualisation.execute(event.player.uniqueId)
+                firstSelectedCornerResize.remove(event.player.uniqueId)
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_UNSELECT_RESIZE))
+                        .color(TextColor.color(255, 85, 85)))
+                return
+            }
+
             resizePartitionBranch(event.player, clickedBlock.location, partitionResizer)
             return
         }
@@ -90,6 +100,16 @@ class EditToolListener: Listener, KoinComponent {
         // Creates a new partition
         val partitionBuilder = firstSelectedCornerCreate[event.player.uniqueId]
         if (partitionBuilder != null) {
+            if (partitionBuilder.second == clickedBlock.location.toPosition2D()) {
+                clearSelectionVisualisation.execute(event.player.uniqueId)
+                firstSelectedCornerCreate.remove(event.player.uniqueId)
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_UNSELECT_BUILD))
+                        .color(TextColor.color(255, 85, 85)))
+                return
+            }
+
             createPartitionBranch(event.player, clickedBlock.location, partitionBuilder)
             return
         }
