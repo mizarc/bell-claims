@@ -10,6 +10,7 @@ import java.util.UUID
 class ScheduleClearVisualisation(private val playerStateRepository: PlayerStateRepository,
                                  private val schedulerService: SchedulerService,
                                  private val clearVisualisation: ClearVisualisation,
+                                 private val clearSelectionVisualisation: ClearSelectionVisualisation,
                                  private val config: MainConfig) {
     fun execute(playerId: UUID): ScheduleClearVisualisationResult {
         // Get or create player state if it doesn't exist
@@ -27,7 +28,10 @@ class ScheduleClearVisualisation(private val playerStateRepository: PlayerStateR
         if (playerState.isVisualisingClaims) {
             playerState.isVisualisingClaims = false
             val delayTicks = (20L * config.visualiserHideDelayPeriod).toLong()
-            val task = schedulerService.schedule(delayTicks) { clearVisualisation.execute(playerId) }
+            val task = schedulerService.schedule(delayTicks) {
+                clearVisualisation.execute(playerId)
+                clearSelectionVisualisation.execute(playerId)
+            }
             playerState.scheduledVisualiserHide = task
             return ScheduleClearVisualisationResult.Success
         } else {
