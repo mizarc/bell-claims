@@ -77,15 +77,15 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             // Handle claim not owned by this player
             if (claim.playerId != playerId) {
                 visualised[claim.id] = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+            } else {
+                // Get all partitions linked to found claim
+                val partitions = partitionRepository.getByClaim(claim.id)
+                val areas = partitions.map { it.area }.toMutableSet()
+
+                // Visualise the entire claim border and map it
+                visualised[claim.id] = visualisationService.displayComplete(playerId, areas,
+                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
             }
-
-            // Get all partitions linked to found claim
-            val partitions = partitionRepository.getByClaim(claim.id)
-            val areas = partitions.map { it.area }.toMutableSet()
-
-            // Visualise the entire claim border and map it
-            visualised[claim.id] = visualisationService.displayComplete(playerId, areas,
-                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
         }
         return visualised
     }

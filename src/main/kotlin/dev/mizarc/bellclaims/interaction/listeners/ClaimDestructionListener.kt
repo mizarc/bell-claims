@@ -56,13 +56,13 @@ class ClaimDestructionListener: Listener, KoinComponent {
 
         val hasOverride = when (val result = doesPlayerHaveClaimOverride.execute(event.player.uniqueId)) {
             is DoesPlayerHaveClaimOverrideResult.Success -> result.hasOverride
-            else -> {}
+            else -> false
         }
 
         // No permission to break bell
         val playerId = event.player.uniqueId
-        if (playerId != claim.playerId && hasOverride != true) {
-            val playerName = Bukkit.getPlayer(claim.playerId)?.name ?:
+        if (playerId != claim.playerId && !hasOverride) {
+            val playerName = Bukkit.getOfflinePlayer(claim.playerId).name ?:
                 localizationProvider.get(playerId, LocalizationKeys.GENERAL_NAME_ERROR)
             event.player.sendActionBar(
                 Component.text(localizationProvider.get(

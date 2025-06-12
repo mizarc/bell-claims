@@ -95,12 +95,21 @@ import dev.mizarc.bellclaims.infrastructure.services.VisualisationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.WorldManipulationServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.services.scheduling.SchedulerServiceBukkit
 import dev.mizarc.bellclaims.infrastructure.utilities.LocalizationProviderProperties
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.Plugin
+import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitScheduler
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 // Define your Koin module(s) - using a top-level val named appModule is common
 fun appModule(plugin: BellClaims) = module {
@@ -108,8 +117,9 @@ fun appModule(plugin: BellClaims) = module {
     single<Plugin> {plugin}
     single<File> { plugin.dataFolder }
     single<FileConfiguration> { plugin.config }
-    single<Chat> {plugin.metadata }
-
+    single<Chat> { plugin.metadata }
+    single<CoroutineScope> { plugin.pluginScope }
+    single<CoroutineDispatcher>(named("IODispatcher")) { Dispatchers.IO }
 
     // --- Config ---
     single { get<ConfigService>().loadConfig() }
