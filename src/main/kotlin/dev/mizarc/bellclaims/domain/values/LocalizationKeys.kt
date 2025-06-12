@@ -37,6 +37,8 @@ object LocalizationKeys {
     const val FEEDBACK_EDIT_TOOL_TOO_CLOSE = "feedback.edit_tool.too_close"
     const val FEEDBACK_EDIT_TOOL_UNEQUIP_BUILD = "feedback.edit_tool.unequip_build"
     const val FEEDBACK_EDIT_TOOL_UNEQUIP_RESIZE = "feedback.edit_tool.unequip_resize"
+    const val FEEDBACK_EDIT_TOOL_UNSELECT_BUILD = "feedback.edit_tool.unselect_build"
+    const val FEEDBACK_EDIT_TOOL_UNSELECT_RESIZE = "feedback.edit_tool.unselect_resize"
 
     // Move Tool
     const val FEEDBACK_MOVE_TOOL_SUCCESS = "feedback.move_tool.success"
