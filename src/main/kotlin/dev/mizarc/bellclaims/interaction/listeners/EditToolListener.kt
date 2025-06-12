@@ -83,8 +83,6 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
-        displayVisualisation.execute(event.player.uniqueId, event.player.location.toPosition3D())
-
         // Resizes an existing partition
         val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
@@ -166,6 +164,7 @@ class EditToolListener: Listener, KoinComponent {
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
                     .color(TextColor.color(255, 85, 85)))
+            visualise(player)
             return
         }
 
@@ -193,6 +192,7 @@ class EditToolListener: Listener, KoinComponent {
 
         // Check if selection exists next to any of the player's owned claims
         if (selectedClaim == null) {
+            visualise(player)
             return player.sendActionBar(
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
@@ -243,6 +243,8 @@ class EditToolListener: Listener, KoinComponent {
                             )
                                 .color(TextColor.color(85, 255, 85))
                         )
+                        clearSelectionVisualisation.execute(player.uniqueId)
+                        visualise(player)
                         firstSelectedCornerCreate.remove(player.uniqueId)
                         val event = PartitionModificationEvent(result.partition)
                         event.callEvent()
@@ -390,6 +392,8 @@ class EditToolListener: Listener, KoinComponent {
                                     .color(TextColor.color(85, 255, 85)))
                             val event = PartitionModificationEvent(result.partition)
                             event.callEvent()
+                            clearSelectionVisualisation.execute(player.uniqueId)
+                            visualise(player)
                             firstSelectedCornerResize.remove(player.uniqueId)
                         }
                 }
@@ -477,5 +481,9 @@ class EditToolListener: Listener, KoinComponent {
                 else -> null
             }
         }
+    }
+
+    private fun visualise(player: Player) {
+        displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
     }
 }

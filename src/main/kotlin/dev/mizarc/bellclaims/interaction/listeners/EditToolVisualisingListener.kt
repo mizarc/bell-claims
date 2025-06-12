@@ -54,16 +54,6 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(player) })
     }
 
-    /**
-     * Triggers when the player clicks on a border block while visualisation is active.
-     */
-    @EventHandler
-    fun onClaimToolClick(event: PlayerInteractEvent) {
-        thread(start = true) {
-            Thread.sleep(1)
-            handleAutoVisualisation(event.player)
-        }
-    }
 
     /**
      * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
