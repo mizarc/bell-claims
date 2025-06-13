@@ -33,8 +33,6 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
 - Bell being duplicated when using the move tool.
-- Claims owned by other players were being rendered as if it's your own claim.
-- Able to select the corner of claims owned by other players even if you can't modify them.
 
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.
