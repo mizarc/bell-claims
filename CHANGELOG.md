@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## [0.4.0]
+New major beta feature drop! Quality of life changes all around and support for 1.21.5.
 
 ### Added
 - Support for Minecraft 1.21.5
@@ -27,7 +28,6 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - All languages are now included in the default lang folder on server start, with an override folder for specific admin-specifiable overrides.
 - Localization file format now makes use of properties files instead of yml, using a standard key format which should better enforce localization usage over fixed strings.
 - Viewing lecterns moved from redstone trigger to View permission.
-- 
 
 ### Removed
 - Machine-generated translations removed, only suitable for testing but doubtful of their accuracy.
