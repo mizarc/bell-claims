@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.domain.values.Position3D
 import java.util.UUID
 
 interface VisualisationService {
+    fun displaySelected(playerId: UUID, position: Position3D, block: String, surfaceBlock: String)
     fun displayComplete(playerId: UUID, areas: Set<Area>, edgeBlock: String, edgeSurfaceBlock: String): Set<Position3D>
     fun displayPartitioned(playerId: UUID, areas: Set<Area>, edgeBlock: String, edgeSurfaceBlock: String,
                            cornerBlock: String, cornerSurfaceBlock: String): Set<Position3D>

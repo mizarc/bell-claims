@@ -5,8 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## [0.4.0]
+New major beta feature drop! Quality of life changes all around and support for 1.21.5.
 
 ### Added
+- Support for Minecraft 1.21.5
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
 - New "View" permission is added for viewing contents without being able to modify.
@@ -17,6 +19,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Custom model ids are editable via config.
 - Override allows you to modify partitions as well as access and manage the claim menu.
 - Leaf litter is now included in the transparency block filter.
+- A new block now indicates the actively selected block while editing partitions.
+- The current partition resize or add operation can be canceled by clicking on the actively selected block.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. The build permission still covers bone meal usage on non-crops.
@@ -31,8 +35,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
 - Bell being duplicated when using the move tool.
-- Claims owned by other players were being rendered as if it's your own claim.
-- Able to select the corner of claims owned by other players even if you can't modify them.
+- The Main partition isn't correctly indicated by the main partition visualizer blocks.
 
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.

@@ -27,8 +27,18 @@ class VisualisationServiceBukkit: VisualisationService {
         West
     }
 
+    override fun displaySelected(
+        playerId: UUID,
+        position: Position3D,
+        block: String,
+        surfaceBlock: String
+    ) {
+        val player = Bukkit.getPlayer(playerId) ?: return
+        setVisualisedBlock(player, position, Material.valueOf(block), Material.valueOf(surfaceBlock))
+    }
+
     /**
-     * Visualise a claim with only the outer borders shown.
+     * Visualize a claim with only the outer borders shown.
      */
     override fun displayComplete(playerId: UUID, areas: Set<Area>, edgeBlock: String,
                                  edgeSurfaceBlock: String): Set<Position3D> {

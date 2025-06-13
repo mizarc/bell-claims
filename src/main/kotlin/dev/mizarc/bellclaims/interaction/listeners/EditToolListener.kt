@@ -7,7 +7,10 @@ import dev.mizarc.bellclaims.application.actions.claim.partition.ResizePartition
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.actions.player.GetRemainingClaimBlockCount
 import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearSelectionVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplaySelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -39,6 +42,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
+import kotlin.concurrent.thread
 
 /**
  * Actions based on using the claim tool.
@@ -55,6 +59,9 @@ class EditToolListener: Listener, KoinComponent {
     private val isItemClaimTool: IsItemClaimTool by inject()
     private val coroutineScope: CoroutineScope by inject()
     private val schedulerService: SchedulerService by inject()
+    private val displaySelectionVisualisation: DisplaySelectionVisualisation by inject()
+    private val clearSelectionVisualisation: ClearSelectionVisualisation by inject()
+    private val refreshVisualisation: RefreshVisualisation by inject()
 
     // Map of player id to the partition and the first selected corner to resize a partition
     private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
@@ -78,11 +85,19 @@ class EditToolListener: Listener, KoinComponent {
             return
         }
 
-        displayVisualisation.execute(event.player.uniqueId, event.player.location.toPosition3D())
-
         // Resizes an existing partition
         val partitionResizer = firstSelectedCornerResize[event.player.uniqueId]
         if (partitionResizer != null) {
+            if (partitionResizer.second == clickedBlock.location.toPosition2D()) {
+                clearSelectionVisualisation.execute(event.player.uniqueId)
+                firstSelectedCornerResize.remove(event.player.uniqueId)
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_UNSELECT_RESIZE))
+                        .color(TextColor.color(255, 85, 85)))
+                return
+            }
+
             resizePartitionBranch(event.player, clickedBlock.location, partitionResizer)
             return
         }
@@ -90,6 +105,16 @@ class EditToolListener: Listener, KoinComponent {
         // Creates a new partition
         val partitionBuilder = firstSelectedCornerCreate[event.player.uniqueId]
         if (partitionBuilder != null) {
+            if (partitionBuilder.second == clickedBlock.location.toPosition2D()) {
+                clearSelectionVisualisation.execute(event.player.uniqueId)
+                firstSelectedCornerCreate.remove(event.player.uniqueId)
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(
+                        event.player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_UNSELECT_BUILD))
+                        .color(TextColor.color(255, 85, 85)))
+                return
+            }
+
             createPartitionBranch(event.player, clickedBlock.location, partitionBuilder)
             return
         }
@@ -141,6 +166,10 @@ class EditToolListener: Listener, KoinComponent {
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
                     .color(TextColor.color(255, 85, 85)))
+            thread(start = true) {
+                Thread.sleep(1)
+                refreshVisualisation.execute(player.uniqueId, partition.claimId, partition.id)
+            }
             return
         }
 
@@ -152,7 +181,7 @@ class EditToolListener: Listener, KoinComponent {
         }
 
         // Find claims next to the current selection
-        // Players with override can select any claim, otherwise only allow claims that player owns
+        // Players with override can select any claim, otherwise only allow claims that the player owns
         var selectedClaim: Claim? = null
         val adjacentClaims = findAdjacentClaims(location)
         if (hasOverride) {
@@ -168,6 +197,7 @@ class EditToolListener: Listener, KoinComponent {
 
         // Check if selection exists next to any of the player's owned claims
         if (selectedClaim == null) {
+            displayVisualisation.execute(player.uniqueId, location.toPosition3D())
             return player.sendActionBar(
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
@@ -186,6 +216,11 @@ class EditToolListener: Listener, KoinComponent {
 
         // Start partition building
         firstSelectedCornerCreate[player.uniqueId] = Pair(selectedClaim.id, location.toPosition2D())
+        thread(start = true) {
+            Thread.sleep(1)
+            displayVisualisation.execute(player.uniqueId, location.toPosition3D())
+            displaySelectionVisualisation.execute(player.uniqueId, location.toPosition3D())
+        }
         return player.sendActionBar(
             Component.text(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_START_EXTENSION,
@@ -214,6 +249,7 @@ class EditToolListener: Listener, KoinComponent {
                             )
                                 .color(TextColor.color(85, 255, 85))
                         )
+                        clearSelectionVisualisation.execute(player.uniqueId)
                         firstSelectedCornerCreate.remove(player.uniqueId)
                         val event = PartitionModificationEvent(result.partition)
                         event.callEvent()
@@ -336,6 +372,10 @@ class EditToolListener: Listener, KoinComponent {
             Component.text(localizationProvider.get(
                 player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_START_RESIZE, remainingClaimBlockCount))
                 .color(TextColor.color(85, 255, 85)))
+        thread(start = true) {
+            Thread.sleep(1)
+            displaySelectionVisualisation.execute(player.uniqueId, location.toPosition3D())
+        }
         return true
     }
 
@@ -355,9 +395,11 @@ class EditToolListener: Listener, KoinComponent {
                                         LocalizationKeys.FEEDBACK_EDIT_TOOL_SUCCESSFUL_RESIZE,
                                         result.remainingBlocks))
                                     .color(TextColor.color(85, 255, 85)))
+
+                            clearSelectionVisualisation.execute(player.uniqueId)
+                            firstSelectedCornerResize.remove(player.uniqueId)
                             val event = PartitionModificationEvent(result.partition)
                             event.callEvent()
-                            firstSelectedCornerResize.remove(player.uniqueId)
                         }
                 }
                 is ResizePartitionResult.Disconnected -> {
