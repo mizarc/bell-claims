@@ -33,6 +33,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Fixed
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
 - Bell being duplicated when using the move tool.
+- The Main partition isn't correctly indicated by the main partition visualizer blocks.
 
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.
