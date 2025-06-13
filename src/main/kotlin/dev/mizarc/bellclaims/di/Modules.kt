@@ -55,7 +55,9 @@ import dev.mizarc.bellclaims.application.actions.player.tool.GivePlayerMoveTool
 import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
 import dev.mizarc.bellclaims.application.actions.player.tool.IsItemMoveTool
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
+import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearSelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplaySelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualisedClaimBlocks
 import dev.mizarc.bellclaims.application.actions.player.visualisation.GetVisualiserMode
@@ -225,7 +227,9 @@ fun appModule(plugin: BellClaims) = module {
     singleOf(::SyncToolVisualization)
 
     // Player / Visualisation
+    singleOf(::ClearSelectionVisualisation)
     singleOf(::ClearVisualisation)
+    singleOf(::DisplaySelectionVisualisation)
     singleOf(::DisplayVisualisation)
     singleOf(::GetVisualisedClaimBlocks)
     singleOf(::GetVisualiserMode)

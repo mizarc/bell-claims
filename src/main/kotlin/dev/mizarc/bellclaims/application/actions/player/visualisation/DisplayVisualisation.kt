@@ -44,15 +44,15 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         // Change visualiser depending on view mode
         val borders: MutableMap<UUID, Set<Position3D>> = mutableMapOf()
         if (playerState.claimToolMode == 1) {
-            borders.putAll(displayPartitioned(playerId, playerPosition))
+            borders.putAll(displayPartitioned(playerId, playerState, playerPosition))
         }
         else {
-            borders.putAll(displayComplete(playerId, playerPosition))
+            borders.putAll(displayComplete(playerId, playerState, playerPosition))
+            playerState.visualisedClaims = borders
         }
 
         // Set visualisation in player state
         playerState.scheduledVisualiserHide?.cancel()
-        playerState.visualisedClaims = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
         playerStateRepository.update(playerState)
@@ -62,7 +62,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
     /**
      * Visualise all of a player's claims with only outer borders.
      */
-    private fun displayComplete(playerId: UUID, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
+    private fun displayComplete(playerId: UUID, playerState: PlayerState, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
         val chunkPosition = Position2D(floor(playerPosition.x / 16.0).toInt(), floor(playerPosition.z / 16.0).toInt())
         val chunks = getSurroundingChunks(chunkPosition, 16) // View distance fixed for now
         val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }.toSet()
@@ -76,7 +76,9 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
 
             // Handle claim not owned by this player
             if (claim.playerId != playerId) {
-                visualised[claim.id] = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+                visualised[claim.id] = handleNonOwnedClaimDisplay(playerId, claim).filter {
+                    it != playerState.selectedBlock }
+                    .toSet()
             } else {
                 // Get all partitions linked to found claim
                 val partitions = partitionRepository.getByClaim(claim.id)
@@ -84,7 +86,10 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
 
                 // Visualise the entire claim border and map it
                 visualised[claim.id] = visualisationService.displayComplete(playerId, areas,
-                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET").filter {
+                        it != playerState.selectedBlock }
+                    .toSet()
+
             }
         }
         return visualised
@@ -93,7 +98,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
     /**
      * Visualise a player's claims with individual partitions shown.
      */
-    private fun displayPartitioned(playerId: UUID, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
+    private fun displayPartitioned(playerId: UUID, playerState: PlayerState, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
         val chunkPosition = Position2D(floor(playerPosition.x / 16.0).toInt(), floor(playerPosition.z / 16.0).toInt())
         val chunks = getSurroundingChunks(chunkPosition, 16) // View distance fixed for now
         val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }.toSet()
@@ -106,7 +111,10 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
 
             // Handle claim not owned by this player
             if (claim.playerId != playerId) {
-                visualised[claim.id] = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+                val positions = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+                visualised[claim.id] = positions
+                playerState.visualisedClaims[claim.id] = positions
+                continue
             }
 
             // Visualise the partition and add it to the map assigned to the partition's claim
@@ -114,15 +122,20 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
                 // Main partition
                 visualisationService.displayPartitioned(playerId, setOf(partition.area),
                     "CYAN_GLAZED_TERRACOTTA", "CYAN_CARPET",
-                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter {
+                    it != playerState.selectedBlock }
+                    .toSet()
             } else {
                 // Attached partitions
                 visualisationService.displayPartitioned(playerId, setOf(partition.area),
                     "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET").filter {
+                    it != playerState.selectedBlock }
+                    .toSet()
             }
 
             visualised.computeIfAbsent(claim.id) { mutableSetOf() }.addAll(newPositions)
+            playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
         }
         return visualised
     }

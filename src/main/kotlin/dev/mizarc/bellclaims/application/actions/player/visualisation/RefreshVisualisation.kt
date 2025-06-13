@@ -13,7 +13,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
                            private val partitionRepository: PartitionRepository,
                            private val visualisationService: VisualisationService) {
     fun execute(playerId: UUID, claimId: UUID, partitionId: UUID) {
-        // Get or create player state if it doesn't exist
+        // Get or create the player state if it doesn't exist
         var playerState = playerStateRepository.get(playerId)
         if (playerState == null) {
             playerState = PlayerState(playerId)
@@ -32,24 +32,37 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             return
         }
 
-        // For player's own claims, change refresh type based on player's current visualisation mode
-        val borders: MutableMap<UUID, Set<Position3D>> = mutableMapOf()
+        // For player's own claims, change the refresh type based on player's current visualisation mode
         if (playerState.claimToolMode == 1) {
+            val partition = partitionRepository.getById(partitionId)
+            if (partition == null) {
+                val blocksToClear = playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }.remove(partitionId) ?: return
+                visualisationService.clear(playerId, blocksToClear)
+                return
+            }
+
             // Display partitioned
-            val visualisedPositions = playerState.visualisedPartitions[claimId]?.get(partitionId) ?: return
-            val partition = partitionRepository.getById(claim.id) ?: return
-            val newPositions = if (partition.area.isPositionInArea(claim.position)) {
-                // Main partition
-                visualisationService.refreshPartitioned(playerId, visualisedPositions, setOf(partition.area),
-                    "CYAN_GLAZED_TERRACOTTA", "CYAN_CARPET",
-                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
-            } else {
-                // Attached partitions
-                visualisationService.refreshPartitioned(playerId, visualisedPositions, setOf(partition.area),
+            playerState.visualisedPartitions[claimId]?.get(partitionId)
+            val visualisedPositions = playerState.visualisedPartitions[claimId]?.get(partitionId)
+            if (visualisedPositions == null) {
+                val newPositions =visualisationService.refreshPartitioned(playerId, emptySet(), setOf(partition.area),
                     "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
                     "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+                playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
+            } else {
+                val newPositions = if (partition.area.isPositionInArea(claim.position)) {
+                    // Main partition
+                    visualisationService.refreshPartitioned(playerId, visualisedPositions, setOf(partition.area),
+                        "CYAN_GLAZED_TERRACOTTA", "CYAN_CARPET",
+                        "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
+                } else {
+                    // Attached partitions
+                    visualisationService.refreshPartitioned(playerId, visualisedPositions, setOf(partition.area),
+                        "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
+                        "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+                }
+                playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
             }
-            playerState.visualisedPartitions[claimId]?.set(partitionId, newPositions)
         }
         else {
             // Display complete
