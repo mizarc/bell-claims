@@ -10,6 +10,7 @@ import dev.mizarc.bellclaims.application.actions.player.tool.IsItemClaimTool
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ClearSelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplaySelectionVisualisation
 import dev.mizarc.bellclaims.application.actions.player.visualisation.DisplayVisualisation
+import dev.mizarc.bellclaims.application.actions.player.visualisation.RefreshVisualisation
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -60,6 +61,7 @@ class EditToolListener: Listener, KoinComponent {
     private val schedulerService: SchedulerService by inject()
     private val displaySelectionVisualisation: DisplaySelectionVisualisation by inject()
     private val clearSelectionVisualisation: ClearSelectionVisualisation by inject()
+    private val refreshVisualisation: RefreshVisualisation by inject()
 
     // Map of player id to the partition and the first selected corner to resize a partition
     private val firstSelectedCornerResize: MutableMap<UUID, Pair<UUID, Position2D>> = mutableMapOf()
@@ -164,7 +166,10 @@ class EditToolListener: Listener, KoinComponent {
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
                     .color(TextColor.color(255, 85, 85)))
-            visualise(player)
+            thread(start = true) {
+                Thread.sleep(1)
+                refreshVisualisation.execute(player.uniqueId, partition.claimId, partition.id)
+            }
             return
         }
 
@@ -176,7 +181,7 @@ class EditToolListener: Listener, KoinComponent {
         }
 
         // Find claims next to the current selection
-        // Players with override can select any claim, otherwise only allow claims that player owns
+        // Players with override can select any claim, otherwise only allow claims that the player owns
         var selectedClaim: Claim? = null
         val adjacentClaims = findAdjacentClaims(location)
         if (hasOverride) {
@@ -192,7 +197,7 @@ class EditToolListener: Listener, KoinComponent {
 
         // Check if selection exists next to any of the player's owned claims
         if (selectedClaim == null) {
-            visualise(player)
+            displayVisualisation.execute(player.uniqueId, location.toPosition3D())
             return player.sendActionBar(
                 Component.text(localizationProvider.get(
                     player.uniqueId, LocalizationKeys.FEEDBACK_EDIT_TOOL_INVALID))
@@ -213,6 +218,7 @@ class EditToolListener: Listener, KoinComponent {
         firstSelectedCornerCreate[player.uniqueId] = Pair(selectedClaim.id, location.toPosition2D())
         thread(start = true) {
             Thread.sleep(1)
+            displayVisualisation.execute(player.uniqueId, location.toPosition3D())
             displaySelectionVisualisation.execute(player.uniqueId, location.toPosition3D())
         }
         return player.sendActionBar(
@@ -244,7 +250,6 @@ class EditToolListener: Listener, KoinComponent {
                                 .color(TextColor.color(85, 255, 85))
                         )
                         clearSelectionVisualisation.execute(player.uniqueId)
-                        visualise(player)
                         firstSelectedCornerCreate.remove(player.uniqueId)
                         val event = PartitionModificationEvent(result.partition)
                         event.callEvent()
@@ -390,11 +395,11 @@ class EditToolListener: Listener, KoinComponent {
                                         LocalizationKeys.FEEDBACK_EDIT_TOOL_SUCCESSFUL_RESIZE,
                                         result.remainingBlocks))
                                     .color(TextColor.color(85, 255, 85)))
+
+                            clearSelectionVisualisation.execute(player.uniqueId)
+                            firstSelectedCornerResize.remove(player.uniqueId)
                             val event = PartitionModificationEvent(result.partition)
                             event.callEvent()
-                            clearSelectionVisualisation.execute(player.uniqueId)
-                            visualise(player)
-                            firstSelectedCornerResize.remove(player.uniqueId)
                         }
                 }
                 is ResizePartitionResult.Disconnected -> {
@@ -481,9 +486,5 @@ class EditToolListener: Listener, KoinComponent {
                 else -> null
             }
         }
-    }
-
-    private fun visualise(player: Player) {
-        displayVisualisation.execute(player.uniqueId, player.location.toPosition3D())
     }
 }

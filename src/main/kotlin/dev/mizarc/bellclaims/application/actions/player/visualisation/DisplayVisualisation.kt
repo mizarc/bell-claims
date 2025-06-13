@@ -48,11 +48,11 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         }
         else {
             borders.putAll(displayComplete(playerId, playerState, playerPosition))
+            playerState.visualisedClaims = borders
         }
 
         // Set visualisation in player state
         playerState.scheduledVisualiserHide?.cancel()
-        playerState.visualisedClaims = borders
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
         playerStateRepository.update(playerState)
@@ -111,7 +111,10 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
 
             // Handle claim not owned by this player
             if (claim.playerId != playerId) {
-                visualised[claim.id] = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+                val positions = handleNonOwnedClaimDisplay(playerId, claim).toMutableSet()
+                visualised[claim.id] = positions
+                playerState.visualisedClaims[claim.id] = positions
+                continue
             }
 
             // Visualise the partition and add it to the map assigned to the partition's claim
@@ -132,6 +135,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             }
 
             visualised.computeIfAbsent(claim.id) { mutableSetOf() }.addAll(newPositions)
+            playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
         }
         return visualised
     }
