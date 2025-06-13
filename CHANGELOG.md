@@ -7,6 +7,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [0.4.0]
 
 ### Added
+- Support for Minecraft 1.21.5
 - Protection against players stealing animals by putting them in vehicles. Bypassed by the animal vehicle flag.
 - Protection against harvesting crops such as berry bushes. Requires the harvest permission.
 - New "View" permission is added for viewing contents without being able to modify.
@@ -26,6 +27,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - All languages are now included in the default lang folder on server start, with an override folder for specific admin-specifiable overrides.
 - Localization file format now makes use of properties files instead of yml, using a standard key format which should better enforce localization usage over fixed strings.
 - Viewing lecterns moved from redstone trigger to View permission.
+- 
 
 ### Removed
 - Machine-generated translations removed, only suitable for testing but doubtful of their accuracy.
