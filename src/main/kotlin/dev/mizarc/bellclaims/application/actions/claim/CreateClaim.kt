@@ -39,10 +39,13 @@ class CreateClaim(private val claimRepository: ClaimRepository, private val part
         }
 
         // Generates the partition area based on config
-        val halfSize = (config.initialClaimSize.toFloat() - 1) / 2
+        val areaSize = config.initialClaimSize
+        val offsetMin = (areaSize - 1) / 2
+        val offsetMax = areaSize / 2
         val area = Area(
-            Position2D((position3D.x - floor(halfSize)).toInt(), (position3D.z - floor(halfSize)).toInt()),
-            Position2D((position3D.x + ceil(halfSize)).toInt(),(position3D.z + ceil(halfSize)).toInt()))
+            Position2D(position3D.x - offsetMin, position3D.z - offsetMin),
+            Position2D(position3D.x + offsetMax, position3D.z + offsetMax)
+        )
 
         // Validate area is within world border
         if (!worldManipulationService.isInsideWorldBorder(worldId, area)) {
