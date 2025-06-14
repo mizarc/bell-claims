@@ -2,6 +2,7 @@ package dev.mizarc.bellclaims
 
 import co.aikar.commands.PaperCommandManager
 import dev.mizarc.bellclaims.di.appModule
+import dev.mizarc.bellclaims.infrastructure.persistence.migrations.SQLiteMigrations
 import dev.mizarc.bellclaims.interaction.commands.*
 import dev.mizarc.bellclaims.interaction.listeners.*
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +14,10 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitScheduler
 import org.koin.core.context.GlobalContext.startKoin
+import java.io.File
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
 
 
 /**
@@ -25,6 +30,28 @@ class BellClaims : JavaPlugin() {
     lateinit var pluginScope: CoroutineScope
 
     override fun onEnable() {
+        // Migrate the SQLite database
+        val databaseFile = File(dataFolder, "claims.db")
+        println(databaseFile.absolutePath)
+        var tempConnectionForMigration: Connection? = null
+        try {
+            tempConnectionForMigration = DriverManager.getConnection("jdbc:sqlite:${databaseFile.absolutePath}")
+            val migrator = SQLiteMigrations(this, tempConnectionForMigration)
+            migrator.migrate()
+        } finally {
+            tempConnectionForMigration?.let {
+                try {
+                    if (!it.isClosed) {
+                        it.close()
+                        logger.info("Closed temporary connection after migration.")
+                    }
+                } catch (e: SQLException) {
+                    logger.severe("Failed to close temporary database connection: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+        }
+
         pluginScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scheduler = server.scheduler
         startKoin { modules(appModule(this@BellClaims)) }
