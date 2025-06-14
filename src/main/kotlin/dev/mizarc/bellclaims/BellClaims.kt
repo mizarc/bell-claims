@@ -30,28 +30,7 @@ class BellClaims : JavaPlugin() {
     lateinit var pluginScope: CoroutineScope
 
     override fun onEnable() {
-        // Migrate the SQLite database
-        val databaseFile = File(dataFolder, "claims.db")
-        println(databaseFile.absolutePath)
-        var tempConnectionForMigration: Connection? = null
-        try {
-            tempConnectionForMigration = DriverManager.getConnection("jdbc:sqlite:${databaseFile.absolutePath}")
-            val migrator = SQLiteMigrations(this, tempConnectionForMigration)
-            migrator.migrate()
-        } finally {
-            tempConnectionForMigration?.let {
-                try {
-                    if (!it.isClosed) {
-                        it.close()
-                        logger.info("Closed temporary connection after migration.")
-                    }
-                } catch (e: SQLException) {
-                    logger.severe("Failed to close temporary database connection: ${e.message}")
-                    e.printStackTrace()
-                }
-            }
-        }
-
+        initDatabase()
         pluginScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scheduler = server.scheduler
         startKoin { modules(appModule(this@BellClaims)) }
@@ -62,6 +41,56 @@ class BellClaims : JavaPlugin() {
         registerEvents()
 
         logger.info("Bell Claims has been Enabled")
+    }
+
+    fun initDatabase() {
+        val databaseFile = File(dataFolder, "claims.db")
+        if (databaseFile.exists()) {
+            var tempConnectionForMigration: Connection? = null
+            try {
+                tempConnectionForMigration = DriverManager.getConnection("jdbc:sqlite:${databaseFile.absolutePath}")
+                val migrator = SQLiteMigrations(this, tempConnectionForMigration)
+                migrator.migrate()
+            } finally {
+                tempConnectionForMigration?.let {
+                    try {
+                        if (!it.isClosed) {
+                            it.close()
+                            logger.info("Closed temporary connection after migration.")
+                        }
+                    } catch (e: SQLException) {
+                        logger.severe("Failed to close temporary database connection: ${e.message}")
+                        e.printStackTrace()
+                    }
+                }
+            }
+        } else {
+            logger.info("Database file not found. Creating a new database and setting user_version to 2.")
+            var newConnection: Connection? = null
+            try {
+                // This will create the database file if it doesn't exist
+                newConnection = DriverManager.getConnection("jdbc:sqlite:${databaseFile.absolutePath}")
+                val statement = newConnection.createStatement()
+                statement.execute("PRAGMA user_version = 2;")
+                statement.close()
+                logger.info("New database created, version set to v2.")
+            } catch (e: SQLException) {
+                logger.severe("Failed to create new database or set user_version: ${e.message}")
+                e.printStackTrace()
+            } finally {
+                newConnection?.let {
+                    try {
+                        if (!it.isClosed) {
+                            it.close()
+                            logger.info("Closed connection for new database creation.")
+                        }
+                    } catch (e: SQLException) {
+                        logger.severe("Failed to close new database connection: ${e.message}")
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
     }
 
     fun initLang() {
