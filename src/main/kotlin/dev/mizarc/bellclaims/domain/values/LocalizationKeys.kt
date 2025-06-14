@@ -64,6 +64,7 @@ object LocalizationKeys {
     const val CREATION_CONDITION_EXISTING = "creation_condition.existing"
     const val CREATION_CONDITION_OVERLAP = "creation_condition.overlap"
     const val CREATION_CONDITION_UNNAMED = "creation_condition.unnamed"
+    const val CREATION_CONDITION_WORLD_BORDER = "creation_condition.world_border"
 
     // Transfer Conditions
     const val SEND_TRANSFER_CONDITION_BLOCKS = "send_transfer_condition.blocks"
