@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.application.actions.claim
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.results.claim.IsNewClaimLocationValidResult
+import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Partition
 import dev.mizarc.bellclaims.domain.values.Area
@@ -13,7 +14,9 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 class IsNewClaimLocationValid(private val claimRepository: ClaimRepository,
-                              private val partitionRepository: PartitionRepository, private val config: MainConfig) {
+                              private val partitionRepository: PartitionRepository,
+                              private val worldManipulationService: WorldManipulationService,
+                              private val config: MainConfig) {
     fun execute(position: Position, worldId: UUID): IsNewClaimLocationValidResult {
         // Create the area that is required for the partition
         val halfSize = (config.initialClaimSize.toFloat() - 1) / 2
@@ -37,6 +40,12 @@ class IsNewClaimLocationValid(private val claimRepository: ClaimRepository,
                 return IsNewClaimLocationValidResult.Overlap
             }
         }
+
+        // Validate area is within world border
+        if (!worldManipulationService.isInsideWorldBorder(worldId, areaWithBoundary)) {
+            return IsNewClaimLocationValidResult.TooCloseToWorldBorder
+        }
+
         return IsNewClaimLocationValidResult.Valid
     }
 

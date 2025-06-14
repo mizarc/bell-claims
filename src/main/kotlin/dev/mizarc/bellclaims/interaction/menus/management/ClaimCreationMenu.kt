@@ -74,6 +74,15 @@ class ClaimCreationMenu(private val player: Player, private val menuNavigator: M
                 gui.show(player)
                 return
             }
+            IsNewClaimLocationValidResult.TooCloseToWorldBorder -> {
+                val iconEditorItem = ItemStack(Material.MAGMA_CREAM)
+                    .name(localizationProvider.get(playerId, LocalizationKeys.MENU_CREATION_ITEM_CANNOT_CREATE_NAME))
+                    .lore(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_WORLD_BORDER))
+                val guiIconEditorItem = GuiItem(iconEditorItem) { guiEvent -> guiEvent.isCancelled = true }
+                pane.addItem(guiIconEditorItem, 4, 0)
+                gui.show(player)
+                return
+            }
             IsNewClaimLocationValidResult.StorageError ->
                 player.sendMessage(localizationProvider.get(playerId, LocalizationKeys.GENERAL_ERROR))
             else ->
