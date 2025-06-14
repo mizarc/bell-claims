@@ -19,10 +19,13 @@ class IsNewClaimLocationValid(private val claimRepository: ClaimRepository,
                               private val config: MainConfig) {
     fun execute(position: Position, worldId: UUID): IsNewClaimLocationValidResult {
         // Create the area that is required for the partition
-        val halfSize = (config.initialClaimSize.toFloat() - 1) / 2
+        val initialClaimSize = config.initialClaimSize
+        val offsetMin = (initialClaimSize - 1) / 2
+        val offsetMax = initialClaimSize / 2
         val area = Area(
-            Position2D((position.x - floor(halfSize)).toInt(), (position.z - floor(halfSize)).toInt()),
-            Position2D((position.x + ceil(halfSize)).toInt(), (position.z + ceil(halfSize)).toInt()))
+            Position2D(position.x - offsetMin, position.z - offsetMin),
+            Position2D(position.x + offsetMax, position.z + offsetMax)
+        )
 
         // Get the partitions that exist in the occupied chunk space
         val chunks = area.getChunks().flatMap { getSurroundingPositions(it, 1) }
