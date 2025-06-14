@@ -4,6 +4,7 @@ import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PartitionRepository
 import dev.mizarc.bellclaims.application.results.claim.CreateClaimResult
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
+import dev.mizarc.bellclaims.application.services.WorldManipulationService
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.entities.Partition
@@ -15,7 +16,10 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 class CreateClaim(private val claimRepository: ClaimRepository, private val partitionRepository: PartitionRepository,
-                  private val playerMetadataService: PlayerMetadataService, private val config: MainConfig) {
+                  private val playerMetadataService: PlayerMetadataService,
+                  private val worldManipulationService: WorldManipulationService,
+                  private val config: MainConfig
+) {
 
     fun execute(playerId: UUID, name: String, position3D: Position3D, worldId: UUID): CreateClaimResult {
         val claims = claimRepository.getByPlayer(playerId)
@@ -35,10 +39,18 @@ class CreateClaim(private val claimRepository: ClaimRepository, private val part
         }
 
         // Generates the partition area based on config
-        val halfSize = (config.initialClaimSize.toFloat() - 1) / 2
+        val areaSize = config.initialClaimSize
+        val offsetMin = (areaSize - 1) / 2
+        val offsetMax = areaSize / 2
         val area = Area(
-            Position2D((position3D.x - floor(halfSize)).toInt(), (position3D.z - floor(halfSize)).toInt()),
-            Position2D((position3D.x + ceil(halfSize)).toInt(),(position3D.z + ceil(halfSize)).toInt()))
+            Position2D(position3D.x - offsetMin, position3D.z - offsetMin),
+            Position2D(position3D.x + offsetMax, position3D.z + offsetMax)
+        )
+
+        // Validate area is within world border
+        if (!worldManipulationService.isInsideWorldBorder(worldId, area)) {
+            return CreateClaimResult.TooCloseToWorldBorder
+        }
 
         // Creates new claim and partition
         val newClaim = Claim(worldId, playerId, position3D, name)
