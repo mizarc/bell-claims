@@ -21,6 +21,7 @@ New major beta feature drop! Quality of life changes all around and support for 
 - Leaf litter is now included in the transparency block filter.
 - A new block now indicates the actively selected block while editing partitions.
 - The current partition resize or add operation can be canceled by clicking on the actively selected block.
+- Trying to create a claim too close to the world border is now blocked to prevent the partition from going across the border.
 
 ### Changed
 - Using bone meal on crops is now covered by the harvest permission. The build permission still covers bone meal usage on non-crops.
@@ -36,6 +37,7 @@ New major beta feature drop! Quality of life changes all around and support for 
 - Using custom Anvil GUIs may define location as (0, 0, 0), which blocks players from opening menus if a claim exists at (0, 0)
 - Bell being duplicated when using the move tool.
 - The Main partition isn't correctly indicated by the main partition visualizer blocks.
+- Floating point error on claim creation causing partitions to generate with unusual sizes when far from the world center.
 
 ## [0.3.7]
 This is a version bump only release. Update to support MC version 1.21.3.
