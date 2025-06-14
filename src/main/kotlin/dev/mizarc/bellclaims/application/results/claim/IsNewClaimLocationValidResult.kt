@@ -4,6 +4,6 @@ sealed class IsNewClaimLocationValidResult {
     object Valid: IsNewClaimLocationValidResult()
     object Overlap: IsNewClaimLocationValidResult()
     object TooClose: IsNewClaimLocationValidResult()
-    object OutsideWorldBorder: IsNewClaimLocationValidResult()
+    object TooCloseToWorldBorder: IsNewClaimLocationValidResult()
     object StorageError: IsNewClaimLocationValidResult()
 }

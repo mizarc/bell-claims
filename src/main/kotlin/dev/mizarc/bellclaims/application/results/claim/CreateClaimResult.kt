@@ -7,4 +7,5 @@ sealed class CreateClaimResult {
     object NameCannotBeBlank: CreateClaimResult()
     object LimitExceeded: CreateClaimResult()
     object NameAlreadyExists: CreateClaimResult()
+    object TooCloseToWorldBorder: CreateClaimResult()
 }
