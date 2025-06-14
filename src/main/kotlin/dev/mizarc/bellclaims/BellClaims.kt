@@ -65,7 +65,7 @@ class BellClaims : JavaPlugin() {
                 }
             }
         } else {
-            logger.info("Database file not found. Creating a new database and setting user_version to 2.")
+            logger.info("Database file not found. Creating a new database and setting schema version to v2.")
             var newConnection: Connection? = null
             try {
                 // This will create the database file if it doesn't exist
@@ -73,7 +73,6 @@ class BellClaims : JavaPlugin() {
                 val statement = newConnection.createStatement()
                 statement.execute("PRAGMA user_version = 2;")
                 statement.close()
-                logger.info("New database created, version set to v2.")
             } catch (e: SQLException) {
                 logger.severe("Failed to create new database or set user_version: ${e.message}")
                 e.printStackTrace()
