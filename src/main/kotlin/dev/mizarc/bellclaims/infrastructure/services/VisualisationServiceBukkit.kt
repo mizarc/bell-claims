@@ -51,7 +51,7 @@ class VisualisationServiceBukkit: VisualisationService {
         val corners = get3DPartitionedCorners(areas, player.location)
         setVisualisedBlocks(player, borders, Material.valueOf(edgeBlock), Material.valueOf(edgeSurfaceBlock))
         setVisualisedBlocks(player, corners, Material.valueOf(cornerBlock), Material.valueOf(cornerSurfaceBlock))
-        return borders
+        return (borders + corners)
     }
 
     /**
