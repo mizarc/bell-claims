@@ -86,7 +86,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
 
                 // Visualise the entire claim border and map it
                 visualised[claim.id] = visualisationService.displayComplete(playerId, areas,
-                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET").filter {
+                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET", "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter {
                         it != playerState.selectedBlock }
                     .toSet()
 
@@ -144,7 +144,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         // Get all partitions linked to found claim
         val partitions = partitionRepository.getByClaim(claim.id)
         val areas = partitions.map { it.area }.toMutableSet()
-        return visualisationService.displayComplete(playerId, areas, "RED_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+        return visualisationService.displayComplete(playerId, areas, "RED_GLAZED_TERRACOTTA", "RED_CARPET", "BLACK_GLAZED_TERRACOTTA", "BLACK_CARPET")
     }
     
     /**
