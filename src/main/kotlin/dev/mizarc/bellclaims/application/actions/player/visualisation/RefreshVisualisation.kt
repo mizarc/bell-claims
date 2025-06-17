@@ -27,7 +27,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             val partitions = partitionRepository.getByClaim(claim.id)
             val areas = partitions.map { it.area }.toMutableSet()
             val newPositions = visualisationService.refreshComplete(playerId, visualisedPositions, areas,
-                "RED_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+                "RED_GLAZED_TERRACOTTA", "RED_CARPET", "BLACK_GLAZED_TERRACOTTA", "BLACK_CARPET")
             playerState.visualisedClaims[claimId] = newPositions
             return
         }
@@ -70,7 +70,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             val partitions = partitionRepository.getByClaim(claim.id)
             val areas = partitions.map { it.area }.toMutableSet()
             val newPositions = visualisationService.refreshComplete(playerId, visualisedPositions, areas,
-                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET", "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
             playerState.visualisedClaims[claimId] = newPositions
             return
         }
