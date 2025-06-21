@@ -129,7 +129,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
                 // Attached partitions
                 visualisationService.displayPartitioned(playerId, setOf(partition.area),
                     "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET").filter {
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter {
                     it != playerState.selectedBlock }
                     .toSet()
             }
