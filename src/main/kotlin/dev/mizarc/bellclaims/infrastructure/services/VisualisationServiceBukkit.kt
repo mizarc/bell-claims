@@ -41,14 +41,17 @@ class VisualisationServiceBukkit: VisualisationService {
      * Visualize a claim with only the outer borders shown.
      */
     override fun displayComplete(playerId: UUID, areas: Set<Area>, edgeBlock: String,
-                                 edgeSurfaceBlock: String): Set<Position3D> {
+                                 edgeSurfaceBlock: String, cornerBlock: String,
+                                 cornerSurfaceBlock: String): Set<Position3D> {
         // Get player if they exist
         val player = Bukkit.getPlayer(playerId) ?: return emptySet()
 
         // Get positions and set visualisations on blocks
         val borders = get3DOuterBorders(areas, player.location)
+        val corners = get3DPartitionedCorners(areas, player.location)
         setVisualisedBlocks(player, borders, Material.valueOf(edgeBlock), Material.valueOf(edgeSurfaceBlock))
-        return borders
+        setVisualisedBlocks(player, corners, Material.valueOf(cornerBlock), Material.valueOf(cornerSurfaceBlock))
+        return (borders + corners)
     }
 
     /**
@@ -71,8 +74,9 @@ class VisualisationServiceBukkit: VisualisationService {
     }
 
     override fun refreshComplete(playerId: UUID, existingPositions: Set<Position3D>, areas: Set<Area>,
-                                 edgeBlock: String, edgeSurfaceBlock: String): Set<Position3D> {
-        val border = displayComplete(playerId, areas, edgeBlock, edgeSurfaceBlock)
+                                 edgeBlock: String, edgeSurfaceBlock: String, cornerBlock: String,
+                                 cornerSurfaceBlock: String): Set<Position3D> {
+        val border = displayComplete(playerId, areas, edgeBlock, edgeSurfaceBlock, cornerBlock, cornerSurfaceBlock)
         val borderToRemove = existingPositions.toMutableSet()
         borderToRemove.removeAll(border)
         clear(playerId, borderToRemove)

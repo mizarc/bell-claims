@@ -27,7 +27,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             val partitions = partitionRepository.getByClaim(claim.id)
             val areas = partitions.map { it.area }.toMutableSet()
             val newPositions = visualisationService.refreshComplete(playerId, visualisedPositions, areas,
-                "RED_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+                "RED_GLAZED_TERRACOTTA", "RED_CARPET", "BLACK_GLAZED_TERRACOTTA", "BLACK_CARPET")
             playerState.visualisedClaims[claimId] = newPositions
             return
         }
@@ -45,9 +45,9 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             playerState.visualisedPartitions[claimId]?.get(partitionId)
             val visualisedPositions = playerState.visualisedPartitions[claimId]?.get(partitionId)
             if (visualisedPositions == null) {
-                val newPositions =visualisationService.refreshPartitioned(playerId, emptySet(), setOf(partition.area),
+                val newPositions = visualisationService.refreshPartitioned(playerId, emptySet(), setOf(partition.area),
                     "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                    "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
                 playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
             } else {
                 val newPositions = if (partition.area.isPositionInArea(claim.position)) {
@@ -59,7 +59,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
                     // Attached partitions
                     visualisationService.refreshPartitioned(playerId, visualisedPositions, setOf(partition.area),
                         "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                        "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET")
+                        "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
                 }
                 playerState.visualisedPartitions.computeIfAbsent(claim.id) { mutableMapOf() }[partition.id] = newPositions
             }
@@ -70,7 +70,7 @@ class RefreshVisualisation(private val playerStateRepository: PlayerStateReposit
             val partitions = partitionRepository.getByClaim(claim.id)
             val areas = partitions.map { it.area }.toMutableSet()
             val newPositions = visualisationService.refreshComplete(playerId, visualisedPositions, areas,
-                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET")
+                "LIGHT_BLUE_GLAZED_TERRACOTTA", "LIGHT_BLUE_CARPET", "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET")
             playerState.visualisedClaims[claimId] = newPositions
             return
         }

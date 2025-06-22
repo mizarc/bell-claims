@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.4.1]
+
+### Changed
+- Complete visualizer render displays selectable corner blocks.
+- Visualizer carpet displays the matching color for the type of terracotta it's overlaying.
+- All selectable visualiser corners are now blue regardless of mode.
+
 ## [0.4.0]
 New major beta feature drop! Quality of life changes all around and support for 1.21.5.
 
