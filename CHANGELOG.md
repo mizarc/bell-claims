@@ -6,6 +6,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [0.4.1]
 
+### Added
+- Support for Minecraft 1.21.6
+
 ### Changed
 - Complete visualizer render displays selectable corner blocks.
 - Visualizer carpet displays the matching color for the type of terracotta it's overlaying.
