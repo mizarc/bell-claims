@@ -6,11 +6,12 @@ import java.util.UUID
 
 interface VisualisationService {
     fun displaySelected(playerId: UUID, position: Position3D, block: String, surfaceBlock: String)
-    fun displayComplete(playerId: UUID, areas: Set<Area>, edgeBlock: String, edgeSurfaceBlock: String): Set<Position3D>
+    fun displayComplete(playerId: UUID, areas: Set<Area>, edgeBlock: String, edgeSurfaceBlock: String,
+                        cornerBlock: String, cornerSurfaceBlock: String): Set<Position3D>
     fun displayPartitioned(playerId: UUID, areas: Set<Area>, edgeBlock: String, edgeSurfaceBlock: String,
                            cornerBlock: String, cornerSurfaceBlock: String): Set<Position3D>
     fun refreshComplete(playerId: UUID, existingPositions: Set<Position3D>, areas: Set<Area>,
-                        edgeBlock: String, edgeSurfaceBlock: String): Set<Position3D>
+                        edgeBlock: String, edgeSurfaceBlock: String, cornerBlock: String, cornerSurfaceBlock: String): Set<Position3D>
     fun refreshPartitioned(playerId: UUID, existingPositions: Set<Position3D>, areas: Set<Area>, edgeBlock: String,
                            edgeSurfaceBlock: String, cornerBlock: String, cornerSurfaceBlock: String): Set<Position3D>
     fun clear(playerId: UUID, areas: Set<Position3D>)
