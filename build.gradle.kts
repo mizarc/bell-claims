@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.mizarc"
-version = "0.4.1"
+version = "0.4.2"
 
 repositories {
     mavenLocal()
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.1")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.2")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
