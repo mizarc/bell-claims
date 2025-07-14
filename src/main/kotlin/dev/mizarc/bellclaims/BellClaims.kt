@@ -30,6 +30,7 @@ class BellClaims : JavaPlugin() {
     lateinit var pluginScope: CoroutineScope
 
     override fun onEnable() {
+        initDataFolder()
         initDatabase()
         pluginScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scheduler = server.scheduler
@@ -42,6 +43,21 @@ class BellClaims : JavaPlugin() {
 
         logger.info("Bell Claims has been Enabled")
     }
+
+    fun initDataFolder() {
+        if (!dataFolder.exists()) {
+            logger.info("Data folder '${dataFolder.absolutePath}' not found. Creating it...")
+            try {
+                dataFolder.mkdirs() // Create the directory and any necessary but nonexistent parent directories.
+                logger.info("Data folder created successfully.")
+            } catch (e: SecurityException) {
+                logger.severe("Failed to create data folder '${dataFolder.absolutePath}': ${e.message}")
+                e.printStackTrace()
+                return
+            }
+        }
+    }
+
 
     fun initDatabase() {
         val databaseFile = File(dataFolder, "claims.db")
