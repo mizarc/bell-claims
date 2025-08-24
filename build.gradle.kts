@@ -1,10 +1,10 @@
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.2.+"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "dev.mizarc"
-version = "0.4.0"
+version = "0.4.3"
 
 repositories {
     mavenLocal()
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.1")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.3")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
