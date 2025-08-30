@@ -16,6 +16,7 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.Tag
 import org.bukkit.World.Environment
 import org.bukkit.block.data.AnaloguePowerable
 import org.bukkit.block.data.Openable
@@ -269,10 +270,49 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
     }
 
     @EventHandler
-    fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
-        if (event.rightClicked !is Animals) return
+    fun onPlayerBreedEntity(event: EntityEnterLoveModeEvent) {
         val action = PlayerActionType.INTERACT_WITH_ANIMAL
-        cancelIfDisallowed(event, event.player, event.rightClicked.location, action)
+        val player = event.humanEntity as? Player ?: return
+        cancelIfDisallowed(event, player, event.entity.location, action)
+    }
+
+    @EventHandler
+    fun onPlayerShearEntity(event: PlayerShearEntityEvent) {
+        val action = PlayerActionType.INTERACT_WITH_ANIMAL
+        cancelIfDisallowed(event, event.player, event.entity.location, action)
+    }
+
+    @EventHandler
+    fun onPlayerLeashEntity(event: PlayerLeashEntityEvent) {
+        val action = PlayerActionType.INTERACT_WITH_ANIMAL
+        cancelIfDisallowed(event, event.player, event.entity.location, action)
+    }
+
+    @EventHandler
+    fun onSheepDyeWool(event: SheepDyeWoolEvent) {
+        val player = event.player ?: return
+        val action = PlayerActionType.INTERACT_WITH_ANIMAL
+        cancelIfDisallowed(event, player, event.entity.location, action)
+    }
+
+    @EventHandler
+    fun onAttachmentsOnMount(event: PlayerInteractEntityEvent) {
+        val player = event.player
+        val clickedEntity = event.rightClicked
+        val heldItem = player.inventory.itemInMainHand
+
+        val isCancelled = when (clickedEntity) {
+            is Horse -> heldItem.type == Material.SADDLE
+            is Pig -> heldItem.type == Material.SADDLE
+            is ChestedHorse -> !clickedEntity.isCarryingChest && heldItem.type == Material.CHEST
+            is HappyGhast -> Tag.ITEMS_HARNESSES.isTagged(heldItem.type) || heldItem.type == Material.SHEARS
+            else -> false
+        }
+
+        if (isCancelled) {
+            val action = PlayerActionType.INTERACT_WITH_ANIMAL
+            cancelIfDisallowed(event, player, clickedEntity.location, action)
+        }
     }
 
     @EventHandler
