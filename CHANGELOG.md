@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.4.2]
+
+### Added
+- Support for Minecraft 1.21.7
+
+### Fixed
+- Database does not have the correct schema version on initial plugin installation due to the data folder not existing yet causing error on future startups.
+
 ## [0.4.1]
 
 ### Added
