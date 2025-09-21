@@ -87,7 +87,6 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         cancelIfDisallowed(event, player, event.entity.location, action)
     }
 
-    @Suppress("UnstableApiUsage")
     @EventHandler
     fun onEntityDeathEvent(event: EntityDeathEvent) {
         if (event.entity !is ArmorStand) return
@@ -301,11 +300,19 @@ class PlayerClaimProtectionListener: Listener, KoinComponent {
         val clickedEntity = event.rightClicked
         val heldItem = player.inventory.itemInMainHand
 
-        val isCancelled = when (clickedEntity) {
-            is Horse -> heldItem.type == Material.SADDLE
-            is Pig -> heldItem.type == Material.SADDLE
-            is ChestedHorse -> !clickedEntity.isCarryingChest && heldItem.type == Material.CHEST
-            is HappyGhast -> Tag.ITEMS_HARNESSES.isTagged(heldItem.type) || heldItem.type == Material.SHEARS
+        // Use a variable to store the HappyGhast class reference
+        // This is lazy-loaded and will be null on older versions
+        val happyGhastClass = try {
+            Class.forName("org.bukkit.entity.HappyGhast")
+        } catch (_: ClassNotFoundException) {
+            null
+        }
+
+        val isCancelled = when {
+            clickedEntity is Horse -> heldItem.type == Material.SADDLE
+            clickedEntity is Pig -> heldItem.type == Material.SADDLE
+            clickedEntity is ChestedHorse -> !clickedEntity.isCarryingChest && heldItem.type == Material.CHEST
+            happyGhastClass != null && happyGhastClass.isInstance(clickedEntity) -> Tag.ITEMS_HARNESSES.isTagged(heldItem.type) || heldItem.type == Material.SHEARS
             else -> false
         }
 
