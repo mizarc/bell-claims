@@ -1,7 +1,30 @@
+import java.util.Properties
+
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.2.+"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
+
+// =========================================================
+// Place the property loading and fallback logic here
+// =========================================================
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { inputStream ->
+        localProperties.load(inputStream)
+    }
+}
+
+fun getProperty(name: String): String {
+    val localValue = localProperties.getProperty(name)
+    if (localValue != null) {
+        return localValue
+    }
+    return providers.gradleProperty(name).getOrElse("")
+}
+// =========================================================
 
 group = "dev.mizarc"
 version = "0.4.3"
@@ -61,4 +84,12 @@ tasks.test {
 
 tasks.shadowJar {
     archiveClassifier = null
+}
+
+tasks.register<Copy>("deploy") {
+    dependsOn(tasks.shadowJar)
+    from(layout.buildDirectory.dir("libs"))
+    into(getProperty("plugin.server.path"))
+    rename { fileName -> "${rootProject.name}-${version}.jar" }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
