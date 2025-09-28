@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.4.3]
+
+### Added
+- Support for Minecraft 1.21.8
+
+### Changed
+- Mount riding is now ignored by claim protections.
+
 ## [0.4.2]
 
 ### Added
