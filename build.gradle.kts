@@ -56,16 +56,16 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     testImplementation("com.github.MilkBowl:VaultAPI:1.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib")
     implementation ("org.slf4j:slf4j-nop:2.0.13")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.3")
+    implementation("com.github.mizarc:IF:0.11.4-d")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
@@ -89,6 +89,7 @@ tasks.shadowJar {
 tasks.register<Copy>("deploy") {
     dependsOn(tasks.shadowJar)
     from(layout.buildDirectory.dir("libs"))
+    println("Target deployment path: ${getProperty("plugin.server.path")}")
     into(getProperty("plugin.server.path"))
     rename { fileName -> "${rootProject.name}-${version}.jar" }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
