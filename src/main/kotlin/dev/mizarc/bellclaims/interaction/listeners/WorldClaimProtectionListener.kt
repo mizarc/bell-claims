@@ -41,6 +41,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockDispenseEvent
+import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockFormEvent
 import org.bukkit.event.block.BlockFromToEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
@@ -236,7 +237,7 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
     }
 
     @EventHandler
-    fun onBlockExplodeEvent(event: EntityExplodeEvent) {
+    fun onBlockExplodeEvent(event: BlockExplodeEvent) {
         val action = WorldActionType.BLOCK_EXPLOSION_DESTROY_BLOCK
         val cancelledBlocks = fetchBlocksToCancel(event.blockList(), action)
         event.blockList().removeAll(cancelledBlocks)
