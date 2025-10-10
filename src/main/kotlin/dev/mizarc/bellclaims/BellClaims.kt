@@ -15,6 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitScheduler
 import org.koin.core.context.GlobalContext.startKoin
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -37,6 +40,7 @@ class BellClaims : JavaPlugin() {
         startKoin { modules(appModule(this@BellClaims)) }
         initLang()
         initialiseVaultDependency()
+        initialiseConfig()
         commandManager = PaperCommandManager(this)
         registerCommands()
         registerEvents()
@@ -124,6 +128,18 @@ class BellClaims : JavaPlugin() {
     override fun onDisable() {
         pluginScope.cancel()
         logger.info("Bell Claims has been Disabled")
+    }
+
+    private fun initialiseConfig() {
+        saveDefaultConfig()
+        getResource("config.yml")?.use { defaultConfigStream ->
+            val sampleConfigFile = File(dataFolder, "sample-config.yml")
+            try {
+                Files.copy(defaultConfigStream, sampleConfigFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (e: IOException) {
+                logger.severe("Failed to copy config: ${e.message}")
+            }
+        } ?: logger.warning("Default config file not found in the plugin resources")
     }
 
     private fun initialiseVaultDependency() {
