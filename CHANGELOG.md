@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.4.4]
+
+### Added
+- Support for Minecraft 1.21.9 and 1.21.10
+
+### Fixed
+- Config not being generated on initial server start.
+- Explosion flag not protecting against block explosions (e.g. Respawn Anchors)
+
 ## [0.4.3]
 
 ### Added
