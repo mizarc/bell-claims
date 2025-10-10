@@ -178,7 +178,7 @@ class VisualisationServiceBukkit: VisualisationService {
                 renderLocation.world, position.x.toDouble(),
                 y.toDouble(), position.z.toDouble()
             )
-            if (transparentMaterials.contains(blockLocation.block.blockData.material)) continue
+            if (transparentMaterials.contains(blockLocation.block.blockData.material.name)) continue
             if (!isBlockVisible(blockLocation)) continue
             return blockLocation.toPosition3D()
         }
@@ -191,8 +191,8 @@ class VisualisationServiceBukkit: VisualisationService {
      * @return True if the block is considered visible.
      */
     private fun isBlockVisible(location: Location): Boolean {
-        val above = Location(location.world, location.x, location.y + 1, location.z).block.blockData.material
-        val below = Location(location.world, location.x, location.y - 1, location.z).block.blockData.material
+        val above = Location(location.world, location.x, location.y + 1, location.z).block.blockData.material.name
+        val below = Location(location.world, location.x, location.y - 1, location.z).block.blockData.material.name
         return transparentMaterials.contains(above) || transparentMaterials.contains(below)
     }
 
