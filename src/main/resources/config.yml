@@ -24,6 +24,9 @@ visualiser_refresh_period: 1
 # add more <?>.properties files in the override folder to
 plugin_language: EN
 
+# Show an action bar message when players enter/leave claims
+show_claim_enter_popup: true
+
 # The id value for resource packs that change the model of the claim tool.
 custom_claim_tool_model_id: 732000
 
