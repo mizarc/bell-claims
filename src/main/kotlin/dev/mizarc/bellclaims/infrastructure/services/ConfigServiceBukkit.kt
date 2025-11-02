@@ -16,6 +16,7 @@ class ConfigServiceBukkit(private val config: FileConfiguration): ConfigService 
             visualiserHideDelayPeriod = config.getDouble("visualiser_hide_delay_period"),
             visualiserRefreshPeriod = config.getDouble("visualiser_refresh_period"),
             pluginLanguage = config.getString("plugin_language") ?: "",
+            showClaimEnterPopup = config.getBoolean("show_claim_enter_popup", true),
             customClaimToolModelId = config.getInt("custom_claim_tool_model_id"),
             customMoveToolModelId = config.getInt("custom_move_tool_model_id")
         )
