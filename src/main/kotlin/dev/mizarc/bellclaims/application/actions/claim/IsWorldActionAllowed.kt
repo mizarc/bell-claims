@@ -71,6 +71,9 @@ class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
         WorldActionType.SPREAD to Flag.SCULK,
 
         // Lightning
-        WorldActionType.LIGHTNING_DAMAGE to Flag.LIGHTNING
+        WorldActionType.LIGHTNING_DAMAGE to Flag.LIGHTNING,
+
+        // Villager Door
+        WorldActionType.VILLAGER_OPEN_DOOR to Flag.VILLAGER_DOOR
     )
 }

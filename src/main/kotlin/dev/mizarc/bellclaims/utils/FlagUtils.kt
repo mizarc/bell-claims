@@ -25,6 +25,7 @@ fun Flag.getIcon(localizationProvider: LocalizationProvider, playerId: UUID): It
         Flag.LIGHTNING -> ItemStack(Material.LIGHTNING_ROD)
         Flag.FALLING_BLOCK -> ItemStack(Material.ANVIL)
         Flag.PASSIVE_ENTITY_VEHICLE -> ItemStack(Material.OAK_BOAT)
+        Flag.VILLAGER_DOOR -> ItemStack(Material.OAK_DOOR)
     }
 
     // Get localized name and lore using the keys from the domain enum
