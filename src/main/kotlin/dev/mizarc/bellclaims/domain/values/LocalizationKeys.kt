@@ -15,6 +15,8 @@ object LocalizationKeys {
     // Claim
     const val FEEDBACK_CLAIM_DENIED = "feedback.claim.denied"
     const val FEEDBACK_CLAIM_OWNER = "feedback.claim.owner"
+    const val FEEDBACK_CLAIM_ENTER = "feedback.claim.enter"
+    const val FEEDBACK_CLAIM_LEAVE = "feedback.claim.leave"
 
     // Destruction
     const val FEEDBACK_DESTRUCTION_ATTACHED = "feedback.destruction.attached"
