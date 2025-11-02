@@ -89,7 +89,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         val disabledFlags = Flag.entries.toTypedArray().subtract(enabledFlags)
 
         // Add list of disabled permissions
-        val disabledPermissionsPane = StaticPane(0, 2, 4, 3)
+        val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
         gui.addPane(disabledPermissionsPane)
         var xSlot = 0
         var ySlot = 0
@@ -111,7 +111,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
             }
         }
 
-        val enabledPermissionsPane = StaticPane(5, 2, 4, 3)
+        val enabledPermissionsPane = StaticPane(5, 2, 4, 4)
         gui.addPane(enabledPermissionsPane)
         xSlot = 0
         ySlot = 0

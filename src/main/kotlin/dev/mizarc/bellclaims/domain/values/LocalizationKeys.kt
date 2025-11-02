@@ -135,6 +135,8 @@ object LocalizationKeys {
     const val FLAG_SCULK_LORE = "flag.sculk.lore"
     const val FLAG_SPONGE_NAME = "flag.sponge.name"
     const val FLAG_SPONGE_LORE = "flag.sponge.lore"
+    const val FLAG_VILLAGER_DOOR_NAME = "flag.villager_door.name"
+    const val FLAG_VILLAGER_DOOR_LORE = "flag.villager_door.lore"
 
 
     // -------------------------------------
