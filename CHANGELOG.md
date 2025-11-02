@@ -8,6 +8,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Action bar popup text on entering and exiting claim.
+- New flag for villagers' ability to use doors
 
 ## [0.4.4]
 
