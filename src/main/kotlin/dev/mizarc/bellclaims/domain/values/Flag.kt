@@ -74,5 +74,11 @@ enum class Flag(val nameKey: String, val loreKey: String) {
      * When passive entities can be placed in vehicles in a claim.
      */
     PASSIVE_ENTITY_VEHICLE(LocalizationKeys.FLAG_PASSIVE_ENTITY_VEHICLE_NAME,
-        LocalizationKeys.FLAG_PASSIVE_ENTITY_VEHICLE_LORE)
+        LocalizationKeys.FLAG_PASSIVE_ENTITY_VEHICLE_LORE),
+
+    /**
+     * When villagers can open doors in a claim.
+     */
+    VILLAGER_DOOR(LocalizationKeys.FLAG_VILLAGER_DOOR_NAME,
+        LocalizationKeys.FLAG_VILLAGER_DOOR_LORE)
 }

@@ -1,6 +1,5 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
-import com.destroystokyo.paper.MaterialTags
 import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
 import dev.mizarc.bellclaims.application.actions.claim.IsWorldActionAllowed
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
@@ -14,6 +13,7 @@ import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition2D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.Tag
 import org.bukkit.block.Block
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.Directional
@@ -52,6 +52,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
+import org.bukkit.event.entity.EntityInteractEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityExplodeEvent
@@ -96,6 +97,14 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
         if (event.entity !is Monster) return
         if (event.entity !is Monster) return
         val action = WorldActionType.MOB_DESTROY_BLOCK
+        cancelIfDisallowed(event, event.block.location, action)
+    }
+
+    @EventHandler
+    fun onVillagerDoorOpen(event: EntityInteractEvent) {
+        if (event.entity !is AbstractVillager) return
+        if (!Tag.DOORS.isTagged(event.block.type)) return
+        val action = WorldActionType.VILLAGER_OPEN_DOOR
         cancelIfDisallowed(event, event.block.location, action)
     }
 
@@ -437,7 +446,7 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
     @EventHandler
     fun onBlockForm(event: BlockFormEvent) {
         // Check to only prevent concrete powder and lava
-        if (event.block.type !in MaterialTags.CONCRETE_POWDER.values && event.block.type != Material.LAVA) return
+        if (event.block.type !in Tag.CONCRETE_POWDER.values && event.block.type != Material.LAVA) return
 
         // Check all directions that could cause the block form
         val formClaim = getClaimOrNull(event.block.location)
