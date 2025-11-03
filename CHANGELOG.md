@@ -8,7 +8,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 - Action bar popup text on entering and exiting claim.
-- New flag for villagers' ability to use doors
+- New flag for villagers' ability to use doors.
+- Auto claim visualisation refresh when moving between chunks.
 
 ## [0.4.4]
 
