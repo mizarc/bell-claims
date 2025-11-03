@@ -1,7 +1,6 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
-import dev.mizarc.bellclaims.application.services.ToolItemService
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import org.bukkit.event.EventHandler
@@ -19,7 +18,6 @@ import java.util.UUID
  */
 class ClaimToolAutoVisualisingListener: Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
-    private val toolItemService: ToolItemService by inject()
 
     // Track the last chunk position per player to detect chunk border crossings
     private val lastChunkPosition: MutableMap<UUID, Pair<Int, Int>> = mutableMapOf()
@@ -31,31 +29,22 @@ class ClaimToolAutoVisualisingListener: Listener, KoinComponent {
         val from = event.from
         if (from.world == to.world && from.blockX == to.blockX && from.blockZ == to.blockZ) return
 
+        // Check if the player crossed a chunk border
+        val toChunkX = to.blockX shr 4
+        val toChunkZ = to.blockZ shr 4
         val player = event.player
         val playerId = player.uniqueId
-
-        // Early return if the player is not holding the claim tool
-        val mainHand = player.inventory.itemInMainHand
-        val offHand = player.inventory.itemInOffHand
-        val mainHandData = mainHand.toCustomItemData()
-        val offHandData = offHand.toCustomItemData()
-        if (!toolItemService.isClaimTool(mainHandData) && !toolItemService.isClaimTool(offHandData)) return
-
-        // Check if the player crossed a chunk border
-        val toChunkX = to.chunk.x
-        val toChunkZ = to.chunk.z
         val lastChunk = lastChunkPosition[playerId]
         if (lastChunk != null) {
             val (lastChunkX, lastChunkZ) = lastChunk
             if (lastChunkX == toChunkX && lastChunkZ == toChunkZ) return
         }
 
-        // Update tracked chunk position
+        // Update tracked chunk position and visualization
         lastChunkPosition[playerId] = Pair(toChunkX, toChunkZ)
-
-        // Update visualization directly
-        val position = player.location.toPosition3D()
-        syncToolVisualization.execute(playerId, position, mainHandData, offHandData)
+        val mainHandData = player.inventory.itemInMainHand.toCustomItemData()
+        val offHandData = player.inventory.itemInOffHand.toCustomItemData()
+        syncToolVisualization.execute(playerId, player.location.toPosition3D(), mainHandData, offHandData)
     }
 
     @EventHandler
