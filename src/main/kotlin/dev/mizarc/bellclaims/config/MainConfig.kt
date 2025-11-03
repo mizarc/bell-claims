@@ -8,6 +8,7 @@ data class MainConfig(
     var distanceBetweenClaims: Int = 0,
     var visualiserHideDelayPeriod: Double = 0.0,
     var visualiserRefreshPeriod: Double = 0.0,
+    var autoRefreshVisualisation: Boolean = true,
     var rightClickHarvest: Boolean = true,
     var showClaimEnterPopup: Boolean = true,
     var pluginLanguage: String = "EN",
