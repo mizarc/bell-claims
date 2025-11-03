@@ -19,6 +19,9 @@ visualiser_hide_delay_period: 2
 # The minimum amount of time in seconds the visualiser is allowed to be refreshed to prevent spam.
 visualiser_refresh_period: 1
 
+# Toggle whether claims can auto refresh as the player moves around.
+auto_refresh_visualisation: true
+
 # The language of text elements.
 # EN - Original
 # add more <?>.properties files in the override folder to

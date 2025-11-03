@@ -1,6 +1,7 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import org.bukkit.event.EventHandler
@@ -18,12 +19,15 @@ import java.util.UUID
  */
 class ClaimToolAutoVisualisingListener: Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
+    private val config: MainConfig by inject()
 
     // Track the last chunk position per player to detect chunk border crossings
     private val lastChunkPosition: MutableMap<UUID, Pair<Int, Int>> = mutableMapOf()
 
     @EventHandler
     fun onPlayerMove(event: PlayerMoveEvent) {
+        if (!config.autoRefreshVisualisation) return
+
         // Early return if the player hasn't moved to another block
         val to = event.to
         val from = event.from

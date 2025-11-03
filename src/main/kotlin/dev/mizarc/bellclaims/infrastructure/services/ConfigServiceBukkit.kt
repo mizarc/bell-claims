@@ -15,6 +15,7 @@ class ConfigServiceBukkit(private val config: FileConfiguration): ConfigService 
             distanceBetweenClaims = config.getInt("distance_between_claims"),
             visualiserHideDelayPeriod = config.getDouble("visualiser_hide_delay_period"),
             visualiserRefreshPeriod = config.getDouble("visualiser_refresh_period"),
+            autoRefreshVisualisation = config.getBoolean("auto_refresh_visualisation", true),
             pluginLanguage = config.getString("plugin_language") ?: "",
             showClaimEnterPopup = config.getBoolean("show_claim_enter_popup", true),
             customClaimToolModelId = config.getInt("custom_claim_tool_model_id"),
