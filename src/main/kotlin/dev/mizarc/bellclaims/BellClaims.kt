@@ -178,6 +178,7 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(BlockLaunchListener(this), this)
         server.pluginManager.registerEvents(ClaimAnchorListener(), this)
         server.pluginManager.registerEvents(ClaimDestructionListener(), this)
+        server.pluginManager.registerEvents(ClaimToolAutoVisualisingListener(), this)
         server.pluginManager.registerEvents(CloseInventoryListener(), this)
         server.pluginManager.registerEvents(EditToolListener(), this)
         server.pluginManager.registerEvents(ClaimEnterListener(), this)
