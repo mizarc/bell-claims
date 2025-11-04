@@ -1,6 +1,9 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
+import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
+import dev.mizarc.bellclaims.application.services.ToolItemService
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import org.bukkit.entity.EntityType
@@ -10,33 +13,30 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.concurrent.thread
+import kotlin.math.max
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
+    private val config: MainConfig by inject()
+    private val toolItemService: ToolItemService by inject()
+    private val playerStateRepository: PlayerStateRepository by inject()
 
-    /**
-     * Triggers when the player executes certain commands that modify their inventory
-     * (e.g. /clear or /claim). We schedule a sync one tick later so the command
-     * has already updated the player's inventory and we can correctly detect
-     * whether the claim tool was added/removed from their hands.
-     */
-    @EventHandler
-    fun onPlayerCommand(event: PlayerCommandPreprocessEvent) {
-        event.player.sendMessage("testing")
-        val message = event.message.lowercase()
-        event.player.sendMessage(message)
-        if (!message.startsWith("/clear") && !message.startsWith("/claim")) return
-        val player = event.player
-        event.player.sendMessage("got here")
-        // Run one tick later so the command has taken effect
-        plugin.server.scheduler.runTaskLater(plugin, Runnable { handleAutoVisualisation(player) }, 1L)
+    init {
+        // Start a periodic poll to catch programmatic inventory changes that don't emit
+        // a convenient event (other plugins calling Inventory.clear(), API updates, etc).
+        if (config.autoRefreshVisualisation) {
+            val intervalTicks = if (config.visualiserRefreshPeriod > 0.0)
+                max(1L, (config.visualiserRefreshPeriod * 20.0).toLong())
+            else 20L
+
+            plugin.server.scheduler.runTaskTimer(plugin, Runnable {
+                pollTrackedPlayersForToolChanges()
+            }, intervalTicks, intervalTicks)
+        }
     }
 
     /**
@@ -44,7 +44,6 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
      */
     @EventHandler
     fun onHoldClaimTool(event: PlayerItemHeldEvent) {
-        event.player.sendMessage("holding")
         plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(event.player) })
     }
 
@@ -74,15 +73,31 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(player) })
     }
 
+    /**
+     * Poll only players that are tracked in PlayerStateRepository as holding the claim tool.
+     */
+    private fun pollTrackedPlayersForToolChanges() {
+        val tracked = playerStateRepository.getAll().filter { it.isHoldingClaimTool }
+        for (playerState in tracked) {
+            val player = plugin.server.getPlayer(playerState.playerId) ?: continue
+            if (!player.isOnline) continue
+            handleAutoVisualisation(player)
+        }
+    }
 
     /**
      * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
+     * Also update the tracked set depending on whether the player holds the tool after the sync.
      */
     private fun handleAutoVisualisation(player: Player) {
         val playerId = player.uniqueId
         val position = player.location.toPosition3D()
         val mainHand = player.inventory.itemInMainHand
         val offHand = player.inventory.itemInOffHand
-        syncToolVisualization.execute(playerId, position, mainHand.toCustomItemData(), offHand.toCustomItemData())
+
+        val mainData = mainHand.toCustomItemData()
+        val offData = offHand.toCustomItemData()
+
+        syncToolVisualization.execute(playerId, position, mainData, offData)
     }
 }
