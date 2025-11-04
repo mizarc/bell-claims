@@ -2,7 +2,6 @@ package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
 import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
-import dev.mizarc.bellclaims.application.services.ToolItemService
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
@@ -14,16 +13,20 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 import kotlin.math.max
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
     private val config: MainConfig by inject()
-    private val toolItemService: ToolItemService by inject()
     private val playerStateRepository: PlayerStateRepository by inject()
+
+    // Cache last-seen (mainItem, offItem, position) per player to avoid redundant sync calls
+    private val lastSeen = mutableMapOf<UUID, Pair<Any?, Any?>>()
 
     init {
         // Start a periodic poll to catch programmatic inventory changes that don't emit
@@ -74,6 +77,14 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     }
 
     /**
+     * Clean up cache when player quits to avoid memory leaks.
+     */
+    @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        lastSeen.remove(event.player.uniqueId)
+    }
+
+    /**
      * Poll only players that are tracked in PlayerStateRepository as holding the claim tool.
      */
     private fun pollTrackedPlayersForToolChanges() {
@@ -88,6 +99,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     /**
      * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
      * Also update the tracked set depending on whether the player holds the tool after the sync.
+     * Uses a small cache to skip sync calls when nothing relevant changed.
      */
     private fun handleAutoVisualisation(player: Player) {
         val playerId = player.uniqueId
@@ -98,6 +110,18 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         val mainData = mainHand.toCustomItemData()
         val offData = offHand.toCustomItemData()
 
+        // Compare with last seen; if nothing changed, skip the sync
+        val last = lastSeen[playerId]
+        if (last != null) {
+            val (lastMain, lastOff) = last
+            if (lastMain == mainData && lastOff == offData) {
+                return
+            }
+        }
+
         syncToolVisualization.execute(playerId, position, mainData, offData)
+
+        // Update cache
+        lastSeen[playerId] = Pair(mainData, offData)
     }
 }
