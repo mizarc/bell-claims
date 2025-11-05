@@ -20,12 +20,16 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
         // Check if player is holding tool based on the item they're holding
         val holdingClaimTool = (toolItemService.isClaimTool(mainHandItemData)
                 || (toolItemService.isClaimTool(offHandItemData)))
-        println(holdingClaimTool)
 
         // Skip if nothing relevant changed since the last execution for this player
         val last = lastState[playerId]
         val current = Pair(holdingClaimTool, position)
-        if (last == current) return
+
+        // Check if the player is holding the same tool and in the same chunk as before
+        val lastHolding = last?.first
+        val lastChunk = last?.second?.let { Pair(it.x shr 4, it.z shr 4) }
+        val currentChunk = Pair(position.x shr 4, position.z shr 4)
+        if (lastHolding != null && lastHolding == holdingClaimTool && lastChunk == currentChunk) return
         lastState[playerId] = current
 
         // Visualise or unvisualise depending on if player is holding claim tool
