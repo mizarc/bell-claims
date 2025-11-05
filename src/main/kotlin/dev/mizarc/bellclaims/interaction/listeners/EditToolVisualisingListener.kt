@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
 import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -22,24 +23,11 @@ import kotlin.math.max
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
-    private val config: MainConfig by inject()
-    private val playerStateRepository: PlayerStateRepository by inject()
 
-    // Cache last-seen (mainItem, offItem, position) per player to avoid redundant sync calls
-    private val lastSeen = mutableMapOf<UUID, Pair<Any?, Any?>>()
 
-    init {
-        // Start a periodic poll to catch programmatic inventory changes that don't emit
-        // a convenient event (other plugins calling Inventory.clear(), API updates, etc).
-        if (config.autoRefreshVisualisation) {
-            val intervalTicks = if (config.visualiserRefreshPeriod > 0.0)
-                max(1L, (config.visualiserRefreshPeriod * 20.0).toLong())
-            else 20L
-
-            plugin.server.scheduler.runTaskTimer(plugin, Runnable {
-                pollTrackedPlayersForToolChanges()
-            }, intervalTicks, intervalTicks)
-        }
+    @EventHandler
+    fun onTest(event: PlayerInventorySlotChangeEvent) {
+        plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(event.player) })
     }
 
     /**
@@ -77,51 +65,19 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     }
 
     /**
-     * Clean up cache when player quits to avoid memory leaks.
-     */
-    @EventHandler
-    fun onPlayerQuit(event: PlayerQuitEvent) {
-        lastSeen.remove(event.player.uniqueId)
-    }
-
-    /**
-     * Poll only players that are tracked in PlayerStateRepository as holding the claim tool.
-     */
-    private fun pollTrackedPlayersForToolChanges() {
-        val tracked = playerStateRepository.getAll().filter { it.isHoldingClaimTool }
-        for (playerState in tracked) {
-            val player = plugin.server.getPlayer(playerState.playerId) ?: continue
-            if (!player.isOnline) continue
-            handleAutoVisualisation(player)
-        }
-    }
-
-    /**
      * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
      * Also update the tracked set depending on whether the player holds the tool after the sync.
      * Uses a small cache to skip sync calls when nothing relevant changed.
      */
     private fun handleAutoVisualisation(player: Player) {
         val playerId = player.uniqueId
-        val position = player.location.toPosition3D()
         val mainHand = player.inventory.itemInMainHand
         val offHand = player.inventory.itemInOffHand
 
         val mainData = mainHand.toCustomItemData()
         val offData = offHand.toCustomItemData()
 
-        // Compare with last seen; if nothing changed, skip the sync
-        val last = lastSeen[playerId]
-        if (last != null) {
-            val (lastMain, lastOff) = last
-            if (lastMain == mainData && lastOff == offData) {
-                return
-            }
-        }
-
+        val position = player.location.toPosition3D()
         syncToolVisualization.execute(playerId, position, mainData, offData)
-
-        // Update cache
-        lastSeen[playerId] = Pair(mainData, offData)
     }
 }
