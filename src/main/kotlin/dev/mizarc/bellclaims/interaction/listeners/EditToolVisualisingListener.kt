@@ -1,32 +1,30 @@
 package dev.mizarc.bellclaims.interaction.listeners
 
 import dev.mizarc.bellclaims.application.actions.player.tool.SyncToolVisualization
-import dev.mizarc.bellclaims.application.persistence.PlayerStateRepository
-import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toCustomItemData
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toPosition3D
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.UUID
-import kotlin.math.max
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
 
-
+    /**
+     * Triggers when an item in the player's inventory changes.
+     */
     @EventHandler
-    fun onTest(event: PlayerInventorySlotChangeEvent) {
+    fun onInventoryItemChange(event: PlayerInventorySlotChangeEvent) {
         plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(event.player) })
     }
 
@@ -43,8 +41,9 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
      */
     @EventHandler
     fun onPickupClaimTool(event: EntityPickupItemEvent) {
-        if (event.entityType != EntityType.PLAYER) return
-        plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(event.entity as Player) })
+        // prefer safe cast over checking entityType and then casting
+        val player = event.entity as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(player) })
     }
 
     /**
@@ -60,14 +59,23 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
      */
     @EventHandler
     fun onClaimToolInventoryInteract(event: InventoryClickEvent) {
-        val player = event.whoClicked as Player
+        val player = event.whoClicked as? Player ?: return
         plugin.server.scheduler.runTask(plugin, Runnable { handleAutoVisualisation(player) })
     }
 
+    @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        syncToolVisualization.clearCacheForPlayer(event.player.uniqueId)
+    }
+
+    @EventHandler
+    fun onPlayerChangedWorld(event: PlayerChangedWorldEvent) {
+        syncToolVisualization.clearCacheForPlayer(event.player.uniqueId)
+    }
+
     /**
-     * Visualise if player isn't already holding the claim tool (e.g. swapping hands)
+     * Visualise if the player isn't already holding the claim tool (e.g. swapping hands)
      * Also update the tracked set depending on whether the player holds the tool after the sync.
-     * Uses a small cache to skip sync calls when nothing relevant changed.
      */
     private fun handleAutoVisualisation(player: Player) {
         val playerId = player.uniqueId
@@ -78,6 +86,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         val offData = offHand.toCustomItemData()
 
         val position = player.location.toPosition3D()
+
         syncToolVisualization.execute(playerId, position, mainData, offData)
     }
 }
