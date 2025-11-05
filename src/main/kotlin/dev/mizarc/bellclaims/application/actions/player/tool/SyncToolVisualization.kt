@@ -20,6 +20,7 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
         // Check if player is holding tool based on the item they're holding
         val holdingClaimTool = (toolItemService.isClaimTool(mainHandItemData)
                 || (toolItemService.isClaimTool(offHandItemData)))
+        println(holdingClaimTool)
 
         // Skip if nothing relevant changed since the last execution for this player
         val last = lastState[playerId]
@@ -31,9 +32,13 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
         if (holdingClaimTool) {
             displayVisualisation.execute(playerId, position)
         } else {
-            val result = isPlayerVisualising.execute(playerId)
-            if (result is IsPlayerVisualisingResult.Success && result.isVisualising) {
-                scheduleClearVisualisation.execute(playerId)
+            // Only attempt to clear visualisation if the previous state was holding the claim tool
+            val wasHoldingTool = last?.first == true
+            if (wasHoldingTool) {
+                val result = isPlayerVisualising.execute(playerId)
+                if (result is IsPlayerVisualisingResult.Success && result.isVisualising) {
+                    scheduleClearVisualisation.execute(playerId)
+                }
             }
         }
     }
