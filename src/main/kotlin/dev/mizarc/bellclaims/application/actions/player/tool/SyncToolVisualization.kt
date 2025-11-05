@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.actions.player.visualisation.IsPlayerVi
 import dev.mizarc.bellclaims.application.actions.player.visualisation.ScheduleClearVisualisation
 import dev.mizarc.bellclaims.application.results.player.visualisation.IsPlayerVisualisingResult
 import dev.mizarc.bellclaims.application.services.ToolItemService
+import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.Position3D
 import java.util.UUID
 
@@ -13,7 +14,7 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
                                    private val scheduleClearVisualisation: ScheduleClearVisualisation,
                                    private val isPlayerVisualising: IsPlayerVisualising) {
     // Cache last known (holdingClaimTool, position) per player to avoid redundant work
-    private val lastState: MutableMap<UUID, Pair<Boolean, Position3D>> = mutableMapOf()
+    private val lastState: MutableMap<UUID, Pair<Boolean, Position2D>> = mutableMapOf()
 
     fun execute(playerId: UUID, position: Position3D,
                 mainHandItemData: Map<String, String>?, offHandItemData: Map<String, String>?) {
@@ -23,7 +24,7 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
 
         // Skip if nothing relevant changed since the last execution for this player
         val last = lastState[playerId]
-        val current = Pair(holdingClaimTool, position)
+        val current = Pair(holdingClaimTool,  Position2D(position.x, position.z))
 
         // Check if the player is holding the same tool and in the same chunk as before
         val lastHolding = last?.first
