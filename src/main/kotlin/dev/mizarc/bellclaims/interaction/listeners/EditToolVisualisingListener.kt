@@ -88,13 +88,13 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         syncToolVisualization.clearCacheForPlayer(event.player.uniqueId)
-        // Clean up initialising set in case player quit before the delayed task ran.
         initialisingPlayers.remove(event.player.uniqueId)
     }
 
     @EventHandler
     fun onPlayerChangedWorld(event: PlayerChangedWorldEvent) {
         syncToolVisualization.clearCacheForPlayer(event.player.uniqueId)
+        plugin.server.scheduler.runTaskLater(plugin, Runnable { handleAutoVisualisation(event.player) }, 20L)
     }
 
     /**
@@ -110,7 +110,6 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
         val offData = offHand.toCustomItemData()
 
         val position = player.location.toPosition3D()
-        println("syncing")
 
         syncToolVisualization.execute(playerId, position, mainData, offData)
     }
