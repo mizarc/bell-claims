@@ -11,9 +11,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - New flag for villagers' ability to use doors.
 - Auto claim visualisation refreshes when moving between chunks, joining the server, and switching dimensions.
 
+### Changed
+- Optimised the visualisation checks with a pre-cache to ensure visualisation checks aren't unnecessarily run.
+
 ### Fixed
 - Visualiser can now refresh when the claim tool state in hand is changed externally (e.g. wiping inventory using /clear, given via /claim)
 - Visualisers showing up in all worlds instead of only the one where the claim exists in.
+- Player permissions can now be modified when the player is offline.
 
 ## [0.4.4]
 
