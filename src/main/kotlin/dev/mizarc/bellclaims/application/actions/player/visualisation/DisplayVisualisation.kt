@@ -14,6 +14,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlin.collections.set
 import kotlin.math.floor
+import org.bukkit.Bukkit
 
 class DisplayVisualisation(private val playerStateRepository: PlayerStateRepository,
                            private val claimRepository: ClaimRepository,
@@ -30,6 +31,10 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             playerState = PlayerState(playerId)
             playerStateRepository.add(playerState)
         }
+
+        // Fetch the player's current world so we only visualise claims in that world
+        val player = Bukkit.getPlayer(playerId) ?: return mutableMapOf()
+        val worldId = player.world.uid
 
         // If there is a scheduled hide task, cancel it immediately — the player is re-displaying.
         playerState.scheduledVisualiserHide?.cancel()
@@ -52,10 +57,10 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         // Change visualiser depending on view mode
         val borders: MutableMap<UUID, Set<Position3D>> = mutableMapOf()
         if (playerState.claimToolMode == 1) {
-            borders.putAll(displayPartitioned(playerId, playerState, playerPosition))
+            borders.putAll(displayPartitioned(playerId, playerState, playerPosition, worldId))
         }
         else {
-            borders.putAll(displayComplete(playerId, playerState, playerPosition))
+            borders.putAll(displayComplete(playerId, playerState, playerPosition, worldId))
             playerState.visualisedClaims = borders
         }
 
@@ -69,10 +74,12 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
     /**
      * Visualise all of a player's claims with only outer borders.
      */
-    private fun displayComplete(playerId: UUID, playerState: PlayerState, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
+    private fun displayComplete(playerId: UUID, playerState: PlayerState, playerPosition: Position3D, worldId: UUID): Map<UUID, Set<Position3D>> {
         val chunkPosition = Position2D(floor(playerPosition.x / 16.0).toInt(), floor(playerPosition.z / 16.0).toInt())
         val chunks = getSurroundingChunks(chunkPosition, 16) // View distance fixed for now
-        val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }.toSet()
+        val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }
+            .filter { claimRepository.getById(it.claimId)?.worldId == worldId }
+            .toSet()
         if (partitions.isEmpty()) return mutableMapOf()
 
         // Mapping claim ids to the positions assigned to that claim
@@ -105,10 +112,12 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
     /**
      * Visualise a player's claims with individual partitions shown.
      */
-    private fun displayPartitioned(playerId: UUID, playerState: PlayerState, playerPosition: Position3D): Map<UUID, Set<Position3D>> {
+    private fun displayPartitioned(playerId: UUID, playerState: PlayerState, playerPosition: Position3D, worldId: UUID): Map<UUID, Set<Position3D>> {
         val chunkPosition = Position2D(floor(playerPosition.x / 16.0).toInt(), floor(playerPosition.z / 16.0).toInt())
         val chunks = getSurroundingChunks(chunkPosition, 16) // View distance fixed for now
-        val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }.toSet()
+        val partitions = chunks.flatMap { partitionRepository.getByChunk(it) }
+            .filter { claimRepository.getById(it.claimId)?.worldId == worldId }
+            .toSet()
         if (partitions.isEmpty()) return mutableMapOf()
 
         // Mapping claim ids to the positions assigned to that claim
@@ -129,15 +138,13 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
                 // Main partition
                 visualisationService.displayPartitioned(playerId, setOf(partition.area),
                     "CYAN_GLAZED_TERRACOTTA", "CYAN_CARPET",
-                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter {
-                    it != playerState.selectedBlock }
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter { it != playerState.selectedBlock }
                     .toSet()
             } else {
                 // Attached partitions
                 visualisationService.displayPartitioned(playerId, setOf(partition.area),
                     "LIGHT_GRAY_GLAZED_TERRACOTTA", "LIGHT_GRAY_CARPET",
-                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter {
-                    it != playerState.selectedBlock }
+                    "BLUE_GLAZED_TERRACOTTA", "BLUE_CARPET").filter { it != playerState.selectedBlock }
                     .toSet()
             }
 
