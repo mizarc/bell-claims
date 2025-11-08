@@ -12,7 +12,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Auto claim visualisation refreshes when moving between chunks, joining the server, and switching dimensions.
 
 ### Fixed
-- Visualiser can now refresh when modifying the item in the player's hand via commands (e.g. using /clear, and given via /claim)
+- Visualiser can now refresh when the claim tool state in hand is changed externally (e.g. wiping inventory using /clear, given via /claim)
 
 ## [0.4.4]
 
