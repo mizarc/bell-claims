@@ -24,7 +24,7 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
 
         // Skip if nothing relevant changed since the last execution for this player
         val last = lastState[playerId]
-        val current = Pair(holdingClaimTool,  Position2D(position.x, position.z))
+        val current = Pair(holdingClaimTool, Position2D(position.x, position.z))
 
         // Check if the player is holding the same tool and in the same chunk as before
         val lastHolding = last?.first
