@@ -13,6 +13,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed
 - Visualiser can now refresh when the claim tool state in hand is changed externally (e.g. wiping inventory using /clear, given via /claim)
+- Visualisers showing up in all worlds instead of only the one where the claim exists in.
 
 ## [0.4.4]
 
