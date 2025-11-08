@@ -13,7 +13,7 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
                                    private val displayVisualisation: DisplayVisualisation,
                                    private val scheduleClearVisualisation: ScheduleClearVisualisation,
                                    private val isPlayerVisualising: IsPlayerVisualising) {
-    // Cache last known (holdingClaimTool, position) per player to avoid redundant work
+    // Cache last known (holdingClaimTool, position) per player to avoid redundant work.
     private val lastState: MutableMap<UUID, Pair<Boolean, Position2D>> = mutableMapOf()
 
     fun execute(playerId: UUID, position: Position3D,
@@ -22,11 +22,10 @@ class SyncToolVisualization(private val toolItemService: ToolItemService,
         val holdingClaimTool = (toolItemService.isClaimTool(mainHandItemData)
                 || (toolItemService.isClaimTool(offHandItemData)))
 
-        // Skip if nothing relevant changed since the last execution for this player
+        // Skip if the player is holding the same tool and are in the same chunk as before.
+        // If there's no previous state, proceed so that the current state can be cached.
         val last = lastState[playerId]
         val current = Pair(holdingClaimTool, Position2D(position.x, position.z))
-
-        // Check if the player is holding the same tool and in the same chunk as before
         val lastHolding = last?.first
         val lastChunk = last?.second?.let { Pair(it.x shr 4, it.z shr 4) }
         val currentChunk = Pair(position.x shr 4, position.z shr 4)
