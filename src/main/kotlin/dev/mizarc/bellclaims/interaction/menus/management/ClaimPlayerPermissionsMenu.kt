@@ -25,7 +25,6 @@ import dev.mizarc.bellclaims.utils.createHead
 import dev.mizarc.bellclaims.utils.getIcon
 import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
