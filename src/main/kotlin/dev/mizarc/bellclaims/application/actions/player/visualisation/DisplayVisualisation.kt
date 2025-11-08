@@ -31,12 +31,20 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             playerStateRepository.add(playerState)
         }
 
-        // Check if allowed to refresh visualisation based on last visualisation time
+        // If there is a scheduled hide task, cancel it immediately — the player is re-displaying.
+        playerState.scheduledVisualiserHide?.cancel()
+        playerState.scheduledVisualiserHide = null
+
+        // Check if allowed to refresh visualisation based on the last visualisation time
+        // If not reached cooldown time, refresh the last visualisation time to set the new cooldown
         val refreshPeriodInMillis = (config.visualiserRefreshPeriod * 1000).toLong()
         val lastVisualisation = playerState.lastVisualisationTime
         if (lastVisualisation != null
-                && lastVisualisation.plus(Duration.ofMillis(refreshPeriodInMillis)).isAfter(Instant.now()))
+                && lastVisualisation.plus(Duration.ofMillis(refreshPeriodInMillis)).isAfter(Instant.now())) {
+            playerState.lastVisualisationTime = Instant.now()
+            playerStateRepository.update(playerState)
             return mutableMapOf()
+        }
 
         // Clear the active visualisation
         clearVisualisation.execute(playerId)
@@ -51,8 +59,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
             playerState.visualisedClaims = borders
         }
 
-        // Set visualisation in player state
-        playerState.scheduledVisualiserHide?.cancel()
+        // Set visualisation in the player state
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
         playerStateRepository.update(playerState)
@@ -80,7 +87,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
                     it != playerState.selectedBlock }
                     .toSet()
             } else {
-                // Get all partitions linked to found claim
+                // Get all partitions linked to the found claim
                 val partitions = partitionRepository.getByClaim(claim.id)
                 val areas = partitions.map { it.area }.toMutableSet()
 
@@ -141,7 +148,7 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
     }
 
     private fun handleNonOwnedClaimDisplay(playerId: UUID, claim: Claim): Set<Position3D> {
-        // Get all partitions linked to found claim
+        // Get all partitions linked to the found claim
         val partitions = partitionRepository.getByClaim(claim.id)
         val areas = partitions.map { it.area }.toMutableSet()
         return visualisationService.displayComplete(playerId, areas, "RED_GLAZED_TERRACOTTA", "RED_CARPET", "BLACK_GLAZED_TERRACOTTA", "BLACK_CARPET")

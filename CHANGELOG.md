@@ -9,7 +9,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 - Action bar popup text on entering and exiting claim.
 - New flag for villagers' ability to use doors.
-- Auto claim visualisation refresh when moving between chunks.
+- Auto claim visualisation refreshes when moving between chunks, joining the server, and switching dimensions.
+
+### Fixed
+- Visualiser can now refresh when the claim tool state in hand is changed externally (e.g. wiping inventory using /clear, given via /claim)
 
 ## [0.4.4]
 
