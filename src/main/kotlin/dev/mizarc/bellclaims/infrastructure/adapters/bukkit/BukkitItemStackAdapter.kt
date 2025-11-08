@@ -12,7 +12,7 @@ import org.bukkit.persistence.PersistentDataType
  * - Returns null if the receiver is null, has no item meta, or no recognised keys are present.
  */
 fun ItemStack?.toCustomItemData(): Map<String, String>? {
-    // Returns null values if the item does not have any metadata
+    // Returns null if the item does not have any metadata
     if (this == null || !this.hasItemMeta()) return null
     val itemMeta = this.itemMeta ?: return null
 
