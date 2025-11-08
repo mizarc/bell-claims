@@ -73,26 +73,34 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         addSelector(playerId, controlsPane, createHead(targetPlayer).name(targetPlayer.name ?:
             localizationProvider.get(playerId, LocalizationKeys.GENERAL_NAME_ERROR)), deselectAction, selectAction)
 
-        val transferRequestResult = doesPlayerHaveTransferRequest.execute(claim.id, targetPlayer.uniqueId)
-
         val guiTransferRequestItem: GuiItem
-        when (transferRequestResult) {
-            is DoesPlayerHaveTransferRequestResult.ClaimNotFound -> {
-                val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(LocalizationKeys.MENU_PLAYER_PERMISSIONS_ITEM_CANNOT_TRANSFER_NAME)
-                    .lore(LocalizationKeys.SEND_TRANSFER_CONDITION_EXIST)
-                guiTransferRequestItem = GuiItem(transferRequestItem)
+        if (targetPlayer.isOnline) {
+            val transferRequestResult = doesPlayerHaveTransferRequest.execute(claim.id, targetPlayer.uniqueId)
+
+            when (transferRequestResult) {
+                is DoesPlayerHaveTransferRequestResult.ClaimNotFound -> {
+                    val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
+                        .name(LocalizationKeys.MENU_PLAYER_PERMISSIONS_ITEM_CANNOT_TRANSFER_NAME)
+                        .lore(LocalizationKeys.SEND_TRANSFER_CONDITION_EXIST)
+                    guiTransferRequestItem = GuiItem(transferRequestItem)
+                }
+                is DoesPlayerHaveTransferRequestResult.StorageError -> {
+                    val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
+                        .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_ERROR_NAME))
+                        .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_ERROR_LORE))
+                    guiTransferRequestItem = GuiItem(transferRequestItem)
+                }
+                is DoesPlayerHaveTransferRequestResult.Success -> {
+                    guiTransferRequestItem = createTransferButton(playerId, transferRequestResult.hasRequest)
+                }
             }
-            is DoesPlayerHaveTransferRequestResult.StorageError -> {
-                val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
-                    .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_ERROR_NAME))
-                    .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_ERROR_LORE))
-                guiTransferRequestItem = GuiItem(transferRequestItem)
-            }
-            is DoesPlayerHaveTransferRequestResult.Success -> {
-                guiTransferRequestItem = createTransferButton(playerId, transferRequestResult.hasRequest)
-            }
+        } else {
+            val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
+                .name(localizationProvider.get(playerId, LocalizationKeys.MENU_PLAYER_PERMISSIONS_ITEM_CANNOT_TRANSFER_NAME))
+                .lore(localizationProvider.get(playerId, LocalizationKeys.SEND_TRANSFER_CONDITION_OFFLINE))
+            guiTransferRequestItem = GuiItem(transferRequestItem)
         }
+
         controlsPane.addItem(guiTransferRequestItem, 8, 0)
 
         // Add vertical divider

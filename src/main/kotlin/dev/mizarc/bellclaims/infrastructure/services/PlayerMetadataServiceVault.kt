@@ -1,5 +1,6 @@
 package dev.mizarc.bellclaims.infrastructure.services
 
+import dev.mizarc.bellclaims.infrastructure.exceptions.OfflinePlayerLookupException
 import dev.mizarc.bellclaims.application.services.PlayerMetadataService
 import dev.mizarc.bellclaims.config.MainConfig
 import kotlinx.coroutines.Dispatchers
@@ -12,11 +13,17 @@ class PlayerMetadataServiceVault(private val metadata: Chat,
                                  private val config: MainConfig): PlayerMetadataService {
     override fun getPlayerClaimLimit(playerId: UUID): Int {
         val offlinePlayer = Bukkit.getOfflinePlayer(playerId)
+        if (!offlinePlayer.isOnline) {
+            throw OfflinePlayerLookupException("Synchronous metadata lookup attempted for offline player: $playerId")
+        }
         return metadata.getPlayerInfoInteger(null, offlinePlayer, "bellclaims.claim_limit", config.claimLimit)
     }
 
     override fun getPlayerClaimBlockLimit(playerId: UUID): Int {
         val offlinePlayer = Bukkit.getOfflinePlayer(playerId)
+        if (!offlinePlayer.isOnline) {
+            throw OfflinePlayerLookupException("Synchronous metadata lookup attempted for offline player: $playerId")
+        }
         return metadata.getPlayerInfoInteger(null, offlinePlayer, "bellclaims.claim_block_limit", config.claimBlockLimit)
     }
 

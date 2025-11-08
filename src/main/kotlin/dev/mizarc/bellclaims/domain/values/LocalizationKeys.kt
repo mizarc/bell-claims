@@ -72,6 +72,7 @@ object LocalizationKeys {
     const val SEND_TRANSFER_CONDITION_BLOCKS = "send_transfer_condition.blocks"
     const val SEND_TRANSFER_CONDITION_CLAIMS = "send_transfer_condition.claims"
     const val SEND_TRANSFER_CONDITION_EXIST = "send_transfer_condition.exist"
+    const val SEND_TRANSFER_CONDITION_OFFLINE = "send_transfer_condition.offline"
     const val SEND_TRANSFER_CONDITION_OWNER = "send_transfer_condition.owner"
 
 
