@@ -78,7 +78,6 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         if (targetPlayer.isOnline) {
             val transferRequestResult = doesPlayerHaveTransferRequest.execute(claim.id, targetPlayer.uniqueId)
 
-
             when (transferRequestResult) {
                 is DoesPlayerHaveTransferRequestResult.ClaimNotFound -> {
                     val transferRequestItem = ItemStack(Material.MAGMA_CREAM)
@@ -102,7 +101,6 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
                 .lore(localizationProvider.get(playerId, LocalizationKeys.SEND_TRANSFER_CONDITION_OFFLINE))
             guiTransferRequestItem = GuiItem(transferRequestItem)
         }
-
 
         controlsPane.addItem(guiTransferRequestItem, 8, 0)
 
