@@ -60,8 +60,6 @@ class DisplayVisualisation(private val playerStateRepository: PlayerStateReposit
         }
 
         // Set visualisation in the player state
-        playerState.scheduledVisualiserHide?.cancel()
-        playerState.scheduledVisualiserHide = null
         playerState.isVisualisingClaims = true
         playerState.lastVisualisationTime = Instant.now()
         playerStateRepository.update(playerState)
