@@ -19,12 +19,13 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, KoinComponent {
     private val syncToolVisualization: SyncToolVisualization by inject()
 
     // Track players who've just loaded in so we can ignore spurious inventory events until they're fully in-game
-    private val initialisingPlayers: MutableSet<UUID> = mutableSetOf()
+    private val initialisingPlayers: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
     @EventHandler
     fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
