@@ -4,32 +4,31 @@ import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.results.claim.flags.EnableAllClaimFlagsResult
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.values.Flag
 import java.util.UUID
 
 /**
- * Action for adding a specific flag to a claim.
- *
- * @property flagRepository Repository for managing claim flags.
- * @property claimRepository Repository for managing claims.
+ * Action for adding all flags to a claim, respecting configured blacklisted flags.
  */
-class EnableAllClaimFlags(private val flagRepository: ClaimFlagRepository,
-                         private val claimRepository: ClaimRepository) {
+class EnableAllClaimFlags(
+    private val flagRepository: ClaimFlagRepository,
+    private val claimRepository: ClaimRepository,
+    private val config: MainConfig
+) {
 
     /**
-     * Adds all available flags to the claim with the given [claimId].
-     *
-     * @param claimId The [UUID] of the claim to which the flag should be added.
-     * @return An [EnableAllClaimFlagsResult] indicating the outcome of the flag addition operation.
+     * Adds all available non-blacklisted flags to the claim with the given [claimId].
      */
     fun execute(claimId: UUID): EnableAllClaimFlagsResult {
         // Check if claim exists
         claimRepository.getById(claimId) ?: return EnableAllClaimFlagsResult.ClaimNotFound
 
-        // Add all flags to the claim
+        // Add all allowed flags to the claim
         var anyFlagEnabled = false
         try {
             val allFlags = Flag.entries
+                .filter { flag -> !config.blacklistedFlags.any { it.equals(flag.name, ignoreCase = true) } }
             for (flag in allFlags) {
                 if (flagRepository.add(claimId, flag)) anyFlagEnabled = true
             }

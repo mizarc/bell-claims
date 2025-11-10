@@ -5,4 +5,5 @@ sealed class EnableClaimFlagResult {
     object ClaimNotFound : EnableClaimFlagResult()
     object AlreadyExists : EnableClaimFlagResult()
     object StorageError: EnableClaimFlagResult()
+    object Blacklisted: EnableClaimFlagResult()
 }
