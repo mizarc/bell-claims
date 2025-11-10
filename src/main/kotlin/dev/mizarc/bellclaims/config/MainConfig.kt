@@ -13,5 +13,7 @@ data class MainConfig(
     var showClaimEnterPopup: Boolean = true,
     var pluginLanguage: String = "EN",
     var customClaimToolModelId: Int = 732000,
-    var customMoveToolModelId: Int = 732001
+    var customMoveToolModelId: Int = 732001,
+    var blacklistedFlags: Set<String> = emptySet(),
+    var blacklistedPermissions: Set<String> = emptySet()
 )
