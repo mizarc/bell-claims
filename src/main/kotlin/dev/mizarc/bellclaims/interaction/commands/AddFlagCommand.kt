@@ -49,6 +49,10 @@ class AddFlagCommand : ClaimCommand(), KoinComponent {
                 LocalizationKeys.GENERAL_ERROR,
                 emptyArray<String>()
             )
+            EnableClaimFlagResult.Blacklisted -> Pair(
+                LocalizationKeys.COMMAND_CLAIM_ADD_FLAG_BLACKLISTED,
+                emptyArray<String>()
+            )
         }
 
         // Output to player chat
