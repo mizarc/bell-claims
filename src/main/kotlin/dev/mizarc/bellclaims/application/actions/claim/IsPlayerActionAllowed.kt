@@ -16,8 +16,7 @@ class IsPlayerActionAllowed(private val playerAccessRepository: PlayerAccessRepo
                             private val claimPermissionRepository: ClaimPermissionRepository,
                             private val getClaimAtPosition: GetClaimAtPosition,
                             private val playerStateRepository: PlayerStateRepository,
-                            private val mainConfig: MainConfig
-) {
+                            private val mainConfig: MainConfig) {
     fun execute(playerId: UUID, worldId: UUID, position: Position2D,
                 playerActionType: PlayerActionType): IsPlayerActionAllowedResult {
         // Get the claim at the current position
