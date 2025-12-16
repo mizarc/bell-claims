@@ -36,6 +36,18 @@ fun ItemStack.lore(text: String): ItemStack {
     return this
 }
 
+fun ItemStack.lore(text: String, position: Int): ItemStack {
+    val meta = itemMeta
+    var lore: MutableList<String>? = meta.lore
+    if (lore == null) {
+        lore = ArrayList()
+    }
+    lore.add(position, text)
+    meta.lore = lore.c()
+    itemMeta = meta
+    return this
+}
+
 fun ItemStack.lore(vararg text: String): ItemStack {
     Arrays.stream(text).forEach { this.lore(it) }
     return this
