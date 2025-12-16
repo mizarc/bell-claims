@@ -35,3 +35,38 @@ custom_claim_tool_model_id: 732000
 
 # The id value for resource packs that change the model of the move tool.
 custom_move_tool_model_id: 732001
+
+# Blacklisted flags that players aren't allowed to set on their claims.
+# Uncomment flags you want to blacklist.
+blacklisted_flags:
+#  - EXPLOSION
+#  - FIRE
+#  - MOB
+#  - PISTON
+#  - FLUID
+#  - TREE
+#  - SCULK
+#  - DISPENSER
+#  - SPONGE
+#  - LIGHTNING
+#  - FALLING_BLOCK
+#  - PASSIVE_ENTITY_VEHICLE
+#  - VILLAGER_DOOR
+
+# Blacklisted permissions that players aren't allowed to set on their claims.
+# Uncomment permissions you want to blacklist.
+blacklisted_permissions:
+#  - BUILD
+#  - HARVEST
+#  - CONTAINER
+#  - DISPLAY
+#  - VEHICLE
+#  - SIGN
+#  - REDSTONE
+#  - DOOR
+#  - TRADE
+#  - HUSBANDRY
+#  - DETONATE
+#  - EVENT
+#  - SLEEP
+#  - VIEW
