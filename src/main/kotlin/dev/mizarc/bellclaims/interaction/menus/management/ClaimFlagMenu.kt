@@ -9,12 +9,14 @@ import dev.mizarc.bellclaims.application.actions.claim.flag.EnableAllClaimFlags
 import dev.mizarc.bellclaims.application.actions.claim.flag.EnableClaimFlag
 import dev.mizarc.bellclaims.application.actions.claim.flag.GetClaimFlags
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.Flag
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import dev.mizarc.bellclaims.interaction.menus.Menu
 import dev.mizarc.bellclaims.interaction.menus.MenuNavigator
 import dev.mizarc.bellclaims.utils.getIcon
+import dev.mizarc.bellclaims.utils.lore
 import dev.mizarc.bellclaims.utils.name
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -31,6 +33,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
     private val disableClaimFlag: DisableClaimFlag by inject()
     private val disableAllClaimFlags: DisableAllClaimFlags by inject()
     private val enableAllClaimFlags: EnableAllClaimFlags by inject()
+    private val mainConfig: MainConfig by inject()
 
 
     override fun open() {
@@ -85,8 +88,10 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledFlags = getClaimFlags.execute(claim.id)
-        val disabledFlags = Flag.entries.toTypedArray().subtract(enabledFlags)
+        val allEnabled = getClaimFlags.execute(claim.id)
+        val enabledFlags = allEnabled.filter { flag -> !mainConfig.blacklistedFlags.any { it.equals(flag.name, ignoreCase = true) } }
+        val enabledBlacklistedFlags = allEnabled.filter { flag -> mainConfig.blacklistedFlags.any { it.equals(flag.name, ignoreCase = true) } }
+        val disabledFlags = Flag.entries.filter { flag -> !allEnabled.contains(flag) && !mainConfig.blacklistedFlags.any { it.equals(flag.name, ignoreCase = true) } }
 
         // Add list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
@@ -117,6 +122,28 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         ySlot = 0
         for (flag in enabledFlags) {
             val permissionItem = flag.getIcon(localizationProvider, playerId)
+
+            val guiPermissionItem = GuiItem(permissionItem) {
+                disableClaimFlag.execute(flag, claim.id)
+                open()
+            }
+
+            enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 3) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        for (flag in enabledBlacklistedFlags) {
+            val permissionItem = flag.getIcon(localizationProvider, playerId)
+            permissionItem.lore("§c[BLACKLISTED]", 0)
+            permissionItem.lore("§7This permission is currently blacklisted by the server. ", 1)
+            permissionItem.lore("§7It currently has no effect and can be safely disabled.", 2)
+            permissionItem.lore("", 3)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 disableClaimFlag.execute(flag, claim.id)
