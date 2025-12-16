@@ -141,7 +141,7 @@ class ClaimFlagMenu(private val menuNavigator: MenuNavigator, private val player
         for (flag in enabledBlacklistedFlags) {
             val permissionItem = flag.getIcon(localizationProvider, playerId)
             permissionItem.lore("§c[BLACKLISTED]", 0)
-            permissionItem.lore("§7This permission is currently blacklisted by the server. ", 1)
+            permissionItem.lore("§7This flag is currently blacklisted by the server.", 1)
             permissionItem.lore("§7It currently has no effect and can be safely disabled.", 2)
             permissionItem.lore("", 3)
 
