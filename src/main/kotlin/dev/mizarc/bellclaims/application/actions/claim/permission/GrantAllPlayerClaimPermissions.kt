@@ -4,11 +4,14 @@ import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.persistence.PlayerAccessRepository
 import dev.mizarc.bellclaims.application.results.claim.permission.GrantAllPlayerClaimPermissionsResult
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import java.util.UUID
+import kotlin.text.equals
 
 class GrantAllPlayerClaimPermissions(private val claimRepository: ClaimRepository,
-                                      private val playerAccessRepository: PlayerAccessRepository) {
+                                     private val playerAccessRepository: PlayerAccessRepository,
+                                     private val config: MainConfig) {
     /**
      * Adds all available permissions to the claim with the given [claimId].
      *
@@ -23,6 +26,7 @@ class GrantAllPlayerClaimPermissions(private val claimRepository: ClaimRepositor
         var anyPermissionEnabled = false
         try {
             val allPermissions = ClaimPermission.entries
+                .filter { permission -> !config.blacklistedPermissions.any { it.equals(permission.name, ignoreCase = true) } }
             for (permission in allPermissions) {
                 if (playerAccessRepository.add(claimId, playerId, permission)) anyPermissionEnabled = true
             }
