@@ -24,7 +24,7 @@ class GrantAllPlayerClaimPermissions(private val claimRepository: ClaimRepositor
         try {
             val allPermissions = ClaimPermission.entries
             for (permission in allPermissions) {
-                if (playerAccessRepository.remove(claimId, playerId, permission)) anyPermissionEnabled = true
+                if (playerAccessRepository.add(claimId, playerId, permission)) anyPermissionEnabled = true
             }
 
             // Return success if at least one permission was granted
