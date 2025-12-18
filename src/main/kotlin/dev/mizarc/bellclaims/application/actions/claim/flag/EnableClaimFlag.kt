@@ -5,6 +5,7 @@ import dev.mizarc.bellclaims.application.errors.DatabaseOperationException
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.results.claim.flags.EnableClaimFlagResult
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.values.Flag
 import java.util.UUID
 
@@ -13,8 +14,13 @@ import java.util.UUID
  *
  * @property flagRepository Repository for managing claim flags.
  * @property claimRepository Repository for managing claims.
+ * @property config Main plugin configuration (used to check blacklisted flags).
  */
-class EnableClaimFlag(private val flagRepository: ClaimFlagRepository, private val claimRepository: ClaimRepository) {
+class EnableClaimFlag(
+    private val flagRepository: ClaimFlagRepository,
+    private val claimRepository: ClaimRepository,
+    private val config: MainConfig
+) {
 
     /**
      * Add the specified [flag] to the claim with the given [claimId].
@@ -24,6 +30,11 @@ class EnableClaimFlag(private val flagRepository: ClaimFlagRepository, private v
      * @return An [EnableAllClaimFlagsResult] indicating the outcome of the flag addition operation.
      */
     fun execute(flag: Flag, claimId: UUID): EnableClaimFlagResult {
+        // Disallow enabling blacklisted flags
+        if (config.blacklistedFlags.any { it.equals(flag.name, ignoreCase = true) }) {
+            return EnableClaimFlagResult.Blacklisted
+        }
+
         // Check if claim exists
         claimRepository.getById(claimId) ?: return EnableClaimFlagResult.ClaimNotFound
 
