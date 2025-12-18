@@ -15,6 +15,7 @@ import dev.mizarc.bellclaims.application.actions.claim.transfer.WithdrawPlayerTr
 import dev.mizarc.bellclaims.application.results.claim.transfer.CanPlayerReceiveTransferRequestResult
 import dev.mizarc.bellclaims.application.results.claim.transfer.DoesPlayerHaveTransferRequestResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.entities.Claim
 import dev.mizarc.bellclaims.domain.values.ClaimPermission
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
@@ -33,6 +34,7 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
+import kotlin.text.equals
 
 class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, private val player: Player,
                                  private val claim: Claim, private val targetPlayer: OfflinePlayer
@@ -47,6 +49,7 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
     private val doesPlayerHaveTransferRequest: DoesPlayerHaveTransferRequest by inject()
     private val offerPlayerTransferRequest: OfferPlayerTransferRequest by inject()
     private val withdrawPlayerTransferRequest: WithdrawPlayerTransferRequest by inject()
+    private val mainConfig: MainConfig by inject()
 
     override fun open() {
         // Create player permissions menu
@@ -112,10 +115,12 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
             verticalDividerPane.addItem(guiDividerItem, 0, slot)
         }
 
-        val enabledPermissions = getPlayerClaimPermissions.execute(claim.id, targetPlayer.uniqueId)
-        val disabledPermissions = ClaimPermission.entries.toTypedArray().subtract(enabledPermissions)
+        val allEnabled = getPlayerClaimPermissions.execute(claim.id, targetPlayer.uniqueId)
+        val enabledPermissions = allEnabled.filter { permission -> !mainConfig.blacklistedPermissions.any { it.equals(permission.name, ignoreCase = true) } }
+        val enabledBlacklistedPermissions = allEnabled.filter { permission -> mainConfig.blacklistedPermissions.any { it.equals(permission.name, ignoreCase = true) } }
+        val disabledPermissions = ClaimPermission.entries.filter { permission -> !allEnabled.contains(permission) && !mainConfig.blacklistedPermissions.any { it.equals(permission.name, ignoreCase = true) } }
 
-        // Add list of disabled permissions
+        // Add a list of disabled permissions
         val disabledPermissionsPane = StaticPane(0, 2, 4, 4)
         gui.addPane(disabledPermissionsPane)
         var xSlot = 0
@@ -144,6 +149,28 @@ class ClaimPlayerPermissionsMenu(private val menuNavigator: MenuNavigator, priva
         ySlot = 0
         for (permission in enabledPermissions) {
             val permissionItem = permission.getIcon(localizationProvider, playerId)
+
+            val guiPermissionItem = GuiItem(permissionItem) {
+                revokePlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)
+                open()
+            }
+
+            enabledPermissionsPane.addItem(guiPermissionItem , xSlot, ySlot)
+
+            // Increment slot
+            xSlot += 1
+            if (xSlot > 3) {
+                xSlot = 0
+                ySlot += 1
+            }
+        }
+
+        for (permission in enabledBlacklistedPermissions) {
+            val permissionItem = permission.getIcon(localizationProvider, playerId)
+            permissionItem.lore("§c[BLACKLISTED]", 0)
+            permissionItem.lore("§7This permission is currently blacklisted by the server.", 1)
+            permissionItem.lore("§7It currently has no effect and can be safely disabled.", 2)
+            permissionItem.lore("", 3)
 
             val guiPermissionItem = GuiItem(permissionItem) {
                 revokePlayerClaimPermission.execute(claim.id, targetPlayer.uniqueId, permission)

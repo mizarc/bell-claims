@@ -3,14 +3,17 @@ package dev.mizarc.bellclaims.application.actions.claim
 import dev.mizarc.bellclaims.application.persistence.ClaimFlagRepository
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
+import dev.mizarc.bellclaims.application.results.claim.IsPlayerActionAllowedResult
 import dev.mizarc.bellclaims.application.results.claim.IsWorldActionAllowedResult
+import dev.mizarc.bellclaims.config.MainConfig
 import dev.mizarc.bellclaims.domain.values.Flag
 import dev.mizarc.bellclaims.domain.values.Position2D
 import dev.mizarc.bellclaims.domain.values.WorldActionType
 import java.util.UUID
 
 class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
-                           private val getClaimAtPosition: GetClaimAtPosition) {
+                           private val getClaimAtPosition: GetClaimAtPosition,
+                           private val mainConfig: MainConfig) {
     fun execute(worldId: UUID, position: Position2D, worldActionType: WorldActionType): IsWorldActionAllowedResult {
         // Get the claim at the current position
         val claim = when (val result = getClaimAtPosition.execute(worldId, position)) {
@@ -21,6 +24,10 @@ class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
 
         // Get the flag associated with the action
         val relevantFlag = actionToFlagMapping[worldActionType] ?: return IsWorldActionAllowedResult.NoAssociatedFlag
+
+        // Allow if the flag is blacklisted
+        if (mainConfig.blacklistedFlags.contains(relevantFlag.name))
+            return IsWorldActionAllowedResult.Allowed
 
         // Allow or deny depending on if the claim has the flag or not
         if (flagRepository.doesClaimHaveFlag(claim.id, relevantFlag)) {

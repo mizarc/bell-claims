@@ -283,6 +283,7 @@ object LocalizationKeys {
     // Add Flag
     const val COMMAND_CLAIM_ADD_FLAG_SUCCESS = "command.claim.add_flag.success"
     const val COMMAND_CLAIM_ADD_FLAG_ALREADY_EXISTS = "command.claim.add_flag.already_exists"
+    const val COMMAND_CLAIM_ADD_FLAG_BLACKLISTED = "command.claim.add_flag.blacklisted"
 
     // Claim
     const val COMMAND_CLAIM_SUCCESS = "command.claim.success"
