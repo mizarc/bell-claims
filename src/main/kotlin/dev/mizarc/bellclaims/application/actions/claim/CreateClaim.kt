@@ -52,6 +52,26 @@ class CreateClaim(private val claimRepository: ClaimRepository, private val part
             return CreateClaimResult.TooCloseToWorldBorder
         }
 
+        // Disallow claims on the end platform
+        if (worldManipulationService.isOnEndPlatform(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
+        // Disallow if inside the exit portal space
+        if (worldManipulationService.isInReturnEndPortal(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
+        // Disallow if in the gateway orbit radius
+        if (worldManipulationService.isNearGatewayOrbit(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
+        // Disallow if too close to an end portal frame
+        if (worldManipulationService.isNearEndPortalFrame(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
         // Creates new claim and partition
         val newClaim = Claim(worldId, playerId, position3D, name)
         val partition = Partition(newClaim.id, area)

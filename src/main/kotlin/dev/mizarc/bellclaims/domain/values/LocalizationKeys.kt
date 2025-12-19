@@ -45,6 +45,7 @@ object LocalizationKeys {
     // Move Tool
     const val FEEDBACK_MOVE_TOOL_SUCCESS = "feedback.move_tool.success"
     const val FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER = "feedback.move_tool.outside_border"
+    const val FEEDBACK_MOVE_TOOL_INVALID_POSITION = "feedback.move_tool.invalid_position"
     const val FEEDBACK_MOVE_TOOL_NO_PERMISSION = "feedback.move_tool.no_permission"
 
     // Transfer
@@ -67,6 +68,7 @@ object LocalizationKeys {
     const val CREATION_CONDITION_OVERLAP = "creation_condition.overlap"
     const val CREATION_CONDITION_UNNAMED = "creation_condition.unnamed"
     const val CREATION_CONDITION_WORLD_BORDER = "creation_condition.world_border"
+    const val CREATION_CONDITION_INVALID_POSITION = "creation_condition.invalid_position"
 
     // Transfer Conditions
     const val SEND_TRANSFER_CONDITION_BLOCKS = "send_transfer_condition.blocks"

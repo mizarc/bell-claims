@@ -6,7 +6,12 @@ import dev.mizarc.bellclaims.domain.values.Position3D
 import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toLocation
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import java.util.UUID
+import org.bukkit.World
+import java.util.*
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
+
 
 class WorldManipulationServiceBukkit : WorldManipulationService {
     override fun breakWithoutItemDrop(worldId: UUID, position: Position3D): Boolean {
@@ -39,5 +44,88 @@ class WorldManipulationServiceBukkit : WorldManipulationService {
                     areaMaxZ <= borderMaxZ
 
         return isContained
+    }
+
+    override fun isOnEndPlatform(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Filter to the end
+        if (world.environment != World.Environment.THE_END) return false
+
+        // Get the bounds
+        val startX = 100
+        val startY = 49
+        val startZ = 0
+
+        val dx = abs(position3D.x - startX)
+        val dz = abs(position3D.z - startZ)
+        val dy = position3D.y - startY
+
+        // 5x5 horizontally centered on start
+        return dx <= 2 && dz <= 2 && dy in -1 .. 3
+
+    }
+
+    override fun isInReturnEndPortal(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Filter to the end
+        if (world.environment != World.Environment.THE_END) return false
+
+        // Get the bounds
+        val startX = 0
+        val startZ = 0
+
+        val dx = abs(position3D.x - startX)
+        val dz = abs(position3D.z - startZ)
+
+        // 5x5 horizontally centered on start
+        return dx <= 2 && dz <= 2 && position3D.y >= world.minHeight && position3D.y <= world.maxHeight
+    }
+
+    override fun isNearGatewayOrbit(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Only applicable in the End
+        if (world.environment != World.Environment.THE_END) return false
+
+        val x = position3D.x.toDouble()
+        val z = position3D.z.toDouble()
+        val y = position3D.y
+
+        val distance = sqrt(x.pow(2.0) + z.pow(2.0))
+
+        // Horizontal check: Radius 96 with a small margin (94 to 98)
+        val isInRing = distance > 94.0 && distance < 98.0
+
+        // Vertical check: 5 blocks high (Y=73, 74, 75, 76, 77)
+        // This covers the bedrock shell which is 3 blocks tall + 1 block above/below for safety
+        val isInHeightBuffer = y in 73..77
+
+        return isInRing && isInHeightBuffer
+    }
+
+    override fun isNearEndPortalFrame(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Optimization: Strongholds only exist in the Overworld (standard)
+        // Though some custom servers have them elsewhere, checking everywhere is safer.
+
+        val radius = 2
+        for (x in -radius..radius) {
+            for (y in -radius..radius) {
+                for (z in -radius..radius) {
+                    val blockX = position3D.x + x
+                    val blockY = position3D.y + y
+                    val blockZ = position3D.z + z
+
+                    // Use getBlockAt for specific coordinates
+                    if (world.getBlockAt(blockX, blockY, blockZ).type == Material.END_PORTAL_FRAME) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
     }
 }

@@ -45,10 +45,17 @@ class MoveToolListener: Listener, KoinComponent {
                         event.player.uniqueId, LocalizationKeys.FEEDBACK_MOVE_TOOL_SUCCESS))
                         .color(TextColor.color(85, 255, 85)))
             }
-            is MoveClaimAnchorResult.InvalidPosition -> {
+            is MoveClaimAnchorResult.OutsiderBorder-> {
                 event.player.sendActionBar(
                     Component.text(localizationProvider.get(
                         playerId, LocalizationKeys.FEEDBACK_MOVE_TOOL_OUTSIDE_BORDER))
+                        .color(TextColor.color(255, 85, 85)))
+                event.isCancelled = true
+            }
+            is MoveClaimAnchorResult.InvalidPosition -> {
+                event.player.sendActionBar(
+                    Component.text(localizationProvider.get(
+                        playerId, LocalizationKeys.FEEDBACK_MOVE_TOOL_INVALID_POSITION))
                         .color(TextColor.color(255, 85, 85)))
                 event.isCancelled = true
             }
