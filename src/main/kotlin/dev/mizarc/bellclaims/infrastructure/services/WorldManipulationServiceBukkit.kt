@@ -104,4 +104,28 @@ class WorldManipulationServiceBukkit : WorldManipulationService {
 
         return isInRing && isInHeightBuffer
     }
+
+    override fun isNearEndPortalFrame(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Optimization: Strongholds only exist in the Overworld (standard)
+        // Though some custom servers have them elsewhere, checking everywhere is safer.
+
+        val radius = 2
+        for (x in -radius..radius) {
+            for (y in -radius..radius) {
+                for (z in -radius..radius) {
+                    val blockX = position3D.x + x
+                    val blockY = position3D.y + y
+                    val blockZ = position3D.z + z
+
+                    // Use getBlockAt for specific coordinates
+                    if (world.getBlockAt(blockX, blockY, blockZ).type == Material.END_PORTAL_FRAME) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
 }

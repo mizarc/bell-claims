@@ -10,4 +10,5 @@ interface WorldManipulationService {
     fun isOnEndPlatform(worldId: UUID, position3D: Position3D): Boolean
     fun isInReturnEndPortal(worldId: UUID, position3D: Position3D): Boolean
     fun isNearGatewayOrbit(worldId: UUID, position3D: Position3D): Boolean
+    fun isNearEndPortalFrame(worldId: UUID, position3D: Position3D): Boolean
 }

@@ -67,6 +67,11 @@ class CreateClaim(private val claimRepository: ClaimRepository, private val part
             return CreateClaimResult.InvalidPosition
         }
 
+        // Disallow if too close to an end portal frame
+        if (worldManipulationService.isNearEndPortalFrame(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
         // Creates new claim and partition
         val newClaim = Claim(worldId, playerId, position3D, name)
         val partition = Partition(newClaim.id, area)
