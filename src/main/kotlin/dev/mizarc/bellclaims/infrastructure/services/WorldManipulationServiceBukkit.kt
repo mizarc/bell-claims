@@ -7,6 +7,7 @@ import dev.mizarc.bellclaims.infrastructure.adapters.bukkit.toLocation
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import java.util.UUID
+import kotlin.math.abs
 
 class WorldManipulationServiceBukkit : WorldManipulationService {
     override fun breakWithoutItemDrop(worldId: UUID, position: Position3D): Boolean {
@@ -39,5 +40,25 @@ class WorldManipulationServiceBukkit : WorldManipulationService {
                     areaMaxZ <= borderMaxZ
 
         return isContained
+    }
+
+    override fun isOnEndPlatform(worldId: UUID, position3D: Position3D): Boolean {
+        val world = Bukkit.getWorld(worldId) ?: return false
+
+        // Filter to the end
+        if (world.environment != org.bukkit.World.Environment.THE_END) return false
+
+        // Get the bounds
+        val startX = 100
+        val startY = 49
+        val startZ = 0
+
+        val dx = abs(position3D.x - startX)
+        val dz = abs(position3D.z - startZ)
+        val dy = position3D.y - startY
+
+        // 5x5 horizontally centered on start
+        return dx <= 2 && dz <= 2 && dy in -1 .. 3
+
     }
 }

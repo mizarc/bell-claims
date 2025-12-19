@@ -52,6 +52,11 @@ class CreateClaim(private val claimRepository: ClaimRepository, private val part
             return CreateClaimResult.TooCloseToWorldBorder
         }
 
+        // Disallow claims on the end platform
+        if (worldManipulationService.isOnEndPlatform(worldId, position3D)) {
+            return CreateClaimResult.InvalidPosition
+        }
+
         // Creates new claim and partition
         val newClaim = Claim(worldId, playerId, position3D, name)
         val partition = Partition(newClaim.id, area)
