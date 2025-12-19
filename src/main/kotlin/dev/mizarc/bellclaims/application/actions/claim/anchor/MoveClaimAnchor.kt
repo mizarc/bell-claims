@@ -3,6 +3,7 @@ package dev.mizarc.bellclaims.application.actions.claim.anchor
 import dev.mizarc.bellclaims.application.actions.claim.GetClaimAtPosition
 import dev.mizarc.bellclaims.application.actions.player.DoesPlayerHaveClaimOverride
 import dev.mizarc.bellclaims.application.persistence.ClaimRepository
+import dev.mizarc.bellclaims.application.results.claim.CreateClaimResult
 import dev.mizarc.bellclaims.application.results.claim.GetClaimAtPositionResult
 import dev.mizarc.bellclaims.application.results.claim.anchor.MoveClaimAnchorResult
 import dev.mizarc.bellclaims.application.results.player.DoesPlayerHaveClaimOverrideResult
@@ -29,7 +30,7 @@ class MoveClaimAnchor(private val claimRepository: ClaimRepository,
 
         // Check if the claim at the new position is the same as the current claim
         if (claimAtPosition.id != claimId) {
-            return MoveClaimAnchorResult.InvalidPosition
+            return MoveClaimAnchorResult.OutsiderBorder
         }
 
         // Get player's claim override
@@ -42,6 +43,21 @@ class MoveClaimAnchor(private val claimRepository: ClaimRepository,
         // Check if the player moving the claim bell is the owner of the claim
         if (existingClaim.playerId != playerId && !claimOverride) {
             return MoveClaimAnchorResult.NoPermission
+        }
+
+        // Disallow if inside the exit portal space
+        if (worldManipulationService.isInReturnEndPortal(newWorldId, newPosition)) {
+            return MoveClaimAnchorResult.InvalidPosition
+        }
+
+        // Disallow if in the gateway orbit radius
+        if (worldManipulationService.isNearGatewayOrbit(newWorldId, newPosition)) {
+            return MoveClaimAnchorResult.InvalidPosition
+        }
+
+        // Disallow if too close to an end portal frame
+        if (worldManipulationService.isNearEndPortalFrame(newWorldId, newPosition)) {
+            return MoveClaimAnchorResult.InvalidPosition
         }
 
         // Move the claim anchor
