@@ -132,6 +132,19 @@ class ClaimNamingMenu(private val player: Player, private val menuNavigator: Men
                     bellItem.name(name)
                     gui.update()
                 }
+                is CreateClaimResult.InvalidPosition -> {
+                    val paperItem = ItemStack(Material.PAPER)
+                        .name(localizationProvider.get(playerId, LocalizationKeys.CREATION_CONDITION_INVALID_POSITION))
+                    val guiPaperItem = GuiItem(paperItem) { guiEvent ->
+                        secondPane.removeItem(0, 0)
+                        bellItem.name(name)
+                        isConfirming = true
+                        gui.update()
+                    }
+                    secondPane.addItem(guiPaperItem, 0, 0)
+                    bellItem.name(name)
+                    gui.update()
+                }
             }
         }
 
