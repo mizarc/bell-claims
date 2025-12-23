@@ -22,6 +22,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Visualisers showing up in all worlds instead of only the one where the claim exists in.
 - Player permissions can now be modified when the player is offline.
 - The button to Select all on player permissions works as intended.
+- Falling blocks don't fall when mob flag is active.
 
 ## [0.4.4]
 
