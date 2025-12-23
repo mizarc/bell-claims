@@ -88,6 +88,7 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
     @EventHandler
     fun onMobBlockChange(event: EntityChangeBlockEvent) {
         if (event.entity is Player) return
+        if (event.entity is FallingBlock) return
         val action = WorldActionType.MOB_DESTROY_BLOCK
         cancelIfDisallowed(event, event.block.location, action)
     }
