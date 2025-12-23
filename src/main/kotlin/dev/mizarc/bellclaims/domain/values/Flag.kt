@@ -80,5 +80,8 @@ enum class Flag(val nameKey: String, val loreKey: String) {
      * When villagers can open doors in a claim.
      */
     VILLAGER_DOOR(LocalizationKeys.FLAG_VILLAGER_DOOR_NAME,
-        LocalizationKeys.FLAG_VILLAGER_DOOR_LORE)
+        LocalizationKeys.FLAG_VILLAGER_DOOR_LORE),
+
+    WEAVING(LocalizationKeys.FLAG_WEAVING_DOOR_NAME,
+    LocalizationKeys.FLAG_WEAVING_DOOR_LORE)
 }
