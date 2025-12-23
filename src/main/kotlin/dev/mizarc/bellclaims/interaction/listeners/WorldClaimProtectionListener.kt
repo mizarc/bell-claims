@@ -101,6 +101,14 @@ class WorldClaimProtectionListener: Listener, KoinComponent {
     }
 
     @EventHandler
+    fun onMobWeavingEffect(event: EntityChangeBlockEvent) {
+        if (event.entity !is Player) return
+        if (event.to != Material.COBWEB) return
+        val action = WorldActionType.DROP_COBWEBS
+        cancelIfDisallowed(event, event.block.location, action)
+    }
+
+    @EventHandler
     fun onVillagerDoorOpen(event: EntityInteractEvent) {
         if (event.entity !is AbstractVillager) return
         if (!Tag.DOORS.isTagged(event.block.type)) return

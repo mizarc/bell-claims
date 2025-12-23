@@ -66,6 +66,7 @@ class IsWorldActionAllowed(private val flagRepository: ClaimFlagRepository,
         // Mob Griefing
         WorldActionType.MOB_DESTROY_BLOCK to Flag.MOB,
         WorldActionType.MOB_DAMAGE_ENTITY to Flag.MOB,
+        WorldActionType.DROP_COBWEBS to Flag.MOB,
 
         // Fluids
         WorldActionType.FLUID_FLOW to Flag.FLUID,
