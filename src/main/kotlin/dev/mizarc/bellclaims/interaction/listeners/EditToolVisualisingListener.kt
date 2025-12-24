@@ -25,21 +25,11 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
     private val syncToolVisualization: SyncToolVisualization by inject()
 
     // Track players who've just loaded in so we can ignore spurious inventory events until they're fully in-game
-    private val initialisingPlayers: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
+    internal val initialisingPlayers: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
     @EventHandler
     fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
         initialisingPlayers.add(event.uniqueId)
-    }
-
-    /**
-     * Triggers when the player joins the server.
-     */
-    @EventHandler
-    fun onPlayerJoin(event: PlayerClientLoadedWorldEvent) {
-        val player = event.player
-        handleAutoVisualisation(player)
-        initialisingPlayers.remove(player.uniqueId)
     }
 
     /**
@@ -102,7 +92,7 @@ class EditToolVisualisingListener(private val plugin: JavaPlugin): Listener, Koi
      * Visualise if the player isn't already holding the claim tool (e.g. swapping hands)
      * Also update the tracked set depending on whether the player holds the tool after the sync.
      */
-    private fun handleAutoVisualisation(player: Player) {
+    internal fun handleAutoVisualisation(player: Player) {
         val playerId = player.uniqueId
         val mainHand = player.inventory.itemInMainHand
         val offHand = player.inventory.itemInOffHand
