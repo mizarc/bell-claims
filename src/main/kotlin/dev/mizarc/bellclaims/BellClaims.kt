@@ -191,8 +191,6 @@ class BellClaims : JavaPlugin() {
             Class.forName("io.papermc.paper.event.player.PlayerClientLoadedWorldEvent")
             server.pluginManager.registerEvents(EditToolVisualisingListenerExtra(editToolVisualisingListener), this)
         } catch (e: ClassNotFoundException) {
-            // We are on an older version; PlayerClientLoadedWorldEvent logic is skipped.
-            // The fallback in EditToolVisualisingListener (the 5s timeout) will handle cleanup.
             logger.info("Skipping modern client-load events: Server version is older than 1.21.4.")
         }
 
