@@ -182,7 +182,18 @@ class BellClaims : JavaPlugin() {
         server.pluginManager.registerEvents(CloseInventoryListener(), this)
         server.pluginManager.registerEvents(EditToolListener(), this)
         server.pluginManager.registerEvents(ClaimEnterListener(), this)
-        server.pluginManager.registerEvents(EditToolVisualisingListener(this), this)
+
+        val editToolVisualisingListener = EditToolVisualisingListener(this)
+        server.pluginManager.registerEvents(editToolVisualisingListener, this)
+
+        // Try to register the modern "Extra" listener only if the class exists
+        try {
+            Class.forName("io.papermc.paper.event.player.PlayerClientLoadedWorldEvent")
+            server.pluginManager.registerEvents(EditToolVisualisingListenerExtra(editToolVisualisingListener), this)
+        } catch (e: ClassNotFoundException) {
+            logger.info("Skipping modern client-load events: Server version is older than 1.21.4.")
+        }
+
         server.pluginManager.registerEvents(HarvestReplantListener(), this)
         server.pluginManager.registerEvents(MoveToolListener(), this)
         server.pluginManager.registerEvents(PartitionUpdateListener(), this)
