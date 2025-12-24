@@ -7,6 +7,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [0.5.0]
 
 ### Added
+- Support for Minecraft 1.21.11
 - Action bar popup text on entering and exiting claim.
 - New flag for villagers' ability to use doors.
 - Auto claim visualisation refreshes when moving between chunks, joining the server, and switching dimensions.
@@ -23,6 +24,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Player permissions can now be modified when the player is offline.
 - The button to Select all on player permissions works as intended.
 - Falling blocks don't fall when mob flag is active.
+- Versions 1.21.0-1.21.3 not working due to inventory framework.
 
 ## [0.4.4]
 

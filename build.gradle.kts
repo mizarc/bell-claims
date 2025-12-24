@@ -65,7 +65,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
-    implementation("com.github.mizarc:IF:0.11.4-d")
+    //implementation("com.github.mizarc:IF:0.11.4-d")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.11.6")
     implementation("io.insert-koin:koin-core:4.0.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
@@ -91,6 +92,6 @@ tasks.register<Copy>("deploy") {
     from(layout.buildDirectory.dir("libs"))
     println("Target deployment path: ${getProperty("plugin.server.path")}")
     into(getProperty("plugin.server.path"))
-    rename { fileName -> "${rootProject.name}-${version}.jar" }
+    rename { _ -> "${rootProject.name}-${version}.jar" }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
