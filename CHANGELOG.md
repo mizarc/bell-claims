@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - New config options to blacklist certain permissions and flags. This allows the action that would be blocked by permission/flag to always be allowed.
 - Claim bells are now blocked from being created or moved into protected zones such as end portals and gateways.
 - The mob flag now protects players dropping cobwebs from the weaving effect.
+- New submenu for claim details. The primary icon in the management menu now shows the name, description, and location of claim.
 
 ### Changed
 - Optimised the visualisation checks with a pre-cache to ensure visualisation checks aren't unnecessarily run.

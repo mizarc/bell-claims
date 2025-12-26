@@ -219,16 +219,23 @@ object LocalizationKeys {
 
     // Management Menu
     const val MENU_MANAGEMENT_TITLE = "menu.management.title"
+    const val MENU_MANAGEMENT_ITEM_DETAILS_LORE_LOCATION = "menu.management.item.details.lore.location"
+    const val MENU_MANAGEMENT_ITEM_DETAILS_LORE_DESCRIPTION = "menu.management.item.details.lore.description"
     const val MENU_MANAGEMENT_ITEM_FLAGS_NAME = "menu.management.item.flags.name"
-    const val MENU_MANAGEMENT_ITEM_ICON_NAME = "menu.management.item.icon.name"
-    const val MENU_MANAGEMENT_ITEM_ICON_LORE = "menu.management.item.icon.lore"
     const val MENU_MANAGEMENT_ITEM_MOVE_NAME = "menu.management.item.move.name"
     const val MENU_MANAGEMENT_ITEM_MOVE_LORE = "menu.management.item.move.lore"
     const val MENU_MANAGEMENT_ITEM_PERMISSIONS_NAME = "menu.management.item.permissions.name"
-    const val MENU_MANAGEMENT_ITEM_RENAME_NAME = "menu.management.item.rename.name"
-    const val MENU_MANAGEMENT_ITEM_RENAME_LORE = "menu.management.item.rename.lore"
     const val MENU_MANAGEMENT_ITEM_TOOL_NAME = "menu.management.item.tool.name"
     const val MENU_MANAGEMENT_ITEM_TOOL_LORE = "menu.management.item.tool.lore"
+
+    // Info Menu
+    const val MENU_INFO_TITLE = "menu.info.title"
+    const val MENU_INFO_ITEM_RENAME_NAME = "menu.info.item.rename.name"
+    const val MENU_INFO_ITEM_RENAME_LORE = "menu.info.item.rename.lore"
+    const val MENU_INFO_ITEM_DESCRIPTION_NAME = "menu.info.item.description.name"
+    const val MENU_INFO_ITEM_DESCRIPTION_LORE = "menu.info.item.description.lore"
+    const val MENU_INFO_ITEM_ICON_NAME = "menu.info.item.icon.name"
+    const val MENU_INFO_ITEM_ICON_LORE = "menu.info.item.icon.lore"
 
     // Naming Menu
     const val MENU_NAMING_TITLE = "menu.naming.title"
@@ -252,6 +259,10 @@ object LocalizationKeys {
     const val MENU_RENAMING_TITLE = "menu.renaming.title"
     const val MENU_RENAMING_ITEM_EXISTING_NAME = "menu.renaming.item.existing.name"
     const val MENU_RENAMING_ITEM_UNKNOWN_NAME = "menu.renaming.item.unknown.name"
+
+    // Description Menu
+    const val MENU_DESCRIPTION_TITLE = "menu.description.title"
+    const val MENU_DESCRIPTION_ITEM_UNKNOWN_NAME = "menu.description.item.unknown.name"
 
     // Transfer Menu
     const val MENU_TRANSFER_TITLE = "menu.transfer.title"
