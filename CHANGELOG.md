@@ -15,6 +15,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Claim bells are now blocked from being created or moved into protected zones such as end portals and gateways.
 - The mob flag now protects players dropping cobwebs from the weaving effect.
 - New submenu for claim details. The primary icon in the management menu now shows the name, description, and location of claim.
+- Claim tool can now be removed from inventory by clicking out of inventory window with item on cursor.
 
 ### Changed
 - Optimised the visualisation checks with a pre-cache to ensure visualisation checks aren't unnecessarily run.
@@ -26,6 +27,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - The button to Select all on player permissions works as intended.
 - Falling blocks don't fall when mob flag is active.
 - Versions 1.21.0-1.21.3 not working due to inventory framework.
+- Claim tool not being removed from inventory on death.
 
 ## [0.4.4]
 
