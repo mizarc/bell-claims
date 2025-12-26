@@ -27,7 +27,7 @@ class ClaimDescriptionMenu(private val menuNavigator: MenuNavigator, private val
     private val localizationProvider: LocalizationProvider by inject()
     private val updateClaimDescription: UpdateClaimDescription by inject()
 
-    private var name = ""
+    private var description = ""
     private var isConfirming = false
 
     override fun open() {
@@ -37,9 +37,9 @@ class ClaimDescriptionMenu(private val menuNavigator: MenuNavigator, private val
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
-        gui.setOnNameInputChanged { newName ->
+        gui.setOnNameInputChanged { newDescription ->
             if (!isConfirming) {
-                name = newName
+                description = newDescription
             } else {
                 isConfirming = false
             }
@@ -47,8 +47,8 @@ class ClaimDescriptionMenu(private val menuNavigator: MenuNavigator, private val
 
         // Add bell menu item
         val firstPane = StaticPane(0, 0, 1, 1)
-        val lodestoneItem = ItemStack(Material.BELL)
-            .name(claim.name)
+        val lodestoneItem = ItemStack(Material.BOOK)
+            .name(claim.description)
             .lore("${claim.position.x}, ${claim.position.y}, ${claim.position.z}")
         val guiItem = GuiItem(lodestoneItem) { guiEvent -> guiEvent.isCancelled = true }
         firstPane.addItem(guiItem, 0, 0)
@@ -64,13 +64,13 @@ class ClaimDescriptionMenu(private val menuNavigator: MenuNavigator, private val
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_CONFIRM_NAME))
         val confirmGuiItem = GuiItem(confirmItem) { guiEvent ->
             // Go back to edit menu if the name hasn't changed
-            if (name == claim.name || name.isBlank()) {
+            if (description == claim.description || description.isBlank()) {
                 menuNavigator.goBack()
                 return@GuiItem
             }
 
             // Attempt updating description
-            val result = updateClaimDescription.execute(claim.id, name)
+            val result = updateClaimDescription.execute(claim.id, description)
             when (result) {
                 is UpdateClaimDescriptionResult.Success -> menuNavigator.goBackWithData(result.claim)
                 UpdateClaimDescriptionResult.ClaimNotFound -> {
@@ -78,7 +78,7 @@ class ClaimDescriptionMenu(private val menuNavigator: MenuNavigator, private val
                         .name(localizationProvider.get(playerId, LocalizationKeys.MENU_DESCRIPTION_ITEM_UNKNOWN_NAME))
                     val guiPaperItem = GuiItem(paperItem)
                     secondPane.addItem(guiPaperItem, 0, 0)
-                    lodestoneItem.name(name)
+                    lodestoneItem.name(description)
                     isConfirming = true
                     gui.update()
                 }
