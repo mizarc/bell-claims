@@ -25,7 +25,7 @@ class ClaimInfoMenu(private val menuNavigator: MenuNavigator, private val player
 
     override fun open() {
         val playerId = player.uniqueId
-        val gui = ChestGui(1, localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_TITLE, claim.name))
+        val gui = ChestGui(1, localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_TITLE, claim.name))
         val pane = StaticPane(0, 0, 9, 1)
         gui.setOnTopClick { guiEvent -> guiEvent.isCancelled = true }
         gui.setOnBottomClick { guiEvent -> if (guiEvent.click == ClickType.SHIFT_LEFT ||
@@ -44,7 +44,7 @@ class ClaimInfoMenu(private val menuNavigator: MenuNavigator, private val player
         // Add a claim renaming button
         val renamingItem = ItemStack(Material.NAME_TAG)
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_RENAME_NAME))
-            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_RENAME_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_RENAME_LORE))
         val guiRenamingItem = GuiItem(renamingItem) { menuNavigator.openMenu(
             ClaimRenamingMenu(menuNavigator, player, claim)) }
         pane.addItem(guiRenamingItem, 3, 0)
@@ -52,13 +52,13 @@ class ClaimInfoMenu(private val menuNavigator: MenuNavigator, private val player
         // Add a claim description button
         val playerTrustItem = ItemStack(Material.BOOK)
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_DESCRIPTION_NAME))
-            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_DESCRIPTION_NAME))
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_DESCRIPTION_LORE))
         val guiPlayerTrustItem = GuiItem(playerTrustItem) {
             menuNavigator.openMenu(ClaimDescriptionMenu(menuNavigator, player, claim)) }
         pane.addItem(guiPlayerTrustItem, 5, 0)
 
         // Add update icon menu button
-        val iconEditorItem = ItemStack(Material.BELL)
+        val iconEditorItem = ItemStack(Material.ITEM_FRAME)
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_ICON_NAME))
             .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_INFO_ITEM_ICON_LORE))
         val guiIconEditorItem = GuiItem(iconEditorItem) {

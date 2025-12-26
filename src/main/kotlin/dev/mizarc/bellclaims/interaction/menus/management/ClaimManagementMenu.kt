@@ -44,6 +44,21 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.addPane(pane)
 
+        // Add a claim info button
+        val iconEditorItem = ItemStack(Material.valueOf(claim.icon))
+            .name("§3${claim.name}")
+            .lore("§7${claim.description}")
+            .lore("§8${
+                localizationProvider.get(
+                    playerId,
+                    LocalizationKeys.MENU_MANAGEMENT_ITEM_DETAILS_LORE_LOCATION, claim.position.x, claim.position.y, claim.position.z
+                )}")
+            .lore("")
+            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_DETAILS_LORE_DESCRIPTION))
+        val guiIconEditorItem = GuiItem(iconEditorItem) {
+            menuNavigator.openMenu(ClaimInfoMenu(menuNavigator, player, claim)) }
+        pane.addItem(guiIconEditorItem, 0, 0)
+
         // Add a give claim tool button
         val claimToolItem = ItemStack(Material.STICK)
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_TOOL_NAME))
@@ -54,39 +69,7 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
             guiEvent.isCancelled = true
             givePlayerClaimTool.execute(player.uniqueId)
         }
-        pane.addItem(guiClaimToolItem, 0, 0)
-
-        // Add update icon menu button
-        val iconEditorItem = ItemStack(Material.valueOf(claim.icon))
-            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_ICON_NAME))
-            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_ICON_LORE))
-        val guiIconEditorItem = GuiItem(iconEditorItem) {
-            menuNavigator.openMenu(ClaimIconMenu(player, menuNavigator, claim)) }
-        pane.addItem(guiIconEditorItem, 2, 0)
-
-        // Add a claim renaming button
-        val renamingItem = ItemStack(Material.NAME_TAG)
-            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_RENAME_NAME))
-            .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_RENAME_LORE))
-        val guiRenamingItem = GuiItem(renamingItem) { menuNavigator.openMenu(
-            ClaimRenamingMenu(menuNavigator, player, claim)) }
-        pane.addItem(guiRenamingItem, 3, 0)
-
-        // Add a player trusts button
-        val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
-            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_PERMISSIONS_NAME))
-            .lore("${getPlayersWithPermissionInClaim.execute(claim.id).count()}")
-        val guiPlayerTrustItem = GuiItem(playerTrustItem) {
-            menuNavigator.openMenu(ClaimTrustMenu(menuNavigator, player, claim)) }
-        pane.addItem(guiPlayerTrustItem, 5, 0)
-
-        // Add a claim flags button
-        val claimFlagsItem = ItemStack(Material.ACACIA_HANGING_SIGN)
-            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_FLAGS_NAME))
-            .lore("${getClaimFlags.execute(claim.id).count()}")
-        val guiClaimFlagsItem = GuiItem(claimFlagsItem) {
-            menuNavigator.openMenu(ClaimFlagMenu(menuNavigator, player, claim)) }
-        pane.addItem(guiClaimFlagsItem, 6, 0)
+        pane.addItem(guiClaimToolItem, 2, 0)
 
         // Add a claim move button
         val deleteItem = ItemStack(Material.PISTON)
@@ -96,7 +79,23 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
             guiEvent.isCancelled = true
             givePlayerMoveTool.execute(player.uniqueId, claim.id)
         }
-        pane.addItem(guiDeleteItem, 8, 0)
+        pane.addItem(guiDeleteItem, 4, 0)
+
+        // Add a player trusts button
+        val playerTrustItem = ItemStack(Material.PLAYER_HEAD)
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_PERMISSIONS_NAME))
+            .lore("${getPlayersWithPermissionInClaim.execute(claim.id).count()}")
+        val guiPlayerTrustItem = GuiItem(playerTrustItem) {
+            menuNavigator.openMenu(ClaimTrustMenu(menuNavigator, player, claim)) }
+        pane.addItem(guiPlayerTrustItem, 6, 0)
+
+        // Add a claim flags button
+        val claimFlagsItem = ItemStack(Material.ACACIA_HANGING_SIGN)
+            .name(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_FLAGS_NAME))
+            .lore("${getClaimFlags.execute(claim.id).count()}")
+        val guiClaimFlagsItem = GuiItem(claimFlagsItem) {
+            menuNavigator.openMenu(ClaimFlagMenu(menuNavigator, player, claim)) }
+        pane.addItem(guiClaimFlagsItem, 8, 0)
 
         // Register the player being in the menu and open it
         registerClaimMenuOpening.execute(player.uniqueId, claim.id)
