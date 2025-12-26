@@ -34,16 +34,22 @@ class ToolRemovalListener : Listener, KoinComponent {
 
     @EventHandler
     fun onMoveToInventory(event: InventoryClickEvent) {
-        // Cancel if item is in bottom
+        val itemStack = event.cursor
+        if (!isKeyItem(itemStack)) return
+
+        // Detect click outside of the inventory window
+        if (event.clickedInventory == null) {
+            event.view.setCursor(null)
+            return
+        }
+
+        // Cancel if item is in bottom (standard inventory)
         if (event.clickedInventory === event.view.bottomInventory) {
             return
         }
 
-        // Check if item is trying to be placed in top slot
-        val itemStack = event.cursor
-        if (isKeyItem(itemStack)) {
-            event.isCancelled = true
-        }
+        // Check if the item is trying to be placed in the top slot (Chests, Furnaces, etc)
+        event.isCancelled = true
     }
 
     @EventHandler
@@ -128,13 +134,7 @@ class ToolRemovalListener : Listener, KoinComponent {
 
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
-        val droppedItems = event.drops
-        val itemsToRemove = arrayListOf<ItemStack>()
-        for (droppedItem in droppedItems) {
-            if (isKeyItem(droppedItem)) {
-                itemsToRemove.add(droppedItem)
-            }
-        }
+        event.drops.removeIf { isKeyItem(it) }
     }
 
     private fun isKeyItem(itemStack: ItemStack): Boolean {
