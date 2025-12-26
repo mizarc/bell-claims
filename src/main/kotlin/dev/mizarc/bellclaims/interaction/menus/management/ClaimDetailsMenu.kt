@@ -36,7 +36,7 @@ class ClaimDetailsMenu(private val menuNavigator: MenuNavigator, private val pla
         val exitItem = ItemStack(Material.NETHER_STAR)
             .name(localizationProvider.get(playerId, LocalizationKeys.MENU_COMMON_ITEM_BACK_NAME))
         val guiClaimToolItem = GuiItem(exitItem) { guiEvent ->
-            menuNavigator.goBack()
+            menuNavigator.goBackWithData(claim)
         }
         pane.addItem(guiClaimToolItem, 0, 0)
 
