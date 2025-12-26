@@ -18,8 +18,8 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class ClaimInfoMenu(private val menuNavigator: MenuNavigator, private val player: Player,
-                          private var claim: Claim): Menu, KoinComponent {
+class ClaimDetailsMenu(private val menuNavigator: MenuNavigator, private val player: Player,
+                       private var claim: Claim): Menu, KoinComponent {
     private val localizationProvider: LocalizationProvider by inject()
     private val registerClaimMenuOpening: RegisterClaimMenuOpening by inject()
 
@@ -39,7 +39,6 @@ class ClaimInfoMenu(private val menuNavigator: MenuNavigator, private val player
             menuNavigator.goBack()
         }
         pane.addItem(guiClaimToolItem, 0, 0)
-
 
         // Add a claim renaming button
         val renamingItem = ItemStack(Material.NAME_TAG)
