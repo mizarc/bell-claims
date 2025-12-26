@@ -6,7 +6,7 @@ import co.aikar.commands.annotation.Subcommand
 import dev.mizarc.bellclaims.application.actions.claim.metadata.GetClaimDetails
 import dev.mizarc.bellclaims.application.actions.claim.metadata.UpdateClaimDescription
 import dev.mizarc.bellclaims.application.results.common.TextValidationErrorResult
-import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimAttributeResult
+import dev.mizarc.bellclaims.application.results.claim.metadata.UpdateClaimDescriptionResult
 import dev.mizarc.bellclaims.application.utilities.LocalizationProvider
 import dev.mizarc.bellclaims.domain.values.LocalizationKeys
 import org.bukkit.entity.Player
@@ -34,15 +34,15 @@ class DescriptionCommand : ClaimCommand(), KoinComponent {
         // Update description and notify player of result
         val result = updateClaimDescription.execute(partition.claimId, description)
         val (messageKey, messageArgs) = when (result) {
-            is UpdateClaimAttributeResult.Success -> Pair(
+            is UpdateClaimDescriptionResult.Success -> Pair(
                 LocalizationKeys.COMMAND_CLAIM_DESCRIPTION_SUCCESS,
                 arrayOf(getClaimName(playerId, claimId))
             )
-            is UpdateClaimAttributeResult.ClaimNotFound -> Pair(
+            is UpdateClaimDescriptionResult.ClaimNotFound -> Pair(
                 LocalizationKeys.COMMAND_COMMON_UNKNOWN_CLAIM,
                 emptyArray<String>()
             )
-            is UpdateClaimAttributeResult.InputTextInvalid -> {
+            is UpdateClaimDescriptionResult.InputTextInvalid -> {
                 val firstError = result.errors.firstOrNull()
                 when (firstError) {
                     is TextValidationErrorResult.ExceededCharacterLimit -> Pair(
@@ -67,7 +67,7 @@ class DescriptionCommand : ClaimCommand(), KoinComponent {
                     )
                 }
             }
-            is UpdateClaimAttributeResult.StorageError -> Pair(
+            is UpdateClaimDescriptionResult.StorageError -> Pair(
                 LocalizationKeys.GENERAL_ERROR,
                 emptyArray<String>()
             )
