@@ -27,6 +27,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - The button to Select all on player permissions works as intended.
 - Falling blocks don't fall when mob flag is active.
 - Versions 1.21.0-1.21.3 not working due to inventory framework.
+- Claim tool not being removed from inventory on death.
 
 ## [0.4.4]
 
