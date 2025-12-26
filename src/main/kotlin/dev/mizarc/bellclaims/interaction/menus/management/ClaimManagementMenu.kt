@@ -44,7 +44,7 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
             guiEvent.click == ClickType.SHIFT_RIGHT) guiEvent.isCancelled = true }
         gui.addPane(pane)
 
-        // Add a claim info button
+        // Add a claim details button
         val iconEditorItem = ItemStack(Material.valueOf(claim.icon))
             .name("§3${claim.name}")
             .lore("§7${claim.description}")
@@ -56,7 +56,7 @@ class ClaimManagementMenu(private val menuNavigator: MenuNavigator, private val 
             .lore("")
             .lore(localizationProvider.get(playerId, LocalizationKeys.MENU_MANAGEMENT_ITEM_DETAILS_LORE_DESCRIPTION))
         val guiIconEditorItem = GuiItem(iconEditorItem) {
-            menuNavigator.openMenu(ClaimInfoMenu(menuNavigator, player, claim)) }
+            menuNavigator.openMenu(ClaimDetailsMenu(menuNavigator, player, claim)) }
         pane.addItem(guiIconEditorItem, 0, 0)
 
         // Add a give claim tool button
