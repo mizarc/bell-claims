@@ -98,7 +98,7 @@ class LocalizationProviderProperties(private val config: MainConfig,
             val specificDefaultFile = File(defaultsFolder, "$locale.properties")
             if (specificDefaultFile.exists()) {
                 try {
-                    specificDefaultFile.inputStream().use { properties.load(it) }
+                    specificDefaultFile.reader(Charsets.UTF_8).use { properties.load(it) }
                     println("Loaded language: $locale")
                 } catch (_: Exception) {
                     println("Failed to load default language file for $locale")
@@ -109,7 +109,7 @@ class LocalizationProviderProperties(private val config: MainConfig,
             val overrideFile = File(overridesFolder, "$locale.properties")
             if (overrideFile.exists()) {
                 try {
-                    overrideFile.inputStream().use { properties.load(it) }
+                    overrideFile.reader(Charsets.UTF_8).use { properties.load(it) }
                     println("Loaded override language file: $locale")
                 } catch (_: Exception) {
                     println("Failed to load override language file for $locale")
