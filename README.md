@@ -1,3 +1,5 @@
+### ⚠️ [19 May 2026] Action Required: Upstream History Rewritten. If you have previously forked the project, please refer to this issue page for further information: https://github.com/mizarc/bell-claims/issues/197
+
 ![Banner](branding/banner.svg)
 
 # Bell Claims
